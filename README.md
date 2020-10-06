@@ -1,17 +1,17 @@
 # Strapi - Navigation plugin
 
 <p align="center">
-  <a href="https://www.npmjs.org/package/strapi-plugin-comments">
-    <img src="https://img.shields.io/npm/v/strapi-plugin-comments/latest.svg" alt="NPM Version" />
+  <a href="https://www.npmjs.org/package/strapi-plugin-navigation">
+    <img src="https://img.shields.io/npm/v/strapi-plugin-navigation/latest.svg" alt="NPM Version" />
   </a>
-  <a href="https://www.npmjs.org/package/strapi-plugin-comments">
-    <img src="https://img.shields.io/npm/dm/strapi-plugin-comments.svg" alt="Monthly download on NPM" />
+  <a href="https://www.npmjs.org/package/strapi-plugin-navigation">
+    <img src="https://img.shields.io/npm/dm/strapi-plugin-navigation.svg" alt="Monthly download on NPM" />
   </a>
-  <a href="https://circleci.com/gh/VirtusLab/strapi-plugin-comments">
-    <img src="https://circleci.com/gh/VirtusLab/strapi-plugin-comments.svg?style=shield" alt="CircleCI" />
+  <a href="https://circleci.com/gh/VirtusLab/strapi-plugin-navigation">
+    <img src="https://circleci.com/gh/VirtusLab/strapi-plugin-navigation.svg?style=shield" alt="CircleCI" />
   </a>
-  <a href="https://codecov.io/gh/VirtusLab/strapi-plugin-comments">
-    <img src="https://codecov.io/gh/VirtusLab/strapi-plugin-comments/coverage.svg?branch=master" alt="codecov.io" />
+  <a href="https://codecov.io/gh/VirtusLab/strapi-plugin-navigation">
+    <img src="https://codecov.io/gh/VirtusLab/strapi-plugin-navigation/coverage.svg?branch=master" alt="codecov.io" />
   </a>
 </p>
 
@@ -72,8 +72,8 @@ inside the `attributes` section like in example below:
 ```
     "attributes": {
         ...,
-        "comments": {
-            "plugin": "comments",
+        "navigation": {
+            "plugin": "navigation",
             "collection": "comment",
             "via": "related"
         },
@@ -329,7 +329,7 @@ Feel free to fork and make a Pull Request to this plugin project. All the input 
 For general help using Strapi, please refer to [the official Strapi documentation](https://strapi.io/documentation/). For additional help, you can use one of these channels to ask a question:
 
 - [Slack](http://slack.strapi.io) We're present on official Strapi slack workspace. Look for @cyp3r and DM.
-- [Slack - VirtusLab Open Source](https://virtuslab-oss.slack.com) We're present on channgel #strapi-molecules
+- [Slack - VirtusLab Open Source](https://virtuslab-oss.slack.com) We're present on a public channel #strapi-molecules
 - [GitHub](https://github.com/VirtusLab/strapi-plugin-navigation/issues) (Bug reports, Contributions, Questions and Discussions)
 
 ## License
