@@ -33,7 +33,11 @@
     "slugify": "^1.4.5"
   },
   "devDependencies": {
-    "koa": "^2.8.0"
+    "koa": "^2.8.0",
+    "jest": "^26.0.1",
+    "jest-cli": "^26.0.1",
+    "jest-styled-components": "^7.0.2",
+    "codecov": "^3.7.2"
   },
   "author": {
     "name": "VirtusLab // Mateusz Ziarko",
