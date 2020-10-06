@@ -174,12 +174,20 @@ module.exports = {
   },
 
   render: async (idOrSlug, type = renderType.FLAT, menuOnly = false) => {
-    const { pluginName, service, masterModel, itemModel } = extractMeta(
+    const { service } = extractMeta(
       strapi.plugins,
     );
     const findById = isNumber(idOrSlug) || uuidValidate(idOrSlug);
     const criteria = findById ? { id: idOrSlug } : { slug: idOrSlug };
     const itemCriteria = menuOnly ? { menuAttached: true } : {};
+
+    return service.renderType(type, criteria, itemCriteria)
+  },
+
+  renderType: async (type = renderType.FLAT, criteria = {}, itemCriteria = {}) => {
+    const { pluginName, service, masterModel, itemModel } = extractMeta(
+      strapi.plugins,
+    );
 
     const entity = await strapi
       .query(masterModel.modelName, pluginName)
