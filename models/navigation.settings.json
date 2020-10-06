@@ -1,0 +1,36 @@
+{
+  "collectionName": "navigations",
+  "info": {
+    "name": "navigation",
+    "description": "Navigation container"
+  },
+  "options": {
+    "increments": true,
+    "isManaged": false,
+    "comment": ""
+  },
+  "attributes": {
+    "name": {
+      "type": "text",
+      "configurable": false,
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "target": "name",
+      "configurable": false,
+      "required": true
+    },
+    "visible": {
+      "type": "boolean",
+      "default": false,
+      "configurable": false
+    },
+    "items": {
+      "collection": "navigationitem",
+      "plugin": "navigation",
+      "via": "master",
+      "configurable": false
+    }
+  }
+}

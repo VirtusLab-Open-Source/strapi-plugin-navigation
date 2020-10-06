@@ -1,0 +1,56 @@
+{
+  "name": "strapi-plugin-navigation",
+  "version": "1.0.0-beta.1",
+  "description": "Strapi - Navigation plugin",
+  "strapi": {
+    "name": "Navigation",
+    "icon": "hamburger",
+    "description": "UI navigation management"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/VirtusLab/strapi-plugin-navigation"
+  },
+  "scripts": {
+    "test:unit": "jest --verbose --coverage"
+  },
+  "dependencies": {
+    "@types/uuid": "^8.3.0",
+    "bad-words": "^3.0.3",
+    "lodash": "^4.17.11",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
+    "react-intl": "4.5.0",
+    "react-redux": "^7.0.2",
+    "react-router": "^5.0.0",
+    "react-router-dom": "^5.0.0",
+    "reactstrap": "8.4.1",
+    "redux-saga": "^0.16.0",
+    "request": "^2.83.0",
+    "strapi-helper-plugin": "3.1.3",
+    "strapi-utils": "3.1.3",
+    "uuid": "^8.3.0",
+    "slugify": "^1.4.5"
+  },
+  "devDependencies": {
+    "koa": "^2.8.0"
+  },
+  "author": {
+    "name": "VirtusLab // Mateusz Ziarko",
+    "email": "mziarko@virtuslab.com",
+    "url": "https://virtuslab.com"
+  },
+  "maintainers": [
+    {
+      "name": "VirtusLab // Mateusz Ziarko",
+      "email": "mziarko@virtuslab.com",
+      "url": "https://virtuslab.com"
+    }
+  ],
+  "engines": {
+    "node": ">=10.16.0",
+    "npm": ">=6.0.0"
+  },
+  "keywords": ["strapi", "plugin", "navigation"],
+  "license": "MIT"
+}
