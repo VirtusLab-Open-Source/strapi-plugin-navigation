@@ -211,16 +211,17 @@ module.exports = {
       switch (type) {
         case renderType.TREE:
         case renderType.RFR:
-          const itemParser = (item, path, field) => {
+          const itemParser = (item, path = '', field) => {
             const isExternal = item.type === itemType.EXTERNAL;
-            const parentPath = isExternal ? undefined : `${path}/${item.path}`;
+            const parentPath = isExternal ? undefined : `${path === '/' ? '' : path}/${item.path === '/' ? '' : item.path}`;
+            const slug = isString(parentPath) ? slugify((first(parentPath) === '/' ? parentPath.substring(1) : parentPath).replace(/\//g, '-')) : undefined;
             return {
               title: item.title,
               menuAttached: item.menuAttached,
               path: isExternal ? item.externalPath : parentPath,
               type: item.type,
               uiRouterKey: item.uiRouterKey,
-              slug: isString(parentPath) ? slugify(parentPath.replace('/', '-')) : undefined,
+              slug: !slug && item.uiRouterKey ? slugify(item.uiRouterKey) : slug, 
               external: isExternal,
               related: isExternal ? undefined : first(item.related),
               audience: !isEmpty(item.audience) ? item.audience.map(aItem => aItem.key) : undefined,

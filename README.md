@@ -166,13 +166,13 @@ To setup the plugin properly we recommend to put following snippet as part of `c
 
 ### Render
 
-`GET <host>/navigation/<id>?type=<type>`
+`GET <host>/navigation/render/<idOrSlug>?type=<type>`
 
 Return a rendered navigation structure depends on passed type (`tree`, `rfr` or nothing to render as `flat/raw`).
 
 *Note: The ID of navigation by default is `1`, that's for future extensions and multi-navigation feature.*
 
-**Example URL**: `https://localhost:1337/navigation/1`
+**Example URL**: `https://localhost:1337/navigation/render/1`
 
 **Example response body**
 
@@ -201,7 +201,7 @@ Return a rendered navigation structure depends on passed type (`tree`, `rfr` or 
 ]
 ```
 
-**Example URL**: `https://localhost:1337/navigation/1?type=tree`
+**Example URL**: `https://localhost:1337/navigation/render/1?type=tree`
 
 **Example response body**
 
@@ -237,7 +237,7 @@ Return a rendered navigation structure depends on passed type (`tree`, `rfr` or 
 ]
 ```
 
-**Example URL**: `https://localhost:1337/navigation/1?type=rfr`
+**Example URL**: `https://localhost:1337/navigation/render/1?type=rfr`
 
 **Example response body**
 
