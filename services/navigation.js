@@ -11,6 +11,7 @@ const {
   isNumber,
   find,
   first,
+  flatten,
   get,
   upperFirst,
   isString,
@@ -51,11 +52,42 @@ const excludedContentTypes = get(
 
 const buildNestedStructure = (entities, id = null, field = 'parent') =>
   entities
-      .filter(entity => (entity[field] === id) || (isObject(entity[field]) && (entity[field].id === id)))
-      .map(entity => ({ 
-          ...entity, 
-          items: buildNestedStructure(entities, entity.id, field),
-      }));
+    .filter(entity => (entity[field] === id) || (isObject(entity[field]) && (entity[field].id === id)))
+    .map(entity => ({
+      ...entity,
+      items: buildNestedStructure(entities, entity.id, field),
+    }));
+
+const getTemplateComponentFromTemplate = (
+  template,
+) => {
+  if (template && template[0] && template[0].__component) {
+    const componentName = template[0].__component;
+    return strapi.components[componentName];
+  }
+  throw new Error(400, "Template field is incompatible");
+};
+
+const templateNameFactory = async (items, strapi) => {
+  const flatRelated = flatten(items.map(i => i.related));
+  const relatedMap = flatRelated.reduce((acc, curr) => {
+    if(!acc[curr.__contentType]) {
+      acc[curr.__contentType] = []
+    }
+    acc[curr.__contentType].push(curr.id)
+    return acc;
+  }, {})
+  const responses = await Promise.all(
+    Object.entries(relatedMap)
+      .map(([contentType, ids]) => strapi.query(contentType).find({ id_in: ids }).then(res => ({[contentType]: res})))
+  )
+  const relatedResponseMap = responses.reduce((acc, curr) => ({...acc, ...curr}), {});
+
+  return (contentType, id) => {
+    const template = get(relatedResponseMap[contentType].find(data => data.id === id), 'template');
+    return getTemplateComponentFromTemplate(template).options.templateName
+  }
+}
 
 module.exports = {
   // Get plugin configuration
@@ -86,7 +118,7 @@ module.exports = {
     };
   },
 
-  configContentTypes: () => 
+  configContentTypes: () =>
     Object.keys(strapi.contentTypes)
       .filter(
         (key) =>
@@ -207,6 +239,7 @@ module.exports = {
       if (!items) {
         return [];
       }
+      const getTemplateName = await templateNameFactory(items, strapi)
 
       switch (type) {
         case renderType.TREE:
@@ -215,15 +248,19 @@ module.exports = {
             const isExternal = item.type === itemType.EXTERNAL;
             const parentPath = isExternal ? undefined : `${path === '/' ? '' : path}/${item.path === '/' ? '' : item.path}`;
             const slug = isString(parentPath) ? slugify((first(parentPath) === '/' ? parentPath.substring(1) : parentPath).replace(/\//g, '-')) : undefined;
+            const firstRelated = first(item.related);
             return {
               title: item.title,
               menuAttached: item.menuAttached,
               path: isExternal ? item.externalPath : parentPath,
               type: item.type,
               uiRouterKey: item.uiRouterKey,
-              slug: !slug && item.uiRouterKey ? slugify(item.uiRouterKey) : slug, 
+              slug: !slug && item.uiRouterKey ? slugify(item.uiRouterKey) : slug,
               external: isExternal,
-              related: isExternal ? undefined : first(item.related),
+              related: isExternal ? undefined : {
+                ...firstRelated,
+                __templateName: getTemplateName(firstRelated.__contentType, firstRelated.id),
+              },
               audience: !isEmpty(item.audience) ? item.audience.map(aItem => aItem.key) : undefined,
               items: isExternal ? undefined : service.renderTree(
                 items,
@@ -331,14 +368,14 @@ module.exports = {
   renderRFRPage: (item, parent) => {
     const { service } = extractMeta(strapi.plugins);
     const { uiRouterKey, title, path, slug, related, type, audience, menuAttached } = item;
-    const { __contentType, id } = related || {};
+    const { __contentType, id, __templateName } = related || {};
     const contentTypes = service.configContentTypes();
     const contentType = (__contentType || '').toLowerCase() || undefined;
     const { collectionName } = find(contentTypes, ctItem => ctItem.name === contentType) || {};
     return {
       id: uiRouterKey,
       title,
-      templateName: `${collectionName}:${id}`,
+      templateName: __templateName,
       related: type === navigationItem.type.INTERNAL ? {
         contentType,
         collectionName,
@@ -381,10 +418,10 @@ module.exports = {
           });
         return !isEmpty(item.items)
           ? service.createBranch(
-              item.items,
-              masterEntity,
-              sanitizeEntity(navigationItem, { model: itemModel }),
-            )
+            item.items,
+            masterEntity,
+            sanitizeEntity(navigationItem, { model: itemModel }),
+          )
           : null;
       }),
     );
@@ -402,8 +439,8 @@ module.exports = {
             .delete({ id });
           return !isEmpty(item.items)
             ? service.removeBranch(
-                item.items,
-              )
+              item.items,
+            )
             : null;
         }),
     );
@@ -443,10 +480,10 @@ module.exports = {
           }
           return !isEmpty(items)
             ? service.analyzeBranch(
-                items,
-                masterEntity,
-                sanitizeEntity(currentItem, { model: itemModel }),
-              )
+              items,
+              masterEntity,
+              sanitizeEntity(currentItem, { model: itemModel }),
+            )
             : null;
         }),
       ),
