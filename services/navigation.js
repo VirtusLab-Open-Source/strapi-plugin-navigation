@@ -19,6 +19,7 @@ const {
 const { renderType } = require("../models/navigation");
 const { type: itemType } = require("../models/navigationItem");
 const navigationItem = require("../models/navigationItem");
+const { TEMPLATE_DEFAULT } = require('./constant');
 
 /**
  * navigation.js service
@@ -58,15 +59,12 @@ const buildNestedStructure = (entities, id = null, field = 'parent') =>
       items: buildNestedStructure(entities, entity.id, field),
     }));
 
-const getTemplateComponentFromTemplate = (
-  template,
-) => {
-  if (template && template[0] && template[0].__component) {
-    const componentName = template[0].__component;
-    return strapi.components[componentName];
-  }
-  throw new Error(400, "Template field is incompatible");
-};
+  const getTemplateComponentFromTemplate = (
+      template = [],
+    ) => {
+      const componentName = get(first(template), '__component');
+      return componentName ? strapi.components[componentName] : null;
+    };
 
 const templateNameFactory = async (items, strapi) => {
   const flatRelated = flatten(items.map(i => i.related));
@@ -85,7 +83,8 @@ const templateNameFactory = async (items, strapi) => {
 
   return (contentType, id) => {
     const template = get(relatedResponseMap[contentType].find(data => data.id === id), 'template');
-    return getTemplateComponentFromTemplate(template).options.templateName
+    const templateComponent = getTemplateComponentFromTemplate(template);
+    return get(templateComponent, 'options.templateName', TEMPLATE_DEFAULT);
   }
 }
 
@@ -311,7 +310,7 @@ module.exports = {
       }, path, field));
   },
 
-  renderRFR: (items, parent = null) => {
+  renderRFR: (items, parent = null, parentNavItem = null) => {
     const { service } = extractMeta(strapi.plugins);
     let pages = {};
     let nav = {};
@@ -331,7 +330,9 @@ module.exports = {
         };
       }
 
-      navItems.push(itemNav);
+      if (item.menuAttached) {
+        navItems.push(itemNav);
+      }
 
       if (!parent) {
         nav = {
@@ -341,13 +342,15 @@ module.exports = {
       } else {
         nav = {
           ...nav,
-          [parent]: navItems,
+          [parent]: []
+            .concat(parentNavItem ? parentNavItem : [], navItems)
+            .filter(navItem => navItem.type === navigationItem.type.INTERNAL.toLowerCase()),
         };
       }
 
       if (!isEmpty(itemChilds)) {
-        const { nav: nestedNavs } = service.renderRFR(itemChilds, itemPage.id);
-        const { pages: nestedPages } = service.renderRFR(itemChilds.filter(child => child.type === navigationItem.type.INTERNAL), itemPage.id);
+        const { nav: nestedNavs } = service.renderRFR(itemChilds, itemPage.id, itemNav);
+        const { pages: nestedPages } = service.renderRFR(itemChilds.filter(child => child.type === navigationItem.type.INTERNAL), itemPage.id, itemNav);
         pages = {
           ...pages,
           ...nestedPages,
