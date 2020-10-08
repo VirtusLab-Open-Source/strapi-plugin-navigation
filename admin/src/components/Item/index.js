@@ -21,6 +21,7 @@ const Item = (props) => {
   const { 
     item, 
     level = 0,
+    levelPath = '',
     allowedLevels,
     relatedRef,
     onItemClick,
@@ -45,8 +46,9 @@ const Item = (props) => {
 
   const { formatMessage } = useIntl();
 
-  const isMenuAllowedLevel = isNumber(allowedLevels) ? level < (allowedLevels - 1) : true;
+  const isMenuAllowedLevel = isNumber(allowedLevels) ? level < allowedLevels : true;
   const isExternal = item.type === navigationItemType.EXTERNAL;
+  const absolutePath = isExternal ? undefined : `${levelPath === '/' ? '' : levelPath}/${path === '/' ? '' : path}`;
   const hasChildren = !isEmpty(item.items) && !isExternal;
 
   return (
@@ -58,7 +60,7 @@ const Item = (props) => {
           removed ? null : onItemClick(e, {
             ...item,
             isMenuAllowedLevel,
-          })
+          }, levelPath)
         }
       >
         { removed && (<CardItemRestore>
@@ -72,14 +74,14 @@ const Item = (props) => {
           </CardItemRestore>)}
         <CardItemTitle>{title}</CardItemTitle>
         <CardItemPath>
-          {type === navigationItemType.EXTERNAL ? externalPath : path}
+          {isExternal ? externalPath : absolutePath}
         </CardItemPath>
         <ItemFooter {...footerProps} />
       </CardItem>
       { !(isExternal || removed) && (<CardItemLevelAdd
         color={isMenuAllowedLevel ? "primary" : "secondary"}
         icon={<FontAwesomeIcon icon={faPlus} size="3x" />}
-        onClick={(e) => onItemLevelAddClick(e, viewId, isMenuAllowedLevel)}
+        onClick={(e) => onItemLevelAddClick(e, viewId, isMenuAllowedLevel, levelPath)}
         menuLevel={isMenuAllowedLevel}
       />) }
       {hasChildren && !removed && (
@@ -90,6 +92,7 @@ const Item = (props) => {
           onItemLevelAddClick={onItemLevelAddClick}
           as={CardItemLevelWrapper}
           level={level + 1}
+          levelPath={absolutePath}
           allowedLevels={allowedLevels}
         />
       )}
@@ -110,6 +113,7 @@ Item.propTypes = {
   }).isRequired,
   relatedRef: PropTypes.object,
   level: PropTypes.number,
+  levelPath: PropTypes.string,
   onItemClick: PropTypes.func.isRequired,
   onItemRestoreClick: PropTypes.func.isRequired,
   onItemLevelAddClick: PropTypes.func.isRequired,

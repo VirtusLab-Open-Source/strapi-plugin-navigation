@@ -87,19 +87,24 @@ const View = () => {
     e,
     viewId = null,
     isMenuAllowedLevel = true,
+    levelPath = '',
   ) => {
     e.preventDefault();
     e.stopPropagation();
     changeNavigationItemPopupState(true, {
       viewParentId: viewId,
       isMenuAllowedLevel,
+      levelPath,
     });
   };
 
-  const editNavigationItem = (e, item) => {
+  const editNavigationItem = (e, item, levelPath = '') => {
     e.preventDefault();
     e.stopPropagation();
-    changeNavigationItemPopupState(true, item);
+    changeNavigationItemPopupState(true, {
+      ...item,
+      levelPath,
+    });
   };
 
   const restoreNavigationItem = (e, item) => {

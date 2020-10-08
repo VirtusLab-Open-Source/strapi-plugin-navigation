@@ -15,6 +15,7 @@ const List = ({
   onItemLevelAddClick,
   as,
   level = 0,
+  levelPath = '',
   allowedLevels,
 }) => {
   const Component = as || Container;
@@ -28,6 +29,7 @@ const List = ({
             item={itemProps}
             relatedRef={relatedRef}
             level={level}
+            levelPath={levelPath}
             allowedLevels={allowedLevels}
             onItemClick={onItemClick}
             onItemRestoreClick={onItemRestoreClick}
@@ -42,7 +44,7 @@ const List = ({
             menuLevel
             color="primary"
             icon={<FontAwesomeIcon icon={faPlus} />}
-            onClick={onItemLevelAddClick}
+            onClick={e => onItemLevelAddClick(e, null, true, levelPath)}
           />
         </ListLevelRoot>
       )}

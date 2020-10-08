@@ -1,13 +1,11 @@
-/* eslint-disable jsx-a11y/click-events-have-key-events */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
 import React, { useState, useEffect } from "react";
 import { Button, Enumeration, Flex, Label, Text, Toggle } from "@buffetjs/core";
 import { useIntl } from "react-intl";
 import { find, get, isEmpty, isNil, isString } from "lodash";
 import PropTypes from "prop-types";
-import { ButtonModal, ModalBody, ModalForm, validateInput } from "strapi-helper-plugin";
+import { ButtonModal, ModalBody, ModalForm } from "strapi-helper-plugin";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
+import { faInfoCircle, faEye } from "@fortawesome/free-solid-svg-icons";
 import ModalFooter from "./ModalFooter";
 import Input from "../../../../components/Input";
 import pluginId from "../../../../pluginId";
@@ -135,6 +133,19 @@ const NavigationItemForm = ({
     label: item.name,
   }));
 
+  const generatePreviewPath = () => {
+    if (!isExternal && data.levelPath) {
+      return (<Text fontSize="sm" color="grey">
+          <FontAwesomeIcon icon={faEye}/>{ ' ' }
+          { formatMessage({
+            id: `${pluginId}.popup.item.form.path.preview`,
+          }) }{ ' ' }
+          {data.levelPath !== '/' ? `${data.levelPath}`  : ''}/{form.path}
+        </Text>);
+    }
+    return null;
+  }
+
   useEffect(() => {
     const { value } = relatedType || {};
     const fetchContentTypeEntities = async () => {
@@ -209,6 +220,7 @@ const NavigationItemForm = ({
                   name={`${inputsPrefix}${pathSourceName}`}
                   onChange={onChange}
                   placeholder={`${pluginId}.popup.item.form.${pathSourceName}.placeholder`}
+                  description={generatePreviewPath()}
                   type="text"
                   validations={{ required: true }}
                   value={get(form, `${inputsPrefix}${pathSourceName}`, "")}

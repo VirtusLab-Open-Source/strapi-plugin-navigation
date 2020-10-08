@@ -340,12 +340,13 @@ module.exports = {
           root: navItems,
         };
       } else {
-        nav = {
-          ...nav,
-          [parent]: []
-            .concat(parentNavItem ? parentNavItem : [], navItems)
-            .filter(navItem => navItem.type === navigationItem.type.INTERNAL.toLowerCase()),
-        };
+        const navLevel = navItems
+          .filter(navItem => navItem.type === navigationItem.type.INTERNAL.toLowerCase())
+        if (!isEmpty(navLevel))
+          nav = {
+            ...nav,
+            [parent]: [].concat(parentNavItem ? parentNavItem : [], navLevel),
+          };
       }
 
       if (!isEmpty(itemChilds)) {
