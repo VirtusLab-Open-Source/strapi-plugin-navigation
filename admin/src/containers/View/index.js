@@ -36,6 +36,7 @@ const View = () => {
     navigationItemPopupOpened,
     isLoading,
     isLoadingForAdditionalDataToBeSet,
+    isLoadingForSubmit,
     handleChangeNavigationPopupVisibility,
     handleChangeNavigationItemPopupVisibility,
     handleChangeSelection,
@@ -56,16 +57,17 @@ const View = () => {
   const actions = [
     {
       label: "Cancel",
-      onClick: () => handleResetNavigationData(),
+      onClick: () => isLoadingForSubmit ? null : handleResetNavigationData(),
       color: "cancel",
       type: "button",
     },
     {
       label: "Save",
       onClick: () =>
-        handleSubmitNavigation(transformToRESTPayload(changedActiveNavigation, config)),
+        isLoadingForSubmit ? null : handleSubmitNavigation(transformToRESTPayload(changedActiveNavigation, config)),
       color: "success",
       type: "submit",
+      isLoading: isLoadingForSubmit,
     },
   ];
 

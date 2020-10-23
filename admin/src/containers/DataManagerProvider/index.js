@@ -50,6 +50,7 @@ const DataManagerProvider = ({ children }) => {
     isLoadingForDataToBeSet,
     isLoadingForDetailsDataToBeSet,
     isLoadingForAdditionalDataToBeSet,
+    isLoadingForSubmit,
   } = reducerState.toJS();
   const { pathname } = useLocation();
 
@@ -259,6 +260,7 @@ const DataManagerProvider = ({ children }) => {
           isLoadingForDataToBeSet ||
           isLoadingForDetailsDataToBeSet,
         isLoadingForAdditionalDataToBeSet,
+        isLoadingForSubmit,
         handleChangeNavigationPopupVisibility,
         handleChangeNavigationItemPopupVisibility,
         handleChangeSelection,

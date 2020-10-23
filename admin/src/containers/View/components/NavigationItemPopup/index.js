@@ -7,11 +7,12 @@
 import React from "react";
 import { FormattedMessage } from "react-intl";
 import PropTypes from "prop-types";
-import { HeaderModal, HeaderModalTitle, Modal } from "strapi-helper-plugin";
+import { HeaderModal, HeaderModalTitle } from "strapi-helper-plugin";
 import { find } from "lodash";
 import NavigationItemForm from "../NavigationItemForm";
 import pluginId from "../../../../pluginId";
 import { extractRelatedItemLabel } from "../../utils/parsers";
+import { MediumPopup } from "./MediumPopup";
 
 const NavigationItemPopUp = ({
   isOpen,
@@ -43,7 +44,7 @@ const NavigationItemPopUp = ({
   });
 
   return (
-    <Modal isOpen={isOpen} onToggle={onClose}>
+    <MediumPopup isOpen={isOpen} onToggle={onClose}>
       <HeaderModal>
         <section>
           <HeaderModalTitle>
@@ -62,7 +63,7 @@ const NavigationItemPopUp = ({
         getContentTypeEntities={getContentTypeItems}
         onSubmit={handleOnSubmit}
       />
-    </Modal>
+    </MediumPopup>
   );
 };
 
