@@ -155,7 +155,7 @@ const NavigationItemForm = ({
           (_) => _.collectionName === value,
         );
         if (item) {
-          await getContentTypeEntities(item.collectionName, item.plugin);
+          await getContentTypeEntities(item.endpoint || item.collectionName, item.plugin);
         }
       }
     };

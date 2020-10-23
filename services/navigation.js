@@ -13,6 +13,7 @@ const {
   first,
   flatten,
   get,
+  last,
   upperFirst,
   isString,
 } = require("lodash");
@@ -126,14 +127,15 @@ module.exports = {
       )
       .map((key) => {
         const item = strapi.contentTypes[key];
-        const { options, info, collectionName, plugin } = item;
+        const { options, info, collectionName, apiName, plugin } = item;
         const { name, label, description } = info;
         const { isManaged, hidden } = options;
         return {
           name,
           description,
           collectionName,
-          label: upperFirst(collectionName),
+          endpoint: last(apiName) === 's' ? apiName : `${apiName}s`,
+          label: upperFirst(name || collectionName),
           plugin,
           visible: (isManaged || isNil(isManaged)) && !hidden,
         };
