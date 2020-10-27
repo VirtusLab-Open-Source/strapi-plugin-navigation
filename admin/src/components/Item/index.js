@@ -16,6 +16,7 @@ import List from "../List";
 import CardItemLevelWrapper from "./CardItemLevelWrapper";
 import CardItemRestore from "./CardItemRestore";
 import pluginId from "../../pluginId";
+import ItemOrdering from "../ItemOrdering";
 
 const Item = (props) => {
   const { 
@@ -24,7 +25,10 @@ const Item = (props) => {
     levelPath = '',
     allowedLevels,
     relatedRef,
+    isFirst = false,
+    isLast = false,
     onItemClick,
+    onItemReOrder,
     onItemRestoreClick,
     onItemLevelAddClick } = props;
   const {
@@ -42,16 +46,21 @@ const Item = (props) => {
     removed,
     menuAttached,
     relatedRef,
+    attachButtons: !(isFirst && isLast),
   };
 
   const { formatMessage } = useIntl();
-
 
   const isNextMenuAllowedLevel = isNumber(allowedLevels) ? level < (allowedLevels - 1) : true;
   const isMenuAllowedLevel = isNumber(allowedLevels) ? level < allowedLevels : true;
   const isExternal = item.type === navigationItemType.EXTERNAL;
   const absolutePath = isExternal ? undefined : `${levelPath === '/' ? '' : levelPath}/${path === '/' ? '' : path}`;
   const hasChildren = !isEmpty(item.items) && !isExternal;
+
+  const handleReOrder = (e, moveBy = 0) => onItemReOrder(e, {
+    ...item,
+    relatedRef,
+  }, moveBy);
 
   return (
     <CardWrapper level={level}>
@@ -79,6 +88,11 @@ const Item = (props) => {
           {isExternal ? externalPath : absolutePath}
         </CardItemPath>
         <ItemFooter {...footerProps} />
+        <ItemOrdering 
+          isFirst={isFirst}
+          isLast={isLast}
+          onChangeOrder={handleReOrder}
+        />
       </CardItem>
       { !(isExternal || removed) && (<CardItemLevelAdd
         color={isNextMenuAllowedLevel ? "primary" : "secondary"}
@@ -90,6 +104,7 @@ const Item = (props) => {
         <List
           items={item.items}
           onItemClick={onItemClick}
+          onItemReOrder={onItemReOrder}
           onItemRestoreClick={onItemRestoreClick}
           onItemLevelAddClick={onItemLevelAddClick}
           as={CardItemLevelWrapper}
@@ -116,6 +131,8 @@ Item.propTypes = {
   relatedRef: PropTypes.object,
   level: PropTypes.number,
   levelPath: PropTypes.string,
+  isFirst: PropTypes.bool,
+  isLast: PropTypes.bool,
   onItemClick: PropTypes.func.isRequired,
   onItemRestoreClick: PropTypes.func.isRequired,
   onItemLevelAddClick: PropTypes.func.isRequired,

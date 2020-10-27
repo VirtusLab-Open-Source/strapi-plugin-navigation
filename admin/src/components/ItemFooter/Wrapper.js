@@ -6,6 +6,7 @@ const Wrapper = styled.div`
   display: flex;
   padding-top: 1rem;
   margin-top: 1rem;
+  margin-bottom: ${ props => props.attachButtons ? 1 : 0 }rem;
 
   flex-wrap: wrap;
   justify-items: center;

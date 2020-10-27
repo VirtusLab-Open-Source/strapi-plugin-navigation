@@ -19,7 +19,7 @@ const ENTITY_NAME_PARAMS = [
 const resolveEntityName = (entity) =>
   ENTITY_NAME_PARAMS.map((_) => entity[_]).filter((_) => _)[0] || "";
 
-const ItemFooter = ({ type, removed, relatedRef }) => {
+const ItemFooter = ({ type, removed, relatedRef, attachButtons }) => {
   const formatRelationType = () =>
     !isNil(relatedRef) ? relatedRef.__contentType : "";
 
@@ -27,7 +27,7 @@ const ItemFooter = ({ type, removed, relatedRef }) => {
     !isNil(relatedRef) ? resolveEntityName(relatedRef) : "";
 
   return (
-    <Wrapper removed={removed}>
+    <Wrapper removed={removed} attachButtons={attachButtons}>
       <CardItemType>
         <FontAwesomeIcon
           icon={type === navigationItemType.EXTERNAL ? faGlobe : faSitemap}
@@ -49,6 +49,7 @@ ItemFooter.propTypes = {
   menuAttached: PropTypes.bool,
   removed: PropTypes.bool,
   relatedRef: PropTypes.object,
+  attachButtons: PropTypes.bool,
 };
 
 export default ItemFooter;

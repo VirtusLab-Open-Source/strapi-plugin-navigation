@@ -11,6 +11,7 @@ const List = ({
   root,
   items,
   onItemClick,
+  onItemReOrder,
   onItemRestoreClick,
   onItemLevelAddClick,
   as,
@@ -30,8 +31,11 @@ const List = ({
             relatedRef={relatedRef}
             level={level}
             levelPath={levelPath}
+            isFirst={n === 0}
+            isLast={n === items.length - 1}
             allowedLevels={allowedLevels}
             onItemClick={onItemClick}
+            onItemReOrder={onItemReOrder}
             onItemRestoreClick={onItemRestoreClick}
             onItemLevelAddClick={onItemLevelAddClick}
           />
@@ -58,6 +62,7 @@ List.propTypes = {
   level: PropTypes.number,
   allowedLevels: PropTypes.number,
   onItemClick: PropTypes.func.isRequired,
+  onItemReOrder: PropTypes.func.isRequired,
   onItemRestoreClick: PropTypes.func.isRequired,
   onItemLevelAddClick: PropTypes.func.isRequired,
 };

@@ -119,6 +119,16 @@ const View = () => {
     });
   };
 
+  const reOrderNavigationItem = (e, item, moveBy = 0) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    handleSubmitNavigationItem({
+      ...item,
+      order: item.order + (moveBy * 1.5),
+    });
+  }
+
   const onPopUpClose = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -182,6 +192,7 @@ const View = () => {
                   <List
                     items={changedActiveNavigation.items || []}
                     onItemClick={editNavigationItem}
+                    onItemReOrder={reOrderNavigationItem}
                     onItemRestoreClick={restoreNavigationItem}
                     onItemLevelAddClick={addNewNavigationItem}
                     root

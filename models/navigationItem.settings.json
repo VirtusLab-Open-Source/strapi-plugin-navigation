@@ -40,6 +40,11 @@
       "default": false,
       "configurable": false
     },
+    "order": {
+      "type": "integer",
+      "default": 0,
+      "configurable": false
+    },
     "related": {
       "collection": "*",
       "filter": "field",

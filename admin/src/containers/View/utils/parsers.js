@@ -1,5 +1,5 @@
 import { v4, validate as validateUUID } from "uuid";
-import { get, find, first, upperFirst, isObject, isString, isNumber, isArray } from "lodash";
+import { get, find, first, orderBy, upperFirst, isObject, isString, isNumber, isArray, isNil } from "lodash";
 import { navigationItemType } from "./enums";
 
 export const transformItemToRESTPayload = (
@@ -20,6 +20,7 @@ export const transformItemToRESTPayload = (
     externalPath,
     related,
     relatedType,
+    order,
     audience = [],
     items = [],
   } = item;
@@ -27,8 +28,10 @@ export const transformItemToRESTPayload = (
   const { contentTypeItems = [], contentTypes = [] } = config;
   const relatedId = isExternal || (isString(related) && validateUUID(related)) ? related : parseInt(related, 10);
   const relatedContentTypeItem = isExternal ? undefined : find(contentTypeItems, cti => cti.id === relatedId);
-  const relatedContentType = relatedContentTypeItem ? find(contentTypes, ct => ct.collectionName === (relatedContentTypeItem.__collectionName || relatedType)) : undefined;
-  
+  const relatedContentType = relatedContentTypeItem || relatedType ? 
+    find(contentTypes, ct => ct.collectionName === (relatedContentTypeItem ? relatedContentTypeItem.__collectionName : relatedType)) : 
+    undefined;
+
   return {
     id,
     parent,
@@ -37,6 +40,7 @@ export const transformItemToRESTPayload = (
     type,
     updated,
     removed,
+    order,
     uiRouterKey,
     menuAttached,
     audience: audience.map((audienceItem) =>
@@ -85,6 +89,12 @@ const linkRelations = (item, config) => {
 
   const relatedItem = isArray(related) ? first(related) : related;
   const relatedId = isString(related) && !validateUUID(related) ? parseInt(related, 10) : related; 
+  const relationNotChanged = relatedRef && relatedItem ? relatedRef.id === relatedItem : false;
+
+  if (relationNotChanged) {
+    return item;
+  }
+
   const shouldFindRelated = (isNumber(related) || validateUUID(related) || isString(related)) && !relatedRef;
   const shouldBuildRelated = !relatedRef || (relatedRef && (relatedRef.id !== relatedId));
   if (shouldBuildRelated && !shouldFindRelated) {
@@ -120,64 +130,95 @@ const linkRelations = (item, config) => {
   };
 };
 
+const reOrderItems = (items = []) => 
+  orderBy(items, ['order'], ['asc'])
+    .map((item, n) => {
+      const order = n + 1;
+      return {
+        ...item,
+        order,
+        updated: order !== item.order,
+      };
+    });
+
 export const transformItemToViewPayload = (payload, items = [], config) => {
   if (!payload.viewParentId) {
     if (payload.viewId) {
-      return items.map((item) => {
-        if (item.viewId === payload.viewId) {
-          return linkRelations(payload, config);
-        }
-        return { ...item };
-      });
+      const updatedRootLevel = items
+        .map((item, n) => {
+          const order = n + 1;
+          if (item.viewId === payload.viewId) {
+            return linkRelations({
+              ...payload,
+              order,
+              updated: order !== payload.order,
+            }, config);
+          }
+          return {
+            ...item,
+          };
+        });
+      return reOrderItems(updatedRootLevel);
     }
     return [
-      ...items,
+      ...reOrderItems(items),
       linkRelations({
         ...payload,
+        order: items.length + 1,
         viewId: v4(),
       }, config),
     ];
   }
 
-  return items.map((item) => {
-    if (payload.viewParentId === item.viewId) {
-      if (!payload.viewId) {
+  const updatedLevel = items
+    .map((item) => {
+      const branchItems = item.items || [];
+      if (payload.viewParentId === item.viewId) {
+        if (!payload.viewId) {
+          return {
+            ...item,
+            items: [
+              ...reOrderItems(branchItems),
+              linkRelations({
+                ...payload,
+                order: branchItems.length + 1,
+                viewId: v4(),
+              }, config),
+            ],
+          };
+        }
+        const updatedBranchItems = branchItems
+          .map((iItem) => {
+            if (iItem.viewId === payload.viewId) {
+              return linkRelations(payload, config);
+            }
+            return {
+              ...iItem,
+            };
+          });
         return {
           ...item,
-          items: [
-            ...(item.items || []),
-            linkRelations({
-              ...payload,
-              viewId: v4(),
-            }, config),
-          ],
+          items: reOrderItems(updatedBranchItems),
         };
       }
       return {
         ...item,
-        items: (item.items || []).map((iItem) => {
-          if (iItem.viewId === payload.viewId) {
-            return linkRelations(payload, config);
-          }
-          return { ...iItem };
-        }),
+        items: transformItemToViewPayload(payload, item.items, config),
       };
-    }
-    return {
-      ...item,
-      items: transformItemToViewPayload(payload, item.items, config),
-    };
-  });
+    });
+    return reOrderItems(updatedLevel);
 };
 
 export const prepareItemToViewPayload = (items = [], viewParentId = null, config = {}) => 
-  items.map(item => {
+  items.map((item, n) => {
     const viewId = v4();
     return {
       ...linkRelations({
         viewId,
         viewParentId,
         ...item,
+        order: item.order || (n + 1),
+        updated: isNil(item.order),
       }, config),
       items: prepareItemToViewPayload(item.items, viewId, config),
     };
