@@ -176,7 +176,7 @@ const DataManagerProvider = ({ children }) => {
   };
 
   const handleChangeSelection = (id) => {
-    getNavigation(id);
+    getNavigation(id, config);
   };
 
   const handleChangeNavigationPopupVisibility = (visible) => {
