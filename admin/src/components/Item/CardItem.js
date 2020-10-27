@@ -2,8 +2,6 @@ import styled from "styled-components";
 import { Card } from "@buffetjs/styles";
 import { colors } from "strapi-helper-plugin";
 
-import CardItemRestore from "./CardItemRestore";
-
 export const CartItemWidth = "25vw";
 
 const CardItem = styled(Card)`

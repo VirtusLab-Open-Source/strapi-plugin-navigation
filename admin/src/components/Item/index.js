@@ -46,6 +46,8 @@ const Item = (props) => {
 
   const { formatMessage } = useIntl();
 
+
+  const isNextMenuAllowedLevel = isNumber(allowedLevels) ? level < (allowedLevels - 1) : true;
   const isMenuAllowedLevel = isNumber(allowedLevels) ? level < allowedLevels : true;
   const isExternal = item.type === navigationItemType.EXTERNAL;
   const absolutePath = isExternal ? undefined : `${levelPath === '/' ? '' : levelPath}/${path === '/' ? '' : path}`;
@@ -79,10 +81,10 @@ const Item = (props) => {
         <ItemFooter {...footerProps} />
       </CardItem>
       { !(isExternal || removed) && (<CardItemLevelAdd
-        color={isMenuAllowedLevel ? "primary" : "secondary"}
+        color={isNextMenuAllowedLevel ? "primary" : "secondary"}
         icon={<FontAwesomeIcon icon={faPlus} size="3x" />}
-        onClick={(e) => onItemLevelAddClick(e, viewId, isMenuAllowedLevel, levelPath)}
-        menuLevel={isMenuAllowedLevel}
+        onClick={(e) => onItemLevelAddClick(e, viewId, isNextMenuAllowedLevel, levelPath)}
+        menuLevel={isNextMenuAllowedLevel}
       />) }
       {hasChildren && !removed && (
         <List

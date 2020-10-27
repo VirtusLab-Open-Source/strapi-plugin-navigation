@@ -53,6 +53,7 @@ const NavigationItemForm = ({
       externalPath: sanitizedType === navigationItemType.EXTERNAL ? purePayload.externalPath : undefined,
       related: related ? related.value : undefined,
       relatedType: relatedType ? relatedType.value : undefined,
+      uiRouterKey: generateUiRouterKey(),
     };
   }
 
@@ -91,14 +92,7 @@ const NavigationItemForm = ({
     }
   };
 
-  const generateUiRouterKey = (force = false) => {
-    if (force || isEmpty(form.uiRouterKey)) {
-      onChange({ target: {
-        name: 'uiRouterKey',
-        value: isString(form.title) && !isEmpty(form.title) ? slugify(form.title).toLowerCase() : undefined,
-      }});
-    }
-  };
+  const generateUiRouterKey = () => isString(form.title) && !isEmpty(form.title) ? slugify(form.title).toLowerCase() : undefined;
 
   const typeSelectValue = get(form, "type", navigationItemType.INTERNAL);
   const typeSelectOptions = Object.keys(navigationItemType).map((key) => ({
@@ -132,6 +126,8 @@ const NavigationItemForm = ({
     value: item.id,
     label: item.name,
   }));
+
+  const submitDisabled = (form.type !== navigationItemType.EXTERNAL) && isNil(form.related);
 
   const generatePreviewPath = () => {
     if (!isExternal && data.levelPath) {
@@ -168,33 +164,20 @@ const NavigationItemForm = ({
         <ModalBody>
           <section className="col-12">
             <div className="row">
-              <div className="col-lg-6 col-md-12">
+              <div className="col-lg-9 col-md-12">
                 <Input
                   autoFocus
                   error={get(formErrors, `${inputsPrefix}title`)}
                   label={`${pluginId}.popup.item.form.title.label`}
                   name={`${inputsPrefix}title`}
                   onChange={onChange}
-                  onBlur={() => generateUiRouterKey()}
                   placeholder={`${pluginId}.popup.item.form.title.placeholder`}
                   type="text"
                   validations={{ required: true }}
                   value={get(form, `${inputsPrefix}title`, "")}
                 />
               </div>
-              <div className="col-lg-4 col-md-12">
-                <Input
-                  error={get(formErrors, `${inputsPrefix}uiRouterKey`)}
-                  label={`${pluginId}.popup.item.form.uiRouterKey.label`}
-                  name={`${inputsPrefix}uiRouterKey`}
-                  onChange={onChange}
-                  placeholder={`${pluginId}.popup.item.form.uiRouterKey.placeholder`}
-                  type="text"
-                  validations={{ required: true }}
-                  value={get(form, `${inputsPrefix}uiRouterKey`, "")}
-                />
-              </div>
-              <div className="col-lg-2 col-md-12">
+              <div className="col-lg-3 col-md-12">
                 <Flex alignItems="flex-start" flexWrap="wrap">
                   <Label
                     htmlFor={`${inputsPrefix}menuAttached`}
@@ -334,6 +317,7 @@ const NavigationItemForm = ({
         <section>
           <ButtonModal
             onClick={handleSubmit}
+            disabled={submitDisabled}
             message={`${pluginId}.popup.item.form.button.${
               form.viewId ? "update" : "create"
             }`}

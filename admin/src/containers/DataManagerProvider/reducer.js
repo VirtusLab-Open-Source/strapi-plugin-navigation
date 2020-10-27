@@ -13,6 +13,8 @@ import {
   GET_CONFIG_SUCCEEDED,
   GET_CONTENT_TYPE_ITEMS,
   GET_CONTENT_TYPE_ITEMS_SUCCEEDED,
+  SUBMIT_NAVIGATION_SUCCEEDED,
+  SUBMIT_NAVIGATION,
 } from "./actions";
 
 const initialState = fromJS({
@@ -26,6 +28,7 @@ const initialState = fromJS({
   isLoadingForDataToBeSet: false,
   isLoadingForDetailsDataToBeSet: false,
   isLoadingForAdditionalDataToBeSet: false,
+  isLoadingForSubmit: false,
 });
 
 const reducer = (state, action) => {
@@ -99,6 +102,18 @@ const reducer = (state, action) => {
       return state.update(
         "navigationItemPopupOpened",
         () => action.navigationItemPopupOpened,
+      );
+    }
+    case SUBMIT_NAVIGATION: {
+      return state.update(
+        "isLoadingForSubmit",
+        () => true,
+      );
+    }
+    case SUBMIT_NAVIGATION_SUCCEEDED: {
+      return state.update(
+        "isLoadingForSubmit",
+        () => false,
       );
     }
     case RELOAD_PLUGIN:
