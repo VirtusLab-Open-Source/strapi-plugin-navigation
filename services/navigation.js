@@ -160,7 +160,10 @@ module.exports = {
 
     const entityItems = await strapi
       .query(itemModel.modelName, pluginName)
-      .find({ master: id }, ["related", "audience"]);
+      .find({ 
+        master: id,
+        _sort: 'order:asc', 
+      }, ["related", "audience"]);
 
     return {
       ...sanitizeEntity(entity,
@@ -232,7 +235,8 @@ module.exports = {
       const items = await strapi.query(itemModel.modelName, pluginName).find(
         {
           master: entity.id,
-          ...itemCriteria,
+          ...itemCriteria, 
+          _sort: 'order:asc',
         },
         ["related", "audience"],
       );
