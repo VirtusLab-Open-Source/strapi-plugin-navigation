@@ -137,7 +137,7 @@ const reOrderItems = (items = []) =>
       return {
         ...item,
         order,
-        updated: order !== item.order,
+        updated: item.updated || order !== item.order,
       };
     });
 
@@ -151,7 +151,7 @@ export const transformItemToViewPayload = (payload, items = [], config) => {
             return linkRelations({
               ...payload,
               order,
-              updated: order !== payload.order,
+              updated: payload.updated || order !== payload.order,
             }, config);
           }
           return {
@@ -218,7 +218,7 @@ export const prepareItemToViewPayload = (items = [], viewParentId = null, config
         viewParentId,
         ...item,
         order: item.order || (n + 1),
-        updated: isNil(item.order),
+        updated: item.updated || isNil(item.order),
       }, config),
       items: prepareItemToViewPayload(item.items, viewId, config),
     };
