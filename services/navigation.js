@@ -474,6 +474,12 @@ module.exports = {
               isNil(related) || params.type === itemType.EXTERNAL
                 ? []
                 : related;
+            await strapi
+              .query(itemModel.modelName, pluginName)
+              .update(
+                { id },
+                { related: [] },
+              ); // clearing the relation to get it updated properly and not duplicate _morph records
             currentItem = await strapi
               .query(itemModel.modelName, pluginName)
               .update(
