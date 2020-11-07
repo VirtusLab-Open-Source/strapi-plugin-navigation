@@ -1,6 +1,6 @@
 import React, { memo, useEffect, useReducer, useRef } from "react";
 import PropTypes from "prop-types";
-import { get, first, isEmpty } from "lodash";
+import { get, find, first, isEmpty } from "lodash";
 import {
   request,
   LoadingIndicatorPage,
@@ -167,11 +167,13 @@ const DataManagerProvider = ({ children }) => {
       signal,
     });
 
+    const fetchedContentType = find(config.contentTypes, ct => ct.endpoint === type);
+
     dispatch({
       type: GET_CONTENT_TYPE_ITEMS_SUCCEEDED,
       contentTypeItems: contentTypeItems.map(item => ({
         ...item,
-        __collectionName: type,
+        __collectionName: get(fetchedContentType, 'collectionName', type),
       })),
     });
   };

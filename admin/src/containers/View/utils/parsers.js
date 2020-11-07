@@ -145,13 +145,10 @@ export const transformItemToViewPayload = (payload, items = [], config) => {
   if (!payload.viewParentId) {
     if (payload.viewId) {
       const updatedRootLevel = items
-        .map((item, n) => {
-          const order = n + 1;
+        .map((item) => {
           if (item.viewId === payload.viewId) {
             return linkRelations({
               ...payload,
-              order,
-              updated: payload.updated || order !== payload.order,
             }, config);
           }
           return {

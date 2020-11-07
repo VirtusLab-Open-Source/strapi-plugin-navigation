@@ -294,7 +294,7 @@ const NavigationItemForm = ({
                         <FontAwesomeIcon icon={faInfoCircle}/>{ ' ' }
                         {formatMessage({
                           id: `${pluginId}.popup.item.form.related.empty`,
-                        })}
+                        }, { contentTypeName: get(relatedTypeSelectValue, 'label') })}
                       </Text>) }
                     </div>
                   )}
