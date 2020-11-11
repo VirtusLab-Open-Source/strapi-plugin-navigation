@@ -111,7 +111,7 @@ const NavigationItemForm = ({
   const relatedSelectValue = get(form, "related", undefined);
   const relatedSelectOptions = contentTypeEntities
     .filter((item) => !find(usedContentTypeEntities.filter(uctItem => uctItem.id !== get(relatedSelectValue, 'value')), uctItem =>
-        (get(relatedTypeSelectValue, 'value') === uctItem.__collectionName) && (item.id === uctItem.id) 
+        (get(relatedTypeSelectValue, 'value') === uctItem.__collectionName) && (item.id === uctItem.id)
       ))
     .map((item) => ({
       value: item.id,
@@ -342,7 +342,6 @@ NavigationItemForm.propTypes = {
   formErrors: PropTypes.object.isRequired,
   inputsPrefix: PropTypes.string,
   data: PropTypes.object.isRequired,
-  onChange: PropTypes.func.isRequired,
   onSubmit: PropTypes.func,
   requestError: PropTypes.object,
   contentTypes: PropTypes.array,
