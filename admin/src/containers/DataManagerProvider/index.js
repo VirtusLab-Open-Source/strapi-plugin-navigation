@@ -92,7 +92,8 @@ const DataManagerProvider = ({ children }) => {
         });
       }
     } catch (err) {
-      console.error({ err });
+      // please don't do this, because js stringify a error and that error is not readable in dev tool
+      console.error(err);
       strapi.notification.error("notification.error");
     }
   };
