@@ -81,7 +81,8 @@ const linkRelations = (item, config) => {
   }
 
   // we got empty array after remove object in relation
-  if ((type !== navigationItemType.INTERNAL) || !related || isEmpty(related)) {
+  // from API we got related as array but on edit it is primitive type
+  if ((type !== navigationItemType.INTERNAL) || !related || (isObject(related) && isEmpty(related))) {
     return {
       ...item,
       ...relation,
