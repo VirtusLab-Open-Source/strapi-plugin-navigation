@@ -1,5 +1,5 @@
 import { v4, validate as validateUUID } from "uuid";
-import { get, find, first, orderBy, upperFirst, isObject, isString, isNumber, isArray, isNil } from "lodash";
+import { get, find, first, orderBy, upperFirst, isObject, isString, isNumber, isArray, isNil, isEmpty } from 'lodash';
 import { navigationItemType } from "./enums";
 
 export const transformItemToRESTPayload = (
@@ -28,8 +28,8 @@ export const transformItemToRESTPayload = (
   const { contentTypeItems = [], contentTypes = [] } = config;
   const relatedId = isExternal || (isString(related) && validateUUID(related)) ? related : parseInt(related, 10);
   const relatedContentTypeItem = isExternal ? undefined : find(contentTypeItems, cti => cti.id === relatedId);
-  const relatedContentType = relatedContentTypeItem || relatedType ? 
-    find(contentTypes, ct => ct.collectionName === (relatedContentTypeItem ? relatedContentTypeItem.__collectionName : relatedType)) : 
+  const relatedContentType = relatedContentTypeItem || relatedType ?
+    find(contentTypes, ct => ct.collectionName === (relatedContentTypeItem ? relatedContentTypeItem.__collectionName : relatedType)) :
     undefined;
 
   return {
@@ -79,8 +79,9 @@ const linkRelations = (item, config) => {
     relatedRef: undefined,
     relatedType: undefined
   }
-  
-  if ((type !== navigationItemType.INTERNAL) || !related) {
+
+  // we got empty array after remove object in relation
+  if ((type !== navigationItemType.INTERNAL) || !related || isEmpty(related)) {
     return {
       ...item,
       ...relation,
@@ -88,7 +89,7 @@ const linkRelations = (item, config) => {
   }
 
   const relatedItem = isArray(related) ? first(related) : related;
-  const relatedId = isString(related) && !validateUUID(related) ? parseInt(related, 10) : related; 
+  const relatedId = isString(related) && !validateUUID(related) ? parseInt(related, 10) : related;
   const relationNotChanged = relatedRef && relatedItem ? relatedRef.id === relatedItem : false;
 
   if (relationNotChanged) {
@@ -102,7 +103,7 @@ const linkRelations = (item, config) => {
     const __collectionName = get(find(contentTypes, ct => ct.name.toLowerCase() === __contentType.toLowerCase()), 'collectionName');
     relation = {
       related: relatedItem.id,
-      relatedRef: { 
+      relatedRef: {
         __collectionName,
         ...relatedItem
       },
@@ -130,7 +131,7 @@ const linkRelations = (item, config) => {
   };
 };
 
-const reOrderItems = (items = []) => 
+const reOrderItems = (items = []) =>
   orderBy(items, ['order'], ['asc'])
     .map((item, n) => {
       const order = n + 1;
@@ -206,7 +207,7 @@ export const transformItemToViewPayload = (payload, items = [], config) => {
     return reOrderItems(updatedLevel);
 };
 
-export const prepareItemToViewPayload = (items = [], viewParentId = null, config = {}) => 
+export const prepareItemToViewPayload = (items = [], viewParentId = null, config = {}) =>
   items.map((item, n) => {
     const viewId = v4();
     return {
