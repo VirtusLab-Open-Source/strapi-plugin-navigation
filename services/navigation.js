@@ -70,24 +70,45 @@ const buildNestedStructure = (entities, id = null, field = 'parent') =>
 const templateNameFactory = async (items, strapi) => {
   const flatRelated = flatten(items.map(i => i.related));
   const relatedMap = flatRelated.reduce((acc, curr) => {
-    if(!acc[curr.__contentType]) {
-      acc[curr.__contentType] = []
+    if (!acc[curr.__contentType]) {
+      acc[curr.__contentType] = [];
     }
-    acc[curr.__contentType].push(curr.id)
+    acc[curr.__contentType].push(curr.id);
     return acc;
-  }, {})
+  }, {});
   const responses = await Promise.all(
     Object.entries(relatedMap)
-      .map(([contentType, ids]) => strapi.query(contentType).find({ id_in: ids }).then(res => ({[contentType]: res})))
-  )
-  const relatedResponseMap = responses.reduce((acc, curr) => ({...acc, ...curr}), {});
+      .map(
+        ([contentType, ids]) => strapi.query(contentType).find({ id_in: ids }).then(res => ({ [contentType]: res }))),
+  );
+  const relatedResponseMap = responses.reduce((acc, curr) => ({ ...acc, ...curr }), {});
 
   return (contentType, id) => {
     const template = get(relatedResponseMap[contentType].find(data => data.id === id), 'template');
     const templateComponent = getTemplateComponentFromTemplate(template);
     return get(templateComponent, 'options.templateName', TEMPLATE_DEFAULT);
-  }
+  };
 }
+
+const sendAuditLog = (auditLogInstance, event, data) => {
+  if (auditLogInstance && auditLogInstance.emit) {
+    auditLogInstance.emit(event, data);
+  }
+};
+
+const prepareAuditLog = (actions) => {
+  return [
+    ...new Set(
+      actions
+        .filter(_ => !!_)
+        .flatMap(({ remove, create, update }) => {
+          return [create ? 'CREATE' : '', update ? 'UPDATE' : '', remove ? 'REMOVE' : '']
+            .filter(_ => !!_);
+        }),
+    ),
+  ]
+    .join('_');
+};
 
 module.exports = {
   // Get plugin configuration
@@ -160,10 +181,10 @@ module.exports = {
 
     const entityItems = await strapi
       .query(itemModel.modelName, pluginName)
-      .find({ 
+      .find({
         master: id,
-        _sort: 'order:asc', 
-      }, ["related", "audience"]);
+        _sort: 'order:asc',
+      }, ['related', 'audience']);
 
     return {
       ...sanitizeEntity(entity,
@@ -173,11 +194,11 @@ module.exports = {
     };
   },
 
-  post: async (payload) => {
+  post: async (payload, auditLog) => {
     const { pluginName, masterModel, service } = extractMeta(strapi.plugins);
     const { name, visible } = payload;
 
-    const entity = await strapi
+    const existingEntity = await strapi
       .query(masterModel.modelName, pluginName)
       .create({
         name,
@@ -186,15 +207,19 @@ module.exports = {
       });
 
     return service
-      .createBranch(payload.items, entity, null)
-      .then(() => service.getById(entity.id));
+      .createBranch(payload.items, existingEntity, null)
+      .then(() => service.getById(existingEntity.id))
+      .then((newEntity) => {
+        sendAuditLog(auditLog, 'onChangeNavigation', { actionType: 'CREATE', oldEntity: existingEntity, newEntity });
+        return newEntity;
+      })
   },
 
-  put: async (id, payload) => {
+  put: async (id, payload, auditLog) => {
     const { pluginName, masterModel, service } = extractMeta(strapi.plugins);
     const { name, visible } = payload;
 
-    const existingEntity = service.getById(id);
+    const existingEntity = await service.getById(id);
     const entityNameHasChanged = existingEntity.name !== name;
     const entity = await strapi.query(masterModel.modelName, pluginName).update(
       { id },
@@ -206,7 +231,15 @@ module.exports = {
     );
     return service
       .analyzeBranch(payload.items, entity, null)
-      .then(() => service.getById(entity.id));
+      .then((auditLogsOperations) =>
+        Promise.all([
+          prepareAuditLog((auditLogsOperations || []).flat(Number.MAX_SAFE_INTEGER)),
+          service.getById(entity.id)],
+        ))
+      .then(([actionType, newEntity]) => {
+        sendAuditLog(auditLog, 'onChangeNavigation', { actionType, oldEntity: existingEntity, newEntity });
+        return newEntity;
+      })
   },
 
   render: async (idOrSlug, type = renderType.FLAT, menuOnly = false) => {
@@ -235,7 +268,7 @@ module.exports = {
       const items = await strapi.query(itemModel.modelName, pluginName).find(
         {
           master: entity.id,
-          ...itemCriteria, 
+          ...itemCriteria,
           _sort: 'order:asc',
         },
         ["related", "audience"],
@@ -410,14 +443,14 @@ module.exports = {
     };
   },
 
-  createBranch: async (items = [], masterEntity = null, parentItem = null) => {
+  createBranch: (items = [], masterEntity = null, parentItem = null, operations = {}) => {
     const { pluginName, itemModel, service } = extractMeta(strapi.plugins);
     return Promise.all(
       items.map(async (item) => {
+        operations.create = true;
         const { parent, master, related, ...params } = item;
         const relatedItem =
           isNil(related) || params.type === itemType.EXTERNAL ? [] : related;
-
         const navigationItem = await strapi
           .query(itemModel.modelName, pluginName)
           .create({
@@ -431,18 +464,20 @@ module.exports = {
             item.items,
             masterEntity,
             sanitizeEntity(navigationItem, { model: itemModel }),
+            operations,
           )
-          : null;
+          : operations;
       }),
     );
   },
 
-  removeBranch: async (items = []) => {
+  removeBranch: (items = [], operations = {}) => {
     const { pluginName, itemModel, service } = extractMeta(strapi.plugins);
     return Promise.all(
       items
         .filter(item => item.id)
         .map(async (item) => {
+          operations.remove = true;
           const { id } = item;
           await strapi
             .query(itemModel.modelName, pluginName)
@@ -450,58 +485,65 @@ module.exports = {
           return !isEmpty(item.items)
             ? service.removeBranch(
               item.items,
+              operations,
             )
-            : null;
+            : operations;
         }),
     );
   },
 
-  analyzeBranch: async (items = [], masterEntity = null, parentItem = null) => {
+  analyzeBranch: (items = [], masterEntity = null, parentItem = null, prevOperations = {}) => {
     const { pluginName, itemModel, service } = extractMeta(strapi.plugins);
     const needToCreate = items.filter((item) => isNil(item.id) && !item.removed);
     const needToAnalyzeAndUpdate = items.filter((item) => !isNil(item.id) && !item.removed);
     const needToRemove = items.filter((item) => !isNil(item.id) && item.removed);
-
+    const operations = {
+      create: prevOperations.create || !!needToCreate.length,
+      update: prevOperations.update || !!needToAnalyzeAndUpdate.length,
+      remove: prevOperations.remove || !!needToRemove.length,
+    };
     return Promise.all([
-      service.createBranch(needToCreate, masterEntity, parentItem),
-      service.removeBranch(needToRemove),
+      service.createBranch(needToCreate, masterEntity, parentItem, operations),
+      service.removeBranch(needToRemove, operations),
       Promise.all(
-        needToAnalyzeAndUpdate.map(async (item) => {
-          const { id, updated, parent, master, related, items, ...params } = item;
-          let currentItem;
-          if (updated) {
-            const relatedItem =
-              isNil(related) || params.type === itemType.EXTERNAL
-                ? []
-                : related;
-            await strapi
-              .query(itemModel.modelName, pluginName)
-              .update(
-                { id },
-                { related: [] },
-              ); // clearing the relation to get it updated properly and not duplicate _morph records
-            currentItem = await strapi
-              .query(itemModel.modelName, pluginName)
-              .update(
-                { id },
-                {
-                  ...params,
-                  related: isArray(relatedItem) ? relatedItem : [relatedItem],
-                  master: masterEntity,
-                  parent: parentItem,
-                },
-              );
-          } else {
-            currentItem = item;
-          }
-          return !isEmpty(items)
-            ? service.analyzeBranch(
-              items,
-              masterEntity,
-              sanitizeEntity(currentItem, { model: itemModel }),
-            )
-            : null;
-        }),
+        needToAnalyzeAndUpdate
+          .map(async (item) => {
+            const { id, updated, parent, master, related, items, ...params } = item;
+            let currentItem;
+            if (updated) {
+              const relatedItem =
+                isNil(related) || params.type === itemType.EXTERNAL
+                  ? []
+                  : related;
+              await strapi
+                .query(itemModel.modelName, pluginName)
+                .update(
+                  { id },
+                  { related: [] },
+                ); // clearing the relation to get it updated properly and not duplicate _morph records
+              currentItem = await strapi
+                .query(itemModel.modelName, pluginName)
+                .update(
+                  { id },
+                  {
+                    ...params,
+                    related: isArray(relatedItem) ? relatedItem : [relatedItem],
+                    master: masterEntity,
+                    parent: parentItem,
+                  },
+                );
+            } else {
+              currentItem = item;
+            }
+            return !isEmpty(items)
+              ? service.analyzeBranch(
+                items,
+                masterEntity,
+                sanitizeEntity(currentItem, { model: itemModel }),
+                operations,
+              )
+              : operations;
+          }),
       ),
     ]);
   },
