@@ -101,22 +101,26 @@ const linkRelations = (item, config) => {
   const shouldBuildRelated = !relatedRef || (relatedRef && (relatedRef.id !== relatedId));
   if (shouldBuildRelated && !shouldFindRelated) {
     const { __contentType } = relatedItem;
-    const __collectionName = get(find(contentTypes, ct => ct.name.toLowerCase() === __contentType.toLowerCase()), 'collectionName');
+    const relatedContentType = find(contentTypes, ct => ct.contentTypeName.toLowerCase() === __contentType.toLowerCase(), {});
+    const {collectionName, labelSingular } = relatedContentType;
     relation = {
       related: relatedItem.id,
       relatedRef: {
-        __collectionName,
+        __collectionName: collectionName,
+        labelSingular,
         ...relatedItem
       },
-      relatedType: __collectionName
+      relatedType: collectionName
     };
   } else if (shouldFindRelated) {
     const relatedRef = find(contentTypeItems, cti => cti.id === relatedId);
     const relatedContentType = find(contentTypes, ct => ct.collectionName.toLowerCase() === relatedType.toLowerCase());
+    const { contentTypeName, labelSingular } = relatedContentType;
     relation = {
       relatedRef: {
         __collectionName: relatedType,
-        __contentType: upperFirst(get(relatedContentType, 'name')),
+        __contentType: contentTypeName,
+        labelSingular,
         ...relatedRef,
       },
     };
@@ -223,4 +227,8 @@ export const prepareItemToViewPayload = (items = [], viewParentId = null, config
     };
   });
 
-  export const extractRelatedItemLabel = (item = {}) => item.name || item.title || item.label || item.id;
+  export const extractRelatedItemLabel = (item = {}, fields = {}) => {
+    const { __collectionName } = item;
+    const { default: defaultFields = [] } = fields;
+    return get(fields, `${__collectionName}`, defaultFields).map((_) => item[_]).filter((_) => _)[0] || "";
+  };

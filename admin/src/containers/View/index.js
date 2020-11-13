@@ -197,6 +197,7 @@ const View = () => {
                     onItemLevelAddClick={addNewNavigationItem}
                     root
                     allowedLevels={config.allowedLevels}
+                    contentTypesNameFields={config.contentTypesNameFields}
                   />
                 )}
               </>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Button, Enumeration, Flex, Label, Text, Toggle } from "@buffetjs/core";
 import { useIntl } from "react-intl";
-import { find, get, isEmpty, isNil, isString } from "lodash";
+import { find, get, isEmpty, isNil, isNumber, isString } from "lodash";
 import PropTypes from "prop-types";
 import { ButtonModal, ModalBody, ModalForm } from "strapi-helper-plugin";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -25,6 +25,7 @@ const NavigationItemForm = ({
   usedContentTypeEntities = [],
   availableAudience = [],
   additionalFields = [],
+  contentTypesNameFields = {},
   onSubmit,
   getContentTypeEntities,
 }) => {
@@ -115,7 +116,10 @@ const NavigationItemForm = ({
       ))
     .map((item) => ({
       value: item.id,
-      label: extractRelatedItemLabel(item),
+      label: extractRelatedItemLabel({
+        ...item,
+        __collectionName: get(relatedTypeSelectValue, 'value', relatedTypeSelectValue),
+      }, contentTypesNameFields),
     }));
 
   const isExternal = form.type === navigationItemType.EXTERNAL;

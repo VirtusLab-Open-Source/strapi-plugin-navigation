@@ -88,13 +88,23 @@ To setup the plugin properly we recommend to put following snippet as part of `c
     ...
     plugins: {
       navigation: {
-        additionalFields: ['audience'], // Additional fields: 'audience', more in the future
-        excludedContentTypes: ["plugins::", "strapi"], // excluded content types patterns (by default built-in and plugin specific content types)
-        allowedLevels: 2, // Maximum level for which your're able to mark item as "Menu attached"
+        additionalFields: ['audience'],
+        excludedContentTypes: ["plugins::", "strapi"],
+        allowedLevels: 2,
+        contentTypesNameFields: {
+          'blog_posts': ['altTitle'],
+          'pages': ['title'],
+        },
       },
     },
     ...
 ```
+
+### Properties
+- `additionalFields` - Additional fields: 'audience', more in the future
+- `excludedContentTypes` - Excluded content types patterns (by default built-in and plugin specific content types)
+- `allowedLevels` - Maximum level for which your're able to mark item as "Menu attached"
+- `contentTypesNameFields` - Definition of content type title fields like `'content_type_name': ['field_name_1', 'field_name_2']`, if not set titles are pulled from fields like `['title', 'subject', 'name']`
 
 ## Public API Navigation Item model
 
