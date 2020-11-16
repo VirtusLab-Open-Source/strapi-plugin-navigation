@@ -21,7 +21,7 @@ const parseParams = (params) =>
 
 const errorHandler = (ctx) => (error) => {
   if (error instanceof NavigationError) {
-    return ctx.badRequest(error.message);
+    return ctx.badRequest(error.message, error.additionalInfo);
   }
   throw error;
 };

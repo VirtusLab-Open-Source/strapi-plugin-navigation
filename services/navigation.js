@@ -77,6 +77,11 @@ const checkDuplicatePath = (parentItem, checkData) => {
             return reject(
               new NavigationError(
                 `Duplicate path:${item.path} in parent: ${parentItem.title || 'root'} for ${item.title} and ${_.title} items`,
+                {
+                  parentTitle: parentItem.title,
+                  path: item.path,
+                  errorTitles: [item.title, _.title],
+                },
               ),
             );
           }
