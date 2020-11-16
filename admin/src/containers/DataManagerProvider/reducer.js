@@ -15,7 +15,8 @@ import {
   GET_CONTENT_TYPE_ITEMS_SUCCEEDED,
   SUBMIT_NAVIGATION_SUCCEEDED,
   SUBMIT_NAVIGATION,
-} from "./actions";
+  SUBMIT_NAVIGATION_ERROR,
+} from './actions';
 
 const initialState = fromJS({
   items: [],
@@ -106,13 +107,14 @@ const reducer = (state, action) => {
     }
     case SUBMIT_NAVIGATION: {
       return state.update(
-        "isLoadingForSubmit",
+        'isLoadingForSubmit',
         () => true,
       );
     }
+    case SUBMIT_NAVIGATION_ERROR:
     case SUBMIT_NAVIGATION_SUCCEEDED: {
       return state.update(
-        "isLoadingForSubmit",
+        'isLoadingForSubmit',
         () => false,
       );
     }
