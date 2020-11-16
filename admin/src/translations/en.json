@@ -29,5 +29,6 @@
   "popup.item.form.button.update": "Update item",
   "popup.item.form.button.restore": "Restore item",
   "popup.item.form.button.remove": "Remove",
-  "notification.navigation.submit": "Navigation changes has been saved"
+  "notification.navigation.submit": "Navigation changes has been saved",
+  "notification.navigation.error": "Duplicate path: { path } in parent: { parentTitle } for { errorTitles } items"
 }

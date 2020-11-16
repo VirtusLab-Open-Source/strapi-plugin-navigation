@@ -1,5 +1,6 @@
 "use strict";
 
+const { NavigationError } = require('../utils/NavigationError');
 /**
  * navigation.js controller
  *
@@ -17,6 +18,13 @@ const parseParams = (params) =>
       [curr]: parsedValue,
     };
   }, {});
+
+const errorHandler = (ctx) => (error) => {
+  if (error instanceof NavigationError) {
+    return ctx.badRequest(error.message, error.additionalInfo);
+  }
+  throw error;
+};
 
 module.exports = {
   /**
@@ -60,6 +68,7 @@ module.exports = {
     const { params, auditLog } = ctx;
     const { id } = parseParams(params);
     const { body = {} } = ctx.request;
-    return strapi.plugins.navigation.services.navigation.put(id, body, auditLog);
+    return strapi.plugins.navigation.services.navigation.put(id, body, auditLog)
+      .catch(errorHandler(ctx));
   },
 };
