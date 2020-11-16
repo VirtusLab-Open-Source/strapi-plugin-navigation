@@ -30,6 +30,7 @@ const initialState = fromJS({
   isLoadingForDetailsDataToBeSet: false,
   isLoadingForAdditionalDataToBeSet: false,
   isLoadingForSubmit: false,
+  error: undefined,
 });
 
 const reducer = (state, action) => {
@@ -106,17 +107,20 @@ const reducer = (state, action) => {
       );
     }
     case SUBMIT_NAVIGATION: {
-      return state.update(
-        'isLoadingForSubmit',
-        () => true,
-      );
+      return state
+        .update('isLoadingForSubmit', () => true)
+        .update('error', () => undefined);
     }
-    case SUBMIT_NAVIGATION_ERROR:
     case SUBMIT_NAVIGATION_SUCCEEDED: {
       return state.update(
         'isLoadingForSubmit',
         () => false,
       );
+    }
+    case SUBMIT_NAVIGATION_ERROR: {
+      return state
+        .update('isLoadingForSubmit', () => false)
+        .update('error', () => action.error);
     }
     case RELOAD_PLUGIN:
       return initialState;

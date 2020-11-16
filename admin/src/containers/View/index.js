@@ -44,6 +44,7 @@ const View = () => {
     handleResetNavigationData,
     handleSubmitNavigation,
     getContentTypeItems,
+    error
   } = useDataManager();
   const [activeNavigationItem, setActiveNavigationItemState] = useState({});
   const { formatMessage } = useIntl();
@@ -73,11 +74,11 @@ const View = () => {
 
   const pullUsedContentTypeItem = (items = []) =>
     items.reduce((prev, curr) =>
-      [...prev, curr.relatedRef ? {
-        __collectionName: curr.relatedRef.__collectionName,
-        id: curr.relatedRef.id
-      } : undefined, ...pullUsedContentTypeItem(curr.items)].filter(item => item)
-    , [])
+        [...prev, curr.relatedRef ? {
+          __collectionName: curr.relatedRef.__collectionName,
+          id: curr.relatedRef.id
+        } : undefined, ...pullUsedContentTypeItem(curr.items)].filter(item => item)
+      , [])
   const usedContentTypeItems = pullUsedContentTypeItem((changedActiveNavigation || {}).items);
 
   const changeNavigationItemPopupState = (visible, editedItem = {}) => {
@@ -196,6 +197,7 @@ const View = () => {
                     onItemRestoreClick={restoreNavigationItem}
                     onItemLevelAddClick={addNewNavigationItem}
                     root
+                    error={error}
                     allowedLevels={config.allowedLevels}
                     contentTypesNameFields={config.contentTypesNameFields}
                   />

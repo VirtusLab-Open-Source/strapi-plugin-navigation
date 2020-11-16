@@ -19,6 +19,7 @@ const List = ({
   levelPath = '',
   allowedLevels,
   contentTypesNameFields,
+  error,
 }) => {
   const Component = as || Container;
   return (
@@ -40,6 +41,7 @@ const List = ({
             onItemReOrder={onItemReOrder}
             onItemRestoreClick={onItemRestoreClick}
             onItemLevelAddClick={onItemLevelAddClick}
+            error={error}
           />
         );
       })}
