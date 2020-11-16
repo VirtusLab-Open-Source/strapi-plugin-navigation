@@ -64,6 +64,7 @@ const checkDuplicatePath = (parentItem, checkData) => {
                 `Duplicate path:${item.path} in parent: ${parentItem.title || 'root'} for ${item.title} and ${_.title} items`,
                 {
                   parentTitle: parentItem.title,
+                  parentId: parentItem.id,
                   path: item.path,
                   errorTitles: [item.title, _.title],
                 },

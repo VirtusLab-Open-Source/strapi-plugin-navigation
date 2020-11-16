@@ -1,26 +1,26 @@
-import React from "react";
-import { useIntl } from "react-intl";
-import PropTypes from "prop-types";
-import { isEmpty, isNumber } from "lodash";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import React from 'react';
+import { useIntl } from 'react-intl';
+import PropTypes from 'prop-types';
+import { isEmpty, isNumber } from 'lodash';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@buffetjs/core';
-import CardWrapper from "./CardWrapper";
-import CardItem from "./CardItem";
-import ItemFooter from "../ItemFooter";
-import { navigationItemType } from "../../containers/View/utils/enums";
-import CardItemPath from "./CardItemPath";
-import CardItemTitle from "./CardItemTitle";
-import CardItemLevelAdd from "./CardItemLevelAdd";
-import List from "../List";
-import CardItemLevelWrapper from "./CardItemLevelWrapper";
-import CardItemRestore from "./CardItemRestore";
-import pluginId from "../../pluginId";
-import ItemOrdering from "../ItemOrdering";
+import CardWrapper from './CardWrapper';
+import CardItem from './CardItem';
+import ItemFooter from '../ItemFooter';
+import { navigationItemType } from '../../containers/View/utils/enums';
+import CardItemPath from './CardItemPath';
+import CardItemTitle from './CardItemTitle';
+import CardItemLevelAdd from './CardItemLevelAdd';
+import List from '../List';
+import CardItemLevelWrapper from './CardItemLevelWrapper';
+import CardItemRestore from './CardItemRestore';
+import pluginId from '../../pluginId';
+import ItemOrdering from '../ItemOrdering';
 
 const Item = (props) => {
-  const { 
-    item, 
+  const {
+    item,
     level = 0,
     levelPath = '',
     allowedLevels,
@@ -30,7 +30,9 @@ const Item = (props) => {
     onItemClick,
     onItemReOrder,
     onItemRestoreClick,
-    onItemLevelAddClick } = props;
+    onItemLevelAddClick,
+    error,
+  } = props;
   const {
     viewId,
     title,
@@ -63,7 +65,12 @@ const Item = (props) => {
   }, moveBy);
 
   return (
-    <CardWrapper level={level}>
+    <CardWrapper
+      isFirst={isFirst}
+      isLast={isLast}
+      level={level}
+      error={error?.parentId === item.parent && error?.errorTitles.includes(item.title)}
+    >
       <CardItem
         hasChildren={hasChildren}
         removed={removed}
@@ -74,32 +81,34 @@ const Item = (props) => {
           }, levelPath)
         }
       >
-        { removed && (<CardItemRestore>
-            <Button
-              onClick={e => onItemRestoreClick(e, item)}
-              color="secondary"
-              label={formatMessage({
-                id: `${pluginId}.popup.item.form.button.restore`
-              })}
-            />
-          </CardItemRestore>)}
+        {removed && (<CardItemRestore>
+          <Button
+            onClick={e => onItemRestoreClick(e, item)}
+            color="secondary"
+            label={formatMessage({
+              id: `${pluginId}.popup.item.form.button.restore`,
+            })}
+          />
+        </CardItemRestore>)}
         <CardItemTitle>{title}</CardItemTitle>
         <CardItemPath>
           {isExternal ? externalPath : absolutePath}
         </CardItemPath>
         <ItemFooter {...footerProps} />
-        <ItemOrdering 
+        <ItemOrdering
           isFirst={isFirst}
           isLast={isLast}
           onChangeOrder={handleReOrder}
         />
       </CardItem>
-      { !(isExternal || removed) && (<CardItemLevelAdd
-        color={isNextMenuAllowedLevel ? "primary" : "secondary"}
-        icon={<FontAwesomeIcon icon={faPlus} size="3x" />}
-        onClick={(e) => onItemLevelAddClick(e, viewId, isNextMenuAllowedLevel, levelPath)}
-        menuLevel={isNextMenuAllowedLevel}
-      />) }
+      {!(isExternal || removed) && (
+        <CardItemLevelAdd
+          color={isNextMenuAllowedLevel ? 'primary' : 'secondary'}
+          icon={<FontAwesomeIcon icon={faPlus} size="3x" />}
+          onClick={(e) => onItemLevelAddClick(e, viewId, isNextMenuAllowedLevel, levelPath)}
+          menuLevel={isNextMenuAllowedLevel}
+        />
+      )}
       {hasChildren && !removed && (
         <List
           items={item.items}
@@ -111,6 +120,7 @@ const Item = (props) => {
           level={level + 1}
           levelPath={absolutePath}
           allowedLevels={allowedLevels}
+          error={error}
         />
       )}
     </CardWrapper>

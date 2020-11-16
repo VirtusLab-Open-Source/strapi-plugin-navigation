@@ -52,6 +52,7 @@ const DataManagerProvider = ({ children }) => {
     isLoadingForDetailsDataToBeSet,
     isLoadingForAdditionalDataToBeSet,
     isLoadingForSubmit,
+    error
   } = reducerState.toJS();
   const { pathname } = useLocation();
 
@@ -245,6 +246,7 @@ const DataManagerProvider = ({ children }) => {
     } catch (err) {
       dispatch({
         type: SUBMIT_NAVIGATION_ERROR,
+        error: err.response.payload.data
       });
       console.error({ err: err.response });
       emitEvent('didNotSubmitNavigation');
@@ -284,6 +286,7 @@ const DataManagerProvider = ({ children }) => {
         handleSubmitNavigation,
         getContentTypeItems,
         isInDevelopmentMode,
+        error,
       }}
     >
       {isLoading ? <LoadingIndicatorPage /> : children}
