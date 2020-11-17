@@ -1,0 +1,29 @@
+{
+  "kind": "collectionType",
+  "collectionName": "blog_posts",
+  "info": {
+    "name": "Blog posts"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "searchable": true,
+    "previewable": true
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "altTitle": {
+      "type": "string"
+    },
+    "navigation": {
+      "model": "navigationitem",
+      "plugin": "navigation",
+      "via": "related",
+      "configurable": false,
+      "hidden": true
+    }
+  }
+}

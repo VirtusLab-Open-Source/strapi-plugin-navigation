@@ -29,13 +29,16 @@ const NavigationItemPopUp = ({
   };
 
   const { related, relatedType } = data;
-  const { availableAudience = [], additionalFields, contentTypes, contentTypeItems } = config;
+  const { availableAudience = [], additionalFields, contentTypes, contentTypeItems, contentTypesNameFields = {} } = config;
 
   const prepareFormData = data => ({
     ...data,
     related: related ? { 
       value: related, 
-      label: extractRelatedItemLabel(find(contentTypeItems, item => item.id === related, {}))
+      label: extractRelatedItemLabel({
+        ...find(contentTypeItems, item => item.id === related, {}),
+        __collectionName: relatedType,
+      }, contentTypesNameFields),
     } : undefined,
     relatedType: relatedType ? { 
       value: relatedType, 
@@ -56,6 +59,7 @@ const NavigationItemPopUp = ({
         data={prepareFormData(data)}
         isLoading={isLoading}
         additionalFields={additionalFields}
+        contentTypesNameFields={contentTypesNameFields}
         availableAudience={availableAudience}
         contentTypes={contentTypes}
         contentTypeEntities={contentTypeItems}

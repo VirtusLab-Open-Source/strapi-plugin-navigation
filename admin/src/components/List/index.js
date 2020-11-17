@@ -18,6 +18,7 @@ const List = ({
   level = 0,
   levelPath = '',
   allowedLevels,
+  contentTypesNameFields,
 }) => {
   const Component = as || Container;
   return (
@@ -34,6 +35,7 @@ const List = ({
             isFirst={n === 0}
             isLast={n === items.length - 1}
             allowedLevels={allowedLevels}
+            contentTypesNameFields={contentTypesNameFields}
             onItemClick={onItemClick}
             onItemReOrder={onItemReOrder}
             onItemRestoreClick={onItemRestoreClick}
@@ -61,6 +63,7 @@ List.propTypes = {
   items: PropTypes.array,
   level: PropTypes.number,
   allowedLevels: PropTypes.number,
+  contentTypesNameFields: PropTypes.object.isRequired,
   onItemClick: PropTypes.func.isRequired,
   onItemReOrder: PropTypes.func.isRequired,
   onItemRestoreClick: PropTypes.func.isRequired,

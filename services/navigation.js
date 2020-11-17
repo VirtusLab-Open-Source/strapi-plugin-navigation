@@ -2,6 +2,7 @@
 
 const { validate: uuidValidate } = require("uuid");
 const slugify = require("slugify");
+const pluralize = require('pluralize');
 const { sanitizeEntity } = require("strapi-utils");
 const {
   isArray,
@@ -49,7 +50,21 @@ const extractMeta = (plugins) => {
 const excludedContentTypes = get(
   strapi.config,
   "custom.plugins.navigation.excludedContentTypes",
-  ["plugins::", "strapi"],
+  [
+    "plugins::",
+    "strapi",
+  ],
+);
+
+const contentTypesNameFieldsDefaults = [
+  "title",
+  "subject",
+  "name",
+];
+const contentTypesNameFields = get(
+  strapi.config,
+  "custom.plugins.navigation.contentTypesNameFields",
+  {},
 );
 
 const buildNestedStructure = (entities, id = null, field = 'parent') =>
@@ -97,6 +112,10 @@ module.exports = {
     let extendedResult = {};
     const result = {
       contentTypes: service.configContentTypes(),
+      contentTypesNameFields: {
+        default: contentTypesNameFieldsDefaults,
+        ...(isObject(contentTypesNameFields) ? contentTypesNameFields : {}),
+      },
       allowedLevels: get(strapi.config, 'custom.plugins.navigation.allowedLevels'),
       additionalFields,
     }
@@ -128,14 +147,21 @@ module.exports = {
       .map((key) => {
         const item = strapi.contentTypes[key];
         const { options, info, collectionName, apiName, plugin } = item;
-        const { name, label, description } = info;
+        const { name, description } = info;
         const { isManaged, hidden } = options;
+        const endpoint = pluralize(apiName);
+        const relationName = last(apiName) === 's' ? apiName.substr(0, apiName.length - 1) : apiName;
+        const relationNameParts = relationName.split('-');
+        const contentTypeName = relationNameParts.length > 1 ? relationNameParts.reduce((prev, curr) => `${prev}${upperFirst(curr)}`, '') : upperFirst(relationName);
+        const labelSingular = upperFirst(relationNameParts.length > 1 ? relationNameParts.join(' ') : relationName);
         return {
-          name,
+          name: relationName,
           description,
           collectionName,
-          endpoint: last(apiName) === 's' ? apiName : `${apiName}s`,
-          label: upperFirst(name || collectionName),
+          contentTypeName,
+          label: pluralize(labelSingular || name),
+          labelSingular,
+          endpoint,
           plugin,
           visible: (isManaged || isNil(isManaged)) && !hidden,
         };
@@ -262,7 +288,7 @@ module.exports = {
               uiRouterKey: item.uiRouterKey,
               slug: !slug && item.uiRouterKey ? slugify(item.uiRouterKey) : slug,
               external: isExternal,
-              related: isExternal ? undefined : {
+              related: isExternal || !firstRelated ? undefined : {
                 ...firstRelated,
                 __templateName: getTemplateName(firstRelated.__contentType, firstRelated.id),
               },

@@ -24,6 +24,7 @@ const Item = (props) => {
     level = 0,
     levelPath = '',
     allowedLevels,
+    contentTypesNameFields,
     relatedRef,
     isFirst = false,
     isLast = false,
@@ -46,6 +47,7 @@ const Item = (props) => {
     removed,
     menuAttached,
     relatedRef,
+    contentTypesNameFields,
     attachButtons: !(isFirst && isLast),
   };
 
@@ -111,6 +113,7 @@ const Item = (props) => {
           level={level + 1}
           levelPath={absolutePath}
           allowedLevels={allowedLevels}
+          contentTypesNameFields={contentTypesNameFields}
         />
       )}
     </CardWrapper>
@@ -129,6 +132,7 @@ Item.propTypes = {
     menuAttached: PropTypes.bool,
   }).isRequired,
   relatedRef: PropTypes.object,
+  contentTypesNameFields: PropTypes.object.isRequired,
   level: PropTypes.number,
   levelPath: PropTypes.string,
   isFirst: PropTypes.bool,
