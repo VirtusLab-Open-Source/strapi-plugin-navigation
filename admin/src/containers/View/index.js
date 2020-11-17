@@ -44,6 +44,7 @@ const View = () => {
     handleResetNavigationData,
     handleSubmitNavigation,
     getContentTypeItems,
+    error
   } = useDataManager();
   const [activeNavigationItem, setActiveNavigationItemState] = useState({});
   const { formatMessage } = useIntl();
@@ -64,7 +65,7 @@ const View = () => {
     {
       label: "Save",
       onClick: () =>
-        isLoadingForSubmit ? null : handleSubmitNavigation(transformToRESTPayload(changedActiveNavigation, config)),
+        isLoadingForSubmit ? null : handleSubmitNavigation(formatMessage, transformToRESTPayload(changedActiveNavigation, config)),
       color: "success",
       type: "submit",
       isLoading: isLoadingForSubmit,
@@ -72,12 +73,12 @@ const View = () => {
   ];
 
   const pullUsedContentTypeItem = (items = []) =>
-    items.reduce((prev, curr) => 
-      [...prev, curr.relatedRef ? {
-        __collectionName: curr.relatedRef.__collectionName,
-        id: curr.relatedRef.id
-      } : undefined, ...pullUsedContentTypeItem(curr.items)].filter(item => item)
-    , [])
+    items.reduce((prev, curr) =>
+        [...prev, curr.relatedRef ? {
+          __collectionName: curr.relatedRef.__collectionName,
+          id: curr.relatedRef.id
+        } : undefined, ...pullUsedContentTypeItem(curr.items)].filter(item => item)
+      , [])
   const usedContentTypeItems = pullUsedContentTypeItem((changedActiveNavigation || {}).items);
 
   const changeNavigationItemPopupState = (visible, editedItem = {}) => {
@@ -196,6 +197,7 @@ const View = () => {
                     onItemRestoreClick={restoreNavigationItem}
                     onItemLevelAddClick={addNewNavigationItem}
                     root
+                    error={error}
                     allowedLevels={config.allowedLevels}
                     contentTypesNameFields={config.contentTypesNameFields}
                   />

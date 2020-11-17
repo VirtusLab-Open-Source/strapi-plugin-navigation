@@ -51,6 +51,7 @@ Complete installation requirements are exact same as for Strapi itself and can b
 - **Visual builder:** Elegant and easy to use visual builder
 - **Any Content Type relation:** Navigation can by linked to any of your Content Types by default. Simply, you're controlling it and also limiting available content types by configuration props
 - **Customizable:** Possibility to customize the options like: available Content Types, Maximum level for "attach to menu", Additional fields (audience)
+- **[Audit log](https://github.com/VirtusLab/strapi-molecules/tree/master/packages/strapi-plugin-audit-log):** integration with Strapi Molecules Audit Log plugin that provides changes track record
 
 
 ## Content Type model relation to Navigation Item
@@ -329,6 +330,27 @@ Return a rendered navigation structure depends on passed type (`tree`, `rfr` or 
     }
 }
 ```
+
+## Audit log
+If you would like to use the [Strapi Molecules Audit Log](https://github.com/VirtusLab/strapi-molecules/tree/master/packages/strapi-plugin-audit-log) plugin you've to first install and then add in you `config/middleware.js` following section enable it:
+```js
+{
+    'audit-log': {
+          enabled: true,
+          exclude: [],
+          map: [
+            {
+              pluginName: 'navigation',
+              serviceName: 'navigation',
+              Class: Navigation,
+            },
+          ]
+        }
+}
+```
+As a last step you've to provide the Navigation class to let Audit Log use it. To not provide external & hard dependencies we've added the example of class code in the `examples/audit-log-integration.js` .
+
+
 
 ## Contributing
 

@@ -23,7 +23,7 @@
       "configurable": false
     },
     "path": {
-      "type": "uid",
+      "type": "text",
       "targetField": "title",
       "configurable": false
     },

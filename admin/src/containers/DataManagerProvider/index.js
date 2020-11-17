@@ -27,8 +27,9 @@ import {
   GET_CONTENT_TYPE_ITEMS,
   SUBMIT_NAVIGATION,
   SUBMIT_NAVIGATION_SUCCEEDED,
-} from "./actions";
-import { prepareItemToViewPayload } from "../View/utils/parsers";
+  SUBMIT_NAVIGATION_ERROR,
+} from './actions';
+import { prepareItemToViewPayload } from '../View/utils/parsers';
 
 const DataManagerProvider = ({ children }) => {
   const [reducerState, dispatch] = useReducer(reducer, initialState, init);
@@ -51,6 +52,7 @@ const DataManagerProvider = ({ children }) => {
     isLoadingForDetailsDataToBeSet,
     isLoadingForAdditionalDataToBeSet,
     isLoadingForSubmit,
+    error
   } = reducerState.toJS();
   const { pathname } = useLocation();
 
@@ -219,7 +221,7 @@ const DataManagerProvider = ({ children }) => {
     emitEvent("didResetNavigationChanges");
   };
 
-  const handleSubmitNavigation = async (payload = {}) => {
+  const handleSubmitNavigation = async (formatMessage, payload = {}) => {
     try {
       emitEvent("willSubmitNavigation");
       dispatch({
@@ -242,9 +244,21 @@ const DataManagerProvider = ({ children }) => {
 
       strapi.notification.success(`${pluginId}.notification.navigation.submit`);
     } catch (err) {
-      emitEvent("didNotSubmitNavigation");
+      dispatch({
+        type: SUBMIT_NAVIGATION_ERROR,
+        error: err.response.payload.data
+      });
       console.error({ err: err.response });
-      strapi.notification.error("notification.error");
+      emitEvent('didNotSubmitNavigation');
+      if (err.response.payload.data && err.response.payload.data.errorTitles) {
+        return strapi.notification.error(
+          formatMessage(
+            { id: `${pluginId}.notification.navigation.error` },
+            { ...err.response.payload.data, errorTitles: err.response.payload.data.errorTitles.join(' and ') },
+          ),
+        );
+      }
+      strapi.notification.error('notification.error');
     }
   };
 
@@ -272,6 +286,7 @@ const DataManagerProvider = ({ children }) => {
         handleSubmitNavigation,
         getContentTypeItems,
         isInDevelopmentMode,
+        error,
       }}
     >
       {isLoading ? <LoadingIndicatorPage /> : children}

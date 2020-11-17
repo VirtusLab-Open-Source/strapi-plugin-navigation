@@ -1,7 +1,14 @@
-import styled from "styled-components";
+import styled from 'styled-components';
 
-import { colors, sizes } from "strapi-helper-plugin";
-import CardItem from "./CardItem";
+import { colors, sizes } from 'strapi-helper-plugin';
+import CardItem from './CardItem';
+
+const backgroundColor = ({ error, theme }) => {
+  if (error) {
+    return theme.main.colors.red;
+  }
+  return colors.relations.boxShadow;
+};
 
 const CardWrapper = styled.li`
   padding: 0;
@@ -24,13 +31,13 @@ const CardWrapper = styled.li`
       left: -2rem;
       z-index: -1;
 
-      background-color: ${colors.relations.boxShadow};
+      background-color: ${backgroundColor};
     }
   }
 
   &:last-child {
     &:before {
-      display: ${(props) => (props.level < 2 ? "none" : "block")};
+      display: ${(props) => (props.level < 2 ? 'none' : 'block')};
       content: "";
       width: 6px;
       height: 6px;
@@ -43,7 +50,7 @@ const CardWrapper = styled.li`
 
       border-radius: 3px;
 
-      background-color: ${colors.relations.boxShadow};
+      background-color: ${backgroundColor};
     }
 
     ${CardItem} {
@@ -59,12 +66,43 @@ const CardWrapper = styled.li`
     width: 2px;
 
     position: absolute;
-    top: -2rem;
-    bottom: -2.5rem;
+    top: ${({ isFirst, isLast }) => {
+      if (isFirst && isLast) {
+        return '-2.5rem';
+      }
+      if (isFirst && !isLast) {
+        return '-2rem';
+      }
+      if (!isFirst && isLast) {
+        return '-68%';
+      }
+      if (!isFirst && !isLast) {
+        return 0;
+      }
+    }};
+    bottom: ${({ isFirst, isLast }) => {
+      if (isFirst && isLast) {
+        return 'unset';
+      }
+      if (isFirst && !isLast) {
+        return '-50%';
+      }
+      if (!isFirst && isLast) {
+        return '50%';
+      }
+      if (!isFirst && !isLast) {
+        return 0;
+      }
+    }};
+    height: ${({ isFirst, isLast }) => {
+      if (isFirst && isLast) {
+        return '15.5%';
+      }
+    }};
     left: -2rem;
     z-index: -1;
 
-    background-color: ${colors.relations.boxShadow};
+    background-color: ${backgroundColor};
   }
 `;
 
