@@ -74,9 +74,11 @@ inside the `attributes` section like in example below:
     "attributes": {
         ...,
         "navigation": {
+            "model": "navigationitem",
             "plugin": "navigation",
-            "collection": "comment",
-            "via": "related"
+            "via": "related",
+            "configurable": false,
+            "hidden": true
         },
         ...
     },
