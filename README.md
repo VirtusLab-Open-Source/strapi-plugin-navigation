@@ -21,6 +21,8 @@ A plugin for [Strapi Headless CMS](https://github.com/strapi/strapi) that provid
 - Tree (nested)
 - RFR (ready for handling by Redux First Router)
 
+<img src="public/assets/preview.png" alt="UI preview" />
+
 ### ⏳ Installation
 
 (Use **yarn** to install this plugin within your Strapi project (recommended). [Install yarn with these docs](https://yarnpkg.com/lang/en/docs/install/).)
@@ -28,6 +30,8 @@ A plugin for [Strapi Headless CMS](https://github.com/strapi/strapi) that provid
 ```bash
 yarn add strapi-plugin-navigation@latest
 ```
+
+The **UI Navigation** plugin should appear in the **Plugins** section of Strapi sidebar after you run app again.
 
 
 Enjoy 🎉
