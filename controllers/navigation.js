@@ -10,7 +10,7 @@ const { NavigationError } = require('../utils/NavigationError');
 const parseParams = (params) =>
   Object.keys(params).reduce((prev, curr) => {
     const value = params[curr];
-    const parsedValue = isNaN(value) 
+    const parsedValue = isNaN(value)
       ? value
       : parseInt(value, 10);
     return {

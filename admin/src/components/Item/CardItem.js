@@ -15,6 +15,10 @@ const CardItem = styled(Card)`
 
   transition: all 0.15s ease-in-out;
 
+  ${({hasError, theme})=> hasError && `
+    border: 1px solid ${theme.main.colors.red};
+  `}
+
   ${ props => !props.removed && `
     &:hover {
       background-color: ${colors.lightGrey};

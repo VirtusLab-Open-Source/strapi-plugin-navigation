@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 import { Button } from "@buffetjs/core";
-import { colors, sizes } from "strapi-helper-plugin";
+import { sizes } from "strapi-helper-plugin";
 import { CartItemWidth } from "./CardItem";
 
 export const buttonRadius = 1.6 * sizes.margin;

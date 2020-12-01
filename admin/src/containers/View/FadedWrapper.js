@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import { colors, sizes } from "strapi-helper-plugin";
+import { sizes } from "strapi-helper-plugin";
 
 const FadedWrapper = styled.div`
   display: flex;
