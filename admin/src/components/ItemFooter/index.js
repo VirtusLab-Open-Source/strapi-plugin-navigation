@@ -11,7 +11,7 @@ import { extractRelatedItemLabel } from '../../containers/View/utils/parsers';
 
 const ItemFooter = ({ type, removed, relatedRef, attachButtons, contentTypesNameFields }) => {
   const formatRelationType = () =>
-    !isNil(relatedRef) ? get(relatedRef, '__contentType') : '';
+    !isNil(relatedRef) ? get(relatedRef, 'labelSingular', get(relatedRef, '__contentType')) : '';
 
   const formatRelationName = () =>
     !isNil(relatedRef) ? extractRelatedItemLabel(relatedRef, contentTypesNameFields) : '';
