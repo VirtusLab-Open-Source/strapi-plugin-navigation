@@ -40,7 +40,6 @@ const Item = (props) => {
     type,
     path,
     removed,
-    edited,
     externalPath,
     menuAttached,
   } = item;
@@ -66,16 +65,16 @@ const Item = (props) => {
     relatedRef,
   }, moveBy);
 
+  const hasError = error?.parentId === item.parent && error?.errorTitles.includes(item.title);
   return (
     <CardWrapper
-      isFirst={isFirst}
-      isLast={isLast}
       level={level}
-      error={error?.parentId === item.parent && error?.errorTitles.includes(item.title)}
+      error={hasError}
     >
       <CardItem
         hasChildren={hasChildren}
         removed={removed}
+        hasError={hasError}
         onClick={(e) =>
           removed ? null : onItemClick(e, {
             ...item,

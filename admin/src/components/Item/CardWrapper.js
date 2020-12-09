@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { colors, sizes } from 'strapi-helper-plugin';
+import { colors } from 'strapi-helper-plugin';
 import CardItem from './CardItem';
 
 const backgroundColor = ({ error, theme }) => {
@@ -50,7 +50,7 @@ const CardWrapper = styled.li`
 
       border-radius: 3px;
 
-      background-color: ${backgroundColor};
+      background-color: ${colors.relations.boxShadow};
     }
 
     ${CardItem} {
@@ -66,43 +66,12 @@ const CardWrapper = styled.li`
     width: 2px;
 
     position: absolute;
-    top: ${({ isFirst, isLast }) => {
-      if (isFirst && isLast) {
-        return '-2.5rem';
-      }
-      if (isFirst && !isLast) {
-        return '-2rem';
-      }
-      if (!isFirst && isLast) {
-        return '-68%';
-      }
-      if (!isFirst && !isLast) {
-        return 0;
-      }
-    }};
-    bottom: ${({ isFirst, isLast }) => {
-      if (isFirst && isLast) {
-        return 'unset';
-      }
-      if (isFirst && !isLast) {
-        return '-50%';
-      }
-      if (!isFirst && isLast) {
-        return '50%';
-      }
-      if (!isFirst && !isLast) {
-        return 0;
-      }
-    }};
-    height: ${({ isFirst, isLast }) => {
-      if (isFirst && isLast) {
-        return '15.5%';
-      }
-    }};
+    top: -2rem;
+    bottom: -2.5rem;
     left: -2rem;
     z-index: -1;
 
-    background-color: ${backgroundColor};
+    background-color: ${colors.relations.boxShadow};
   }
 `;
 

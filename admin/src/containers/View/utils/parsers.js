@@ -1,5 +1,5 @@
 import { v4, validate as validateUUID } from "uuid";
-import { get, find, first, orderBy, upperFirst, isObject, isString, isNumber, isArray, isNil, isEmpty } from 'lodash';
+import { get, find, first, orderBy, isObject, isString, isNumber, isArray, isNil, isEmpty } from 'lodash';
 import { navigationItemType } from "./enums";
 
 export const transformItemToRESTPayload = (
@@ -209,7 +209,7 @@ export const transformItemToViewPayload = (payload, items = [], config) => {
         items: transformItemToViewPayload(payload, item.items, config),
       };
     });
-    return reOrderItems(updatedLevel);
+  return reOrderItems(updatedLevel);
 };
 
 export const prepareItemToViewPayload = (items = [], viewParentId = null, config = {}) =>
