@@ -1,4 +1,4 @@
-import { v4, validate as validateUUID } from "uuid";
+import { uuid, isUuid } from "uuidv4";
 import { get, find, first, orderBy, isObject, isString, isNumber, isArray, isNil, isEmpty } from 'lodash';
 import { navigationItemType } from "./enums";
 
@@ -26,7 +26,7 @@ export const transformItemToRESTPayload = (
   } = item;
   const isExternal = type === navigationItemType.EXTERNAL;
   const { contentTypeItems = [], contentTypes = [] } = config;
-  const relatedId = isExternal || (isString(related) && validateUUID(related)) ? related : parseInt(related, 10);
+  const relatedId = isExternal || (isString(related) && isUuid(related)) ? related : parseInt(related, 10);
   const relatedContentTypeItem = isExternal ? undefined : find(contentTypeItems, cti => cti.id === relatedId);
   const relatedContentType = relatedContentTypeItem || relatedType ?
     find(contentTypes, ct => ct.collectionName === (relatedContentTypeItem ? relatedContentTypeItem.__collectionName : relatedType)) :
@@ -90,14 +90,14 @@ const linkRelations = (item, config) => {
   }
 
   const relatedItem = isArray(related) ? first(related) : related;
-  const relatedId = isString(related) && !validateUUID(related) ? parseInt(related, 10) : related;
+  const relatedId = isString(related) && !isUuid(related) ? parseInt(related, 10) : related;
   const relationNotChanged = relatedRef && relatedItem ? relatedRef.id === relatedItem : false;
 
   if (relationNotChanged) {
     return item;
   }
 
-  const shouldFindRelated = (isNumber(related) || validateUUID(related) || isString(related)) && !relatedRef;
+  const shouldFindRelated = (isNumber(related) || isUuid(related) || isString(related)) && !relatedRef;
   const shouldBuildRelated = !relatedRef || (relatedRef && (relatedRef.id !== relatedId));
   if (shouldBuildRelated && !shouldFindRelated) {
     const { __contentType } = relatedItem;
@@ -168,7 +168,7 @@ export const transformItemToViewPayload = (payload, items = [], config) => {
       linkRelations({
         ...payload,
         order: items.length + 1,
-        viewId: v4(),
+        viewId: uuid(),
       }, config),
     ];
   }
@@ -185,7 +185,7 @@ export const transformItemToViewPayload = (payload, items = [], config) => {
               linkRelations({
                 ...payload,
                 order: branchItems.length + 1,
-                viewId: v4(),
+                viewId: uuid(),
               }, config),
             ],
           };
@@ -214,7 +214,7 @@ export const transformItemToViewPayload = (payload, items = [], config) => {
 
 export const prepareItemToViewPayload = (items = [], viewParentId = null, config = {}) =>
   items.map((item, n) => {
-    const viewId = v4();
+    const viewId = uuid();
     return {
       ...linkRelations({
         viewId,

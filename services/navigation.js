@@ -1,6 +1,6 @@
 "use strict";
 
-const { validate: uuidValidate } = require("uuid");
+const { isUuid } = require("uuidv4");
 const slugify = require("slugify");
 const pluralize = require('pluralize');
 const { sanitizeEntity } = require("strapi-utils");
@@ -301,7 +301,7 @@ module.exports = {
     const { service } = extractMeta(
       strapi.plugins,
     );
-    const findById = isNumber(idOrSlug) || uuidValidate(idOrSlug);
+    const findById = isNumber(idOrSlug) || isUuid(idOrSlug);
     const criteria = findById ? { id: idOrSlug } : { slug: idOrSlug };
     const itemCriteria = menuOnly ? { menuAttached: true } : {};
 
