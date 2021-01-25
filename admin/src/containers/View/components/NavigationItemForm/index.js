@@ -154,7 +154,7 @@ const NavigationItemForm = ({
           contentTypes,
           (_) => _.collectionName === value,
         );
-        if (item) {
+        if (item && !item.isSingle) {
           await getContentTypeEntities(item.endpoint || item.collectionName, item.plugin);
         }
       }

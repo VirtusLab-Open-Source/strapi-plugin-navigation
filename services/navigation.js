@@ -12,17 +12,16 @@ const {
   isNumber,
   find,
   first,
-  flatten,
   get,
   last,
   upperFirst,
   isString,
 } = require('lodash');
+const { KIND_TYPES } = require("./utils/constant");
+const { extractMeta, checkDuplicatePath, buildNestedStructure, templateNameFactory, sendAuditLog, prepareAuditLog} = require('./utils/functions');
 const { renderType } = require('../models/navigation');
 const { type: itemType } = require('../models/navigationItem');
 const navigationItem = require('../models/navigationItem');
-const { NavigationError } = require('../utils/NavigationError');
-const { TEMPLATE_DEFAULT } = require('./constant');
 
 /**
  * navigation.js service
@@ -30,23 +29,7 @@ const { TEMPLATE_DEFAULT } = require('./constant');
  * @description: A set of functions similar to controller's actions to avoid code duplication.
  */
 
-const extractMeta = (plugins) => {
-  const { navigation: plugin } = plugins;
-  const { navigation: service } = plugin.services;
-  const {
-    navigation: masterModel,
-    navigationitem: itemModel,
-    audience: audienceModel,
-  } = plugin.models;
-  return {
-    masterModel,
-    itemModel,
-    audienceModel,
-    service,
-    plugin,
-    pluginName: plugin.package.strapi.name.toLowerCase(),
-  };
-};
+
 
 const excludedContentTypes = get(
   strapi.config,
@@ -67,101 +50,6 @@ const contentTypesNameFields = get(
   "custom.plugins.navigation.contentTypesNameFields",
   {},
 );
-
-const checkDuplicatePath = (parentItem, checkData) => {
-  return new Promise((resolve, reject) => {
-    if (parentItem && parentItem.items) {
-      for (let item of checkData) {
-        for (let _ of parentItem.items) {
-          if (_.path === item.path && _.id !== item.id) {
-            return reject(
-              new NavigationError(
-                `Duplicate path:${item.path} in parent: ${parentItem.title || 'root'} for ${item.title} and ${_.title} items`,
-                {
-                  parentTitle: parentItem.title,
-                  parentId: parentItem.id,
-                  path: item.path,
-                  errorTitles: [item.title, _.title],
-                },
-              ),
-            );
-          }
-        }
-      }
-    }
-    return resolve();
-  });
-
-};
-
-const buildNestedStructure = (entities, id = null, field = 'parent') =>
-  entities
-    .filter(entity => {
-      if (entity[field] === null && id === null) {
-        return true;
-      }
-      let data = entity[field];
-      if (data && typeof id === 'string') {
-        data = data.toString();
-      }
-      return (data && data === id) || (isObject(entity[field]) && (entity[field].id === id));
-    })
-    .map(entity => {
-      return ({
-        ...entity,
-        items: buildNestedStructure(entities, entity.id, field),
-      });
-    });
-
-const getTemplateComponentFromTemplate = (
-  template = [],
-) => {
-  const componentName = get(first(template), '__component');
-  return componentName ? strapi.components[componentName] : null;
-};
-
-const templateNameFactory = async (items, strapi) => {
-  const flatRelated = flatten(items.map(i => i.related));
-  const relatedMap = flatRelated.reduce((acc, curr) => {
-    if (!acc[curr.__contentType]) {
-      acc[curr.__contentType] = [];
-    }
-    acc[curr.__contentType].push(curr.id);
-    return acc;
-  }, {});
-  const responses = await Promise.all(
-    Object.entries(relatedMap)
-      .map(
-        ([contentType, ids]) => strapi.query(contentType).find({ id_in: ids }).then(res => ({ [contentType]: res }))),
-  );
-  const relatedResponseMap = responses.reduce((acc, curr) => ({ ...acc, ...curr }), {});
-
-  return (contentType, id) => {
-    const template = get(relatedResponseMap[contentType].find(data => data.id === id), 'template');
-    const templateComponent = getTemplateComponentFromTemplate(template);
-    return get(templateComponent, 'options.templateName', TEMPLATE_DEFAULT);
-  };
-};
-
-const sendAuditLog = (auditLogInstance, event, data) => {
-  if (auditLogInstance && auditLogInstance.emit) {
-    auditLogInstance.emit(event, data);
-  }
-};
-
-const prepareAuditLog = (actions) => {
-  return [
-    ...new Set(
-      actions
-        .filter(_ => !!_)
-        .flatMap(({ remove, create, update }) => {
-          return [create ? 'CREATE' : '', update ? 'UPDATE' : '', remove ? 'REMOVE' : '']
-            .filter(_ => !!_);
-        }),
-    ),
-  ]
-    .join('_');
-};
 
 module.exports = {
   // Get plugin configuration
@@ -198,35 +86,37 @@ module.exports = {
 
   configContentTypes: () =>
     Object.keys(strapi.contentTypes)
-          .filter(
-            (key) =>
-              excludedContentTypes.filter((ect) => key.includes(ect)).length ===
-              0,
-          )
-          .map((key) => {
-            const item = strapi.contentTypes[key];
-            const { options, info, collectionName, apiName, plugin } = item;
-            const { name, description } = info;
-            const { isManaged, hidden } = options;
-            const endpoint = pluralize(apiName);
-            const relationName = last(apiName) === 's' ? apiName.substr(0, apiName.length - 1) : apiName;
-            const relationNameParts = relationName.split('-');
-            const contentTypeName = relationNameParts.length > 1 ? relationNameParts.reduce(
-              (prev, curr) => `${prev}${upperFirst(curr)}`, '') : upperFirst(relationName);
-            const labelSingular = upperFirst(relationNameParts.length > 1 ? relationNameParts.join(' ') : relationName);
-            return {
-              name: relationName,
-              description,
-              collectionName,
-              contentTypeName,
-              label: pluralize(labelSingular || name),
-              labelSingular,
-              endpoint,
-              plugin,
-              visible: (isManaged || isNil(isManaged)) && !hidden,
-            };
-          })
-          .filter((item) => item.visible),
+      .filter(
+        (key) =>
+          excludedContentTypes.filter((ect) => key.includes(ect)).length ===
+          0,
+      )
+      .map((key) => {
+        const item = strapi.contentTypes[key];
+        console.log('item', item);
+        const { options, info, collectionName, apiName, plugin, kind } = item;
+        const { name, description } = info;
+        const { isManaged, hidden } = options;
+        const endpoint = pluralize(apiName);
+        const relationName = last(apiName) === 's' ? apiName.substr(0, apiName.length - 1) : apiName;
+        const relationNameParts = relationName.split('-');
+        const contentTypeName = relationNameParts.length > 1 ? relationNameParts.reduce((prev, curr) => `${prev}${upperFirst(curr)}`, '') : upperFirst(relationName);
+        const labelSingular = upperFirst(relationNameParts.length > 1 ? relationNameParts.join(' ') : relationName);
+        const isSingle = kind === KIND_TYPES.SINGLE;
+        return {
+          name: relationName,
+          isSingle,
+          description,
+          collectionName,
+          contentTypeName,
+          label: isSingle ? labelSingular : pluralize(labelSingular || name),
+          labelSingular,
+          endpoint,
+          plugin,
+          visible: (isManaged || isNil(isManaged)) && !hidden,
+        };
+      })
+      .filter((item) => item.visible),
 
   // Get all available navigations
   get: async () => {
