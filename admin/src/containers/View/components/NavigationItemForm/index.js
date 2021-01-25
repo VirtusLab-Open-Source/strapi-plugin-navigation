@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from 'react';
 import { Button, Enumeration, Flex, Label, Text, Toggle } from "@buffetjs/core";
 import { useIntl } from "react-intl";
-import { find, get, isEmpty, isNil, isNumber, isString } from "lodash";
+import { find, get, isEmpty, isNil, isString } from "lodash";
 import PropTypes from "prop-types";
 import { ButtonModal, ModalBody, ModalForm } from "strapi-helper-plugin";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -54,6 +54,7 @@ const NavigationItemForm = ({
       externalPath: sanitizedType === navigationItemType.EXTERNAL ? purePayload.externalPath : undefined,
       related: related ? related.value : undefined,
       relatedType: relatedType ? relatedType.value : undefined,
+      isSingle: isSingleSelected,
       uiRouterKey: generateUiRouterKey(),
     };
   }
@@ -64,7 +65,7 @@ const NavigationItemForm = ({
     }
 
     const payload = sanitizePayload(form);
-    const errors = await checkFormValidity(payload, formDefinition.schema);
+    const errors = await checkFormValidity(payload, formDefinition.schema(isSingleSelected));
     if (!errors || isEmpty(errors)) {
       return onSubmit(payload);
     } else {
@@ -83,33 +84,56 @@ const NavigationItemForm = ({
   }
 
   const onChange = ({ target: { name, value } }) => {
-    setFormState({
-      ...form,
+    setFormState(prevState => ({
+      ...prevState,
       updated: true,
       [name]: value,
-    });
+    }));
     if (!hasChanged) {
       setChangedState(true);
     }
   };
 
+  const onChangeRelatedType = ({target: { name, value } }) => {
+    setFormState(prevState => ({
+      ...prevState,
+      updated: true,
+      related: undefined,
+      [name]: value,
+    }));
+    if (!hasChanged) {
+      setChangedState(true);
+    }
+  }
+
+
   const generateUiRouterKey = () => isString(form.title) && !isEmpty(form.title) ? slugify(form.title).toLowerCase() : undefined;
 
-  const typeSelectValue = get(form, "type", navigationItemType.INTERNAL);
-  const typeSelectOptions = Object.keys(navigationItemType).map((key) => ({
-    value: key,
-    label: formatMessage({
-      id: `${pluginId}.popup.item.form.type.${key.toLowerCase()}.label`,
-    }),
-  }));
+  const typeSelectValue = form.type || navigationItemType.INTERNAL;
+  const relatedTypeSelectValue = form.relatedType;
+  const relatedSelectValue = form.related;
 
-  const relatedTypeSelectValue = get(form, "relatedType", undefined);
-  const relatedTypeSelectOptions = contentTypes.map((item) => ({
-      value: get(item, "collectionName"),
-      label: get(item, "label", get(item, "name")),
-    }));
+  const typeSelectOptions = useMemo(
+    () => Object.keys(navigationItemType).map((key) => ({
+      value: key,
+      label: formatMessage({
+        id: `${pluginId}.popup.item.form.type.${key.toLowerCase()}.label`,
+      }),
+    })),
+    [],
+  );
 
-  const relatedSelectValue = get(form, "related", undefined);
+  const isSingleSelected = useMemo(
+    () => relatedTypeSelectValue ? contentTypes.find(_ => _.collectionName === relatedType.value)?.isSingle : false,
+    [relatedTypeSelectValue, contentTypes]
+  );
+  const relatedTypeSelectOptions = useMemo(
+    () => contentTypes.map((item) => ({
+      value: get(item, 'collectionName'),
+      label: get(item, 'label', get(item, 'name')),
+    })),
+    [contentTypes],
+  );
   const relatedSelectOptions = contentTypeEntities
     .filter((item) => !find(usedContentTypeEntities.filter(uctItem => uctItem.id !== get(relatedSelectValue, 'value')), uctItem =>
         (get(relatedTypeSelectValue, 'value') === uctItem.__collectionName) && (item.id === uctItem.id)
@@ -135,16 +159,20 @@ const NavigationItemForm = ({
 
   const generatePreviewPath = () => {
     if (!isExternal && data.levelPath) {
-      return (<Text fontSize="sm" color="grey">
-          <FontAwesomeIcon icon={faEye}/>{ ' ' }
-          { formatMessage({
+      return (
+        <Text fontSize="sm" color="grey">
+          <FontAwesomeIcon icon={faEye} />{' '}
+          {formatMessage({
             id: `${pluginId}.popup.item.form.path.preview`,
-          }) }{ ' ' }
-          {data.levelPath !== '/' ? `${data.levelPath}`  : ''}/{form.path}
-        </Text>);
+          })}{' '}
+          {data.levelPath !== '/' ? `${data.levelPath}` : ''}/{form.path}
+        </Text>
+      );
     }
     return null;
-  }
+  };
+
+
 
   useEffect(() => {
     const { value } = relatedType || {};
@@ -268,12 +296,12 @@ const NavigationItemForm = ({
                     <Select
                       name={`${inputsPrefix}relatedType`}
                       error={get(formErrors, `${inputsPrefix}relatedType`)}
-                      onChange={onChange}
+                      onChange={onChangeRelatedType}
                       options={relatedTypeSelectOptions}
                       value={relatedTypeSelectValue}
                     />
                   </div>
-                  {relatedTypeSelectValue && (
+                  {relatedTypeSelectValue && !isSingleSelected && (
                     <div className="col-lg-6 col-md-12">
                       <Label
                         htmlFor={`${inputsPrefix}related`}

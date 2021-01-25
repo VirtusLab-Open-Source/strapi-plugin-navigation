@@ -54,7 +54,7 @@ export const transformItemToRESTPayload = (
           {
             refId: relatedId,
             ref: relatedContentType ? relatedContentType.name : relatedType,
-            field: "navigation",
+            field: relatedContentType ? relatedContentType.relatedField : 'navigation',
           },
         ],
     items: items.map((iItem) => transformItemToRESTPayload(iItem, id, master, config)),
@@ -73,11 +73,18 @@ export const transformToRESTPayload = (payload, config = {}) => {
 
 const linkRelations = (item, config) => {
   const { contentTypeItems = [], contentTypes = [] } = config;
-  const { type, related, relatedType, relatedRef } = item;
+  const { type, related, relatedType, relatedRef, isSingle } = item;
   let relation = {
     related: undefined,
     relatedRef: undefined,
     relatedType: undefined
+  }
+
+  if (isSingle && relatedType){
+    return {
+      ...item,
+      relatedType
+    }
   }
 
   // we got empty array after remove object in relation

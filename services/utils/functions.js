@@ -29,7 +29,7 @@ module.exports = {
 
     checkDuplicatePath(parentItem, checkData) {
         return new Promise((resolve, reject) => {
-          if (parentItem) {
+          if (parentItem && parentItem.items) {
             for (let item of checkData) {
               for (let _ of parentItem.items) {
                 if (_.path === item.path && _.id !== item.id) {
@@ -60,12 +60,12 @@ module.exports = {
           items: this.buildNestedStructure(entities, entity.id, field),
         }))
     },
-    
+
     getTemplateComponentFromTemplate(template = []) {
       const componentName = get(first(template), '__component');
       return componentName ? strapi.components[componentName] : null;
     },
-    
+
     async templateNameFactory(items, strapi) {
       const flatRelated = flatten(items.map(i => i.related));
       const relatedMap = flatRelated.reduce((acc, curr) => {
@@ -81,20 +81,20 @@ module.exports = {
             ([contentType, ids]) => strapi.query(contentType).find({ id_in: ids }).then(res => ({ [contentType]: res }))),
       );
       const relatedResponseMap = responses.reduce((acc, curr) => ({ ...acc, ...curr }), {});
-    
+
       return (contentType, id) => {
         const template = get(relatedResponseMap[contentType].find(data => data.id === id), 'template');
         const templateComponent = this.getTemplateComponentFromTemplate(template);
         return get(templateComponent, 'options.templateName', TEMPLATE_DEFAULT);
       };
     },
-    
+
     sendAuditLog(auditLogInstance, event, data) {
       if (auditLogInstance && auditLogInstance.emit) {
         auditLogInstance.emit(event, data);
       }
     },
-    
+
     prepareAuditLog(actions) {
       return [
         ...new Set(
@@ -108,5 +108,5 @@ module.exports = {
       ]
         .join('_');
     },
-    
+
 };

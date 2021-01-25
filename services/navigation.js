@@ -18,7 +18,7 @@ const {
   isString,
 } = require('lodash');
 const { KIND_TYPES } = require("./utils/constant");
-const { extractMeta, checkDuplicatePath, buildNestedStructure, templateNameFactory, sendAuditLog, prepareAuditLog} = require('./utils/functions');
+const utilsFunctions = require('./utils/functions');
 const { renderType } = require('../models/navigation');
 const { type: itemType } = require('../models/navigationItem');
 const navigationItem = require('../models/navigationItem');
@@ -54,7 +54,7 @@ const contentTypesNameFields = get(
 module.exports = {
   // Get plugin configuration
   config: async () => {
-    const { pluginName, service, audienceModel } = extractMeta(strapi.plugins);
+    const { pluginName, service, audienceModel } = utilsFunctions.extractMeta(strapi.plugins);
     const additionalFields = get(strapi.config, 'custom.plugins.navigation.additionalFields', []);
     let extendedResult = {};
     const result = {
@@ -93,7 +93,7 @@ module.exports = {
       )
       .map((key) => {
         const item = strapi.contentTypes[key];
-        console.log('item', item);
+        const relatedField = (item.associations || []).find(_ => _.collection === 'navigationitem');
         const { options, info, collectionName, apiName, plugin, kind } = item;
         const { name, description } = info;
         const { isManaged, hidden } = options;
@@ -110,6 +110,7 @@ module.exports = {
           collectionName,
           contentTypeName,
           label: isSingle ? labelSingular : pluralize(labelSingular || name),
+          relatedField: relatedField ? relatedField.alias : undefined,
           labelSingular,
           endpoint,
           plugin,
@@ -120,16 +121,16 @@ module.exports = {
 
   // Get all available navigations
   get: async () => {
-    const { pluginName, masterModel } = extractMeta(strapi.plugins);
+    const { pluginName, masterModel } = utilsFunctions.extractMeta(strapi.plugins);
     const entities = await strapi
       .query(masterModel.modelName, pluginName)
       .find({}, []);
     return entities.map((_) => sanitizeEntity(_, { model: masterModel }));
   },
 
-  // Get navigation by id with
+  // Get navigation by id with related
   getById: async (id) => {
-    const { pluginName, masterModel, itemModel } = extractMeta(strapi.plugins);
+    const { pluginName, masterModel, itemModel } = utilsFunctions.extractMeta(strapi.plugins);
     const entity = await strapi
       .query(masterModel.modelName, pluginName)
       .findOne({ id });
@@ -145,12 +146,12 @@ module.exports = {
       ...sanitizeEntity(entity,
         { model: masterModel },
       ),
-      items: buildNestedStructure(entityItems),
+      items: utilsFunctions.buildNestedStructure(entityItems),
     };
   },
 
   post: async (payload, auditLog) => {
-    const { pluginName, masterModel, service } = extractMeta(strapi.plugins);
+    const { pluginName, masterModel, service } = utilsFunctions.extractMeta(strapi.plugins);
     const { name, visible } = payload;
 
     const existingEntity = await strapi
@@ -165,13 +166,13 @@ module.exports = {
       .createBranch(payload.items, existingEntity, null)
       .then(() => service.getById(existingEntity.id))
       .then((newEntity) => {
-        sendAuditLog(auditLog, 'onChangeNavigation', { actionType: 'CREATE', oldEntity: existingEntity, newEntity });
+        utilsFunctions.sendAuditLog(auditLog, 'onChangeNavigation', { actionType: 'CREATE', oldEntity: existingEntity, newEntity });
         return newEntity;
       })
   },
 
   put: async (id, payload, auditLog) => {
-    const { pluginName, masterModel, service } = extractMeta(strapi.plugins);
+    const { pluginName, masterModel, service } = utilsFunctions.extractMeta(strapi.plugins);
     const { name, visible } = payload;
 
     const existingEntity = await service.getById(id);
@@ -190,17 +191,17 @@ module.exports = {
       .analyzeBranch(payload.items, existingEntity, null)
       .then((auditLogsOperations) =>
         Promise.all([
-          prepareAuditLog((auditLogsOperations || []).flat(Number.MAX_SAFE_INTEGER)),
+          auditLog ? utilsFunctions.prepareAuditLog((auditLogsOperations || []).flat(Number.MAX_SAFE_INTEGER)) : [],
           service.getById(existingEntity.id)],
         ))
       .then(([actionType, newEntity]) => {
-        sendAuditLog(auditLog, 'onChangeNavigation', { actionType, oldEntity: existingEntity, newEntity });
+        utilsFunctions.sendAuditLog(auditLog, 'onChangeNavigation', { actionType, oldEntity: existingEntity, newEntity });
         return newEntity;
       })
   },
 
   render: async (idOrSlug, type = renderType.FLAT, menuOnly = false) => {
-    const { service } = extractMeta(
+    const { service } = utilsFunctions.extractMeta(
       strapi.plugins,
     );
     const findById = isNumber(idOrSlug) || isUuid(idOrSlug);
@@ -211,7 +212,7 @@ module.exports = {
   },
 
   renderType: async (type = renderType.FLAT, criteria = {}, itemCriteria = {}) => {
-    const { pluginName, service, masterModel, itemModel } = extractMeta(
+    const { pluginName, service, masterModel, itemModel } = utilsFunctions.extractMeta(
       strapi.plugins,
     );
 
@@ -234,7 +235,7 @@ module.exports = {
       if (!items) {
         return [];
       }
-      const getTemplateName = await templateNameFactory(items, strapi)
+      const getTemplateName = await utilsFunctions.templateNameFactory(items, strapi)
 
       switch (type) {
         case renderType.TREE:
@@ -285,7 +286,7 @@ module.exports = {
           }));
       }
     }
-    throw new Error("404!");
+    throw strapi.errors.notFound();
   },
 
   renderTree: (
@@ -307,7 +308,7 @@ module.exports = {
   },
 
   renderRFR: (items, parent = null, parentNavItem = null) => {
-    const { service } = extractMeta(strapi.plugins);
+    const { service } = utilsFunctions.extractMeta(strapi.plugins);
     let pages = {};
     let nav = {};
     let navItems = [];
@@ -366,7 +367,7 @@ module.exports = {
   },
 
   renderRFRPage: (item, parent) => {
-    const { service } = extractMeta(strapi.plugins);
+    const { service } = utilsFunctions.extractMeta(strapi.plugins);
     const { uiRouterKey, title, path, slug, related, type, audience, menuAttached } = item;
     const { __contentType, id, __templateName } = related || {};
     const contentTypes = service.configContentTypes();
@@ -401,7 +402,7 @@ module.exports = {
   },
 
   createBranch: (items = [], masterEntity = null, parentItem = null, operations = {}) => {
-    const { pluginName, itemModel, service } = extractMeta(strapi.plugins);
+    const { pluginName, itemModel, service } = utilsFunctions.extractMeta(strapi.plugins);
     return Promise.all(
       items.map(async (item) => {
         operations.create = true;
@@ -429,7 +430,7 @@ module.exports = {
   },
 
   removeBranch: (items = [], operations = {}) => {
-    const { pluginName, itemModel, service } = extractMeta(strapi.plugins);
+    const { pluginName, itemModel, service } = utilsFunctions.extractMeta(strapi.plugins);
     return Promise.all(
       items
         .filter(item => item.id)
@@ -450,7 +451,7 @@ module.exports = {
   },
 
   updateBranch: async (toUpdate, masterEntity, parentItem, operations) => {
-    const { pluginName, itemModel, service } = extractMeta(strapi.plugins);
+    const { pluginName, itemModel, service } = utilsFunctions.extractMeta(strapi.plugins);
     const databaseModel = strapi.query(itemModel.modelName, pluginName);
     return Promise.all(
       toUpdate.map(async (item) => {
@@ -506,7 +507,7 @@ module.exports = {
   },
 
   analyzeBranch: (items = [], masterEntity = null, parentItem = null, prevOperations = {}) => {
-    const { service } = extractMeta(strapi.plugins);
+    const { service } = utilsFunctions.extractMeta(strapi.plugins);
     const { toCreate, toRemove, toUpdate } = items
       .reduce((acc, _) => {
           const branchName = service.getBranchName(_);
@@ -522,7 +523,7 @@ module.exports = {
       update: prevOperations.update || !!toUpdate.length,
       remove: prevOperations.remove || !!toRemove.length,
     };
-    return checkDuplicatePath(parentItem || masterEntity, toCreate.concat(toUpdate))
+    return utilsFunctions.checkDuplicatePath(parentItem || masterEntity, toCreate.concat(toUpdate))
       .then(() => Promise.all(
         [
           service.createBranch(toCreate, masterEntity, parentItem, operations),
@@ -533,7 +534,7 @@ module.exports = {
   },
 
   sanitizeTreeStructure: (entity) => {
-    const { masterModel, itemModel } = extractMeta(strapi.plugins);
+    const { masterModel, itemModel } = utilsFunctions.extractMeta(strapi.plugins);
     return sanitizeEntity(
       {
         ...entity,
