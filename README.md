@@ -55,7 +55,7 @@ Complete installation requirements are exact same as for Strapi itself and can b
 
 **Supported Strapi versions**:
 
-- Strapi v3.3.4 (recently tested)
+- Strapi v3.4.3 (recently tested)
 - Strapi v3.x
 
 (This plugin may work with the older Strapi versions, but these are not tested nor officially supported at this time.)
@@ -385,4 +385,4 @@ For general help using Strapi, please refer to [the official Strapi documentatio
 
 ## License
 
-[MIT License](LICENSE.md) Copyright (c) 2020 [VirtusLab Sp. z o.o.](https://virtuslab.com/) &amp; [Strapi Solutions](https://strapi.io/).
+[MIT License](LICENSE.md) Copyright (c) 2021 [VirtusLab Sp. z o.o.](https://virtuslab.com/) &amp; [Strapi Solutions](https://strapi.io/).

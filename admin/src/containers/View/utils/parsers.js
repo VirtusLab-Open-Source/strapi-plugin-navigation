@@ -102,11 +102,12 @@ const linkRelations = (item, config) => {
   if (shouldBuildRelated && !shouldFindRelated) {
     const { __contentType } = relatedItem;
     const relatedContentType = find(contentTypes, ct => ct.contentTypeName.toLowerCase() === __contentType.toLowerCase(), {});
-    const {collectionName, labelSingular } = relatedContentType;
+    const {collectionName, labelSingular, isSingle } = relatedContentType;
     relation = {
       related: relatedItem.id,
       relatedRef: {
         __collectionName: collectionName,
+        isSingle,
         labelSingular,
         ...relatedItem
       },
@@ -115,11 +116,12 @@ const linkRelations = (item, config) => {
   } else if (shouldFindRelated) {
     const relatedRef = find(contentTypeItems, cti => cti.id === relatedId);
     const relatedContentType = find(contentTypes, ct => ct.collectionName.toLowerCase() === relatedType.toLowerCase());
-    const { contentTypeName, labelSingular } = relatedContentType;
+    const { contentTypeName, labelSingular, isSingle } = relatedContentType;
     relation = {
       relatedRef: {
         __collectionName: relatedType,
         __contentType: contentTypeName,
+        isSingle,
         labelSingular,
         ...relatedRef,
       },

@@ -13,6 +13,7 @@ describe('Navigation service', () => {
       const { configContentTypes } = require("../navigation");
       const result = [{
           collectionName: "pages",
+          isSingle: false,
           contentTypeName: "Page",
           endpoint: "pages",
           label: "Pages",
@@ -21,13 +22,14 @@ describe('Navigation service', () => {
           visible: true,
       }, {
           collectionName: "blog_posts",
+          isSingle: false,
           contentTypeName: "BlogPost",
           endpoint: "blog-posts",
           label: "Blog posts",
           labelSingular: "Blog post",
           name: "blog-post",
           visible: true,
-        }];
+      }];
       expect(configContentTypes()[0]).toMatchObject(result[0]);
       expect(configContentTypes()[1]).toMatchObject(result[1]);
     });
