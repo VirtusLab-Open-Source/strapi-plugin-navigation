@@ -4,7 +4,7 @@
  *
  */
 
-import React, { memo, useState } from "react";
+import React, { memo, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from "react-intl";
 import { LoadingIndicatorPage } from "strapi-helper-plugin";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -22,8 +22,8 @@ import NavigationItemPopUp from "./components/NavigationItemPopup";
 import List from "../../components/List";
 import {
   transformItemToViewPayload,
-  transformToRESTPayload,
-} from "./utils/parsers";
+  transformToRESTPayload, usedContentTypes,
+} from './utils/parsers';
 import FadedWrapper from "./FadedWrapper";
 
 const View = () => {
@@ -144,6 +144,11 @@ const View = () => {
     handleChangeNavigationData(changedStructure, true);
   };
 
+  const usedContentTypesData = useMemo(
+    () => changedActiveNavigation ? usedContentTypes(changedActiveNavigation.items) : [],
+    [changedActiveNavigation],
+  );
+
   return (
     <div className="container-fluid">
       <div className="row">
@@ -210,6 +215,7 @@ const View = () => {
             isLoading={isLoadingForAdditionalDataToBeSet}
             data={activeNavigationItem}
             config={config}
+            usedContentTypesData={usedContentTypesData}
             usedContentTypeItems={usedContentTypeItems}
             getContentTypeItems={getContentTypeItems}
             onSubmit={handleSubmitNavigationItem}

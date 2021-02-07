@@ -4,15 +4,15 @@
  *
  */
 
-import React from "react";
-import { FormattedMessage } from "react-intl";
-import PropTypes from "prop-types";
-import { HeaderModal, HeaderModalTitle } from "strapi-helper-plugin";
-import { find } from "lodash";
-import NavigationItemForm from "../NavigationItemForm";
-import pluginId from "../../../../pluginId";
-import { extractRelatedItemLabel } from "../../utils/parsers";
-import { MediumPopup } from "./MediumPopup";
+import React, { useMemo } from 'react';
+import { FormattedMessage } from 'react-intl';
+import PropTypes from 'prop-types';
+import { HeaderModal, HeaderModalTitle } from 'strapi-helper-plugin';
+import { find } from 'lodash';
+import NavigationItemForm from '../NavigationItemForm';
+import pluginId from '../../../../pluginId';
+import { extractRelatedItemLabel } from '../../utils/parsers';
+import { MediumPopup } from './MediumPopup';
 
 const NavigationItemPopUp = ({
   isOpen,
@@ -23,26 +23,33 @@ const NavigationItemPopUp = ({
   onClose,
   usedContentTypeItems,
   getContentTypeItems,
+  usedContentTypesData,
 }) => {
   const handleOnSubmit = (payload) => {
     onSubmit(payload);
   };
 
   const { related, relatedType } = data;
-  const { availableAudience = [], additionalFields, contentTypes, contentTypeItems, contentTypesNameFields = {} } = config;
+  const {
+    availableAudience = [],
+    additionalFields,
+    contentTypes,
+    contentTypeItems,
+    contentTypesNameFields = {},
+  } = config;
 
   const prepareFormData = data => ({
     ...data,
-    related: related ? { 
-      value: related, 
+    related: related ? {
+      value: related,
       label: extractRelatedItemLabel({
         ...find(contentTypeItems, item => item.id === related, {}),
         __collectionName: relatedType,
       }, contentTypesNameFields),
     } : undefined,
-    relatedType: relatedType ? { 
-      value: relatedType, 
-      label: find(contentTypes, item => item.collectionName === relatedType, {}).label
+    relatedType: relatedType ? {
+      value: relatedType,
+      label: find(contentTypes, item => item.collectionName === relatedType, {}).label,
     } : undefined,
   });
 
@@ -65,6 +72,7 @@ const NavigationItemPopUp = ({
         contentTypeEntities={contentTypeItems}
         usedContentTypeEntities={usedContentTypeItems}
         getContentTypeEntities={getContentTypeItems}
+        usedContentTypesData={usedContentTypesData}
         onSubmit={handleOnSubmit}
       />
     </MediumPopup>

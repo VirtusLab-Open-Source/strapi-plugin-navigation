@@ -16,6 +16,8 @@ const ItemFooter = ({ type, removed, relatedRef, attachButtons, contentTypesName
   const formatRelationName = () =>
     !isNil(relatedRef) ? extractRelatedItemLabel(relatedRef, contentTypesNameFields) : '';
 
+  const isSingle = get(relatedRef, 'isSingle', false);
+
   return (
     <Wrapper removed={removed} attachButtons={attachButtons}>
       <CardItemType>
@@ -27,7 +29,7 @@ const ItemFooter = ({ type, removed, relatedRef, attachButtons, contentTypesName
       {!isNil(relatedRef) && (
         <CardItemRelation title={formatRelationName()}>
           <FontAwesomeIcon icon={faLink} />{' '}
-          {`(${formatRelationType()}) ${formatRelationName()}`}
+          {isSingle ? formatRelationType() : `(${formatRelationType()}) ${formatRelationName()}`}
         </CardItemRelation>
       )}
     </Wrapper>

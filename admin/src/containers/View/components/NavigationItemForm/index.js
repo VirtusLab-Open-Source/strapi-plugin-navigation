@@ -28,6 +28,7 @@ const NavigationItemForm = ({
   contentTypesNameFields = {},
   onSubmit,
   getContentTypeEntities,
+  usedContentTypesData
 }) => {
   const [hasBeenInitialized, setInitializedState] = useState(false);
   const [hasChanged, setChangedState] = useState(false);
@@ -127,13 +128,24 @@ const NavigationItemForm = ({
     () => relatedTypeSelectValue ? contentTypes.find(_ => _.collectionName === relatedType.value)?.isSingle : false,
     [relatedTypeSelectValue, contentTypes]
   );
+
   const relatedTypeSelectOptions = useMemo(
-    () => contentTypes.map((item) => ({
-      value: get(item, 'collectionName'),
-      label: get(item, 'label', get(item, 'name')),
-    })),
-    [contentTypes],
+    () => contentTypes
+      .filter((contentType) => {
+        if (contentType.isSingle) {
+          console.log('contentType', contentType);
+          console.log('usedContentTypesData', usedContentTypesData);
+          return !usedContentTypesData.some((_) => _.__collectionName === contentType.collectionName);
+        }
+        return true;
+      })
+      .map((item) => ({
+        value: get(item, 'collectionName'),
+        label: get(item, 'label', get(item, 'name')),
+      })),
+    [contentTypes, usedContentTypesData],
   );
+
   const relatedSelectOptions = contentTypeEntities
     .filter((item) => !find(usedContentTypeEntities.filter(uctItem => uctItem.id !== get(relatedSelectValue, 'value')), uctItem =>
         (get(relatedTypeSelectValue, 'value') === uctItem.__collectionName) && (item.id === uctItem.id)
