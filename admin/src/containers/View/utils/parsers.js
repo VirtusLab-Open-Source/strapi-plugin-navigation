@@ -1,6 +1,6 @@
-import { uuid, isUuid } from "uuidv4";
-import { get, find, first, orderBy, isObject, isString, isNumber, isArray, isNil, isEmpty } from 'lodash';
-import { navigationItemType } from "./enums";
+import { uuid, isUuid } from 'uuidv4';
+import { get, find, first, orderBy, isObject, isString, isNumber, isArray, isNil, isEmpty, omit } from 'lodash';
+import { navigationItemType } from './enums';
 
 export const transformItemToRESTPayload = (
   item,
@@ -29,7 +29,8 @@ export const transformItemToRESTPayload = (
   const relatedId = isExternal || (isString(related) && isUuid(related)) ? related : parseInt(related, 10);
   const relatedContentTypeItem = isExternal ? undefined : find(contentTypeItems, cti => cti.id === relatedId);
   const relatedContentType = relatedContentTypeItem || relatedType ?
-    find(contentTypes, ct => ct.collectionName === (relatedContentTypeItem ? relatedContentTypeItem.__collectionName : relatedType)) :
+    find(contentTypes,
+      ct => ct.collectionName === (relatedContentTypeItem ? relatedContentTypeItem.__collectionName : relatedType)) :
     undefined;
 
   return {
@@ -51,12 +52,12 @@ export const transformItemToRESTPayload = (
     related: isExternal
       ? undefined
       : [
-          {
-            refId: relatedId,
-            ref: relatedContentType ? relatedContentType.name : relatedType,
-            field: relatedContentType ? relatedContentType.relatedField : 'navigation',
-          },
-        ],
+        {
+          refId: relatedId,
+          ref: relatedContentType ? relatedContentType.name : relatedType,
+          field: relatedContentType ? relatedContentType.relatedField : 'navigation',
+        },
+      ],
     items: items.map((iItem) => transformItemToRESTPayload(iItem, id, master, config)),
   };
 };
@@ -74,17 +75,24 @@ export const transformToRESTPayload = (payload, config = {}) => {
 const linkRelations = (item, config) => {
   const { contentTypeItems = [], contentTypes = [] } = config;
   const { type, related, relatedType, relatedRef, isSingle } = item;
+  // console.log('linkRelations:item:', item);
   let relation = {
     related: undefined,
     relatedRef: undefined,
-    relatedType: undefined
-  }
+    relatedType: undefined,
+  };
 
-  if (isSingle && relatedType){
+  if (isSingle && relatedType) {
+    const relatedContentType = contentTypes.find(_ => relatedType === _.collectionName) || {};
     return {
       ...item,
-      relatedType
-    }
+      relatedType,
+      relatedRef: {
+        isSingle,
+        __collectionName: relatedContentType.collectionName,
+        ...omit(relatedContentType, 'collectionName'),
+      },
+    };
   }
 
   // we got empty array after remove object in relation
@@ -108,17 +116,18 @@ const linkRelations = (item, config) => {
   const shouldBuildRelated = !relatedRef || (relatedRef && (relatedRef.id !== relatedId));
   if (shouldBuildRelated && !shouldFindRelated) {
     const { __contentType } = relatedItem;
-    const relatedContentType = find(contentTypes, ct => ct.contentTypeName.toLowerCase() === __contentType.toLowerCase(), {});
-    const {collectionName, labelSingular, isSingle } = relatedContentType;
+    const relatedContentType = find(contentTypes,
+      ct => ct.contentTypeName.toLowerCase() === __contentType.toLowerCase(), {});
+    const { collectionName, labelSingular, isSingle } = relatedContentType;
     relation = {
       related: relatedItem.id,
       relatedRef: {
         __collectionName: collectionName,
         isSingle,
         labelSingular,
-        ...relatedItem
+        ...relatedItem,
       },
-      relatedType: collectionName
+      relatedType: collectionName,
     };
   } else if (shouldFindRelated) {
     const relatedRef = find(contentTypeItems, cti => cti.id === relatedId);
@@ -236,8 +245,12 @@ export const prepareItemToViewPayload = (items = [], viewParentId = null, config
     };
   });
 
-  export const extractRelatedItemLabel = (item = {}, fields = {}) => {
-    const { __collectionName } = item;
-    const { default: defaultFields = [] } = fields;
-    return get(fields, `${__collectionName}`, defaultFields).map((_) => item[_]).filter((_) => _)[0] || "";
-  };
+export const extractRelatedItemLabel = (item = {}, fields = {}) => {
+  const { __collectionName } = item;
+  const { default: defaultFields = [] } = fields;
+  return get(fields, `${__collectionName}`, defaultFields).map((_) => item[_]).filter((_) => _)[0] || '';
+};
+
+export const usedContentTypes = (items) => items.flatMap(
+  (item) => [item.relatedRef, ...(item.items ? usedContentTypes(item.items) : [])],
+);
