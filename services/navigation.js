@@ -1,9 +1,9 @@
-"use strict";
+'use strict';
 
-const { isUuid } = require("uuidv4");
-const slugify = require("slugify");
+const { isUuid } = require('uuidv4');
+const slugify = require('slugify');
 const pluralize = require('pluralize');
-const { sanitizeEntity } = require("strapi-utils");
+const { sanitizeEntity } = require('strapi-utils');
 const {
   isArray,
   isEmpty,
@@ -70,8 +70,9 @@ const contentTypesNameFields = get(
 
 const checkDuplicatePath = (parentItem, checkData) => {
   return new Promise((resolve, reject) => {
-    if (parentItem) {
+    if (parentItem && parentItem.items) {
       for (let item of checkData) {
+        console.log('parentItem', parentItem.items);
         for (let _ of parentItem.items) {
           if (_.path === item.path && _.id !== item.id) {
             return reject(
@@ -96,11 +97,22 @@ const checkDuplicatePath = (parentItem, checkData) => {
 
 const buildNestedStructure = (entities, id = null, field = 'parent') =>
   entities
-    .filter(entity => (entity[field] === id) || (isObject(entity[field]) && (entity[field].id === id)))
-    .map(entity => ({
-      ...entity,
-      items: buildNestedStructure(entities, entity.id, field),
-    }));
+    .filter(entity => {
+      if (entity[field] === null && id === null) {
+        return true;
+      }
+      let data = entity[field];
+      if (data && typeof id === 'string') {
+        data = data.toString();
+      }
+      return (data && data === id) || (isObject(entity[field]) && (entity[field].id === id));
+    })
+    .map(entity => {
+      return ({
+        ...entity,
+        items: buildNestedStructure(entities, entity.id, field),
+      });
+    });
 
 const getTemplateComponentFromTemplate = (
   template = [],
@@ -130,7 +142,7 @@ const templateNameFactory = async (items, strapi) => {
     const templateComponent = getTemplateComponentFromTemplate(template);
     return get(templateComponent, 'options.templateName', TEMPLATE_DEFAULT);
   };
-}
+};
 
 const sendAuditLog = (auditLogInstance, event, data) => {
   if (auditLogInstance && auditLogInstance.emit) {
@@ -166,7 +178,7 @@ module.exports = {
       },
       allowedLevels: get(strapi.config, 'custom.plugins.navigation.allowedLevels'),
       additionalFields,
-    }
+    };
 
     if (additionalFields.includes(navigationItem.additionalFields.AUDIENCE)) {
       const audienceItems = await strapi
@@ -187,34 +199,35 @@ module.exports = {
 
   configContentTypes: () =>
     Object.keys(strapi.contentTypes)
-      .filter(
-        (key) =>
-          excludedContentTypes.filter((ect) => key.includes(ect)).length ===
-          0,
-      )
-      .map((key) => {
-        const item = strapi.contentTypes[key];
-        const { options, info, collectionName, apiName, plugin } = item;
-        const { name, description } = info;
-        const { isManaged, hidden } = options;
-        const endpoint = pluralize(apiName);
-        const relationName = last(apiName) === 's' ? apiName.substr(0, apiName.length - 1) : apiName;
-        const relationNameParts = relationName.split('-');
-        const contentTypeName = relationNameParts.length > 1 ? relationNameParts.reduce((prev, curr) => `${prev}${upperFirst(curr)}`, '') : upperFirst(relationName);
-        const labelSingular = upperFirst(relationNameParts.length > 1 ? relationNameParts.join(' ') : relationName);
-        return {
-          name: relationName,
-          description,
-          collectionName,
-          contentTypeName,
-          label: pluralize(labelSingular || name),
-          labelSingular,
-          endpoint,
-          plugin,
-          visible: (isManaged || isNil(isManaged)) && !hidden,
-        };
-      })
-      .filter((item) => item.visible),
+          .filter(
+            (key) =>
+              excludedContentTypes.filter((ect) => key.includes(ect)).length ===
+              0,
+          )
+          .map((key) => {
+            const item = strapi.contentTypes[key];
+            const { options, info, collectionName, apiName, plugin } = item;
+            const { name, description } = info;
+            const { isManaged, hidden } = options;
+            const endpoint = pluralize(apiName);
+            const relationName = last(apiName) === 's' ? apiName.substr(0, apiName.length - 1) : apiName;
+            const relationNameParts = relationName.split('-');
+            const contentTypeName = relationNameParts.length > 1 ? relationNameParts.reduce(
+              (prev, curr) => `${prev}${upperFirst(curr)}`, '') : upperFirst(relationName);
+            const labelSingular = upperFirst(relationNameParts.length > 1 ? relationNameParts.join(' ') : relationName);
+            return {
+              name: relationName,
+              description,
+              collectionName,
+              contentTypeName,
+              label: pluralize(labelSingular || name),
+              labelSingular,
+              endpoint,
+              plugin,
+              visible: (isManaged || isNil(isManaged)) && !hidden,
+            };
+          })
+          .filter((item) => item.visible),
 
   // Get all available navigations
   get: async () => {
@@ -265,7 +278,7 @@ module.exports = {
       .then((newEntity) => {
         sendAuditLog(auditLog, 'onChangeNavigation', { actionType: 'CREATE', oldEntity: existingEntity, newEntity });
         return newEntity;
-      })
+      });
   },
 
   put: async (id, payload, auditLog) => {
@@ -294,7 +307,7 @@ module.exports = {
       .then(([actionType, newEntity]) => {
         sendAuditLog(auditLog, 'onChangeNavigation', { actionType, oldEntity: existingEntity, newEntity });
         return newEntity;
-      })
+      });
   },
 
   render: async (idOrSlug, type = renderType.FLAT, menuOnly = false) => {
@@ -305,7 +318,7 @@ module.exports = {
     const criteria = findById ? { id: idOrSlug } : { slug: idOrSlug };
     const itemCriteria = menuOnly ? { menuAttached: true } : {};
 
-    return service.renderType(type, criteria, itemCriteria)
+    return service.renderType(type, criteria, itemCriteria);
   },
 
   renderType: async (type = renderType.FLAT, criteria = {}, itemCriteria = {}) => {
@@ -332,7 +345,7 @@ module.exports = {
       if (!items) {
         return [];
       }
-      const getTemplateName = await templateNameFactory(items, strapi)
+      const getTemplateName = await templateNameFactory(items, strapi);
 
       switch (type) {
         case renderType.TREE:
@@ -367,7 +380,7 @@ module.exports = {
           const treeStructure = service.renderTree(
             items,
             null,
-            "parent",
+            'parent',
             undefined,
             itemParser,
           );
@@ -383,14 +396,14 @@ module.exports = {
           }));
       }
     }
-    throw new Error("404!");
+    throw strapi.errors.notFound()
   },
 
   renderTree: (
     items = [],
     id = null,
-    field = "parent",
-    path = "",
+    field = 'parent',
+    path = '',
     itemParser = (i) => i,
   ) => {
     return items
@@ -435,7 +448,7 @@ module.exports = {
         };
       } else {
         const navLevel = navItems
-          .filter(navItem => navItem.type === navigationItem.type.INTERNAL.toLowerCase())
+          .filter(navItem => navItem.type === navigationItem.type.INTERNAL.toLowerCase());
         if (!isEmpty(navLevel))
           nav = {
             ...nav,
@@ -445,7 +458,8 @@ module.exports = {
 
       if (!isEmpty(itemChilds)) {
         const { nav: nestedNavs } = service.renderRFR(itemChilds, itemPage.id, itemNav);
-        const { pages: nestedPages } = service.renderRFR(itemChilds.filter(child => child.type === navigationItem.type.INTERNAL), itemPage.id, itemNav);
+        const { pages: nestedPages } = service.renderRFR(
+          itemChilds.filter(child => child.type === navigationItem.type.INTERNAL), itemPage.id, itemNav);
         pages = {
           ...pages,
           ...nestedPages,
@@ -478,7 +492,7 @@ module.exports = {
         contentType,
         collectionName,
         id,
-      }: undefined,
+      } : undefined,
       path,
       slug,
       parent,
@@ -512,7 +526,8 @@ module.exports = {
             ...params,
             related: isArray(relatedItem) ? relatedItem : [relatedItem],
             master: masterEntity,
-            parent: parentItem,
+            // for mongoose to identify parent object
+            parent: parentItem ? { ...parentItem, _id: parentItem.id } : null,
           });
         return !isEmpty(item.items)
           ? service.createBranch(
@@ -572,7 +587,7 @@ module.exports = {
                 ...params,
                 related: isArray(relatedItem) ? relatedItem : [relatedItem],
                 master: masterEntity,
-                parent: parentItem,
+                parent: parentItem ? { ...parentItem, _id: parentItem.id } : null,
               },
             );
         } else {
