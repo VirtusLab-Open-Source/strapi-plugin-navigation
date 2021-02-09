@@ -72,7 +72,6 @@ const checkDuplicatePath = (parentItem, checkData) => {
   return new Promise((resolve, reject) => {
     if (parentItem && parentItem.items) {
       for (let item of checkData) {
-        console.log('parentItem', parentItem.items);
         for (let _ of parentItem.items) {
           if (_.path === item.path && _.id !== item.id) {
             return reject(
