@@ -1,3 +1,4 @@
+```javascript
 const { Base, AvailableAction } = require('strapi-plugin-audit-log');
 
 class Navigation extends Base {
@@ -34,3 +35,4 @@ class Navigation extends Base {
 }
 
 module.exports = Navigation;
+```
