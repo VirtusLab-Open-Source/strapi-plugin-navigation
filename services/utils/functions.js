@@ -3,6 +3,7 @@ const {
     first,
     flatten,
     get,
+    kebabCase
   } = require('lodash');
 
 const { NavigationError } = require('../../utils/NavigationError');
@@ -54,11 +55,22 @@ module.exports = {
 
     buildNestedStructure(entities, id = null, field = 'parent') {
       return entities
-        .filter(entity => (entity[field] === id) || (isObject(entity[field]) && (entity[field].id === id)))
-        .map(entity => ({
-          ...entity,
-          items: this.buildNestedStructure(entities, entity.id, field),
-        }))
+        .filter(entity => {
+          if (entity[field] === null && id === null) {
+            return true;
+          }
+          let data = entity[field];
+          if (data && typeof id === 'string') {
+            data = data.toString();
+          }
+          return (data && data === id) || (isObject(entity[field]) && (entity[field].id === id));
+        })
+        .map(entity => {
+          return ({
+            ...entity,
+            items: this.buildNestedStructure(entities, entity.id, field),
+          });
+        });
     },
 
     getTemplateComponentFromTemplate(template = []) {
@@ -78,7 +90,11 @@ module.exports = {
       const responses = await Promise.all(
         Object.entries(relatedMap)
           .map(
-            ([contentType, ids]) => strapi.query(contentType).find({ id_in: ids }).then(res => ({ [contentType]: res }))),
+            ([contentType, ids]) => {
+              return strapi.query(kebabCase(contentType))
+                           .find({ id_in: ids })
+                           .then(res => ({ [contentType]: res }));
+            }),
       );
       const relatedResponseMap = responses.reduce((acc, curr) => ({ ...acc, ...curr }), {});
 
