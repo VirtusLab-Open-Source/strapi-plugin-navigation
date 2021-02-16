@@ -1,5 +1,5 @@
-import { uuid, isUuid } from 'uuidv4';
-import { get, find, first, orderBy, isObject, isString, isNumber, isArray, isNil, isEmpty, omit } from 'lodash';
+import { isUuid, uuid } from 'uuidv4';
+import { find, first, get, isArray, isEmpty, isNil, isNumber, isObject, isString, omit, orderBy } from 'lodash';
 import { navigationItemType } from './enums';
 
 export const transformItemToRESTPayload = (
@@ -23,11 +23,14 @@ export const transformItemToRESTPayload = (
     order,
     audience = [],
     items = [],
+    isSingle,
   } = item;
   const isExternal = type === navigationItemType.EXTERNAL;
   const { contentTypeItems = [], contentTypes = [] } = config;
+
   const parsedRelated = Number(related);
   const relatedId = isExternal || isNaN(parsedRelated) ? related : parsedRelated;
+
   const relatedContentTypeItem = isExternal ? undefined : find(contentTypeItems, cti => cti.id === relatedId);
   const relatedContentType = relatedContentTypeItem || relatedType ?
     find(contentTypes,
@@ -106,8 +109,10 @@ const linkRelations = (item, config) => {
   }
 
   const relatedItem = isArray(related) ? first(related) : related;
+
   const parsedRelated = Number(related);
   const relatedId = isNaN(parsedRelated) ? related : parsedRelated;
+
   const relationNotChanged = relatedRef && relatedItem ? relatedRef.id === relatedItem : false;
 
   if (relationNotChanged) {

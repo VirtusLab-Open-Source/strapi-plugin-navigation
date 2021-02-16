@@ -97,12 +97,12 @@ module.exports = {
         const { options, info, collectionName, apiName, plugin, kind } = item;
         const { name, description } = info;
         const { isManaged, hidden } = options;
-        const endpoint = pluralize(apiName);
+        const isSingle = kind === KIND_TYPES.SINGLE;
+        const endpoint = isSingle ? apiName : pluralize(apiName);
         const relationName = last(apiName) === 's' ? apiName.substr(0, apiName.length - 1) : apiName;
         const relationNameParts = relationName.split('-');
         const contentTypeName = relationNameParts.length > 1 ? relationNameParts.reduce((prev, curr) => `${prev}${upperFirst(curr)}`, '') : upperFirst(relationName);
         const labelSingular = upperFirst(relationNameParts.length > 1 ? relationNameParts.join(' ') : relationName);
-        const isSingle = kind === KIND_TYPES.SINGLE;
         return {
           name: relationName,
           isSingle,
@@ -298,9 +298,16 @@ module.exports = {
   ) => {
     return items
       .filter(
-        (item) =>
-          item[field] === id ||
-          (isObject(item[field]) && item[field].id === id),
+        (item) => {
+          if (item[field] === null && id === null) {
+            return true;
+          }
+          let data = item[field];
+          if (data && typeof id === 'string') {
+            data = data.toString();
+          }
+          return (data && data === id) || (isObject(item[field]) && (item[field].id === id));
+        },
       )
       .map(item => itemParser({
         ...item
@@ -416,7 +423,6 @@ module.exports = {
             ...params,
             related: isArray(relatedItem) ? relatedItem : [relatedItem],
             master: masterEntity,
-            // for mongoose to identify parent object
             parent: parentItem ? { ...parentItem, _id: parentItem.id } : null,
           });
         return !isEmpty(item.items)

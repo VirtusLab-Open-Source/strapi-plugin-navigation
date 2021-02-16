@@ -1,20 +1,20 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Button, Enumeration, Flex, Label, Text, Toggle } from "@buffetjs/core";
-import { useIntl } from "react-intl";
-import { find, get, isEmpty, isNil, isString } from "lodash";
-import PropTypes from "prop-types";
-import { ButtonModal, ModalBody, ModalForm } from "strapi-helper-plugin";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faInfoCircle, faEye } from "@fortawesome/free-solid-svg-icons";
-import ModalFooter from "./ModalFooter";
-import Input from "../../../../components/Input";
-import pluginId from "../../../../pluginId";
-import { navigationItemAdditionalFields, navigationItemType } from "../../utils/enums";
-import slugify from "slugify";
-import Select from "../../../../components/Select";
-import { extractRelatedItemLabel } from "../../utils/parsers";
+import React, { useEffect, useMemo, useState } from 'react';
+import { Button, Enumeration, Flex, Label, Text, Toggle } from '@buffetjs/core';
+import { useIntl } from 'react-intl';
+import { find, get, isEmpty, isEqual, isNil, isString } from 'lodash';
+import PropTypes from 'prop-types';
+import { ButtonModal, ModalBody, ModalForm } from 'strapi-helper-plugin';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import ModalFooter from './ModalFooter';
+import Input from '../../../../components/Input';
+import pluginId from '../../../../pluginId';
+import { navigationItemAdditionalFields, navigationItemType } from '../../utils/enums';
+import slugify from 'slugify';
+import Select from '../../../../components/Select';
+import { extractRelatedItemLabel } from '../../utils/parsers';
 import { form as formDefinition } from './utils/form';
-import { checkFormValidity } from "../../utils/form";
+import { checkFormValidity } from '../../utils/form';
 
 const NavigationItemForm = ({
   isLoading,
@@ -28,7 +28,7 @@ const NavigationItemForm = ({
   contentTypesNameFields = {},
   onSubmit,
   getContentTypeEntities,
-  usedContentTypesData
+  usedContentTypesData,
 }) => {
   const [hasBeenInitialized, setInitializedState] = useState(false);
   const [hasChanged, setChangedState] = useState(false);
@@ -36,6 +36,8 @@ const NavigationItemForm = ({
   const [formErrors, setFormErrorsState] = useState({});
   const { relatedType } = form;
   const { formatMessage } = useIntl();
+
+  const relatedFieldName = `${inputsPrefix}related`;
 
   if (!hasBeenInitialized && !isEmpty(data)) {
     setInitializedState(true);
@@ -58,7 +60,7 @@ const NavigationItemForm = ({
       isSingle: isSingleSelected,
       uiRouterKey: generateUiRouterKey(),
     };
-  }
+  };
 
   const handleSubmit = async e => {
     if (e) {
@@ -82,7 +84,7 @@ const NavigationItemForm = ({
       ...form,
       removed: true,
     }));
-  }
+  };
 
   const onChange = ({ target: { name, value } }) => {
     setFormState(prevState => ({
@@ -95,7 +97,7 @@ const NavigationItemForm = ({
     }
   };
 
-  const onChangeRelatedType = ({target: { name, value } }) => {
+  const onChangeRelatedType = ({ target: { name, value } }) => {
     setFormState(prevState => ({
       ...prevState,
       updated: true,
@@ -105,8 +107,7 @@ const NavigationItemForm = ({
     if (!hasChanged) {
       setChangedState(true);
     }
-  }
-
+  };
 
   const generateUiRouterKey = () => isString(form.title) && !isEmpty(form.title) ? slugify(form.title).toLowerCase() : undefined;
 
@@ -126,15 +127,13 @@ const NavigationItemForm = ({
 
   const isSingleSelected = useMemo(
     () => relatedTypeSelectValue ? contentTypes.find(_ => _.collectionName === relatedType.value)?.isSingle : false,
-    [relatedTypeSelectValue, contentTypes]
+    [relatedTypeSelectValue, contentTypes],
   );
 
   const relatedTypeSelectOptions = useMemo(
     () => contentTypes
       .filter((contentType) => {
         if (contentType.isSingle) {
-          console.log('contentType', contentType);
-          console.log('usedContentTypesData', usedContentTypesData);
           return !usedContentTypesData.some((_) => _.__collectionName === contentType.collectionName);
         }
         return true;
@@ -147,9 +146,10 @@ const NavigationItemForm = ({
   );
 
   const relatedSelectOptions = contentTypeEntities
-    .filter((item) => !find(usedContentTypeEntities.filter(uctItem => uctItem.id !== get(relatedSelectValue, 'value')), uctItem =>
-        (get(relatedTypeSelectValue, 'value') === uctItem.__collectionName) && (item.id === uctItem.id)
-      ))
+    .filter((item) => !find(usedContentTypeEntities.filter(uctItem => uctItem.id !== get(relatedSelectValue, 'value')),
+      uctItem =>
+        (get(relatedTypeSelectValue, 'value') === uctItem.__collectionName) && (item.id === uctItem.id),
+    ))
     .map((item) => ({
       value: item.id,
       label: extractRelatedItemLabel({
@@ -159,7 +159,7 @@ const NavigationItemForm = ({
     }));
 
   const isExternal = form.type === navigationItemType.EXTERNAL;
-  const pathSourceName = isExternal ? "externalPath" : "path";
+  const pathSourceName = isExternal ? 'externalPath' : 'path';
 
   const audience = get(form, `${inputsPrefix}audience`, []);
   const audienceOptions = availableAudience.map((item) => ({
@@ -184,7 +184,15 @@ const NavigationItemForm = ({
     return null;
   };
 
-
+  useEffect(
+    () => {
+      const value = get(relatedSelectOptions, '0');
+      if (isSingleSelected && relatedSelectOptions.length === 1 && !isEqual(value, relatedSelectValue)) {
+        onChange({ target: { name: relatedFieldName, value} });
+      }
+    },
+    [isSingleSelected, relatedSelectOptions],
+  );
 
   useEffect(() => {
     const { value } = relatedType || {};
@@ -194,7 +202,7 @@ const NavigationItemForm = ({
           contentTypes,
           (_) => _.collectionName === value,
         );
-        if (item && !item.isSingle) {
+        if (item) {
           await getContentTypeEntities(item.endpoint || item.collectionName, item.plugin);
         }
       }
@@ -218,14 +226,14 @@ const NavigationItemForm = ({
                   placeholder={`${pluginId}.popup.item.form.title.placeholder`}
                   type="text"
                   validations={{ required: true }}
-                  value={get(form, `${inputsPrefix}title`, "")}
+                  value={get(form, `${inputsPrefix}title`, '')}
                 />
               </div>
               <div className="col-lg-3 col-md-12">
                 <Flex alignItems="flex-start" flexWrap="wrap">
                   <Label
                     htmlFor={`${inputsPrefix}menuAttached`}
-                    style={{ display: "block" }}
+                    style={{ display: 'block' }}
                     message={formatMessage({
                       id: `${pluginId}.popup.item.form.menuAttached.label`,
                     })}
@@ -250,7 +258,7 @@ const NavigationItemForm = ({
                   description={generatePreviewPath()}
                   type="text"
                   validations={{ required: true }}
-                  value={get(form, `${inputsPrefix}${pathSourceName}`, "")}
+                  value={get(form, `${inputsPrefix}${pathSourceName}`, '')}
                 />
               </div>
               <div className="col-lg-5 col-md-12">
@@ -268,7 +276,7 @@ const NavigationItemForm = ({
                 />
               </div>
             </div>
-            { additionalFields.includes(navigationItemAdditionalFields.AUDIENCE) && (<div className="row">
+            {additionalFields.includes(navigationItemAdditionalFields.AUDIENCE) && (<div className="row">
               <div className="col-lg-12">
                 <Label
                   htmlFor={`${inputsPrefix}audience`}
@@ -284,7 +292,7 @@ const NavigationItemForm = ({
                   value={audience}
                 />
               </div>
-            </div>) }
+            </div>)}
             {!isExternal && (
               <>
                 <div className="row">
@@ -316,30 +324,30 @@ const NavigationItemForm = ({
                   {relatedTypeSelectValue && !isSingleSelected && (
                     <div className="col-lg-6 col-md-12">
                       <Label
-                        htmlFor={`${inputsPrefix}related`}
+                        htmlFor={relatedFieldName}
                         message={formatMessage({
                           id: `${pluginId}.popup.item.form.related.label`,
                         })}
                       />
                       <Select
-                        name={`${inputsPrefix}related`}
-                        error={get(formErrors, `${inputsPrefix}related`)}
+                        name={relatedFieldName}
+                        error={get(formErrors, relatedFieldName)}
                         onChange={onChange}
                         isLoading={isLoading}
                         isDisabled={isEmpty(relatedSelectOptions)}
                         options={relatedSelectOptions}
                         value={relatedSelectValue}
                       />
-                      { !isLoading && isEmpty(relatedSelectOptions) && (
+                      {!isLoading && isEmpty(relatedSelectOptions) && (
                         <Text
                           color="orange"
                           fontSize="sm"
                         >
-                        <FontAwesomeIcon icon={faInfoCircle}/>{ ' ' }
-                        {formatMessage({
-                          id: `${pluginId}.popup.item.form.related.empty`,
-                        }, { contentTypeName: get(relatedTypeSelectValue, 'label') })}
-                      </Text>) }
+                          <FontAwesomeIcon icon={faInfoCircle} />{' '}
+                          {formatMessage({
+                            id: `${pluginId}.popup.item.form.related.empty`,
+                          }, { contentTypeName: get(relatedTypeSelectValue, 'label') })}
+                        </Text>)}
                     </div>
                   )}
                 </div>
@@ -349,12 +357,12 @@ const NavigationItemForm = ({
         </ModalBody>
       </ModalForm>
       <ModalFooter>
-      <section>
+        <section>
           <Button
             onClick={handleRemove}
             color="delete"
             label={formatMessage({
-              id: `${pluginId}.popup.item.form.button.remove`
+              id: `${pluginId}.popup.item.form.button.remove`,
             })}
           />
         </section>
@@ -363,7 +371,7 @@ const NavigationItemForm = ({
             onClick={handleSubmit}
             disabled={submitDisabled}
             message={`${pluginId}.popup.item.form.button.${
-              form.viewId ? "update" : "create"
+              form.viewId ? 'update' : 'create'
             }`}
           />
         </section>
@@ -375,7 +383,7 @@ const NavigationItemForm = ({
 NavigationItemForm.defaultProps = {
   fieldsToDisable: [],
   formErrors: {},
-  inputsPrefix: "",
+  inputsPrefix: '',
   onSubmit: (e) => e.preventDefault(),
   requestError: null,
 };
