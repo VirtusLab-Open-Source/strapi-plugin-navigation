@@ -93,7 +93,7 @@ module.exports = {
       )
       .map((key) => {
         const item = strapi.contentTypes[key];
-        const relatedField = (item.associations || []).find(_ => _.collection === 'navigationitem');
+        const relatedField = (item.associations || []).find(_ => _.model === 'navigationitem');
         const { uid, options, info, collectionName, apiName, plugin, kind } = item;
         const { name, description } = info;
         const { isManaged, hidden } = options;
