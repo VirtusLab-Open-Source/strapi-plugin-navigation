@@ -1,4 +1,5 @@
 {
+  "uid": "application::blog-post.blog-post",
   "kind": "collectionType",
   "collectionName": "blog_posts",
   "info": {

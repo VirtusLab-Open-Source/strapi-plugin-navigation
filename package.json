@@ -27,8 +27,8 @@
     "reactstrap": "8.4.1",
     "redux-saga": "^0.16.0",
     "request": "^2.83.0",
-    "strapi-helper-plugin": "3.4.3",
-    "strapi-utils": "3.4.3",
+    "strapi-helper-plugin": "3.5.0",
+    "strapi-utils": "3.5.0",
     "uuidv4": "^6.2.6",
     "slugify": "^1.4.5",
     "pluralize": "^8.0.0"

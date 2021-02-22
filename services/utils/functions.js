@@ -1,9 +1,12 @@
 const {
+    isEmpty,
     isObject,
     first,
+    find,
     flatten,
     get,
-    kebabCase
+    kebabCase,
+    last,
   } = require('lodash');
 
 const { NavigationError } = require('../../utils/NavigationError');
@@ -68,6 +71,7 @@ module.exports = {
         .map(entity => {
           return ({
             ...entity,
+            related: !isEmpty(entity.related) ? [last(entity.related)] : entity.related,
             items: this.buildNestedStructure(entities, entity.id, field),
           });
         });
@@ -78,7 +82,7 @@ module.exports = {
       return componentName ? strapi.components[componentName] : null;
     },
 
-    async templateNameFactory(items, strapi) {
+    async templateNameFactory(items, strapi, contentTypes = []) {
       const flatRelated = flatten(items.map(i => i.related));
       const relatedMap = flatRelated.reduce((acc, curr) => {
         if (!acc[curr.__contentType]) {
@@ -89,12 +93,14 @@ module.exports = {
       }, {});
       const responses = await Promise.all(
         Object.entries(relatedMap)
-          .map(
-            ([contentType, ids]) => {
-              return strapi.query(kebabCase(contentType))
-                           .find({ id_in: ids })
-                           .then(res => ({ [contentType]: res }));
-            }),
+            .map(
+              ([contentType, ids]) => {
+                const contentTypeName = kebabCase(contentType);
+                const contentTypeUid = get(find(contentTypes, cnt => cnt.contentTypeName === contentTypeName), 'uid') || contentTypeName;
+                return strapi.query(contentTypeUid)
+                  .find({ id_in: ids })
+                  .then(res => ({ [contentType]: res }))
+              }),
       );
       const relatedResponseMap = responses.reduce((acc, curr) => ({ ...acc, ...curr }), {});
 
