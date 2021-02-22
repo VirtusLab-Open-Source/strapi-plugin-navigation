@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const { NavigationError } = require('../utils/NavigationError');
 /**
@@ -10,9 +10,7 @@ const { NavigationError } = require('../utils/NavigationError');
 const parseParams = (params) =>
   Object.keys(params).reduce((prev, curr) => {
     const value = params[curr];
-    const parsedValue = isNaN(value)
-      ? value
-      : parseInt(value, 10);
+    const parsedValue = isNaN(Number(value)) ? value : parseInt(value, 10);
     return {
       ...prev,
       [curr]: parsedValue,
@@ -27,48 +25,50 @@ const errorHandler = (ctx) => (error) => {
 };
 
 module.exports = {
+  getService() {
+    return strapi.plugins.navigation.services.navigation;
+  },
   /**
    * Default action.
    *
    * @return {Object}
    */
-
-  config: async () => {
-    return await strapi.plugins.navigation.services.navigation.config();
+  async config() {
+    return await this.getService().config();
   },
 
-  get: async () => {
-    return await strapi.plugins.navigation.services.navigation.get();
+  async get() {
+    return await this.getService().get();
   },
 
-  getById: async (ctx) => {
+  async getById(ctx) {
     const { params } = ctx;
     const { id } = parseParams(params);
-    return await strapi.plugins.navigation.services.navigation.getById(id);
+    return await this.getService().getById(id);
   },
 
-  render: async (ctx) => {
+  async render(ctx) {
     const { params, query = {} } = ctx;
     const { type, menu: menuOnly } = query;
     const { idOrSlug } = parseParams(params);
-    return await strapi.plugins.navigation.services.navigation.render(
+    return await this.getService().render(
       idOrSlug,
       type,
       menuOnly,
     );
   },
 
-  post: (ctx) => {
+  post(ctx) {
     const { auditLog } = ctx;
     const { body = {} } = ctx.request;
-    return strapi.plugins.navigation.services.navigation.post(body, auditLog);
+    return this.getService().post(body, auditLog);
   },
 
-  put: (ctx) => {
+  put(ctx) {
     const { params, auditLog } = ctx;
     const { id } = parseParams(params);
     const { body = {} } = ctx.request;
-    return strapi.plugins.navigation.services.navigation.put(id, body, auditLog)
+    return this.getService().put(id, body, auditLog)
       .catch(errorHandler(ctx));
   },
 };

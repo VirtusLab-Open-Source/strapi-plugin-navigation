@@ -1,6 +1,6 @@
-import { uuid, isUuid } from "uuidv4";
-import { get, find, first, orderBy, isObject, isString, isNumber, isArray, isNil, isEmpty } from 'lodash';
-import { navigationItemType } from "./enums";
+import { isUuid, uuid } from 'uuidv4';
+import { find, first, get, isArray, isEmpty, isNil, isNumber, isObject, isString, omit, orderBy } from 'lodash';
+import { navigationItemType } from './enums';
 
 export const transformItemToRESTPayload = (
   item,
@@ -23,14 +23,18 @@ export const transformItemToRESTPayload = (
     order,
     audience = [],
     items = [],
+    isSingle,
   } = item;
   const isExternal = type === navigationItemType.EXTERNAL;
   const { contentTypeItems = [], contentTypes = [] } = config;
+
   const parsedRelated = Number(related);
   const relatedId = isExternal || isNaN(parsedRelated) ? related : parsedRelated;
+
   const relatedContentTypeItem = isExternal ? undefined : find(contentTypeItems, cti => cti.id === relatedId);
   const relatedContentType = relatedContentTypeItem || relatedType ?
-    find(contentTypes, ct => ct.collectionName === (relatedContentTypeItem ? relatedContentTypeItem.__collectionName : relatedType)) :
+    find(contentTypes,
+      ct => ct.collectionName === (relatedContentTypeItem ? relatedContentTypeItem.__collectionName : relatedType)) :
     undefined;
 
   return {
@@ -52,12 +56,12 @@ export const transformItemToRESTPayload = (
     related: isExternal
       ? undefined
       : [
-          {
-            refId: relatedId,
-            ref: relatedContentType ? relatedContentType.name : relatedType,
-            field: "navigation",
-          },
-        ],
+        {
+          refId: relatedId,
+          ref: relatedContentType ? relatedContentType.name : relatedType,
+          field: relatedContentType ? relatedContentType.relatedField : 'navigation',
+        },
+      ],
     items: items.map((iItem) => transformItemToRESTPayload(iItem, id, master, config)),
   };
 };
@@ -74,11 +78,25 @@ export const transformToRESTPayload = (payload, config = {}) => {
 
 const linkRelations = (item, config) => {
   const { contentTypeItems = [], contentTypes = [] } = config;
-  const { type, related, relatedType, relatedRef } = item;
+  const { type, related, relatedType, relatedRef, isSingle } = item;
+  // console.log('linkRelations:item:', item);
   let relation = {
     related: undefined,
     relatedRef: undefined,
-    relatedType: undefined
+    relatedType: undefined,
+  };
+
+  if (isSingle && relatedType) {
+    const relatedContentType = contentTypes.find(_ => relatedType === _.collectionName) || {};
+    return {
+      ...item,
+      relatedType,
+      relatedRef: {
+        isSingle,
+        __collectionName: relatedContentType.collectionName,
+        ...omit(relatedContentType, 'collectionName'),
+      },
+    };
   }
 
   // we got empty array after remove object in relation
@@ -91,8 +109,10 @@ const linkRelations = (item, config) => {
   }
 
   const relatedItem = isArray(related) ? first(related) : related;
+
   const parsedRelated = Number(related);
   const relatedId = isNaN(parsedRelated) ? related : parsedRelated;
+
   const relationNotChanged = relatedRef && relatedItem ? relatedRef.id === relatedItem : false;
 
   if (relationNotChanged) {
@@ -103,25 +123,28 @@ const linkRelations = (item, config) => {
   const shouldBuildRelated = !relatedRef || (relatedRef && (relatedRef.id !== relatedId));
   if (shouldBuildRelated && !shouldFindRelated) {
     const { __contentType } = relatedItem;
-    const relatedContentType = find(contentTypes, ct => ct.contentTypeName.toLowerCase() === __contentType.toLowerCase(), {});
-    const {collectionName, labelSingular } = relatedContentType;
+    const relatedContentType = find(contentTypes,
+      ct => ct.contentTypeName.toLowerCase() === __contentType.toLowerCase(), {});
+    const { collectionName, labelSingular, isSingle } = relatedContentType;
     relation = {
       related: relatedItem.id,
       relatedRef: {
         __collectionName: collectionName,
+        isSingle,
         labelSingular,
-        ...relatedItem
+        ...relatedItem,
       },
-      relatedType: collectionName
+      relatedType: collectionName,
     };
   } else if (shouldFindRelated) {
     const relatedRef = find(contentTypeItems, cti => cti.id === relatedId);
     const relatedContentType = find(contentTypes, ct => ct.collectionName.toLowerCase() === relatedType.toLowerCase());
-    const { contentTypeName, labelSingular } = relatedContentType;
+    const { contentTypeName, labelSingular, isSingle } = relatedContentType;
     relation = {
       relatedRef: {
         __collectionName: relatedType,
         __contentType: contentTypeName,
+        isSingle,
         labelSingular,
         ...relatedRef,
       },
@@ -229,8 +252,12 @@ export const prepareItemToViewPayload = (items = [], viewParentId = null, config
     };
   });
 
-  export const extractRelatedItemLabel = (item = {}, fields = {}) => {
-    const { __collectionName } = item;
-    const { default: defaultFields = [] } = fields;
-    return get(fields, `${__collectionName}`, defaultFields).map((_) => item[_]).filter((_) => _)[0] || "";
-  };
+export const extractRelatedItemLabel = (item = {}, fields = {}) => {
+  const { __collectionName } = item;
+  const { default: defaultFields = [] } = fields;
+  return get(fields, `${__collectionName}`, defaultFields).map((_) => item[_]).filter((_) => _)[0] || '';
+};
+
+export const usedContentTypes = (items) => items.flatMap(
+  (item) => [item.relatedRef, ...(item.items ? usedContentTypes(item.items) : [])],
+);
