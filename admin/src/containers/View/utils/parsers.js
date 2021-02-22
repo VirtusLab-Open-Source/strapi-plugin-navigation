@@ -26,7 +26,8 @@ export const transformItemToRESTPayload = (
   } = item;
   const isExternal = type === navigationItemType.EXTERNAL;
   const { contentTypeItems = [], contentTypes = [] } = config;
-  const relatedId = isExternal || (isString(related) && isUuid(related)) ? related : parseInt(related, 10);
+  const parsedRelated = Number(related);
+  const relatedId = isExternal || isNaN(parsedRelated) ? related : parsedRelated;
   const relatedContentTypeItem = isExternal ? undefined : find(contentTypeItems, cti => cti.id === relatedId);
   const relatedContentType = relatedContentTypeItem || relatedType ?
     find(contentTypes, ct => ct.collectionName === (relatedContentTypeItem ? relatedContentTypeItem.__collectionName : relatedType)) :
@@ -90,7 +91,8 @@ const linkRelations = (item, config) => {
   }
 
   const relatedItem = isArray(related) ? first(related) : related;
-  const relatedId = isString(related) && !isUuid(related) ? parseInt(related, 10) : related;
+  const parsedRelated = Number(related);
+  const relatedId = isNaN(parsedRelated) ? related : parsedRelated;
   const relationNotChanged = relatedRef && relatedItem ? relatedRef.id === relatedItem : false;
 
   if (relationNotChanged) {
