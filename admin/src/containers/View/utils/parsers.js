@@ -59,7 +59,7 @@ export const transformItemToRESTPayload = (
         {
           refId: relatedId,
           ref: relatedContentType ? relatedContentType.name : relatedType,
-          field: relatedContentType ? relatedContentType.relatedField : 'navigation',
+          field: relatedContentType && relatedContentType.relatedField ? relatedContentType.relatedField : 'navigation',
         },
       ],
     items: items.map((iItem) => transformItemToRESTPayload(iItem, id, master, config)),
