@@ -32,7 +32,8 @@ describe('Navigation service', () => {
           name: "blog-post",
           visible: true,
       }];
-      expect(configContentTypes()[0]).toMatchObject(result[0]);
-      expect(configContentTypes()[1]).toMatchObject(result[1]);
+      const types = configContentTypes();
+      expect(types[0]).toMatchObject(result[0]);
+      expect(types[1]).toMatchObject(result[1]);
     });
 });

@@ -29,17 +29,6 @@ const navigationItem = require('../models/navigationItem');
  * @description: A set of functions similar to controller's actions to avoid code duplication.
  */
 
-
-
-const excludedContentTypes = get(
-  strapi.config,
-  "custom.plugins.navigation.excludedContentTypes",
-  [
-    "plugins::",
-    "strapi",
-  ],
-);
-
 const contentTypesNameFieldsDefaults = [
   "title",
   "subject",
@@ -87,9 +76,10 @@ module.exports = {
   configContentTypes: () =>
     Object.keys(strapi.contentTypes)
       .filter(
-        (key) =>
-          excludedContentTypes.filter((ect) => key.includes(ect)).length ===
-          0,
+        (key) => {
+          const item = strapi.contentTypes[key];
+          return (item.associations || []).some(_ => _.model === 'navigationitem');
+        },
       )
       .map((key) => {
         const item = strapi.contentTypes[key];
