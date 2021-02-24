@@ -14,7 +14,7 @@ function setupStrapi() {
           },
           contentTypes: {
             'page': {
-                ...require('./page.settings.json'),
+                ...require('./pages.settings.json'),
                 apiName: 'pages',
                 associations: [{ model: 'navigationitem' }],
             },
@@ -30,7 +30,7 @@ function setupStrapi() {
                       navigation: jest.fn().mockImplementation(),
                   },
                   models: {
-                      'page': require('./page.settings.json'),
+                      'pages': require('./pages.settings.json'),
                       'blog-post': require('./blog-post.settings.json'),
                   }
               }

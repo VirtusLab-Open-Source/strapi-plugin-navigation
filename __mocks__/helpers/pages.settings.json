@@ -1,9 +1,9 @@
 {
-  "uid": "application::page.page",
+  "uid": "application::pages.pages",
   "kind": "collectionType",
   "collectionName": "pages",
   "info": {
-    "name": "page"
+    "name": "pages"
   },
   "options": {
     "increments": true,

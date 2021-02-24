@@ -32,12 +32,10 @@ const View = () => {
     activeItem: activeNavigation,
     changedActiveItem: changedActiveNavigation,
     config,
-    navigationPopupOpened,
     navigationItemPopupOpened,
     isLoading,
     isLoadingForAdditionalDataToBeSet,
     isLoadingForSubmit,
-    handleChangeNavigationPopupVisibility,
     handleChangeNavigationItemPopupVisibility,
     handleChangeSelection,
     handleChangeNavigationData,
@@ -78,7 +76,7 @@ const View = () => {
           __collectionName: curr.relatedRef.__collectionName,
           id: curr.relatedRef.id
         } : undefined, ...pullUsedContentTypeItem(curr.items)].filter(item => item)
-      , [])
+      , []);
   const usedContentTypeItems = pullUsedContentTypeItem((changedActiveNavigation || {}).items);
 
   const changeNavigationItemPopupState = (visible, editedItem = {}) => {
@@ -91,6 +89,7 @@ const View = () => {
     viewId = null,
     isMenuAllowedLevel = true,
     levelPath = '',
+    parentAttachedToMenu = true,
   ) => {
     e.preventDefault();
     e.stopPropagation();
@@ -98,15 +97,22 @@ const View = () => {
       viewParentId: viewId,
       isMenuAllowedLevel,
       levelPath,
+      parentAttachedToMenu,
     });
   };
 
-  const editNavigationItem = (e, item, levelPath = '') => {
+  const editNavigationItem = (
+    e,
+    item,
+    levelPath = '',
+    parentAttachedToMenu = true,
+  ) => {
     e.preventDefault();
     e.stopPropagation();
     changeNavigationItemPopupState(true, {
       ...item,
       levelPath,
+      parentAttachedToMenu,
     });
   };
 
@@ -204,6 +210,7 @@ const View = () => {
                     root
                     error={error}
                     allowedLevels={config.allowedLevels}
+                    isParentAttachedToMenu={true}
                     contentTypesNameFields={config.contentTypesNameFields}
                   />
                 )}

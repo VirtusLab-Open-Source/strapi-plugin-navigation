@@ -12,10 +12,10 @@ describe('Navigation service', () => {
   it('Config Content Types', () => {
       const { configContentTypes } = require("../navigation");
       const result = [{
-          uid: "application::page.page",
+          uid: "application::pages.pages",
           collectionName: "pages",
           isSingle: false,
-          contentTypeName: "Page",
+          contentTypeName: "Pages",
           endpoint: "pages",
           label: "Pages",
           labelSingular: "Page",

@@ -31,6 +31,10 @@ module.exports = {
         };
       },
 
+    singularize(value = '') {
+      return last(value) === 's' ? value.substr(0, value.length - 1) : value;
+    },
+
     checkDuplicatePath(parentItem, checkData) {
         return new Promise((resolve, reject) => {
           if (parentItem && parentItem.items) {
