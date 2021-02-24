@@ -16,10 +16,12 @@ function setupStrapi() {
             'page': {
                 ...require('./page.settings.json'),
                 apiName: 'pages',
+                associations: [{ model: 'navigationitem' }],
             },
             'blog-post': {
                 ...require('./blog-post.settings.json'),
                 apiName: 'blog-posts',
+                associations: [{ model: 'navigationitem' }],
             },
           },
           plugins: {
