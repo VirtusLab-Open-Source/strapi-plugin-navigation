@@ -107,11 +107,25 @@ module.exports = {
               }),
       );
       const relatedResponseMap = responses.reduce((acc, curr) => ({ ...acc, ...curr }), {});
+      const singleTypes = new Set( 
+        contentTypes
+          .filter(x => x.isSingle)
+          .map(({ contentTypeName }) => contentTypeName)
+      );
 
       return (contentType, id) => {
         const template = get(relatedResponseMap[contentType].find(data => data.id === id), 'template');
-        const templateComponent = this.getTemplateComponentFromTemplate(template);
-        return get(templateComponent, 'options.templateName', TEMPLATE_DEFAULT);
+
+        if (template) {
+          const templateComponent = this.getTemplateComponentFromTemplate(template);
+          return get(templateComponent, 'options.templateName', TEMPLATE_DEFAULT);
+        }
+
+        if (singleTypes.has(contentType)) {
+          return contentType;
+        }
+
+        return TEMPLATE_DEFAULT;
       };
     },
 
