@@ -89,9 +89,9 @@ module.exports = {
         const { isManaged, hidden } = options;
         const isSingle = kind === KIND_TYPES.SINGLE;
         const endpoint = isSingle ? apiName : pluralize(apiName);
-        const relationName = last(apiName) === 's' ? apiName.substr(0, apiName.length - 1) : apiName;
-        const relationNameParts = relationName.split('-');
-        const contentTypeName = relationNameParts.length > 1 ? relationNameParts.reduce((prev, curr) => `${prev}${upperFirst(curr)}`, '') : upperFirst(relationName);
+        const relationName = utilsFunctions.singularize(apiName);
+        const relationNameParts = last(uid.split('.')).split('-');
+        const contentTypeName = relationNameParts.length > 1 ? relationNameParts.reduce((prev, curr) => `${prev}${upperFirst(curr)}`, '') : upperFirst(apiName);
         const labelSingular = upperFirst(relationNameParts.length > 1 ? relationNameParts.join(' ') : relationName);
         return {
           uid,
@@ -102,7 +102,7 @@ module.exports = {
           contentTypeName,
           label: isSingle ? labelSingular : pluralize(labelSingular || name),
           relatedField: relatedField ? relatedField.alias : undefined,
-          labelSingular,
+          labelSingular: utilsFunctions.singularize(labelSingular),
           endpoint,
           plugin,
           visible: (isManaged || isNil(isManaged)) && !hidden,

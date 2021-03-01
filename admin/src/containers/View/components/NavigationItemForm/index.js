@@ -42,8 +42,6 @@ const NavigationItemForm = ({
   if (!hasBeenInitialized && !isEmpty(data)) {
     setInitializedState(true);
     setFormState({ ...data });
-  } else if (hasBeenInitialized && !isEmpty(data) && data.related && data.related.label && !(form.related || {}).label) {
-    setFormState({ ...data });
   }
 
   const sanitizePayload = (payload = {}) => {
@@ -98,10 +96,13 @@ const NavigationItemForm = ({
   };
 
   const onChangeRelatedType = ({ target: { name, value } }) => {
+    const relatedTypeBeingReverted = data.relatedType && (data.relatedType.value === get(value, 'value', value));
     setFormState(prevState => ({
       ...prevState,
       updated: true,
-      related: undefined,
+      related: relatedTypeBeingReverted ? {
+        ...data.related
+      } : undefined,
       [name]: value,
     }));
     if (!hasChanged) {
@@ -126,36 +127,37 @@ const NavigationItemForm = ({
   );
 
   const isSingleSelected = useMemo(
-    () => relatedTypeSelectValue ? contentTypes.find(_ => _.collectionName === relatedType.value)?.isSingle : false,
+    () => relatedTypeSelectValue ? contentTypes.find(_ => _.uid === relatedType.value)?.isSingle : false,
     [relatedTypeSelectValue, contentTypes],
   );
 
   const relatedTypeSelectOptions = useMemo(
     () => contentTypes
-      .filter((contentType) => {
-        if (contentType.isSingle) {
-          return !usedContentTypesData.some((_) => _.__collectionName === contentType.collectionName);
-        }
-        return true;
-      })
+    .filter((contentType) => {
+      if (contentType.isSingle) {
+        return !usedContentTypesData.some((_) => _.__collectionName === contentType.uid);
+      }
+      return true;
+    })
       .map((item) => ({
-        value: get(item, 'collectionName'),
+        value: get(item, 'uid'),
         label: get(item, 'label', get(item, 'name')),
       })),
     [contentTypes, usedContentTypesData],
   );
 
   const relatedSelectOptions = contentTypeEntities
-    .filter((item) => !find(usedContentTypeEntities.filter(uctItem => uctItem.id !== get(relatedSelectValue, 'value')),
-      uctItem =>
-        (get(relatedTypeSelectValue, 'value') === uctItem.__collectionName) && (item.id === uctItem.id),
-    ))
+    .filter((item) => {
+      const usedContentTypeEntitiesOfSameType = usedContentTypeEntities
+        .filter(uctItem => (get(relatedTypeSelectValue, 'value') === uctItem.__collectionName) && (uctItem.id !== get(relatedSelectValue, 'value')));
+      return !find(usedContentTypeEntitiesOfSameType, uctItem => item.id === uctItem.id); 
+    })
     .map((item) => ({
       value: item.id,
       label: extractRelatedItemLabel({
         ...item,
         __collectionName: get(relatedTypeSelectValue, 'value', relatedTypeSelectValue),
-      }, contentTypesNameFields),
+      }, contentTypesNameFields, { contentTypes }),
     }));
 
   const isExternal = form.type === navigationItemType.EXTERNAL;
@@ -200,7 +202,7 @@ const NavigationItemForm = ({
       if (value) {
         const item = find(
           contentTypes,
-          (_) => _.collectionName === value,
+          (_) => _.uid === value,
         );
         if (item) {
           await getContentTypeEntities(item.endpoint || item.collectionName, item.plugin);
@@ -241,7 +243,7 @@ const NavigationItemForm = ({
                   <Toggle
                     name={`${inputsPrefix}menuAttached`}
                     onChange={onChange}
-                    disabled={!data.isMenuAllowedLevel}
+                    disabled={!(data.isMenuAllowedLevel && data.parentAttachedToMenu)}
                     value={get(form, `${inputsPrefix}menuAttached`, false)}
                   />
                 </Flex>

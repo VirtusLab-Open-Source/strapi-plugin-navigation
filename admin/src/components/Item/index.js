@@ -28,6 +28,7 @@ const Item = (props) => {
     relatedRef,
     isFirst = false,
     isLast = false,
+    isParentAttachedToMenu,
     onItemClick,
     onItemReOrder,
     onItemRestoreClick,
@@ -79,6 +80,7 @@ const Item = (props) => {
           removed ? null : onItemClick(e, {
             ...item,
             isMenuAllowedLevel,
+            isParentAttachedToMenu,
           }, levelPath)
         }
       >
@@ -106,7 +108,7 @@ const Item = (props) => {
         <CardItemLevelAdd
           color={isNextMenuAllowedLevel ? 'primary' : 'secondary'}
           icon={<FontAwesomeIcon icon={faPlus} size="3x" />}
-          onClick={(e) => onItemLevelAddClick(e, viewId, isNextMenuAllowedLevel, levelPath)}
+          onClick={(e) => onItemLevelAddClick(e, viewId, isNextMenuAllowedLevel, levelPath, menuAttached)}
           menuLevel={isNextMenuAllowedLevel}
         />
       )}
@@ -121,6 +123,7 @@ const Item = (props) => {
           level={level + 1}
           levelPath={absolutePath}
           allowedLevels={allowedLevels}
+          isParentAttachedToMenu={menuAttached}
           contentTypesNameFields={contentTypesNameFields}
           error={error}
         />
@@ -146,6 +149,7 @@ Item.propTypes = {
   levelPath: PropTypes.string,
   isFirst: PropTypes.bool,
   isLast: PropTypes.bool,
+  isParentAttachedToMenu: PropTypes.bool,
   onItemClick: PropTypes.func.isRequired,
   onItemRestoreClick: PropTypes.func.isRequired,
   onItemLevelAddClick: PropTypes.func.isRequired,

@@ -18,6 +18,7 @@ const List = ({
   level = 0,
   levelPath = '',
   allowedLevels,
+  isParentAttachedToMenu = false,
   contentTypesNameFields,
   error,
 }) => {
@@ -35,6 +36,7 @@ const List = ({
             levelPath={levelPath}
             isFirst={n === 0}
             isLast={n === items.length - 1}
+            isParentAttachedToMenu={isParentAttachedToMenu}
             allowedLevels={allowedLevels}
             contentTypesNameFields={contentTypesNameFields}
             onItemClick={onItemClick}
@@ -52,7 +54,7 @@ const List = ({
             menuLevel
             color="primary"
             icon={<FontAwesomeIcon icon={faPlus} />}
-            onClick={e => onItemLevelAddClick(e, null, true, levelPath)}
+            onClick={e => onItemLevelAddClick(e, null, true, levelPath, true)}
           />
         </ListLevelRoot>
       )}
@@ -65,6 +67,7 @@ List.propTypes = {
   items: PropTypes.array,
   level: PropTypes.number,
   allowedLevels: PropTypes.number,
+  isParentAttachedToMenu: PropTypes.bool,
   contentTypesNameFields: PropTypes.object.isRequired,
   onItemClick: PropTypes.func.isRequired,
   onItemReOrder: PropTypes.func.isRequired,

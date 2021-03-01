@@ -3,7 +3,7 @@
   "kind": "collectionType",
   "collectionName": "blog_posts",
   "info": {
-    "name": "Blog posts"
+    "name": "Blog post"
   },
   "options": {
     "increments": true,
