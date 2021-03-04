@@ -165,7 +165,7 @@ const DataManagerProvider = ({ children }) => {
       type: GET_CONTENT_TYPE_ITEMS,
     });
     const url = plugin ? `/${plugin}/${type}` : `/${type}`;
-    const contentTypeItems = await request(url, {
+    const contentTypeItems = await request(`${url}?_publicationState=preview`, {
       method: "GET",
       signal,
     });
@@ -239,7 +239,10 @@ const DataManagerProvider = ({ children }) => {
 
       dispatch({
         type: SUBMIT_NAVIGATION_SUCCEEDED,
-        navigation,
+        navigation: {
+          ...navigation,
+          items: prepareItemToViewPayload(navigation.items, null, config),
+        },
       });
       emitEvent("didSubmitNavigation");
 

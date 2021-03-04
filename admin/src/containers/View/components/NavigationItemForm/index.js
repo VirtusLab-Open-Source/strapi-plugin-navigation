@@ -29,6 +29,7 @@ const NavigationItemForm = ({
   onSubmit,
   getContentTypeEntities,
   usedContentTypesData,
+  appendLabelPublicationStatus = () => '',
 }) => {
   const [hasBeenInitialized, setInitializedState] = useState(false);
   const [hasChanged, setChangedState] = useState(false);
@@ -141,7 +142,7 @@ const NavigationItemForm = ({
     })
       .map((item) => ({
         value: get(item, 'uid'),
-        label: get(item, 'label', get(item, 'name')),
+        label: appendLabelPublicationStatus(get(item, 'label', get(item, 'name')), item, true),
       })),
     [contentTypes, usedContentTypesData],
   );
@@ -154,10 +155,13 @@ const NavigationItemForm = ({
     })
     .map((item) => ({
       value: item.id,
-      label: extractRelatedItemLabel({
-        ...item,
-        __collectionName: get(relatedTypeSelectValue, 'value', relatedTypeSelectValue),
-      }, contentTypesNameFields, { contentTypes }),
+      label: appendLabelPublicationStatus(
+          extractRelatedItemLabel({
+          ...item,
+          __collectionName: get(relatedTypeSelectValue, 'value', relatedTypeSelectValue),
+        }, contentTypesNameFields, { contentTypes }), 
+        item
+      ),
     }));
 
   const isExternal = form.type === navigationItemType.EXTERNAL;
@@ -404,6 +408,7 @@ NavigationItemForm.propTypes = {
   availableAudience: PropTypes.array,
   additionalFields: PropTypes.array,
   getContentTypeEntities: PropTypes.func.isRequired,
+  appendLabelPublicationStatus: PropTypes.func,
 };
 
 export default NavigationItemForm;

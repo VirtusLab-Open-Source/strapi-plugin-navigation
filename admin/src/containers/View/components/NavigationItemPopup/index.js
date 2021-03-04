@@ -4,15 +4,16 @@
  *
  */
 
-import React, { useMemo } from 'react';
-import { FormattedMessage } from 'react-intl';
+import React from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { HeaderModal, HeaderModalTitle } from 'strapi-helper-plugin';
 import { find } from 'lodash';
 import NavigationItemForm from '../NavigationItemForm';
 import pluginId from '../../../../pluginId';
-import { extractRelatedItemLabel } from '../../utils/parsers';
+import { extractRelatedItemLabel, isRelationCorrect, isRelationPublished } from '../../utils/parsers';
 import { MediumPopup } from './MediumPopup';
+import { navigationItemType } from '../../utils/enums';
 
 const NavigationItemPopUp = ({
   isOpen,
@@ -25,6 +26,8 @@ const NavigationItemPopUp = ({
   getContentTypeItems,
   usedContentTypesData,
 }) => {
+  const { formatMessage } = useIntl();
+
   const handleOnSubmit = (payload) => {
     onSubmit(payload);
   };
@@ -38,21 +41,38 @@ const NavigationItemPopUp = ({
     contentTypesNameFields = {},
   } = config;
 
+
+  const appendLabelPublicationStatus = (label = '', item = {}, isCollection = false) => {
+    const appendix = !isRelationPublished({
+      relatedRef: item,
+      type: item.isSingle ? navigationItemType.INTERNAL : item.type, 
+      isCollection,
+    }) ? `[${formatMessage({ id: `${pluginId}.notification.navigation.item.relation.status.draft` })}] `.toUpperCase() : '';
+    return `${appendix}${label}`;
+  };
+
   const relatedTypeItem = find(contentTypes, item => item.uid === relatedType, {});
-  const prepareFormData = data => ({
-    ...data,
-    related: related ? {
-      value: related,
-      label: extractRelatedItemLabel({
-        ...find(contentTypeItems, item => item.id === related, {}),
-        __collectionName: relatedType,
-      }, contentTypesNameFields, config),
-    } : undefined,
-    relatedType: relatedType ? {
-      value: relatedType,
-      label: relatedTypeItem.label || relatedTypeItem.name,
-    } : undefined,
-  });
+  const prepareFormData = data => {
+    const relatedItem = find(contentTypeItems, item => item.id === related, {});
+    return {
+      ...data,
+      type: isRelationCorrect(data) ? data.type : undefined,
+      related: related && isRelationCorrect(data) ? {
+        value: related,
+        label: appendLabelPublicationStatus(
+            extractRelatedItemLabel({
+            ...relatedItem,
+            __collectionName: relatedType,
+          }, contentTypesNameFields, config),
+          relatedItem,
+        ),
+      } : undefined,
+      relatedType: relatedType && isRelationCorrect(data) ? {
+        value: relatedType,
+        label: appendLabelPublicationStatus(relatedTypeItem.label || relatedTypeItem.name, relatedTypeItem, true),
+      } : undefined,
+    };
+  };
 
   return (
     <MediumPopup isOpen={isOpen} onToggle={onClose}>
@@ -75,6 +95,7 @@ const NavigationItemPopUp = ({
         getContentTypeEntities={getContentTypeItems}
         usedContentTypesData={usedContentTypesData}
         onSubmit={handleOnSubmit}
+        appendLabelPublicationStatus={appendLabelPublicationStatus}
       />
     </MediumPopup>
   );

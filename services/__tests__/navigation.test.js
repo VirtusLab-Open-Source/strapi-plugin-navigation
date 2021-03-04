@@ -9,7 +9,7 @@ describe('Navigation service', () => {
       expect(strapi.contentTypes).toBeDefined();
       expect(Object.keys(strapi.contentTypes).length).toBe(2);
     });
-  it('Config Content Types', () => {
+  it('Config Content Types', async () => {
       const { configContentTypes } = require("../navigation");
       const result = [{
           uid: "application::pages.pages",
@@ -32,7 +32,7 @@ describe('Navigation service', () => {
           name: "blog-post",
           visible: true,
       }];
-      const types = configContentTypes();
+      const types = await configContentTypes();
       expect(types[0]).toMatchObject(result[0]);
       expect(types[1]).toMatchObject(result[1]);
     });

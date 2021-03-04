@@ -22,7 +22,9 @@ import NavigationItemPopUp from "./components/NavigationItemPopup";
 import List from "../../components/List";
 import {
   transformItemToViewPayload,
-  transformToRESTPayload, usedContentTypes,
+  transformToRESTPayload, 
+  usedContentTypes,
+  validateNavigationStructure,
 } from './utils/parsers';
 import FadedWrapper from "./FadedWrapper";
 
@@ -52,6 +54,7 @@ const View = () => {
     label: item.name,
   }));
 
+  const structureHasErrors = !validateNavigationStructure((changedActiveNavigation || {}).items);
   const navigationSelectValue = get(activeNavigation, "id", null);
   const actions = [
     {
@@ -63,10 +66,11 @@ const View = () => {
     {
       label: "Save",
       onClick: () =>
-        isLoadingForSubmit ? null : handleSubmitNavigation(formatMessage, transformToRESTPayload(changedActiveNavigation, config)),
+        isLoadingForSubmit || structureHasErrors ? null : handleSubmitNavigation(formatMessage, transformToRESTPayload(changedActiveNavigation, config)),
       color: "success",
       type: "submit",
       isLoading: isLoadingForSubmit,
+      disabled: structureHasErrors,
     },
   ];
 
@@ -210,6 +214,7 @@ const View = () => {
                     root
                     error={error}
                     allowedLevels={config.allowedLevels}
+                    contentTypes={config.contentTypes}
                     isParentAttachedToMenu={true}
                     contentTypesNameFields={config.contentTypesNameFields}
                   />

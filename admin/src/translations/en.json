@@ -30,5 +30,8 @@
   "popup.item.form.button.restore": "Restore item",
   "popup.item.form.button.remove": "Remove",
   "notification.navigation.submit": "Navigation changes has been saved",
-  "notification.navigation.error": "Duplicate path: { path } in parent: { parentTitle } for { errorTitles } items"
+  "notification.navigation.error": "Duplicate path: { path } in parent: { parentTitle } for { errorTitles } items",
+  "notification.navigation.item.relation": "Entity relation does not exist!",
+  "notification.navigation.item.relation.status.draft": "draft",
+  "notification.navigation.item.relation.status.published": "published"
 }

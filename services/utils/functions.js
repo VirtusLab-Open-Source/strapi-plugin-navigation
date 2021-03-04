@@ -9,6 +9,7 @@ const {
     last,
   } = require('lodash');
 
+const { type: itemType } = require('../../models/navigationItem');
 const { NavigationError } = require('../../utils/NavigationError');
 const { TEMPLATE_DEFAULT } = require('./constant');
 
@@ -133,6 +134,15 @@ module.exports = {
       if (auditLogInstance && auditLogInstance.emit) {
         auditLogInstance.emit(event, data);
       }
+    },
+
+    filterOutUnpublished(item) {
+      const relatedItem = item.related && last(item.related);
+      const isHandledByPublshFlow =  relatedItem ? 'published_at' in relatedItem : false;
+      const isRelatedDefinedAndPublished = relatedItem ?
+        isHandledByPublshFlow && get(relatedItem, 'published_at') :
+        false;
+      return item.type === itemType.INTERNAL ? isRelatedDefinedAndPublished  : true
     },
 
     prepareAuditLog(actions) {

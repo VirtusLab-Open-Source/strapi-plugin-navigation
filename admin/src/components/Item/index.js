@@ -25,6 +25,7 @@ const Item = (props) => {
     levelPath = '',
     allowedLevels,
     contentTypesNameFields,
+    contentTypes,
     relatedRef,
     isFirst = false,
     isLast = false,
@@ -40,15 +41,18 @@ const Item = (props) => {
     title,
     type,
     path,
+    relatedType,
     removed,
     externalPath,
     menuAttached,
   } = item;
   const footerProps = {
+    contentTypes,
     type: type || navigationItemType.INTERNAL,
     removed,
     menuAttached,
     relatedRef,
+    relatedType,
     contentTypesNameFields,
     attachButtons: !(isFirst && isLast),
   };
@@ -125,6 +129,7 @@ const Item = (props) => {
           allowedLevels={allowedLevels}
           isParentAttachedToMenu={menuAttached}
           contentTypesNameFields={contentTypesNameFields}
+          contentTypes={contentTypes}
           error={error}
         />
       )}
@@ -144,6 +149,7 @@ Item.propTypes = {
     menuAttached: PropTypes.bool,
   }).isRequired,
   relatedRef: PropTypes.object,
+  contentTypes: PropTypes.array,
   contentTypesNameFields: PropTypes.object.isRequired,
   level: PropTypes.number,
   levelPath: PropTypes.string,

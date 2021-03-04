@@ -257,5 +257,38 @@ export const extractRelatedItemLabel = (item = {}, fields = {}, config = {}) => 
 };
 
 export const usedContentTypes = (items) => items.flatMap(
-  (item) => [item.relatedRef, ...(item.items ? usedContentTypes(item.items) : [])],
+  (item) => {
+    const used = (item.items ? usedContentTypes(item.items) : []);
+    if (item.relatedRef) {
+      return [item.relatedRef, ...used];
+    }
+    return used; 
+  },
 );
+
+export const isRelationCorrect = ({ related, type }) => {
+  const isRelationDefined = !isNil(related);
+  return type === navigationItemType.EXTERNAL || (type === navigationItemType.INTERNAL && isRelationDefined);
+};
+
+export const isRelationPublished = ({ relatedRef, relatedType = {}, type, isCollection }) => {
+  if (isCollection) {
+    return relatedType.available || relatedRef.available;
+  }
+  if ((type === navigationItemType.INTERNAL)) {
+    const isHandledByPublshFlow =  relatedRef ? 'published_at' in relatedRef : false;
+    return relatedRef ?
+      (isHandledByPublshFlow && get(relatedRef, 'published_at')) :
+      true;
+  }
+  return true;
+};
+
+export const validateNavigationStructure = (items = []) => 
+  items.map(item => 
+    (isRelationCorrect({ 
+      related: item.related, 
+      type: item.type,
+    }) || item.removed) && 
+    validateNavigationStructure(item.items)
+  ).filter(item => !item).length === 0;
