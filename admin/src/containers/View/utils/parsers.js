@@ -1,5 +1,5 @@
 import { isUuid, uuid } from 'uuidv4';
-import { find, first, get, isArray, isEmpty, isNil, isNumber, isObject, isString, omit, orderBy } from 'lodash';
+import { find, first, get, isArray, isEmpty, isNil, isNumber, isObject, isString, kebabCase, omit, orderBy } from 'lodash';
 import { navigationItemType } from './enums';
 
 export const transformItemToRESTPayload = (
@@ -120,7 +120,7 @@ const linkRelations = (item, config) => {
   const shouldBuildRelated = !relatedRef || (relatedRef && (relatedRef.id !== relatedId));
   if (shouldBuildRelated && !shouldFindRelated) {
     const relatedContentType = find(contentTypes,
-      ct => ct.contentTypeName.toLowerCase() === relatedItem.__contentType.toLowerCase(), {});
+      ct => kebabCase(ct.contentTypeName) === kebabCase(relatedItem.__contentType), {});
     const { uid, labelSingular, isSingle } = relatedContentType;
     relation = {
       related: relatedItem.id,
