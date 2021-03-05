@@ -18,7 +18,6 @@ const ItemFooter = ({ type, removed, relatedRef, relatedType, attachButtons, con
 
   const isRelationDefined = !isNil(relatedRef);
 
-
   const formatRelationType = () =>
   isRelationDefined ? get(relatedRef, 'labelSingular', get(relatedRef, '__contentType')) : '';
 
@@ -26,6 +25,7 @@ const ItemFooter = ({ type, removed, relatedRef, relatedType, attachButtons, con
   isRelationDefined ? extractRelatedItemLabel(relatedRef, contentTypesNameFields) : '';
 
   const isSingle = get(relatedRef, 'isSingle', false);
+  const isExternal = type === navigationItemType.EXTERNAL;
   const relatedContentType = isRelationDefined && isSingle ? find(contentTypes, cnt => cnt.uid === relatedType) : undefined;
 
   return (
@@ -36,7 +36,7 @@ const ItemFooter = ({ type, removed, relatedRef, relatedType, attachButtons, con
         />{' '}
         {upperFirst(type.toLowerCase())}
       </CardItemType>
-      {isRelationCorrect({ type, related: relatedRef }) && (
+      {isRelationCorrect({ type, related: relatedRef }) && !isExternal && (
         <CardItemRelation title={formatRelationName()}>
           <FontAwesomeIcon icon={faLink} />{' '}
           {isSingle ? formatRelationType() : `(${formatRelationType()}) ${formatRelationName()}`}

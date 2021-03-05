@@ -21,8 +21,7 @@ const {
 const { KIND_TYPES } = require("./utils/constant");
 const utilsFunctions = require('./utils/functions');
 const { renderType } = require('../models/navigation');
-const { type: itemType } = require('../models/navigationItem');
-const navigationItem = require('../models/navigationItem');
+const { type: itemType, additionalFields: configAdditionalFields } = require('../models/navigationItem');
 
 /**
  * navigation.js service
@@ -59,7 +58,7 @@ module.exports = {
       additionalFields,
     };
 
-    if (additionalFields.includes(navigationItem.additionalFields.AUDIENCE)) {
+    if (additionalFields.includes(configAdditionalFields.AUDIENCE)) {
       const audienceItems = await strapi
         .query(audienceModel.modelName, pluginName)
         .find({});
@@ -353,7 +352,7 @@ module.exports = {
         parent,
       });
 
-      if (item.type === navigationItem.type.INTERNAL) {
+      if (item.type === itemType.INTERNAL) {
         pages = {
           ...pages,
           [itemPage.id]: {
@@ -373,7 +372,7 @@ module.exports = {
         };
       } else {
         const navLevel = navItems
-          .filter(navItem => navItem.type === navigationItem.type.INTERNAL.toLowerCase());
+          .filter(navItem => navItem.type === itemType.INTERNAL.toLowerCase());
         if (!isEmpty(navLevel))
           nav = {
             ...nav,
@@ -389,7 +388,7 @@ module.exports = {
           contentTypes,
         });
         const { pages: nestedPages } = service.renderRFR({
-          items: itemChilds.filter(child => child.type === navigationItem.type.INTERNAL), 
+          items: itemChilds.filter(child => child.type === itemType.INTERNAL), 
           parent: itemPage.id, 
           parentNavItem: itemNav, 
           contentTypes,
@@ -419,7 +418,7 @@ module.exports = {
       id: uiRouterKey,
       title,
       templateName: __templateName,
-      related: type === navigationItem.type.INTERNAL ? {
+      related: type === itemType.INTERNAL ? {
         contentType: kebabCase(contentType),
         id,
       } : undefined,
@@ -436,8 +435,8 @@ module.exports = {
     return {
       label: title,
       type: type.toLowerCase(),
-      page: type === navigationItem.type.INTERNAL ? uiRouterKey : undefined,
-      url: type === navigationItem.type.EXTERNAL ? path : undefined,
+      page: type === itemType.INTERNAL ? uiRouterKey : undefined,
+      url: type === itemType.EXTERNAL ? path : undefined,
       audience,
     };
   },
