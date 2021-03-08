@@ -15,8 +15,8 @@ import CardItemLevelAdd from './CardItemLevelAdd';
 import List from '../List';
 import CardItemLevelWrapper from './CardItemLevelWrapper';
 import CardItemRestore from './CardItemRestore';
-import pluginId from '../../pluginId';
 import ItemOrdering from '../ItemOrdering';
+import { getTrad } from '../../translations';
 
 const Item = (props) => {
   const {
@@ -92,9 +92,7 @@ const Item = (props) => {
           <Button
             onClick={e => onItemRestoreClick(e, item)}
             color="secondary"
-            label={formatMessage({
-              id: `${pluginId}.popup.item.form.button.restore`,
-            })}
+            label={formatMessage(getTrad('popup.item.form.button.restore'))}
           />
         </CardItemRestore>)}
         <CardItemTitle>{title}</CardItemTitle>

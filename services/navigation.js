@@ -89,25 +89,37 @@ module.exports = {
             const { associations = [], kind, options, uid } = item;
             const { draftAndPublish } = options;
             const hasDefinedNavigationRelation = associations.some(_ => _.model === 'navigationitem');
-            const isSingleTypeWithPublishFlow = (kind === KIND_TYPES.SINGLE) && draftAndPublish;
-            const itemsCountOrBypass = isSingleTypeWithPublishFlow ? await strapi.query(uid).count({
-              _publicationState: 'live'
-            }) : await Promise.resolve(true);
-            return hasDefinedNavigationRelation ? {
-              key,
-              available: itemsCountOrBypass !== 0,
-            } : undefined;
+
+            if (hasDefinedNavigationRelation) {
+              const isSingleType = kind === KIND_TYPES.SINGLE;
+              const isSingleTypeWithPublishFlow = isSingleType && draftAndPublish;
+
+              const returnType = (available) => ({
+                key,
+                available,
+              });
+
+              if (isSingleType) {
+                if (isSingleTypeWithPublishFlow) {
+                  const itemsCountOrBypass = isSingleTypeWithPublishFlow ? 
+                    await strapi.query(uid).count({
+                      _publicationState: 'live'
+                    }) : 
+                    true;
+                  return returnType(itemsCountOrBypass !== 0);
+                }
+                const isAvailable = await strapi.query(uid).count();
+                return isAvailable === 1 ? returnType(true) : undefined;
+              } 
+              return returnType(true);
+            }
+            return undefined;
           }
         )
       );
     return eligibleContentTypes
-      .map((keyValue) => {
-
-        if (!keyValue) {
-          return;
-        }
-
-        const { key, available } = keyValue;
+      .filter(key => key)
+      .map(({ key, available}) => {
         const item = strapi.contentTypes[key];
         const relatedField = (item.associations || []).find(_ => _.model === 'navigationitem');
         const { uid, options, info, collectionName, apiName, plugin, kind } = item;

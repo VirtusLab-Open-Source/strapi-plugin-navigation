@@ -17,7 +17,6 @@ import Wrapper from "../View/Wrapper";
 import EmptyView from "../../components/EmptyView";
 import HeaderForm from "./HeaderForm";
 import HeaderFormCell from "./HeaderFormCell";
-import pluginId from "../../pluginId";
 import NavigationItemPopUp from "./components/NavigationItemPopup";
 import List from "../../components/List";
 import {
@@ -27,6 +26,7 @@ import {
   validateNavigationStructure,
 } from './utils/parsers';
 import FadedWrapper from "./FadedWrapper";
+import { getTrad, getTradId } from '../../translations';
 
 const View = () => {
   const {
@@ -167,11 +167,9 @@ const View = () => {
             <HeaderFormCell>
               <Header
                 title={{
-                  label: formatMessage({ id: `${pluginId}.header.title` }),
+                  label: formatMessage(getTrad('header.title')),
                 }}
-                content={formatMessage({
-                  id: `${pluginId}.header.description`,
-                })}
+                content={formatMessage(getTrad('header.description'))}
               />
             </HeaderFormCell>
             { options && (options.length > 1) && (<HeaderFormCell>
@@ -195,11 +193,11 @@ const View = () => {
                 {isEmpty(changedActiveNavigation.items || []) && (
                   <EmptyView>
                     <FontAwesomeIcon icon={faHamburger} size="5x" />
-                    <FormattedMessage id={`${pluginId}.empty`} />
+                    <FormattedMessage id={getTradId('empty')} />
                     <Button
                       color="primary"
                       icon={<FontAwesomeIcon icon={faPlus} />}
-                      label={formatMessage({ id: `${pluginId}.empty.cta` })}
+                      label={formatMessage(getTrad('empty.cta'))}
                       onClick={addNewNavigationItem}
                     />
                   </EmptyView>

@@ -30,6 +30,7 @@ import {
   SUBMIT_NAVIGATION_ERROR,
 } from './actions';
 import { prepareItemToViewPayload } from '../View/utils/parsers';
+import { getTradId } from "../../translations";
 
 const DataManagerProvider = ({ children }) => {
   const [reducerState, dispatch] = useReducer(reducer, initialState, init);
@@ -246,7 +247,7 @@ const DataManagerProvider = ({ children }) => {
       });
       emitEvent("didSubmitNavigation");
 
-      strapi.notification.success(`${pluginId}.notification.navigation.submit`);
+      strapi.notification.success(getTradId('notification.navigation.submit'));
     } catch (err) {
       dispatch({
         type: SUBMIT_NAVIGATION_ERROR,
@@ -257,7 +258,7 @@ const DataManagerProvider = ({ children }) => {
       if (err.response.payload.data && err.response.payload.data.errorTitles) {
         return strapi.notification.error(
           formatMessage(
-            { id: `${pluginId}.notification.navigation.error` },
+            getTrad('notification.navigation.error'),
             { ...err.response.payload.data, errorTitles: err.response.payload.data.errorTitles.join(' and ') },
           ),
         );

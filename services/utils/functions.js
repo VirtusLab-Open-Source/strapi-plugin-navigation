@@ -139,10 +139,14 @@ module.exports = {
     filterOutUnpublished(item) {
       const relatedItem = item.related && last(item.related);
       const isHandledByPublshFlow =  relatedItem ? 'published_at' in relatedItem : false;
-      const isRelatedDefinedAndPublished = relatedItem ?
-        isHandledByPublshFlow && get(relatedItem, 'published_at') :
-        false;
-      return item.type === itemType.INTERNAL ? isRelatedDefinedAndPublished  : true
+
+      if (isHandledByPublshFlow) {
+        const isRelatedDefinedAndPublished = relatedItem ?
+          isHandledByPublshFlow && get(relatedItem, 'published_at') :
+          false;
+        return item.type === itemType.INTERNAL ? isRelatedDefinedAndPublished  : true;
+      }
+      return (item.type === itemType.EXTERNAL) || relatedItem;
     },
 
     prepareAuditLog(actions) {

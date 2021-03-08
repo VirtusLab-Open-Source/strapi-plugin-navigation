@@ -277,18 +277,18 @@ export const isRelationPublished = ({ relatedRef, relatedType = {}, type, isColl
   }
   if ((type === navigationItemType.INTERNAL)) {
     const isHandledByPublshFlow =  relatedRef ? 'published_at' in relatedRef : false;
-    return relatedRef ?
-      (isHandledByPublshFlow && get(relatedRef, 'published_at')) :
-      true;
+    if (isHandledByPublshFlow) {
+      return get(relatedRef, 'published_at', true);
+    }
   }
   return true;
 };
 
 export const validateNavigationStructure = (items = []) => 
   items.map(item => 
-    (isRelationCorrect({ 
+    (item.removed || isRelationCorrect({ 
       related: item.related, 
       type: item.type,
-    }) || item.removed) && 
+    })) && 
     validateNavigationStructure(item.items)
   ).filter(item => !item).length === 0;

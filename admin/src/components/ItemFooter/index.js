@@ -7,11 +7,11 @@ import CardItemRelation from './CardItemRelation';
 import CardItemType from './CardItemType';
 import Wrapper from './Wrapper';
 import { isNil, get, find, upperFirst } from 'lodash';
-import pluginId from '../../pluginId';
 import { navigationItemType } from '../../containers/View/utils/enums';
 import { extractRelatedItemLabel, isRelationCorrect, isRelationPublished } from '../../containers/View/utils/parsers';
 import CardItemError from './CardItemError';
 import CardItemRelationStatus from './CardItemRelationStatus';
+import { getTrad } from '../../translations';
 
 const ItemFooter = ({ type, removed, relatedRef, relatedType, attachButtons, contentTypesNameFields, contentTypes }) => {
   const { formatMessage } = useIntl();
@@ -42,9 +42,7 @@ const ItemFooter = ({ type, removed, relatedRef, relatedType, attachButtons, con
           {isSingle ? formatRelationType() : `(${formatRelationType()}) ${formatRelationName()}`}
           { !isRelationPublished({ relatedRef, relatedType: relatedContentType, type, isCollection: !isNil(relatedContentType) }) && (
           <CardItemRelationStatus>
-            { `${formatMessage({
-              id: `${pluginId}.notification.navigation.item.relation.status.draft`,
-            })}` }
+            { `${formatMessage(getTrad('notification.navigation.item.relation.status.draft'))}` }
           </CardItemRelationStatus>
           ) }
         </CardItemRelation>
@@ -52,9 +50,7 @@ const ItemFooter = ({ type, removed, relatedRef, relatedType, attachButtons, con
       { !isRelationCorrect({ type, related: relatedRef }) && (
         <CardItemError title={formatRelationName()}>
           <FontAwesomeIcon icon={faExclamationTriangle} />{' '}
-          { formatMessage({
-              id: `${pluginId}.notification.navigation.item.relation`,
-            }) }
+          { formatMessage(getTrad('notification.navigation.item.relation')) }
         </CardItemError>
       )}
     </Wrapper>

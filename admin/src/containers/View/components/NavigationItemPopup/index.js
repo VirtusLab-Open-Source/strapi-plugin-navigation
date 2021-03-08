@@ -10,10 +10,10 @@ import PropTypes from 'prop-types';
 import { HeaderModal, HeaderModalTitle } from 'strapi-helper-plugin';
 import { find } from 'lodash';
 import NavigationItemForm from '../NavigationItemForm';
-import pluginId from '../../../../pluginId';
 import { extractRelatedItemLabel, isRelationCorrect, isRelationPublished } from '../../utils/parsers';
 import { MediumPopup } from './MediumPopup';
 import { navigationItemType } from '../../utils/enums';
+import { getTrad, getTradId } from '../../../../translations';
 
 const NavigationItemPopUp = ({
   isOpen,
@@ -43,17 +43,17 @@ const NavigationItemPopUp = ({
 
 
   const appendLabelPublicationStatus = (label = '', item = {}, isCollection = false) => {
-    const appendix = !isRelationPublished({
+    const appendix = isRelationPublished({
       relatedRef: item,
       type: item.isSingle ? navigationItemType.INTERNAL : item.type, 
       isCollection,
-    }) ? `[${formatMessage({ id: `${pluginId}.notification.navigation.item.relation.status.draft` })}] `.toUpperCase() : '';
+    }) ? '' : `[${formatMessage(getTrad('notification.navigation.item.relation.status.draft'))}] `.toUpperCase();
     return `${appendix}${label}`;
   };
 
-  const relatedTypeItem = find(contentTypes, item => item.uid === relatedType, {});
+  const relatedTypeItem = find(contentTypes, item => item.uid === relatedType);
   const prepareFormData = data => {
-    const relatedItem = find(contentTypeItems, item => item.id === related, {});
+    const relatedItem = find(contentTypeItems, item => item.id === related);
     return {
       ...data,
       type: isRelationCorrect(data) ? data.type : undefined,
@@ -79,7 +79,7 @@ const NavigationItemPopUp = ({
       <HeaderModal>
         <section>
           <HeaderModalTitle>
-            <FormattedMessage id={`${pluginId}.popup.item.header`} />
+            <FormattedMessage id={getTradId('popup.item.header')} />
           </HeaderModalTitle>
         </section>
       </HeaderModal>
