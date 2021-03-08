@@ -8,13 +8,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import ModalFooter from './ModalFooter';
 import Input from '../../../../components/Input';
-import pluginId from '../../../../pluginId';
 import { navigationItemAdditionalFields, navigationItemType } from '../../utils/enums';
 import slugify from 'slugify';
 import Select from '../../../../components/Select';
 import { extractRelatedItemLabel } from '../../utils/parsers';
 import { form as formDefinition } from './utils/form';
 import { checkFormValidity } from '../../utils/form';
+import { getTrad, getTradId } from '../../../../translations';
 
 const NavigationItemForm = ({
   isLoading,
@@ -29,6 +29,7 @@ const NavigationItemForm = ({
   onSubmit,
   getContentTypeEntities,
   usedContentTypesData,
+  appendLabelPublicationStatus = () => '',
 }) => {
   const [hasBeenInitialized, setInitializedState] = useState(false);
   const [hasChanged, setChangedState] = useState(false);
@@ -119,9 +120,7 @@ const NavigationItemForm = ({
   const typeSelectOptions = useMemo(
     () => Object.keys(navigationItemType).map((key) => ({
       value: key,
-      label: formatMessage({
-        id: `${pluginId}.popup.item.form.type.${key.toLowerCase()}.label`,
-      }),
+      label: formatMessage(getTrad(`popup.item.form.type.${key.toLowerCase()}.label`)),
     })),
     [],
   );
@@ -141,7 +140,7 @@ const NavigationItemForm = ({
     })
       .map((item) => ({
         value: get(item, 'uid'),
-        label: get(item, 'label', get(item, 'name')),
+        label: appendLabelPublicationStatus(get(item, 'label', get(item, 'name')), item, true),
       })),
     [contentTypes, usedContentTypesData],
   );
@@ -154,10 +153,13 @@ const NavigationItemForm = ({
     })
     .map((item) => ({
       value: item.id,
-      label: extractRelatedItemLabel({
-        ...item,
-        __collectionName: get(relatedTypeSelectValue, 'value', relatedTypeSelectValue),
-      }, contentTypesNameFields, { contentTypes }),
+      label: appendLabelPublicationStatus(
+          extractRelatedItemLabel({
+          ...item,
+          __collectionName: get(relatedTypeSelectValue, 'value', relatedTypeSelectValue),
+        }, contentTypesNameFields, { contentTypes }), 
+        item
+      ),
     }));
 
   const isExternal = form.type === navigationItemType.EXTERNAL;
@@ -176,9 +178,7 @@ const NavigationItemForm = ({
       return (
         <Text fontSize="sm" color="grey">
           <FontAwesomeIcon icon={faEye} />{' '}
-          {formatMessage({
-            id: `${pluginId}.popup.item.form.path.preview`,
-          })}{' '}
+          {formatMessage(getTrad('popup.item.form.path.preview'))}{' '}
           {data.levelPath !== '/' ? `${data.levelPath}` : ''}/{form.path}
         </Text>
       );
@@ -222,10 +222,10 @@ const NavigationItemForm = ({
                 <Input
                   autoFocus
                   error={get(formErrors, `${inputsPrefix}title`)}
-                  label={`${pluginId}.popup.item.form.title.label`}
+                  label={getTradId('popup.item.form.title.label')}
                   name={`${inputsPrefix}title`}
                   onChange={onChange}
-                  placeholder={`${pluginId}.popup.item.form.title.placeholder`}
+                  placeholder={getTradId('popup.item.form.title.placeholder')}
                   type="text"
                   validations={{ required: true }}
                   value={get(form, `${inputsPrefix}title`, '')}
@@ -236,9 +236,7 @@ const NavigationItemForm = ({
                   <Label
                     htmlFor={`${inputsPrefix}menuAttached`}
                     style={{ display: 'block' }}
-                    message={formatMessage({
-                      id: `${pluginId}.popup.item.form.menuAttached.label`,
-                    })}
+                    message={formatMessage(getTrad('popup.item.form.menuAttached.label'))}
                   />
                   <Toggle
                     name={`${inputsPrefix}menuAttached`}
@@ -253,10 +251,10 @@ const NavigationItemForm = ({
               <div className="col-lg-7 col-md-12">
                 <Input
                   error={get(formErrors, `${inputsPrefix}${pathSourceName}`)}
-                  label={`${pluginId}.popup.item.form.${pathSourceName}.label`}
+                  label={getTradId(`popup.item.form.${pathSourceName}.label`)}
                   name={`${inputsPrefix}${pathSourceName}`}
                   onChange={onChange}
-                  placeholder={`${pluginId}.popup.item.form.${pathSourceName}.placeholder`}
+                  placeholder={getTradId(`popup.item.form.${pathSourceName}.placeholder`)}
                   description={generatePreviewPath()}
                   type="text"
                   validations={{ required: true }}
@@ -266,9 +264,7 @@ const NavigationItemForm = ({
               <div className="col-lg-5 col-md-12">
                 <Label
                   htmlFor={`${inputsPrefix}type`}
-                  message={formatMessage({
-                    id: `${pluginId}.popup.item.form.type.label`,
-                  })}
+                  message={formatMessage(getTrad('popup.item.form.type.label'))}
                 />
                 <Enumeration
                   name={`${inputsPrefix}type`}
@@ -282,9 +278,7 @@ const NavigationItemForm = ({
               <div className="col-lg-12">
                 <Label
                   htmlFor={`${inputsPrefix}audience`}
-                  message={formatMessage({
-                    id: `${pluginId}.popup.item.form.audience.label`,
-                  })}
+                  message={formatMessage(getTrad('popup.item.form.audience.label'))}
                 />
                 <Select
                   name={`${inputsPrefix}audience`}
@@ -301,9 +295,7 @@ const NavigationItemForm = ({
                   <div className="col-lg-12">
                     <hr />
                     <Label
-                      message={formatMessage({
-                        id: `${pluginId}.popup.item.form.relatedSection.label`,
-                      })}
+                      message={formatMessage(getTrad('popup.item.form.relatedSection.label'))}
                     />
                   </div>
                 </div>
@@ -311,9 +303,7 @@ const NavigationItemForm = ({
                   <div className="col-lg-6 col-md-12">
                     <Label
                       htmlFor={`${inputsPrefix}relatedType`}
-                      message={formatMessage({
-                        id: `${pluginId}.popup.item.form.relatedType.label`,
-                      })}
+                      message={formatMessage(getTrad('popup.item.form.relatedType.label'))}
                     />
                     <Select
                       name={`${inputsPrefix}relatedType`}
@@ -327,9 +317,7 @@ const NavigationItemForm = ({
                     <div className="col-lg-6 col-md-12">
                       <Label
                         htmlFor={relatedFieldName}
-                        message={formatMessage({
-                          id: `${pluginId}.popup.item.form.related.label`,
-                        })}
+                        message={formatMessage(getTrad('popup.item.form.related.label'))}
                       />
                       <Select
                         name={relatedFieldName}
@@ -346,9 +334,7 @@ const NavigationItemForm = ({
                           fontSize="sm"
                         >
                           <FontAwesomeIcon icon={faInfoCircle} />{' '}
-                          {formatMessage({
-                            id: `${pluginId}.popup.item.form.related.empty`,
-                          }, { contentTypeName: get(relatedTypeSelectValue, 'label') })}
+                          {formatMessage(getTrad('popup.item.form.related.empty'), { contentTypeName: get(relatedTypeSelectValue, 'label') })}
                         </Text>)}
                     </div>
                   )}
@@ -363,18 +349,16 @@ const NavigationItemForm = ({
           <Button
             onClick={handleRemove}
             color="delete"
-            label={formatMessage({
-              id: `${pluginId}.popup.item.form.button.remove`,
-            })}
+            label={formatMessage(getTrad('popup.item.form.button.remove'))}
           />
         </section>
         <section>
           <ButtonModal
             onClick={handleSubmit}
             disabled={submitDisabled}
-            message={`${pluginId}.popup.item.form.button.${
+            message={getTradId(`popup.item.form.button.${
               form.viewId ? 'update' : 'create'
-            }`}
+            }`)}
           />
         </section>
       </ModalFooter>
@@ -404,6 +388,7 @@ NavigationItemForm.propTypes = {
   availableAudience: PropTypes.array,
   additionalFields: PropTypes.array,
   getContentTypeEntities: PropTypes.func.isRequired,
+  appendLabelPublicationStatus: PropTypes.func,
 };
 
 export default NavigationItemForm;

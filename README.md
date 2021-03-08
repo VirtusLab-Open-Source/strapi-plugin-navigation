@@ -55,7 +55,7 @@ Complete installation requirements are exact same as for Strapi itself and can b
 
 **Supported Strapi versions**:
 
-- Strapi v3.5.0 (recently tested)
+- Strapi v3.5.2 (recently tested)
 - Strapi v3.x
 
 (This plugin may work with the older Strapi versions, but these are not tested nor officially supported at this time.)
@@ -109,7 +109,6 @@ To setup the plugin properly we recommend to put following snippet as part of `c
     plugins: {
       navigation: {
         additionalFields: ['audience'],
-        excludedContentTypes: ["plugins::", "strapi"],
         allowedLevels: 2,
         contentTypesNameFields: {
           'blog_posts': ['altTitle'],
@@ -122,7 +121,6 @@ To setup the plugin properly we recommend to put following snippet as part of `c
 
 ### Properties
 - `additionalFields` - Additional fields: 'audience', more in the future
-- `excludedContentTypes` - Excluded content types patterns (by default built-in and plugin specific content types)
 - `allowedLevels` - Maximum level for which your're able to mark item as "Menu attached"
 - `contentTypesNameFields` - Definition of content type title fields like `'content_type_name': ['field_name_1', 'field_name_2']`, if not set titles are pulled from fields like `['title', 'subject', 'name']`
 
@@ -369,7 +367,17 @@ If you would like to use the [Strapi Molecules Audit Log](https://github.com/Vir
 ```
 As a last step you've to provide the Navigation class to let Audit Log use it. To not provide external & hard dependencies we've added the example of class code in the `examples/audit-log-integration.js` .
 
+## Examples
 
+Live example of plugin usage can be found in the [VirtusLab Strapi Examples](https://github.com/VirtusLab/strapi-examples/tree/master/strapi-plugin-navigation) repository.
+
+## Q&A
+
+### Content Types
+
+**Q:** I've recognized **Navigation Item** and **Navigation** collection types in the Collections sidebar section, but they are not working properly. What should I do?
+
+**A:** As an authors of the plugin we're not supporting any editing of mentioned content types via built-in Strapi Content Manager. Plugin delivers highly customized & extended functionality which might be covered only by dedicated editor UI accessible via **Plugins Section > UI Navigation**. Only issues that has been recognized there, are in the scope of support we've providing.
 
 ## Contributing
 

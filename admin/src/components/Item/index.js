@@ -15,8 +15,8 @@ import CardItemLevelAdd from './CardItemLevelAdd';
 import List from '../List';
 import CardItemLevelWrapper from './CardItemLevelWrapper';
 import CardItemRestore from './CardItemRestore';
-import pluginId from '../../pluginId';
 import ItemOrdering from '../ItemOrdering';
+import { getTrad } from '../../translations';
 
 const Item = (props) => {
   const {
@@ -25,6 +25,7 @@ const Item = (props) => {
     levelPath = '',
     allowedLevels,
     contentTypesNameFields,
+    contentTypes,
     relatedRef,
     isFirst = false,
     isLast = false,
@@ -40,15 +41,18 @@ const Item = (props) => {
     title,
     type,
     path,
+    relatedType,
     removed,
     externalPath,
     menuAttached,
   } = item;
   const footerProps = {
+    contentTypes,
     type: type || navigationItemType.INTERNAL,
     removed,
     menuAttached,
     relatedRef,
+    relatedType,
     contentTypesNameFields,
     attachButtons: !(isFirst && isLast),
   };
@@ -88,9 +92,7 @@ const Item = (props) => {
           <Button
             onClick={e => onItemRestoreClick(e, item)}
             color="secondary"
-            label={formatMessage({
-              id: `${pluginId}.popup.item.form.button.restore`,
-            })}
+            label={formatMessage(getTrad('popup.item.form.button.restore'))}
           />
         </CardItemRestore>)}
         <CardItemTitle>{title}</CardItemTitle>
@@ -125,6 +127,7 @@ const Item = (props) => {
           allowedLevels={allowedLevels}
           isParentAttachedToMenu={menuAttached}
           contentTypesNameFields={contentTypesNameFields}
+          contentTypes={contentTypes}
           error={error}
         />
       )}
@@ -144,6 +147,7 @@ Item.propTypes = {
     menuAttached: PropTypes.bool,
   }).isRequired,
   relatedRef: PropTypes.object,
+  contentTypes: PropTypes.array,
   contentTypesNameFields: PropTypes.object.isRequired,
   level: PropTypes.number,
   levelPath: PropTypes.string,

@@ -112,10 +112,14 @@ const reducer = (state, action) => {
         .update('error', () => undefined);
     }
     case SUBMIT_NAVIGATION_SUCCEEDED: {
-      return state.update(
-        'isLoadingForSubmit',
-        () => false,
-      );
+      const { navigation = {} } = action;
+      return state
+        .update("activeItem", () => fromJS(navigation))
+        .update("changedActiveItem", () => fromJS(navigation))
+        .update(
+          'isLoadingForSubmit',
+          () => false,
+        );
     }
     case SUBMIT_NAVIGATION_ERROR: {
       return state

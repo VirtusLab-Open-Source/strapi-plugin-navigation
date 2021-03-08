@@ -1,5 +1,5 @@
 import { isUuid, uuid } from 'uuidv4';
-import { find, first, get, isArray, isEmpty, isNil, isNumber, isObject, isString, omit, orderBy } from 'lodash';
+import { find, first, get, isArray, isEmpty, isNil, isNumber, isObject, isString, kebabCase, omit, orderBy } from 'lodash';
 import { navigationItemType } from './enums';
 
 export const transformItemToRESTPayload = (
@@ -120,7 +120,7 @@ const linkRelations = (item, config) => {
   const shouldBuildRelated = !relatedRef || (relatedRef && (relatedRef.id !== relatedId));
   if (shouldBuildRelated && !shouldFindRelated) {
     const relatedContentType = find(contentTypes,
-      ct => ct.contentTypeName.toLowerCase() === relatedItem.__contentType.toLowerCase(), {});
+      ct => kebabCase(ct.contentTypeName) === kebabCase(relatedItem.__contentType), {});
     const { uid, labelSingular, isSingle } = relatedContentType;
     relation = {
       related: relatedItem.id,
@@ -257,5 +257,38 @@ export const extractRelatedItemLabel = (item = {}, fields = {}, config = {}) => 
 };
 
 export const usedContentTypes = (items) => items.flatMap(
-  (item) => [item.relatedRef, ...(item.items ? usedContentTypes(item.items) : [])],
+  (item) => {
+    const used = (item.items ? usedContentTypes(item.items) : []);
+    if (item.relatedRef) {
+      return [item.relatedRef, ...used];
+    }
+    return used; 
+  },
 );
+
+export const isRelationCorrect = ({ related, type }) => {
+  const isRelationDefined = !isNil(related);
+  return type === navigationItemType.EXTERNAL || (type === navigationItemType.INTERNAL && isRelationDefined);
+};
+
+export const isRelationPublished = ({ relatedRef, relatedType = {}, type, isCollection }) => {
+  if (isCollection) {
+    return relatedType.available || relatedRef.available;
+  }
+  if ((type === navigationItemType.INTERNAL)) {
+    const isHandledByPublshFlow =  relatedRef ? 'published_at' in relatedRef : false;
+    if (isHandledByPublshFlow) {
+      return get(relatedRef, 'published_at', true);
+    }
+  }
+  return true;
+};
+
+export const validateNavigationStructure = (items = []) => 
+  items.map(item => 
+    (item.removed || isRelationCorrect({ 
+      related: item.related, 
+      type: item.type,
+    })) && 
+    validateNavigationStructure(item.items)
+  ).filter(item => !item).length === 0;
