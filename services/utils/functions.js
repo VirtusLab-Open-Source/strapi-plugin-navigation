@@ -107,10 +107,10 @@ module.exports = {
               }),
       );
       const relatedResponseMap = responses.reduce((acc, curr) => ({ ...acc, ...curr }), {});
-      const singleTypes = new Set( 
+      const singleTypes = new Map( 
         contentTypes
           .filter(x => x.isSingle)
-          .map(({ contentTypeName }) => contentTypeName)
+          .map(({ contentTypeName, templateName }) => [contentTypeName, templateName || contentTypeName])
       );
 
       return (contentType, id) => {
@@ -121,8 +121,8 @@ module.exports = {
           return get(templateComponent, 'options.templateName', TEMPLATE_DEFAULT);
         }
 
-        if (singleTypes.has(contentType)) {
-          return contentType;
+        if (singleTypes.get(contentType)) {
+          return singleTypes.get(contentType);
         }
 
         return TEMPLATE_DEFAULT;
