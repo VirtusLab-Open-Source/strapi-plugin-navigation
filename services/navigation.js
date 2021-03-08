@@ -124,7 +124,7 @@ module.exports = {
         const relatedField = (item.associations || []).find(_ => _.model === 'navigationitem');
         const { uid, options, info, collectionName, apiName, plugin, kind } = item;
         const { name, description } = info;
-        const { isManaged, hidden } = options;
+        const { isManaged, hidden, templateName } = options;
         const isSingle = kind === KIND_TYPES.SINGLE;
         const endpoint = isSingle ? apiName : pluralize(apiName);
         const relationName = utilsFunctions.singularize(apiName);
@@ -145,6 +145,7 @@ module.exports = {
           plugin,
           available,
           visible: (isManaged || isNil(isManaged)) && !hidden,
+          templateName,
         };
       })
       .filter((item) => item && item.visible);

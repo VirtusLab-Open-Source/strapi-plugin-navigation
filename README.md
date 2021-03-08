@@ -348,6 +348,14 @@ Return a rendered navigation structure depends on passed type (`tree`, `rfr` or 
 }
 ```
 
+### Template name
+
+Depending on a content type `templateName` will be resolved differently
+
+For collection types it will be read from content type's attribute name `template` holding a component which definition has option named `templateName`.
+
+For single types a global name of this content type will be used as a template name or it can be set manually with an option named `templateName`.
+
 ## Audit log
 If you would like to use the [Strapi Molecules Audit Log](https://github.com/VirtusLab/strapi-molecules/tree/master/packages/strapi-plugin-audit-log) plugin you've to first install and then add in you `config/middleware.js` following section enable it:
 ```js
