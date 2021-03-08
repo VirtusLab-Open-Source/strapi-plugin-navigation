@@ -9,6 +9,7 @@ const {
     last,
   } = require('lodash');
 
+const { type: itemType } = require('../../models/navigationItem');
 const { NavigationError } = require('../../utils/NavigationError');
 const { TEMPLATE_DEFAULT } = require('./constant');
 
@@ -40,7 +41,7 @@ module.exports = {
           if (parentItem && parentItem.items) {
             for (let item of checkData) {
               for (let _ of parentItem.items) {
-                if (_.path === item.path && _.id !== item.id) {
+                if (_.path === item.path && (_.id !== item.id) && (item.type === itemType.INTERNAL)) {
                   return reject(
                     new NavigationError(
                       `Duplicate path:${item.path} in parent: ${parentItem.title || 'root'} for ${item.title} and ${_.title} items`,
@@ -133,6 +134,19 @@ module.exports = {
       if (auditLogInstance && auditLogInstance.emit) {
         auditLogInstance.emit(event, data);
       }
+    },
+
+    filterOutUnpublished(item) {
+      const relatedItem = item.related && last(item.related);
+      const isHandledByPublshFlow =  relatedItem ? 'published_at' in relatedItem : false;
+
+      if (isHandledByPublshFlow) {
+        const isRelatedDefinedAndPublished = relatedItem ?
+          isHandledByPublshFlow && get(relatedItem, 'published_at') :
+          false;
+        return item.type === itemType.INTERNAL ? isRelatedDefinedAndPublished  : true;
+      }
+      return (item.type === itemType.EXTERNAL) || relatedItem;
     },
 
     prepareAuditLog(actions) {

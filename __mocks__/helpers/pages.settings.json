@@ -3,7 +3,7 @@
   "kind": "collectionType",
   "collectionName": "pages",
   "info": {
-    "name": "pages"
+    "name": "Pages"
   },
   "options": {
     "increments": true,

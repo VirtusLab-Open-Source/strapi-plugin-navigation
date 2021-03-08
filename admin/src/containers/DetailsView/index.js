@@ -19,6 +19,7 @@ import CardWrapper from "../../components/ItemDetails/CardWrapper";
 import CardLevelWrapper from "../../components/ItemDetails/CardLevelWrapper";
 import EmptyView from "../../components/EmptyView";
 import { isNil } from "lodash";
+import { getTrad, getTradId } from "../../translations";
 
 const DetailsView = () => {
   const {
@@ -73,17 +74,15 @@ const DetailsView = () => {
     <Wrapper className="col-md-8">
       <Header
         title={{
-          label: formatMessage({ id: `${pluginId}.moderation.header.title` }),
+          label: formatMessage(getTrad('moderation.header.title')),
         }}
-        content={formatMessage({
-          id: `${pluginId}.moderation.header.description`,
-        })}
+        content={formatMessage(getTrad('moderation.header.description'))}
       />
       {isLoadingForDetailsDataToBeSet && <LoadingIndicatorPage />}
       {!isLoadingForDetailsDataToBeSet && !activeItem && (
         <EmptyView fixPosition>
           <FontAwesomeIcon icon={faComments} size="5x" />
-          <FormattedMessage id={`${pluginId}.moderation.content.empty`} />
+          <FormattedMessage id={getTradId('moderation.content.empty')} />
         </EmptyView>
       )}
       {activeItem && (

@@ -17,7 +17,7 @@ import Wrapper from "../View/Wrapper";
 import FadedWrapper from "../View/FadedWrapper";
 import List from "../../components/List";
 import EmptyView from "../../components/EmptyView";
-import pluginId from "../../pluginId";
+import { getTrad, getTradId } from "../../translations";
 
 const ListView = () => {
   const { items, isLoadingForDataToBeSet } = useDataManager();
@@ -29,10 +29,10 @@ const ListView = () => {
     <Wrapper className="col-md-4">
       <Header
         title={{
-          label: formatMessage({ id: `${pluginId}.list.header.title` }),
+          label: formatMessage(getTrad('list.header.title')),
         }}
         content={formatMessage(
-          { id: `${pluginId}.list.header.description` },
+          getTrad('list.header.description'),
           { count: newItemsCount },
         )}
       />
@@ -41,7 +41,7 @@ const ListView = () => {
         {isEmpty(items) && (
           <EmptyView>
             <FontAwesomeIcon icon={faSearch} size="5x" />
-            <FormattedMessage id={`${pluginId}.list.content.empty`} />
+            <FormattedMessage id={getTradId('list.content.empty')} />
           </EmptyView>
         )}
         {!isEmpty(items) && <List items={[...items]} />}

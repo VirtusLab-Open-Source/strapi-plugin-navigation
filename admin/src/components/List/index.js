@@ -19,6 +19,7 @@ const List = ({
   levelPath = '',
   allowedLevels,
   isParentAttachedToMenu = false,
+  contentTypes,
   contentTypesNameFields,
   error,
 }) => {
@@ -43,6 +44,7 @@ const List = ({
             onItemReOrder={onItemReOrder}
             onItemRestoreClick={onItemRestoreClick}
             onItemLevelAddClick={onItemLevelAddClick}
+            contentTypes={contentTypes}
             error={error}
           />
         );
@@ -68,6 +70,7 @@ List.propTypes = {
   level: PropTypes.number,
   allowedLevels: PropTypes.number,
   isParentAttachedToMenu: PropTypes.bool,
+  contentTypes: PropTypes.array,
   contentTypesNameFields: PropTypes.object.isRequired,
   onItemClick: PropTypes.func.isRequired,
   onItemReOrder: PropTypes.func.isRequired,
