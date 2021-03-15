@@ -10,7 +10,7 @@ import IndicatorSeparator from './IndicatorSeparator';
 import MultiValueContainer from './MultiValueContainer';
 import { useIntl } from 'react-intl';
 
-const Select = ({ error, isDisabled, isMulti, isLoading, name, onChange, value, defaultValue, options }) => {
+const Select = ({ error, isDisabled, isMulti, isLoading, name, onChange, onInputChange, value, inputValue, defaultValue, options }) => {
   const { formatMessage } = useIntl();
   const translatedError = error && error.id ? formatMessage(error) : null;
 
@@ -29,6 +29,7 @@ const Select = ({ error, isDisabled, isMulti, isLoading, name, onChange, value, 
         onChange={data => {
           onChange({ target: { name, value: data } });
         }}
+        onInputChange={onInputChange}
         isClearable
         isDisabled={isDisabled}
         isLoading={isLoading}
@@ -36,6 +37,7 @@ const Select = ({ error, isDisabled, isMulti, isLoading, name, onChange, value, 
         options={isLoading ? [] : options}
         styles={styles}
         defaultValue={defaultValue}
+        inputValue={inputValue}
         value={isLoading ? undefined : value}
       />
       {error && value.length === 0 ? (
