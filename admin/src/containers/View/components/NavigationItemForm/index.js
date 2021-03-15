@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { Button, Enumeration, Flex, Label, Text, Toggle } from '@buffetjs/core';
 import { useIntl } from 'react-intl';
-import { find, get, isEmpty, isEqual, isNil, isString } from 'lodash';
+import { debounce, find, get, isEmpty, isEqual, isNil, isString } from 'lodash';
 import PropTypes from 'prop-types';
 import { ButtonModal, ModalBody, ModalForm } from 'strapi-helper-plugin';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -33,6 +33,8 @@ const NavigationItemForm = ({
 }) => {
   const [hasBeenInitialized, setInitializedState] = useState(false);
   const [hasChanged, setChangedState] = useState(false);
+  const [contentTypeSearchQuery, setContentTypeSearchQuery] = useState(undefined);
+  const [contentTypeSearchInputValue, setContentTypeSearchInputValue] = useState(undefined);
   const [form, setFormState] = useState({});
   const [formErrors, setFormErrorsState] = useState({});
   const { relatedType } = form;
@@ -98,6 +100,8 @@ const NavigationItemForm = ({
 
   const onChangeRelatedType = ({ target: { name, value } }) => {
     const relatedTypeBeingReverted = data.relatedType && (data.relatedType.value === get(value, 'value', value));
+    setContentTypeSearchQuery(undefined);
+    setContentTypeSearchInputValue(undefined);
     setFormState(prevState => ({
       ...prevState,
       updated: true,
@@ -186,6 +190,18 @@ const NavigationItemForm = ({
     return null;
   };
 
+  const debouncedSearch = useCallback(
+    debounce(nextValue => setContentTypeSearchQuery(nextValue), 500),
+		[],
+	);
+
+	const debounceContentTypeSearchQuery = value => {
+    setContentTypeSearchInputValue(value);
+		debouncedSearch(value);
+	};
+
+  const thereAreNoMoreContentTypes =  isEmpty(relatedSelectOptions) && !contentTypeSearchQuery;
+
   useEffect(
     () => {
       const value = get(relatedSelectOptions, '0');
@@ -205,12 +221,15 @@ const NavigationItemForm = ({
           (_) => _.uid === value,
         );
         if (item) {
-          await getContentTypeEntities(item.endpoint || item.collectionName, item.plugin);
+          await getContentTypeEntities({ 
+            type: item.endpoint || item.collectionName,
+            query: contentTypeSearchQuery,
+          }, item.plugin);
         }
       }
     };
     fetchContentTypeEntities();
-  }, [relatedType]);
+  }, [relatedType, contentTypeSearchQuery]);
 
   return (
     <form onSubmit={handleSubmit}>
@@ -323,12 +342,13 @@ const NavigationItemForm = ({
                         name={relatedFieldName}
                         error={get(formErrors, relatedFieldName)}
                         onChange={onChange}
+                        onInputChange={debounceContentTypeSearchQuery}
+                        inputValue={contentTypeSearchInputValue}
                         isLoading={isLoading}
-                        isDisabled={isEmpty(relatedSelectOptions)}
                         options={relatedSelectOptions}
                         value={relatedSelectValue}
                       />
-                      {!isLoading && isEmpty(relatedSelectOptions) && (
+                      {!isLoading && thereAreNoMoreContentTypes && (
                         <Text
                           color="orange"
                           fontSize="sm"

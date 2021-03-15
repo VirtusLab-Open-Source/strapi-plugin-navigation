@@ -161,12 +161,19 @@ const DataManagerProvider = ({ children }) => {
     }
   }, [autoReload, currentEnvironment]);
 
-  const getContentTypeItems = async (type, plugin = "") => {
+  const getContentTypeItems = async ({type, query}, plugin = "") => {
     dispatch({
       type: GET_CONTENT_TYPE_ITEMS,
     });
     const url = plugin ? `/${plugin}/${type}` : `/${type}`;
-    const contentTypeItems = await request(`${url}?_publicationState=preview`, {
+
+    const queryParams = new URLSearchParams();
+    queryParams.append('_publicationState', 'preview');
+    if (query) {
+      queryParams.append('_q', query);
+    }
+
+    const contentTypeItems = await request(`${url}?${queryParams.toString()}`, {
       method: "GET",
       signal,
     });
