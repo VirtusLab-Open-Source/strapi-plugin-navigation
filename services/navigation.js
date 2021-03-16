@@ -61,7 +61,9 @@ module.exports = {
     if (additionalFields.includes(configAdditionalFields.AUDIENCE)) {
       const audienceItems = await strapi
         .query(audienceModel.modelName, pluginName)
-        .find({});
+        .find({
+          _limit: -1,
+        });
       extendedResult = {
         ...extendedResult,
         availableAudience: audienceItems.map((_) =>
@@ -156,7 +158,9 @@ module.exports = {
     const { pluginName, masterModel } = utilsFunctions.extractMeta(strapi.plugins);
     const entities = await strapi
       .query(masterModel.modelName, pluginName)
-      .find({}, []);
+      .find({
+        _limit: -1,
+      }, []);
     return entities.map((_) => sanitizeEntity(_, { model: masterModel }));
   },
 
@@ -171,6 +175,7 @@ module.exports = {
       .query(itemModel.modelName, pluginName)
       .find({
         master: id,
+        _limit: -1,
         _sort: 'order:asc',
       }, ['related', 'audience']);
 
@@ -259,6 +264,7 @@ module.exports = {
         {
           master: entity.id,
           ...itemCriteria,
+          _limit: -1,
           _sort: 'order:asc',
         },
         ["related", "audience"],
