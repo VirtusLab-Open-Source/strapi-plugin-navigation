@@ -103,12 +103,12 @@ module.exports = {
                 const contentTypeName = kebabCase(contentType);
                 const contentTypeUid = get(find(contentTypes, cnt => cnt.contentTypeName === contentTypeName), 'uid') || contentTypeName;
                 return strapi.query(contentTypeUid)
-                  .find({ id_in: ids })
+                  .find({ id_in: ids, _limit: -1 })
                   .then(res => ({ [contentType]: res }))
               }),
       );
       const relatedResponseMap = responses.reduce((acc, curr) => ({ ...acc, ...curr }), {});
-      const singleTypes = new Map( 
+      const singleTypes = new Map(
         contentTypes
           .filter(x => x.isSingle)
           .map(({ contentTypeName, templateName }) => [contentTypeName, templateName || contentTypeName])
