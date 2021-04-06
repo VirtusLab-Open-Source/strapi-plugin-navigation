@@ -47,7 +47,7 @@ export const transformItemToRESTPayload = (
     uiRouterKey,
     menuAttached,
     audience: audience.map((audienceItem) =>
-      isObject(audienceItem) ? audienceItem.id : audienceItem,
+      isObject(audienceItem) ? audienceItem.value : audienceItem,
     ),
     path: isExternal ? undefined : path,
     externalPath: isExternal ? externalPath : undefined,
