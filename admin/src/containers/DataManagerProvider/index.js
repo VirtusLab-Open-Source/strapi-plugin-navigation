@@ -226,7 +226,10 @@ const DataManagerProvider = ({ children }) => {
 
   const handleResetNavigationData = () => {
     emitEvent("willResetNavigationChanges");
-    dispatch({ type: RESET_NAVIGATION_DATA });
+    dispatch({ 
+      type: RESET_NAVIGATION_DATA,
+      activeItem,
+    });
     emitEvent("didResetNavigationChanges");
   };
 

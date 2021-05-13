@@ -256,7 +256,7 @@ export const extractRelatedItemLabel = (item = {}, fields = {}, config = {}) => 
   return get(fields, `${contentType ? contentType.collectionName : ''}`, defaultFields).map((_) => item[_]).filter((_) => _)[0] || '';
 };
 
-export const usedContentTypes = (items) => items.flatMap(
+export const usedContentTypes = (items = []) => items.flatMap(
   (item) => {
     const used = (item.items ? usedContentTypes(item.items) : []);
     if (item.relatedRef) {
