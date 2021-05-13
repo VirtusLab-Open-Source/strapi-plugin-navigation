@@ -40,7 +40,7 @@ const Select = ({ error, isDisabled, isMulti, isLoading, name, onChange, onInput
         inputValue={inputValue}
         value={isLoading ? undefined : value}
       />
-      {error && value.length === 0 ? (
+      {error && (!value || value.length === 0) ? (
         <ErrorMessage>{translatedError}</ErrorMessage>
       ) : (
         <Padded top size="11px" />

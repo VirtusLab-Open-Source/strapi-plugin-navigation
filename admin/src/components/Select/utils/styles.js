@@ -20,7 +20,7 @@ const styles = {
 
     if (state.isFocused) {
       border = '1px solid #78caff !important';
-    } else if (error && !value.length) {
+    } else if (error && (!value || value.length === 0)) {
       border = '1px solid #f64d0a !important';
     } else {
       border = '1px solid #e3e9f3 !important';
