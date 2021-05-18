@@ -55,7 +55,6 @@ describe('Navigation service', () => {
           plugin: "another-plugin"
   }];
       const types = await configContentTypes();
-      console.log(types);
       expect(types[0]).toMatchObject(result[0]);
       expect(types[1]).toMatchObject(result[1]);
       expect(types[2]).toMatchObject(result[2]);
