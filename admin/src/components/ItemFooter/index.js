@@ -8,21 +8,18 @@ import CardItemType from './CardItemType';
 import Wrapper from './Wrapper';
 import { isNil, get, find, upperFirst } from 'lodash';
 import { navigationItemType } from '../../containers/View/utils/enums';
-import { extractRelatedItemLabel, isRelationCorrect, isRelationPublished } from '../../containers/View/utils/parsers';
+import { isRelationCorrect, isRelationPublished } from '../../containers/View/utils/parsers';
 import CardItemError from './CardItemError';
 import CardItemRelationStatus from './CardItemRelationStatus';
 import { getTrad } from '../../translations';
 
-const ItemFooter = ({ type, removed, relatedRef, relatedType, attachButtons, contentTypesNameFields, contentTypes }) => {
+const ItemFooter = ({ type, removed, relatedRef, relatedType, attachButtons, contentTypes, formatRelationName }) => {
   const { formatMessage } = useIntl();
 
   const isRelationDefined = !isNil(relatedRef);
 
   const formatRelationType = () =>
   isRelationDefined ? get(relatedRef, 'labelSingular', get(relatedRef, '__contentType')) : '';
-
-  const formatRelationName = () =>
-  isRelationDefined ? extractRelatedItemLabel(relatedRef, contentTypesNameFields) : '';
 
   const isSingle = get(relatedRef, 'isSingle', false);
   const isExternal = type === navigationItemType.EXTERNAL;

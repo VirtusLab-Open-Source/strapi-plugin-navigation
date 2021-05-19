@@ -273,7 +273,7 @@ module.exports = {
       if (!items) {
         return [];
       }
-      const contentTypes = await service.configContentTypes();
+      const { contentTypes, contentTypesNameFields } = await service.config();
       const getTemplateName = await utilsFunctions.templateNameFactory(items, strapi, contentTypes)
 
       switch (type) {
@@ -285,7 +285,7 @@ module.exports = {
             const slug = isString(parentPath) ? slugify((first(parentPath) === '/' ? parentPath.substring(1) : parentPath).replace(/\//g, '-')) : undefined;
             const lastRelated = item.related ? last(item.related) : undefined;
             return {
-              title: item.title,
+              title: utilsFunctions.composeItemTitle(item, contentTypesNameFields, contentTypes),
               menuAttached: item.menuAttached,
               path: isExternal ? item.externalPath : parentPath,
               type: item.type,
@@ -323,6 +323,7 @@ module.exports = {
             .filter(utilsFunctions.filterOutUnpublished)
             .map((item) => ({
               ...sanitizeEntity(item, { model: itemModel }),
+              title: utilsFunctions.composeItemTitle(item, contentTypesNameFields, contentTypes),
               related: item.related,
               items: null,
             }));

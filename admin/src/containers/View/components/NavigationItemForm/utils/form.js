@@ -9,7 +9,13 @@ export const form = {
   fieldsToOmit: [],
   schema(isSingleSelected) {
     return yup.object({
-      title: yup.string().required(translatedErrors.required),
+      title: yup.string()
+        .when('type', {
+          is: val => val === navigationItemType.EXTERNAL,
+          then: yup.string()
+            .required(translatedErrors.required),
+          otherwise: yup.string().notRequired(),
+        }),
       uiRouterKey: yup.string().required(translatedErrors.required),
       type: yup.string().required(translatedErrors.required),
       path: yup.string()
