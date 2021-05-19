@@ -7,8 +7,15 @@
   "options": {
     "increments": true,
     "timestamps": true,
-    "isManaged": false,
     "comment": "Navigation Item"
+  },
+  "pluginOptions": {
+    "content-manager": {
+      "visible": false
+    },
+    "content-type-builder": {
+      "visible": false
+    }
   },
   "attributes": {
     "title": {
