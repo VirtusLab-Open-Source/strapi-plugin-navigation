@@ -124,14 +124,14 @@ module.exports = {
       .map(({ key, available}) => {
         const item = strapi.contentTypes[key];
         const relatedField = (item.associations || []).find(_ => _.model === 'navigationitem');
-        const { uid, options, info, collectionName, apiName, plugin, kind } = item;
+        const { uid, options, info, collectionName, modelName, plugin, kind } = item;
         const { name, description } = info;
         const { isManaged, hidden, templateName } = options;
         const isSingle = kind === KIND_TYPES.SINGLE;
-        const endpoint = isSingle ? apiName : pluralize(apiName);
-        const relationName = utilsFunctions.singularize(apiName);
+        const endpoint = isSingle ? modelName : pluralize(modelName);
+        const relationName = utilsFunctions.singularize(modelName);
         const relationNameParts = last(uid.split('.')).split('-');
-        const contentTypeName = relationNameParts.length > 1 ? relationNameParts.reduce((prev, curr) => `${prev}${upperFirst(curr)}`, '') : upperFirst(apiName);
+        const contentTypeName = relationNameParts.length > 1 ? relationNameParts.reduce((prev, curr) => `${prev}${upperFirst(curr)}`, '') : upperFirst(modelName);
         const labelSingular = name || (upperFirst(relationNameParts.length > 1 ? relationNameParts.join(' ') : relationName));
         return {
           uid,
