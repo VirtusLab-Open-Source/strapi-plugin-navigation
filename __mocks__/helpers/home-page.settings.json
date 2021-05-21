@@ -1,0 +1,4 @@
+{ 
+    
+  "uid": "application::page-homes.home-page",
+  "kind": "singleType", "collectionName": "page_homes", "info": { "name": "Page Home" }, "options": { "increments": true, "timestamps": true, "draftAndPublish": true }, "attributes": { "Subtitle": { "type": "string" }, "Title": { "type": "string" }, "Summary": { "type": "text" }, "Image": { "model": "file", "via": "related", "allowedTypes": [ "images" ], "plugin": "upload", "required": false }, "Components": { "type": "dynamiczone", "components": [] }, "navigation": { "model": "navigationitem", "plugin": "navigation", "via": "related", "configurable": false, "hidden": true } } }

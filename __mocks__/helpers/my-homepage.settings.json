@@ -1,23 +1,19 @@
 {
-  "uid": "application::blog-post.blog-post",
-  "kind": "collectionType",
-  "collectionName": "blog_posts",
+  "uid": "application::my-homepages.my-homepage",
+  "kind": "singleType",
+  "collectionName": "my-homepages",
   "info": {
-    "name": "Blog post"
+    "name": "My Homepage",
+    "description": ""
   },
   "options": {
     "increments": true,
     "timestamps": true,
-    "searchable": true,
-    "previewable": true,
-    "draftAndPublish": true
+    "draftAndPublish": true,
+    "templateName": "AwesomeTemplate"
   },
   "attributes": {
-    "title": {
-      "type": "string",
-      "required": true
-    },
-    "altTitle": {
+    "Welcome": {
       "type": "string"
     },
     "navigation": {
