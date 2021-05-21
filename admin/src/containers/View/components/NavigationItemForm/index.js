@@ -50,8 +50,8 @@ const NavigationItemForm = ({
   const sanitizePayload = (payload = {}) => {
     const { onItemClick, onItemLevelAddClick, related, relatedType, menuAttached, ...purePayload } = payload;
     const sanitizedType = purePayload.type || navigationItemType.INTERNAL;
-    const relatedId = related ? related.value : undefined;
-    const relatedCollectionType = relatedType ? relatedType.value : undefined;
+    const relatedId = related?.value
+    const relatedCollectionType = relatedType?.value;
     return {
       ...purePayload,
       menuAttached: isNil(menuAttached) ? false : menuAttached,

@@ -156,7 +156,7 @@ module.exports = {
     if (title) {
       return isString(title) && !isEmpty(title) ? title : undefined;
     } else if (related) {
-      const relationTitle = this.extractItemRelationTitle(isArray(related) ? first(related) : related, fields, { contentTypes });
+      const relationTitle = this.extractItemRelationTitle(isArray(related) ? last(related) : related, fields, { contentTypes });
       return isString(relationTitle) && !isEmpty(relationTitle) ? relationTitle : undefined;
     }
     return undefined;
