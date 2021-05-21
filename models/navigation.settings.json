@@ -6,8 +6,15 @@
   },
   "options": {
     "increments": true,
-    "isManaged": false,
     "comment": ""
+  },
+  "pluginOptions": {
+    "content-manager": {
+      "visible": false
+    },
+    "content-type-builder": {
+      "visible": false
+    }
   },
   "attributes": {
     "name": {

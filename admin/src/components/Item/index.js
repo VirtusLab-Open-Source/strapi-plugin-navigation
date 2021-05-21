@@ -1,7 +1,7 @@
 import React from 'react';
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import { isEmpty, isNumber } from 'lodash';
+import { isEmpty, isNil, isNumber } from 'lodash';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '@buffetjs/core';
@@ -17,8 +17,11 @@ import CardItemLevelWrapper from './CardItemLevelWrapper';
 import CardItemRestore from './CardItemRestore';
 import ItemOrdering from '../ItemOrdering';
 import { getTrad } from '../../translations';
+import { extractRelatedItemLabel } from '../../containers/View/utils/parsers';
 
 const Item = (props) => {
+  const { formatMessage } = useIntl();
+
   const {
     item,
     level = 0,
@@ -36,6 +39,7 @@ const Item = (props) => {
     onItemLevelAddClick,
     error,
   } = props;
+
   const {
     viewId,
     title,
@@ -46,6 +50,12 @@ const Item = (props) => {
     externalPath,
     menuAttached,
   } = item;
+
+  const isRelationDefined = !isNil(relatedRef);
+
+  const formatRelationName = () =>
+    isRelationDefined ? extractRelatedItemLabel(relatedRef, contentTypesNameFields) : '';
+
   const footerProps = {
     contentTypes,
     type: type || navigationItemType.INTERNAL,
@@ -53,12 +63,11 @@ const Item = (props) => {
     menuAttached,
     relatedRef,
     relatedType,
-    contentTypesNameFields,
     attachButtons: !(isFirst && isLast),
+    formatRelationName,
   };
 
-  const { formatMessage } = useIntl();
-
+  const cardTitle = isRelationDefined && !title ? formatRelationName() : title;
   const isNextMenuAllowedLevel = isNumber(allowedLevels) ? level < (allowedLevels - 1) : true;
   const isMenuAllowedLevel = isNumber(allowedLevels) ? level < allowedLevels : true;
   const isExternal = item.type === navigationItemType.EXTERNAL;
@@ -70,7 +79,8 @@ const Item = (props) => {
     relatedRef,
   }, moveBy);
 
-  const hasError = error?.parentId === item.parent && error?.errorTitles.includes(item.title);
+  const hasError = error?.parentId === item.parent && error?.errorTitles.includes(cardTitle);
+
   return (
     <CardWrapper
       level={level}
@@ -95,7 +105,7 @@ const Item = (props) => {
             label={formatMessage(getTrad('popup.item.form.button.restore'))}
           />
         </CardItemRestore>)}
-        <CardItemTitle>{title}</CardItemTitle>
+        <CardItemTitle>{cardTitle}</CardItemTitle>
         <CardItemPath>
           {isExternal ? externalPath : absolutePath}
         </CardItemPath>

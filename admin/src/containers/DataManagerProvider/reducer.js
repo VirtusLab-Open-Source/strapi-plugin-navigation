@@ -80,9 +80,8 @@ const reducer = (state, action) => {
         );
     }
     case RESET_NAVIGATION_DATA: {
-      return state.update("changedActiveItem", () => ({
-        ...state.activeItem,
-      }));
+      const { activeItem = {} } = action;
+      return state.update("changedActiveItem", () => activeItem);
     }
     case GET_CONTENT_TYPE_ITEMS: {
       return state.update("isLoadingForAdditionalDataToBeSet", () => true);

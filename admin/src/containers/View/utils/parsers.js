@@ -1,5 +1,5 @@
 import { isUuid, uuid } from 'uuidv4';
-import { find, first, get, isArray, isEmpty, isNil, isNumber, isObject, isString, kebabCase, omit, orderBy } from 'lodash';
+import { find, get, isArray, isEmpty, isNil, isNumber, isObject, isString, kebabCase, last, omit, orderBy } from 'lodash';
 import { navigationItemType } from './enums';
 
 export const transformItemToRESTPayload = (
@@ -105,7 +105,7 @@ const linkRelations = (item, config) => {
     };
   }
 
-  const relatedItem = isArray(related) ? first(related) : related;
+  const relatedItem = isArray(related) ? last(related) : related;
 
   const parsedRelated = Number(related);
   const relatedId = isNaN(parsedRelated) ? related : parsedRelated;
@@ -256,7 +256,7 @@ export const extractRelatedItemLabel = (item = {}, fields = {}, config = {}) => 
   return get(fields, `${contentType ? contentType.collectionName : ''}`, defaultFields).map((_) => item[_]).filter((_) => _)[0] || '';
 };
 
-export const usedContentTypes = (items) => items.flatMap(
+export const usedContentTypes = (items = []) => items.flatMap(
   (item) => {
     const used = (item.items ? usedContentTypes(item.items) : []);
     if (item.relatedRef) {

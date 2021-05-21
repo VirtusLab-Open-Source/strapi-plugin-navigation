@@ -50,16 +50,18 @@ const NavigationItemForm = ({
   const sanitizePayload = (payload = {}) => {
     const { onItemClick, onItemLevelAddClick, related, relatedType, menuAttached, ...purePayload } = payload;
     const sanitizedType = purePayload.type || navigationItemType.INTERNAL;
+    const relatedId = related?.value
+    const relatedCollectionType = relatedType?.value;
     return {
       ...purePayload,
       menuAttached: isNil(menuAttached) ? false : menuAttached,
       type: sanitizedType,
       path: sanitizedType === navigationItemType.INTERNAL ? purePayload.path : undefined,
       externalPath: sanitizedType === navigationItemType.EXTERNAL ? purePayload.externalPath : undefined,
-      related: related ? related.value : undefined,
-      relatedType: relatedType ? relatedType.value : undefined,
+      related: relatedId,
+      relatedType: relatedCollectionType,
       isSingle: isSingleSelected,
-      uiRouterKey: generateUiRouterKey(),
+      uiRouterKey: generateUiRouterKey(purePayload.title, relatedId, relatedCollectionType),
     };
   };
 
@@ -115,7 +117,18 @@ const NavigationItemForm = ({
     }
   };
 
-  const generateUiRouterKey = () => isString(form.title) && !isEmpty(form.title) ? slugify(form.title).toLowerCase() : undefined;
+
+  const generateUiRouterKey = (title, related, relatedType) => {
+    if (title) {
+      return isString(title) && !isEmpty(title) ? slugify(title).toLowerCase() : undefined;
+    } else if (related) {
+      const relationTitle = extractRelatedItemLabel({ 
+        ...contentTypeEntities.find(_ => _.id === related),
+        __collectionName: relatedType }, contentTypesNameFields, { contentTypes });
+      return isString(relationTitle) && !isEmpty(relationTitle) ? slugify(relationTitle).toLowerCase() : undefined;
+    }
+    return undefined;
+  };
 
   const typeSelectValue = form.type || navigationItemType.INTERNAL;
   const relatedTypeSelectValue = form.relatedType;
@@ -244,7 +257,7 @@ const NavigationItemForm = ({
                   label={getTradId('popup.item.form.title.label')}
                   name={`${inputsPrefix}title`}
                   onChange={onChange}
-                  placeholder={getTradId('popup.item.form.title.placeholder')}
+                  placeholder={!isExternal ? getTradId('popup.item.form.title.placeholder') : ''}
                   type="text"
                   validations={{ required: true }}
                   value={get(form, `${inputsPrefix}title`, '')}
