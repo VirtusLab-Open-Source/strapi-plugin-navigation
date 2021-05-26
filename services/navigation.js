@@ -124,11 +124,14 @@ module.exports = {
       .map(({ key, available}) => {
         const item = strapi.contentTypes[key];
         const relatedField = (item.associations || []).find(_ => _.model === 'navigationitem');
-        const { uid, options, info, collectionName, modelName, plugin, kind } = item;
+        const { uid, options, info, collectionName, modelName, apiName, plugin, kind } = item;
         const { name, description } = info;
         const { isManaged, hidden, templateName } = options;
+        const findRouteConfig = find(get(strapi.api, `[${modelName}].config.routes`, []), route => route.handler.includes('.find'));
+        const findRoutePath = findRouteConfig && findRouteConfig.path.split('/')[1];
+        const apiPath = findRoutePath && (findRoutePath !== apiName) ? findRoutePath : apiName || modelName;
         const isSingle = kind === KIND_TYPES.SINGLE;
-        const endpoint = isSingle ? modelName : pluralize(modelName);
+        const endpoint = isSingle ? apiPath : pluralize(apiPath);
         const relationName = utilsFunctions.singularize(modelName);
         const relationNameParts = last(uid.split('.')).split('-');
         const contentTypeName = relationNameParts.length > 1 ? relationNameParts.reduce((prev, curr) => `${prev}${upperFirst(curr)}`, '') : upperFirst(modelName);

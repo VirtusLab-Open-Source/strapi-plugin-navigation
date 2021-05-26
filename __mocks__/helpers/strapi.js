@@ -1,6 +1,9 @@
 function setupStrapi() {
     Object.defineProperty(global, 'strapi', {
         value: {
+          query: jest.fn().mockImplementation(() => ({
+              count: jest.fn().mockImplementation(),
+          })),
           config: {
               custom: {
                   plugins: {
@@ -12,8 +15,26 @@ function setupStrapi() {
                   },
               },
           },
+          api: {
+              'home-page': {
+                  config: {
+                      routes: [
+                        {
+                          method: 'GET',
+                          path: '/custom-api',
+                          handler: 'home-page.find',
+                        },
+                        {
+                          method: 'PUT',
+                          path: '/custom-api',
+                          handler: 'home-page.update',
+                        },
+                      ]
+                  }
+              }
+          },
           contentTypes: {
-            'page': {
+            'pages': {
                 ...require('./pages.settings.json'),
                 apiName: 'pages',
                 modelName: 'pages',
@@ -23,6 +44,18 @@ function setupStrapi() {
                 ...require('./blog-post.settings.json'),
                 apiName: 'blog-posts',
                 modelName: 'blog-posts',
+                associations: [{ model: 'navigationitem' }],
+            },
+            'my-homepage': {
+                ...require('./my-homepage.settings.json'),
+                apiName: 'my-homepage',
+                modelName: 'my-homepage',
+                associations: [{ model: 'navigationitem' }],
+            },
+            'application::page-homes.home-page': {
+                ...require('./home-page.settings.json'),
+                apiName: 'custom-api',
+                modelName: 'home-page',
                 associations: [{ model: 'navigationitem' }],
             },
             'plugin-page': {
@@ -40,10 +73,6 @@ function setupStrapi() {
               navigation: {
                   services: {
                       navigation: jest.fn().mockImplementation(),
-                  },
-                  models: {
-                      'pages': require('./pages.settings.json'),
-                      'blog-post': require('./blog-post.settings.json'),
                   }
               },
               anotherPlugin: {
