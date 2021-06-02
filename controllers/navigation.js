@@ -57,6 +57,17 @@ module.exports = {
       menuOnly,
     );
   },
+  async renderChild(ctx) {
+    const { params, query = {} } = ctx;
+    const { type, menu: menuOnly } = query;
+    const { idOrSlug, childUIKey } = parseParams(params);
+    return await this.getService().renderChildren(
+      idOrSlug,
+      childUIKey,
+      type,
+      menuOnly
+    );
+  },
 
   post(ctx) {
     const { auditLog } = ctx;

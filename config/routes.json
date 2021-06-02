@@ -47,6 +47,14 @@
       "config": {
         "policies": []
       }
+    },
+    {
+      "method": "GET",
+      "path": "/render/:idOrSlug/:childUIKey",
+      "handler": "navigation.renderChild",
+      "config": {
+        "policies": []
+      }
     }
   ]
 }

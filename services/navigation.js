@@ -251,6 +251,25 @@ module.exports = {
     return service.renderType(type, criteria, itemCriteria);
   },
 
+  renderChildren: async (
+    idOrSlug,
+    childUIKey,
+    type = renderType.FLAT,
+    menuOnly = false
+  ) => {
+    const { service } = utilsFunctions.extractMeta(strapi.plugins);
+    const findById = isNumber(idOrSlug) || isUuid(idOrSlug);
+    const criteria = findById ? { id: idOrSlug } : { slug: idOrSlug };
+    const filter = type === renderType.FLAT ? null : childUIKey;
+
+    const itemCriteria = {
+      ...(menuOnly && { menuAttached: true }),
+      ...(type === renderType.FLAT ? { uiRouterKey: childUIKey } : {}),
+    };
+
+    return service.renderType(type, criteria, itemCriteria, filter);
+  },
+
   renderType: async (type = renderType.FLAT, criteria = {}, itemCriteria = {}) => {
     const { pluginName, service, masterModel, itemModel } = utilsFunctions.extractMeta(
       strapi.plugins,
@@ -314,13 +333,20 @@ module.exports = {
             field: 'parent',
             itemParser,
           });
+
+          const filteredStructure = filter
+            ? treeStructure.filter((item) => {
+              return item.uiRouterKey === filter;
+            })
+            : treeStructure; 
+
           if (type === renderType.RFR) {
             return service.renderRFR({
-              items: treeStructure, 
+              items: filteredStructure,
               contentTypes,
             });
           }
-          return treeStructure;
+          return filteredStructure;
         default:
           return items
             .filter(utilsFunctions.filterOutUnpublished)
