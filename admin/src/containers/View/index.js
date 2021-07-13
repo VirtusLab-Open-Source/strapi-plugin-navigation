@@ -58,13 +58,13 @@ const View = () => {
   const navigationSelectValue = get(activeNavigation, "id", null);
   const actions = [
     {
-      label: "Cancel",
+      label: formatMessage(getTrad('submit.cta.cancel')),
       onClick: () => isLoadingForSubmit ? null : handleResetNavigationData(),
       color: "cancel",
       type: "button",
     },
     {
-      label: "Save",
+      label: formatMessage(getTrad('submit.cta.save')),
       onClick: () =>
         isLoadingForSubmit || structureHasErrors ? null : handleSubmitNavigation(formatMessage, transformToRESTPayload(changedActiveNavigation, config)),
       color: "success",
