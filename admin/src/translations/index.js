@@ -1,8 +1,10 @@
 import pluginId from "../pluginId";
 import en from "./en.json";
+import fr from "./fr.json";
 
 const trads = {
-  en,
+	en,
+	fr,
 };
 
 export const getTradId = (msg) => `${pluginId}.${msg}`;

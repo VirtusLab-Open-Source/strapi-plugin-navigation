@@ -2,6 +2,8 @@
   "plugin.name": "UI Navigation",
   "header.title": "Navigation",
   "header.description": "Define your portal navigation",
+  "submit.cta.cancel": "Cancel",
+  "submit.cta.save": "Save",
   "empty": "Navigation container is empty",
   "empty.cta": "Create first item",
   "popup.item.header": "Manage navigation item",
