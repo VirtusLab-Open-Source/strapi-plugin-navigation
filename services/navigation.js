@@ -270,7 +270,7 @@ module.exports = {
     return service.renderType(type, criteria, itemCriteria, filter);
   },
 
-  renderType: async (type = renderType.FLAT, criteria = {}, itemCriteria = {}) => {
+  renderType: async (type = renderType.FLAT, criteria = {}, itemCriteria = {}, filter = null) => {
     const { pluginName, service, masterModel, itemModel } = utilsFunctions.extractMeta(
       strapi.plugins,
     );
@@ -335,10 +335,8 @@ module.exports = {
           });
 
           const filteredStructure = filter
-            ? treeStructure.filter((item) => {
-              return item.uiRouterKey === filter;
-            })
-            : treeStructure; 
+            ? treeStructure.filter((item) => item.uiRouterKey === filter)
+            : treeStructure;
 
           if (type === renderType.RFR) {
             return service.renderRFR({
