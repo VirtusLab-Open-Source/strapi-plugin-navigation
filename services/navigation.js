@@ -13,7 +13,6 @@ const {
   find,
   first,
   get,
-  kebabCase,
   last,
   upperFirst,
   isString,
@@ -186,55 +185,12 @@ module.exports = {
         _limit: -1,
         _sort: 'order:asc',
       });
-    const relatedTypes = new Set(entityItems.flatMap((item) => map(item.related, 'relatedType')));
-    const groupedItems = Array.from(relatedTypes).reduce(
-      (acc, relatedType) => Object.assign(acc, {
-        [relatedType]: [
-          ...(acc[relatedType] || []),
-          ...entityItems
-            .filter((item => item?.related.some(related => related.relatedType === relatedType)))
-            .flatMap((item) => item.related.map(related => Object.assign(related, { navigationItemId: item.id }))),
-        ],
-      }),
-      {});
-
-    const data = new Map(
-      (
-        await Promise.all(
-          Object.entries(groupedItems)
-            .map(async ([model, related]) => {
-              const relationData = await strapi.query(model).find({ id_in: map(related, 'relatedId') });
-              return relationData
-                .flatMap(_ =>
-                  Object.assign(
-                    _,
-                    {
-                      __contentType: model,
-                      navigationItemId: related.find(
-                        ({ relatedId }) => relatedId === _.id.toString())?.navigationItemId,
-                    },
-                  ),
-                );
-            }),
-        )
-      )
-        .flat(1)
-        .map(_ => [_.navigationItemId, _]),
-    );
+    const entities = await this.getRelatedItems(entityItems);
     return {
       ...sanitizeEntity(entity,
         { model: masterModel },
       ),
-      items: utilsFunctions.buildNestedStructure(
-        entityItems
-          .map(({ related, ...item }) => {
-            const relatedData = data.get(item.id);
-            if (relatedData) {
-              return Object.assign(item, { related: [relatedData] });
-            }
-            return item;
-          }),
-      ),
+      items: utilsFunctions.buildNestedStructure(entities),
     };
   },
 
@@ -332,7 +288,7 @@ module.exports = {
         visible: true,
       });
     if (entity && entity.id) {
-      const items = await strapi.query(itemModel.modelName, pluginName).find(
+      const entities = await strapi.query(itemModel.modelName, pluginName).find(
         {
           master: entity.id,
           ...itemCriteria,
@@ -342,15 +298,16 @@ module.exports = {
         ['related', 'audience'],
       );
 
-      if (!items) {
+      if (!entities) {
         return [];
       }
+      const items = await this.getRelatedItems(entities);
       const { contentTypes, contentTypesNameFields } = await service.config();
-      const getTemplateName = await utilsFunctions.templateNameFactory(items, strapi, contentTypes);
 
       switch (type?.toLowerCase()) {
         case renderType.TREE:
         case renderType.RFR:
+          const getTemplateName = await utilsFunctions.templateNameFactory(items, strapi, contentTypes);
           const itemParser = (item, path = '', field) => {
             const isExternal = item.type === itemType.EXTERNAL;
             const parentPath = isExternal ? undefined : `${path === '/' ? '' : path}/${item.path === '/'
@@ -406,7 +363,7 @@ module.exports = {
               ...sanitizeEntity(item, { model: itemModel }),
               audience: item.audience?.map(_ => _.key),
               title: utilsFunctions.composeItemTitle(item, contentTypesNameFields, contentTypes),
-              related: item.related,
+              related: item.related?.map(({ localizations, ...item }) => item),
               items: null,
             }));
       }
@@ -514,8 +471,8 @@ module.exports = {
 
   renderRFRPage({ item, parent }) {
     const { uiRouterKey, title, path, slug, related, type, audience, menuAttached } = item;
-    const { relatedType, id, __templateName } = related || {};
-    const contentType = relatedType || '';
+    const { __contentType, id, __templateName } = related || {};
+    const contentType = __contentType || '';
     return {
       id: uiRouterKey,
       title,
@@ -668,6 +625,53 @@ module.exports = {
         ],
       ));
   },
+
+  async getRelatedItems(entityItems) {
+    const relatedTypes = new Set(entityItems.flatMap((item) => map(item.related, 'relatedType')));
+    const groupedItems = Array.from(relatedTypes).reduce(
+      (acc, relatedType) => Object.assign(acc, {
+        [relatedType]: [
+          ...(acc[relatedType] || []),
+          ...entityItems
+            .filter((item => item?.related.some(related => related.relatedType === relatedType)))
+            .flatMap((item) => item.related.map(related => Object.assign(related, { navigationItemId: item.id }))),
+        ],
+      }),
+      {});
+
+    const data = new Map(
+      (
+        await Promise.all(
+          Object.entries(groupedItems)
+            .map(async ([model, related]) => {
+              const relationData = await strapi.query(model).find({ id_in: map(related, 'relatedId') });
+              return relationData
+                .flatMap(_ =>
+                  Object.assign(
+                    _,
+                    {
+                      __contentType: model,
+                      navigationItemId: related.find(
+                        ({ relatedId }) => relatedId === _.id.toString())?.navigationItemId,
+                    },
+                  ),
+                );
+            }),
+        )
+      )
+        .flat(1)
+        .map(_ => [_.navigationItemId, _]),
+    );
+    return entityItems
+      .map(({ related, ...item }) => {
+        const relatedData = data.get(item.id);
+        if (relatedData) {
+          return Object.assign(item, { related: [relatedData] });
+        }
+        return item;
+      });
+  },
+
   getIdsRelated(relatedItems, master) {
     if (relatedItems) {
       return Promise.all(relatedItems.map(async relatedItem => {
