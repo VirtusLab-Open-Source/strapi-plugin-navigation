@@ -514,14 +514,14 @@ module.exports = {
 
   renderRFRPage({ item, parent }) {
     const { uiRouterKey, title, path, slug, related, type, audience, menuAttached } = item;
-    const { __contentType, id, __templateName } = related || {};
-    const contentType = __contentType || '';
+    const { relatedType, id, __templateName } = related || {};
+    const contentType = relatedType || '';
     return {
       id: uiRouterKey,
       title,
       templateName: __templateName,
       related: type === itemType.INTERNAL ? {
-        contentType: kebabCase(contentType),
+        contentType,
         id,
       } : undefined,
       path,
