@@ -86,22 +86,23 @@ module.exports = {
   },
 
   async templateNameFactory(items, strapi, contentTypes = []) {
-    const flatRelated = flatten(items.map(i => i.related));
+    const flatRelated = flatten(items.map(i => i.related)).filter(_ => !!_);
     const relatedMap = flatRelated.reduce((acc, curr) => {
-      if (!acc[curr.relatedType]) {
-        acc[curr.relatedType] = [];
+      if (!acc[curr.__contentType]) {
+        acc[curr.__contentType] = [];
       }
-      acc[curr.relatedType].push(curr.id);
+      acc[curr.__contentType].push(curr.id);
       return acc;
     }, {});
     const responses = await Promise.all(
       Object.entries(relatedMap)
-          .map(
-            ([contentType, ids]) =>
-              strapi.query(contentType)
-                .find({ id_in: ids, _limit: -1 })
-                .then(res => ({ [contentType]: res }))
-          ),
+        .map(
+          ([contentType, ids]) => {
+            const contentTypeUid = get(find(contentTypes, cnt => cnt.uid === contentType), 'uid');
+            return strapi.query(contentTypeUid)
+              .find({ id_in: ids, _limit: -1 })
+              .then(res => ({ [contentType]: res }))
+          }),
     );
     const relatedResponseMap = responses.reduce((acc, curr) => ({ ...acc, ...curr }), {});
     const singleTypes = new Map(
