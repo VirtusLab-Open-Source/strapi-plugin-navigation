@@ -5,7 +5,6 @@ const slugify = require('slugify');
 const pluralize = require('pluralize');
 const { sanitizeEntity } = require('strapi-utils');
 const {
-  isArray,
   isEmpty,
   isObject,
   isNil,
@@ -17,8 +16,9 @@ const {
   last,
   upperFirst,
   isString,
+  map,
 } = require('lodash');
-const { KIND_TYPES } = require("./utils/constant");
+const { KIND_TYPES } = require('./utils/constant');
 const utilsFunctions = require('./utils/functions');
 const { renderType } = require('../models/navigation');
 const { type: itemType, additionalFields: configAdditionalFields } = require('../models/navigationItem');
@@ -32,19 +32,24 @@ const { type: itemType, additionalFields: configAdditionalFields } = require('..
 const excludedContentTypes = ['strapi::'];
 
 const contentTypesNameFieldsDefaults = [
-  "title",
-  "subject",
-  "name",
+  'title',
+  'subject',
+  'name',
 ];
 const contentTypesNameFields = get(
   strapi.config,
-  "custom.plugins.navigation.contentTypesNameFields",
+  'custom.plugins.navigation.contentTypesNameFields',
   {},
 );
 
 module.exports = {
+  isMongoDB() {
+    const { pluginName, model } = utilsFunctions.extractMeta(strapi.plugins);
+    const orm = strapi.query(model.modelName, pluginName).model.orm;
+    return orm === 'mongoose';
+  },
   // Get plugin configuration
-  config: async () => {
+  async config() {
     const { pluginName, service, audienceModel } = utilsFunctions.extractMeta(strapi.plugins);
     const additionalFields = get(strapi.config, 'custom.plugins.navigation.additionalFields', []);
     let extendedResult = {};
@@ -77,22 +82,20 @@ module.exports = {
     };
   },
 
-  configContentTypes: async () => {
+  async configContentTypes() {
     const eligibleContentTypes =
       await Promise.all(
-        Object.keys(strapi.contentTypes)
-        .map(
-          async (key) => {
-            if (find(excludedContentTypes, name => key.includes(name))) { // exclude internal content types
-              return;
-            }
+        strapi.config.get('plugins.navigation.relatedContentTypes', [])
+          .filter(contentType => !!strapi.contentTypes[contentType])
+          .map(
+            async (key) => {
+              if (find(excludedContentTypes, name => key.includes(name))) { // exclude internal content types
+                return;
+              }
+              const item = strapi.contentTypes[key];
+              const { kind, options, uid } = item;
+              const { draftAndPublish } = options;
 
-            const item = strapi.contentTypes[key];
-            const { associations = [], kind, options, uid } = item;
-            const { draftAndPublish } = options;
-            const hasDefinedNavigationRelation = associations.some(_ => _.model === 'navigationitem');
-
-            if (hasDefinedNavigationRelation) {
               const isSingleType = kind === KIND_TYPES.SINGLE;
               const isSingleTypeWithPublishFlow = isSingleType && draftAndPublish;
 
@@ -103,39 +106,40 @@ module.exports = {
 
               if (isSingleType) {
                 if (isSingleTypeWithPublishFlow) {
-                  const itemsCountOrBypass = isSingleTypeWithPublishFlow ? 
+                  const itemsCountOrBypass = isSingleTypeWithPublishFlow ?
                     await strapi.query(uid).count({
-                      _publicationState: 'live'
-                    }) : 
+                      _publicationState: 'live',
+                    }) :
                     true;
                   return returnType(itemsCountOrBypass !== 0);
                 }
                 const isAvailable = await strapi.query(uid).count();
                 return isAvailable === 1 ? returnType(true) : undefined;
-              } 
+              }
               return returnType(true);
-            }
-            return undefined;
-          }
-        )
+            },
+          ),
       );
     return eligibleContentTypes
       .filter(key => key)
-      .map(({ key, available}) => {
+      .map(({ key, available }) => {
         const item = strapi.contentTypes[key];
         const relatedField = (item.associations || []).find(_ => _.model === 'navigationitem');
         const { uid, options, info, collectionName, modelName, apiName, plugin, kind } = item;
         const { name, description } = info;
         const { isManaged, hidden, templateName } = options;
-        const findRouteConfig = find(get(strapi.api, `[${modelName}].config.routes`, []), route => route.handler.includes('.find'));
+        const findRouteConfig = find(get(strapi.api, `[${modelName}].config.routes`, []),
+          route => route.handler.includes('.find'));
         const findRoutePath = findRouteConfig && findRouteConfig.path.split('/')[1];
         const apiPath = findRoutePath && (findRoutePath !== apiName) ? findRoutePath : apiName || modelName;
         const isSingle = kind === KIND_TYPES.SINGLE;
         const endpoint = isSingle ? apiPath : pluralize(apiPath);
         const relationName = utilsFunctions.singularize(modelName);
         const relationNameParts = last(uid.split('.')).split('-');
-        const contentTypeName = relationNameParts.length > 1 ? relationNameParts.reduce((prev, curr) => `${prev}${upperFirst(curr)}`, '') : upperFirst(modelName);
-        const labelSingular = name || (upperFirst(relationNameParts.length > 1 ? relationNameParts.join(' ') : relationName));
+        const contentTypeName = relationNameParts.length > 1 ? relationNameParts.reduce(
+          (prev, curr) => `${prev}${upperFirst(curr)}`, '') : upperFirst(modelName);
+        const labelSingular = name ||
+          (upperFirst(relationNameParts.length > 1 ? relationNameParts.join(' ') : relationName));
         return {
           uid,
           name: relationName,
@@ -157,7 +161,7 @@ module.exports = {
   },
 
   // Get all available navigations
-  get: async () => {
+  async get() {
     const { pluginName, masterModel } = utilsFunctions.extractMeta(strapi.plugins);
     const entities = await strapi
       .query(masterModel.modelName, pluginName)
@@ -168,7 +172,7 @@ module.exports = {
   },
 
   // Get navigation by id with related
-  getById: async (id) => {
+  async getById(id) {
     const { pluginName, masterModel, itemModel } = utilsFunctions.extractMeta(strapi.plugins);
     const entity = await strapi
       .query(masterModel.modelName, pluginName)
@@ -180,17 +184,60 @@ module.exports = {
         master: id,
         _limit: -1,
         _sort: 'order:asc',
-      }, ['related', 'audience']);
+      });
+    const relatedTypes = new Set(entityItems.flatMap((item) => map(item.related, 'relatedType')));
+    const groupedItems = Array.from(relatedTypes).reduce(
+      (acc, relatedType) => Object.assign(acc, {
+        [relatedType]: [
+          ...(acc[relatedType] || []),
+          ...entityItems
+            .filter((item => item?.related.some(related => related.relatedType === relatedType)))
+            .flatMap((item) => item.related.map(related => Object.assign(related, { navigationItemId: item.id }))),
+        ],
+      }),
+      {});
 
+    const data = new Map(
+      (
+        await Promise.all(
+          Object.entries(groupedItems)
+            .map(async ([model, related]) => {
+              const relationData = await strapi.query(model).find({ id_in: map(related, 'relatedId') });
+              return relationData
+                .flatMap(_ =>
+                  Object.assign(
+                    _,
+                    {
+                      __contentType: model,
+                      navigationItemId: related.find(
+                        ({ relatedId }) => relatedId === _.id.toString())?.navigationItemId,
+                    },
+                  ),
+                );
+            }),
+        )
+      )
+        .flat(1)
+        .map(_ => [_.navigationItemId, _]),
+    );
     return {
       ...sanitizeEntity(entity,
         { model: masterModel },
       ),
-      items: utilsFunctions.buildNestedStructure(entityItems),
+      items: utilsFunctions.buildNestedStructure(
+        entityItems
+          .map(({ related, ...item }) => {
+            const relatedData = data.get(item.id);
+            if (relatedData) {
+              return Object.assign(item, { related: [relatedData] });
+            }
+            return item;
+          }),
+      ),
     };
   },
 
-  post: async (payload, auditLog) => {
+  async post(payload, auditLog) {
     const { pluginName, masterModel, service } = utilsFunctions.extractMeta(strapi.plugins);
     const { name, visible } = payload;
 
@@ -206,12 +253,13 @@ module.exports = {
       .createBranch(payload.items, existingEntity, null)
       .then(() => service.getById(existingEntity.id))
       .then((newEntity) => {
-        utilsFunctions.sendAuditLog(auditLog, 'onChangeNavigation', { actionType: 'CREATE', oldEntity: existingEntity, newEntity });
+        utilsFunctions.sendAuditLog(auditLog, 'onChangeNavigation',
+          { actionType: 'CREATE', oldEntity: existingEntity, newEntity });
         return newEntity;
       });
   },
 
-  put: async (id, payload, auditLog) => {
+  async put(id, payload, auditLog) {
     const { pluginName, masterModel, service } = utilsFunctions.extractMeta(strapi.plugins);
     const { name, visible } = payload;
 
@@ -235,12 +283,13 @@ module.exports = {
           service.getById(existingEntity.id)],
         ))
       .then(([actionType, newEntity]) => {
-        utilsFunctions.sendAuditLog(auditLog, 'onChangeNavigation', { actionType, oldEntity: existingEntity, newEntity });
+        utilsFunctions.sendAuditLog(auditLog, 'onChangeNavigation',
+          { actionType, oldEntity: existingEntity, newEntity });
         return newEntity;
       });
   },
 
-  render: async (idOrSlug, type = renderType.FLAT, menuOnly = false) => {
+  async render(idOrSlug, type = renderType.FLAT, menuOnly = false) {
     const { service } = utilsFunctions.extractMeta(
       strapi.plugins,
     );
@@ -251,12 +300,12 @@ module.exports = {
     return service.renderType(type, criteria, itemCriteria);
   },
 
-  renderChildren: async (
+  async renderChildren(
     idOrSlug,
     childUIKey,
     type = renderType.FLAT,
-    menuOnly = false
-  ) => {
+    menuOnly = false,
+  ) {
     const { service } = utilsFunctions.extractMeta(strapi.plugins);
     const findById = isNumber(idOrSlug) || isUuid(idOrSlug);
     const criteria = findById ? { id: idOrSlug } : { slug: idOrSlug };
@@ -270,7 +319,7 @@ module.exports = {
     return service.renderType(type, criteria, itemCriteria, filter);
   },
 
-  renderType: async (type = renderType.FLAT, criteria = {}, itemCriteria = {}, filter = null) => {
+  async renderType(type = renderType.FLAT, criteria = {}, itemCriteria = {}, filter = null) {
     const { pluginName, service, masterModel, itemModel } = utilsFunctions.extractMeta(
       strapi.plugins,
     );
@@ -289,22 +338,25 @@ module.exports = {
           _limit: -1,
           _sort: 'order:asc',
         },
-        ["related", "audience"],
+        ['related', 'audience'],
       );
 
       if (!items) {
         return [];
       }
       const { contentTypes, contentTypesNameFields } = await service.config();
-      const getTemplateName = await utilsFunctions.templateNameFactory(items, strapi, contentTypes)
+      const getTemplateName = await utilsFunctions.templateNameFactory(items, strapi, contentTypes);
 
       switch (type) {
         case renderType.TREE:
         case renderType.RFR:
           const itemParser = (item, path = '', field) => {
             const isExternal = item.type === itemType.EXTERNAL;
-            const parentPath = isExternal ? undefined : `${path === '/' ? '' : path}/${item.path === '/' ? '' : item.path}`;
-            const slug = isString(parentPath) ? slugify((first(parentPath) === '/' ? parentPath.substring(1) : parentPath).replace(/\//g, '-')) : undefined;
+            const parentPath = isExternal ? undefined : `${path === '/' ? '' : path}/${item.path === '/'
+              ? ''
+              : item.path}`;
+            const slug = isString(parentPath) ? slugify(
+              (first(parentPath) === '/' ? parentPath.substring(1) : parentPath).replace(/\//g, '-')) : undefined;
             const lastRelated = item.related ? last(item.related) : undefined;
             return {
               title: utilsFunctions.composeItemTitle(item, contentTypesNameFields, contentTypes),
@@ -316,7 +368,7 @@ module.exports = {
               external: isExternal,
               related: isExternal || !lastRelated ? undefined : {
                 ...lastRelated,
-                __templateName: getTemplateName(lastRelated.__contentType, lastRelated.id),
+                __templateName: getTemplateName(lastRelated.relatedType, lastRelated.id),
               },
               audience: !isEmpty(item.audience) ? item.audience.map(aItem => aItem.key) : undefined,
               items: isExternal ? undefined : service.renderTree({
@@ -359,13 +411,13 @@ module.exports = {
     throw strapi.errors.notFound();
   },
 
-  renderTree: ({ 
+  renderTree({
     items = [],
     id = null,
     field = 'parent',
     path = '',
     itemParser = (i) => i,
-  }) => {
+  }) {
     return items
       .filter(
         (item) => {
@@ -381,11 +433,11 @@ module.exports = {
       )
       .filter(utilsFunctions.filterOutUnpublished)
       .map(item => itemParser({
-        ...item
+        ...item,
       }, path, field));
   },
 
-  renderRFR: ({ items, parent = null, parentNavItem = null, contentTypes = [] }) => {
+  renderRFR({ items, parent = null, parentNavItem = null, contentTypes = [] }) {
     const { service } = utilsFunctions.extractMeta(strapi.plugins);
     let pages = {};
     let nav = {};
@@ -395,7 +447,7 @@ module.exports = {
       const { items: itemChilds, ...itemProps } = item;
       const itemNav = service.renderRFRNav(itemProps);
       const itemPage = service.renderRFRPage({
-        item: itemProps, 
+        item: itemProps,
         parent,
       });
 
@@ -429,15 +481,15 @@ module.exports = {
 
       if (!isEmpty(itemChilds)) {
         const { nav: nestedNavs } = service.renderRFR({
-          items: itemChilds, 
-          parent: itemPage.id, 
+          items: itemChilds,
+          parent: itemPage.id,
           parentNavItem: itemNav,
           contentTypes,
         });
         const { pages: nestedPages } = service.renderRFR({
-          items: itemChilds.filter(child => child.type === itemType.INTERNAL), 
-          parent: itemPage.id, 
-          parentNavItem: itemNav, 
+          items: itemChilds.filter(child => child.type === itemType.INTERNAL),
+          parent: itemPage.id,
+          parentNavItem: itemNav,
           contentTypes,
         });
         pages = {
@@ -457,7 +509,7 @@ module.exports = {
     };
   },
 
-  renderRFRPage: ({ item, parent }) => {
+  renderRFRPage({ item, parent }) {
     const { uiRouterKey, title, path, slug, related, type, audience, menuAttached } = item;
     const { __contentType, id, __templateName } = related || {};
     const contentType = __contentType || '';
@@ -477,7 +529,7 @@ module.exports = {
     };
   },
 
-  renderRFRNav: (item) => {
+  renderRFRNav(item) {
     const { uiRouterKey, title, path, type, audience } = item;
     return {
       label: title,
@@ -488,19 +540,18 @@ module.exports = {
     };
   },
 
-  createBranch: (items = [], masterEntity = null, parentItem = null, operations = {}) => {
+  createBranch(items = [], masterEntity = null, parentItem = null, operations = {}) {
     const { pluginName, itemModel, service } = utilsFunctions.extractMeta(strapi.plugins);
     return Promise.all(
       items.map(async (item) => {
         operations.create = true;
         const { parent, master, related, ...params } = item;
-        const relatedItem =
-          isNil(related) || params.type === itemType.EXTERNAL ? [] : related;
+        const relatedItems = await this.getIdsRelated(related, master);
         const navigationItem = await strapi
           .query(itemModel.modelName, pluginName)
           .create({
             ...params,
-            related: isArray(relatedItem) ? relatedItem : [relatedItem],
+            related: relatedItems,
             master: masterEntity,
             parent: parentItem ? { ...parentItem, _id: parentItem.id } : null,
           });
@@ -516,17 +567,20 @@ module.exports = {
     );
   },
 
-  removeBranch: (items = [], operations = {}) => {
+  removeBranch(items = [], operations = {}) {
     const { pluginName, itemModel, service } = utilsFunctions.extractMeta(strapi.plugins);
     return Promise.all(
       items
         .filter(item => item.id)
         .map(async (item) => {
           operations.remove = true;
-          const { id } = item;
-          await strapi
-            .query(itemModel.modelName, pluginName)
-            .delete({ id });
+          const { id, related, master } = item;
+          await Promise.all([
+            strapi
+              .query(itemModel.modelName, pluginName)
+              .delete({ id }),
+            this.removeRelated(related, master),
+          ]);
           return !isEmpty(item.items)
             ? service.removeBranch(
               item.items,
@@ -537,7 +591,7 @@ module.exports = {
     );
   },
 
-  updateBranch: async (toUpdate, masterEntity, parentItem, operations) => {
+  async updateBranch(toUpdate, masterEntity, parentItem, operations) {
     const { pluginName, itemModel, service } = utilsFunctions.extractMeta(strapi.plugins);
     const databaseModel = strapi.query(itemModel.modelName, pluginName);
     return Promise.all(
@@ -546,21 +600,13 @@ module.exports = {
         const { id, updated, parent, master, related, items, ...params } = item;
         let currentItem;
         if (updated) {
-          const relatedItem =
-            isNil(related) || params.type === itemType.EXTERNAL
-              ? []
-              : related;
-          await databaseModel
-            .update(
-              { id },
-              { related: [] },
-            ); // clearing the relation to get it updated properly and not duplicate _morph records
+          const relatedItems = await this.getIdsRelated(related, master);
           currentItem = await databaseModel
             .update(
               { id },
               {
                 ...params,
-                related: isArray(relatedItem) ? relatedItem : [relatedItem],
+                related: relatedItems,
                 master: masterEntity,
                 parent: parentItem ? { ...parentItem, _id: parentItem.id } : null,
               },
@@ -579,7 +625,7 @@ module.exports = {
       }),
     );
   },
-  getBranchName: (item) => {
+  getBranchName(item) {
     const hasId = !isNil(item.id);
     const toRemove = item.removed;
     if (hasId && !toRemove) {
@@ -593,7 +639,7 @@ module.exports = {
     }
   },
 
-  analyzeBranch: (items = [], masterEntity = null, parentItem = null, prevOperations = {}) => {
+  analyzeBranch(items = [], masterEntity = null, parentItem = null, prevOperations = {}) {
     const { service } = utilsFunctions.extractMeta(strapi.plugins);
     const { toCreate, toRemove, toUpdate } = items
       .reduce((acc, _) => {
@@ -619,8 +665,50 @@ module.exports = {
         ],
       ));
   },
+  getIdsRelated(relatedItems, master) {
+    if (relatedItems) {
+      return Promise.all(relatedItems.map(async relatedItem => {
+        try {
+          const query = {
+            related_id: relatedItem.refId,
+            related_type: relatedItem.ref,
+            field: relatedItem.field,
+            master,
+          };
+          const model = strapi.query('navigations_items_related', 'navigation');
+          const entity = await model
+            .findOne(query);
+          if (!entity) {
+            const newEntity = {
+              master,
+              order: 1,
+              field: relatedItem.field,
+              related_id: relatedItem.refId,
+              related_type: relatedItem.ref,
+            };
+            return model.create(newEntity).then(({ id }) => id);
+          }
+          return entity.id;
+        } catch (e) {
+          console.error(e);
+        }
+      }));
+    }
+  },
 
-  sanitizeTreeStructure: (entity) => {
+  removeRelated(relatedItems, master) {
+    return Promise.all(relatedItems.map(relatedItem => {
+      const model = strapi.query('navigations_items_related', 'navigation');
+      const entityToRemove = {
+        master,
+        field: relatedItem.field,
+        related_id: relatedItem.refId,
+        related_type: relatedItem.ref,
+      };
+      return model.delete(entityToRemove).then(({ id }) => id);
+    }));
+  },
+  sanitizeTreeStructure(entity) {
     const { masterModel, itemModel } = utilsFunctions.extractMeta(strapi.plugins);
     return sanitizeEntity(
       {
