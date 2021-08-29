@@ -7,7 +7,6 @@ const {
   find,
   flatten,
   get,
-  kebabCase,
   last,
 } = require('lodash');
 
@@ -23,10 +22,12 @@ module.exports = {
         navigation: masterModel,
         navigationitem: itemModel,
         audience: audienceModel,
+        navigations_items_related: relatedModel,
       } = plugin.models;
       return {
         masterModel,
         itemModel,
+        relatedModel,
         audienceModel,
         service,
         plugin,
@@ -87,22 +88,20 @@ module.exports = {
   async templateNameFactory(items, strapi, contentTypes = []) {
     const flatRelated = flatten(items.map(i => i.related));
     const relatedMap = flatRelated.reduce((acc, curr) => {
-      if (!acc[curr.__contentType]) {
-        acc[curr.__contentType] = [];
+      if (!acc[curr.relatedType]) {
+        acc[curr.relatedType] = [];
       }
-      acc[curr.__contentType].push(curr.id);
+      acc[curr.relatedType].push(curr.id);
       return acc;
     }, {});
     const responses = await Promise.all(
       Object.entries(relatedMap)
           .map(
-            ([contentType, ids]) => {
-              const contentTypeName = kebabCase(contentType);
-              const contentTypeUid = get(find(contentTypes, cnt => cnt.contentTypeName === contentTypeName), 'uid') || contentTypeName;
-              return strapi.query(contentTypeUid)
+            ([contentType, ids]) =>
+              strapi.query(contentType)
                 .find({ id_in: ids, _limit: -1 })
                 .then(res => ({ [contentType]: res }))
-            }),
+          ),
     );
     const relatedResponseMap = responses.reduce((acc, curr) => ({ ...acc, ...curr }), {});
     const singleTypes = new Map(
