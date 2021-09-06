@@ -17,7 +17,7 @@
       "visible": false
     },
     "i18n": {
-      "localized": true
+      "localized": false
     }
   },
   "attributes": {
@@ -27,7 +27,7 @@
       "required": true,
       "pluginOptions": {
         "i18n": {
-          "localized": true
+          "localized": false
         }
       }
     },
