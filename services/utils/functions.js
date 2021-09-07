@@ -7,6 +7,7 @@ const {
   find,
   flatten,
   get,
+  kebabCase,
   last,
 } = require('lodash');
 
@@ -22,12 +23,10 @@ module.exports = {
         navigation: masterModel,
         navigationitem: itemModel,
         audience: audienceModel,
-        navigations_items_related: relatedModel,
       } = plugin.models;
       return {
         masterModel,
         itemModel,
-        relatedModel,
         audienceModel,
         service,
         plugin,
@@ -86,7 +85,7 @@ module.exports = {
   },
 
   async templateNameFactory(items, strapi, contentTypes = []) {
-    const flatRelated = flatten(items.map(i => i.related)).filter(_ => !!_);
+    const flatRelated = flatten(items.map(i => i.related));
     const relatedMap = flatRelated.reduce((acc, curr) => {
       if (!acc[curr.__contentType]) {
         acc[curr.__contentType] = [];
@@ -96,13 +95,14 @@ module.exports = {
     }, {});
     const responses = await Promise.all(
       Object.entries(relatedMap)
-        .map(
-          ([contentType, ids]) => {
-            const contentTypeUid = get(find(contentTypes, cnt => cnt.uid === contentType), 'uid');
-            return strapi.query(contentTypeUid)
-              .find({ id_in: ids, _limit: -1 })
-              .then(res => ({ [contentType]: res }))
-          }),
+          .map(
+            ([contentType, ids]) => {
+              const contentTypeName = kebabCase(contentType);
+              const contentTypeUid = get(find(contentTypes, cnt => cnt.contentTypeName === contentTypeName), 'uid') || contentTypeName;
+              return strapi.query(contentTypeUid)
+                .find({ id_in: ids, _limit: -1 })
+                .then(res => ({ [contentType]: res }))
+            }),
     );
     const relatedResponseMap = responses.reduce((acc, curr) => ({ ...acc, ...curr }), {});
     const singleTypes = new Map(

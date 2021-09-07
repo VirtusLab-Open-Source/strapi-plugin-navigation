@@ -1,4 +1,3 @@
-const {get} = require('lodash');
 function setupStrapi() {
     Object.defineProperty(global, 'strapi', {
         value: {
@@ -15,9 +14,6 @@ function setupStrapi() {
                       },
                   },
               },
-            get(path, defaultValue) {
-              return get(strapi, path, defaultValue);
-            },
           },
           api: {
               'home-page': {
@@ -44,13 +40,13 @@ function setupStrapi() {
                 modelName: 'pages',
                 associations: [{ model: 'navigationitem' }],
             },
-            'application::blog-post.blog-post': {
+            'blog-post': {
                 ...require('./blog-post.settings.json'),
                 apiName: 'blog-posts',
                 modelName: 'blog-posts',
                 associations: [{ model: 'navigationitem' }],
             },
-            'application::my-homepages.my-homepage': {
+            'my-homepage': {
                 ...require('./my-homepage.settings.json'),
                 apiName: 'my-homepage',
                 modelName: 'my-homepage',
@@ -62,12 +58,12 @@ function setupStrapi() {
                 modelName: 'home-page',
                 associations: [{ model: 'navigationitem' }],
             },
-            'plugins::another-plugin.pages': {
+            'plugin-page': {
                 ...require('./another-plugin/pages.settings.json'),
                 modelName: 'plugin-pages',
                 associations: [{ model: 'navigationitem' }],
             },
-            'plugins::another-plugin.blog-post': {
+            'plugin-blog-post': {
                 ...require('./another-plugin/blog-post.settings.json'),
                 modelName: 'plugin-blog-posts',
                 associations: [{ model: 'navigationitem' }],
@@ -77,15 +73,7 @@ function setupStrapi() {
               navigation: {
                   services: {
                       navigation: jest.fn().mockImplementation(),
-                  },
-                relatedContentTypes: [
-                  'application::pages.pages',
-                  'application::blog-post.blog-post',
-                  'application::my-homepages.my-homepage',
-                  'application::page-homes.home-page',
-                  'plugins::another-plugin.pages',
-                  'plugins::another-plugin.blog-post'
-                ]
+                  }
               },
               anotherPlugin: {
                   models: {
