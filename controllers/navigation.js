@@ -23,33 +23,35 @@ const errorHandler = (ctx) => (error) => {
   }
   throw error;
 };
-const getService = () => strapi.plugins.navigation.services.navigation;
 
 module.exports = {
+  getService() {
+    return strapi.plugins.navigation.services.navigation;
+  },
   /**
    * Default action.
    *
    * @return {Object}
    */
   async config() {
-    return getService().config();
+    return await this.getService().config();
   },
 
   async get() {
-    return getService().get();
+    return await this.getService().get();
   },
 
   async getById(ctx) {
     const { params } = ctx;
     const { id } = parseParams(params);
-    return getService().getById(id);
+    return await this.getService().getById(id);
   },
 
   async render(ctx) {
     const { params, query = {} } = ctx;
     const { type, menu: menuOnly } = query;
     const { idOrSlug } = parseParams(params);
-    return getService().render(
+    return await this.getService().render(
       idOrSlug,
       type,
       menuOnly,
@@ -59,7 +61,7 @@ module.exports = {
     const { params, query = {} } = ctx;
     const { type, menu: menuOnly } = query;
     const { idOrSlug, childUIKey } = parseParams(params);
-    return getService().renderChildren(
+    return await this.getService().renderChildren(
       idOrSlug,
       childUIKey,
       type,
@@ -70,14 +72,14 @@ module.exports = {
   post(ctx) {
     const { auditLog } = ctx;
     const { body = {} } = ctx.request;
-    return getService().post(body, auditLog);
+    return this.getService().post(body, auditLog);
   },
 
   put(ctx) {
     const { params, auditLog } = ctx;
     const { id } = parseParams(params);
     const { body = {} } = ctx.request;
-    return getService().put(id, body, auditLog)
+    return this.getService().put(id, body, auditLog)
       .catch(errorHandler(ctx));
   },
 };

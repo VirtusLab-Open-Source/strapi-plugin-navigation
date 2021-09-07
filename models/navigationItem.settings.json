@@ -15,28 +15,17 @@
     },
     "content-type-builder": {
       "visible": false
-    },
-    "i18n": {
-      "localized": true
     }
   },
   "attributes": {
     "title": {
       "type": "text",
       "configurable": false,
-      "required": true,
-      "pluginOptions": {
-        "i18n": {
-          "localized": true
-        }
-      }
+      "required": true
     },
     "type": {
       "type": "enumeration",
-      "enum": [
-        "INTERNAL",
-        "EXTERNAL"
-      ],
+      "enum": ["INTERNAL", "EXTERNAL"],
       "default": "INTERNAL",
       "configurable": false
     },
@@ -64,8 +53,8 @@
       "configurable": false
     },
     "related": {
-      "collection": "navigations_items_related",
-      "plugin": "navigation",
+      "collection": "*",
+      "filter": "field",
       "configurable": false
     },
     "parent": {
