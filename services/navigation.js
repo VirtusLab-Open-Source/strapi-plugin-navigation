@@ -9,7 +9,8 @@ const {
   isEmpty,
   isObject,
   isNil,
-  isNumber,
+  toNumber,
+  isNaN,
   find,
   first,
   get,
@@ -103,16 +104,16 @@ module.exports = {
 
               if (isSingleType) {
                 if (isSingleTypeWithPublishFlow) {
-                  const itemsCountOrBypass = isSingleTypeWithPublishFlow ? 
+                  const itemsCountOrBypass = isSingleTypeWithPublishFlow ?
                     await strapi.query(uid).count({
                       _publicationState: 'live'
-                    }) : 
+                    }) :
                     true;
                   return returnType(itemsCountOrBypass !== 0);
                 }
                 const isAvailable = await strapi.query(uid).count();
                 return isAvailable === 1 ? returnType(true) : undefined;
-              } 
+              }
               return returnType(true);
             }
             return undefined;
@@ -199,7 +200,7 @@ module.exports = {
       .create({
         name,
         slug: slugify(name).toLowerCase(),
-        visible,
+        visible: !!visible,
       });
 
     return service
@@ -223,7 +224,7 @@ module.exports = {
         {
           name: entityNameHasChanged ? name : existingEntity.name,
           slug: entityNameHasChanged ? slugify(name).toLowerCase() : existingEntity.slug,
-          visible,
+          visible: !!visible,
         },
       );
     }
@@ -244,7 +245,7 @@ module.exports = {
     const { service } = utilsFunctions.extractMeta(
       strapi.plugins,
     );
-    const findById = isNumber(idOrSlug) || isUuid(idOrSlug);
+    const findById = !isNaN(toNumber(idOrSlug)) || isUuid(idOrSlug);
     const criteria = findById ? { id: idOrSlug } : { slug: idOrSlug };
     const itemCriteria = menuOnly ? { menuAttached: true } : {};
 
@@ -258,7 +259,7 @@ module.exports = {
     menuOnly = false
   ) => {
     const { service } = utilsFunctions.extractMeta(strapi.plugins);
-    const findById = isNumber(idOrSlug) || isUuid(idOrSlug);
+    const findById = !isNaN(toNumber(idOrSlug)) || isUuid(idOrSlug);
     const criteria = findById ? { id: idOrSlug } : { slug: idOrSlug };
     const filter = type === renderType.FLAT ? null : childUIKey;
 
@@ -298,7 +299,7 @@ module.exports = {
       const { contentTypes, contentTypesNameFields } = await service.config();
       const getTemplateName = await utilsFunctions.templateNameFactory(items, strapi, contentTypes)
 
-      switch (type) {
+      switch (type?.toLowerCase()) {
         case renderType.TREE:
         case renderType.RFR:
           const itemParser = (item, path = '', field) => {
@@ -307,6 +308,7 @@ module.exports = {
             const slug = isString(parentPath) ? slugify((first(parentPath) === '/' ? parentPath.substring(1) : parentPath).replace(/\//g, '-')) : undefined;
             const lastRelated = item.related ? last(item.related) : undefined;
             return {
+              id: item.id,
               title: utilsFunctions.composeItemTitle(item, contentTypesNameFields, contentTypes),
               menuAttached: item.menuAttached,
               path: isExternal ? item.externalPath : parentPath,
@@ -350,8 +352,9 @@ module.exports = {
             .filter(utilsFunctions.filterOutUnpublished)
             .map((item) => ({
               ...sanitizeEntity(item, { model: itemModel }),
+              audience: item.audience?.map(_ => _.key),
               title: utilsFunctions.composeItemTitle(item, contentTypesNameFields, contentTypes),
-              related: item.related,
+              related: last(item.related),
               items: null,
             }));
       }
@@ -359,7 +362,7 @@ module.exports = {
     throw strapi.errors.notFound();
   },
 
-  renderTree: ({ 
+  renderTree: ({
     items = [],
     id = null,
     field = 'parent',
@@ -395,7 +398,7 @@ module.exports = {
       const { items: itemChilds, ...itemProps } = item;
       const itemNav = service.renderRFRNav(itemProps);
       const itemPage = service.renderRFRPage({
-        item: itemProps, 
+        item: itemProps,
         parent,
       });
 
@@ -429,15 +432,15 @@ module.exports = {
 
       if (!isEmpty(itemChilds)) {
         const { nav: nestedNavs } = service.renderRFR({
-          items: itemChilds, 
-          parent: itemPage.id, 
+          items: itemChilds,
+          parent: itemPage.id,
           parentNavItem: itemNav,
           contentTypes,
         });
         const { pages: nestedPages } = service.renderRFR({
-          items: itemChilds.filter(child => child.type === itemType.INTERNAL), 
-          parent: itemPage.id, 
-          parentNavItem: itemNav, 
+          items: itemChilds.filter(child => child.type === itemType.INTERNAL),
+          parent: itemPage.id,
+          parentNavItem: itemNav,
           contentTypes,
         });
         pages = {

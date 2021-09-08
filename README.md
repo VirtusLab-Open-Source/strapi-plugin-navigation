@@ -55,7 +55,7 @@ Complete installation requirements are exact same as for Strapi itself and can b
 
 **Supported Strapi versions**:
 
-- Strapi v3.6.0 (recently tested)
+- Strapi v3.6.8 (recently tested)
 - Strapi v3.x
 
 (This plugin may work with the older Strapi versions, but these are not tested nor officially supported at this time.)
@@ -104,7 +104,7 @@ inside the `attributes` section like in example below:
 ## Configuration
 To setup the plugin properly we recommend to put following snippet as part of `config/custom.js` or `config/<env>/custom.js` file. If you've got already configurations for other plugins stores by this way, use just the `navigation` part within exising `plugins` item.
 
-```
+```js
     ...
     plugins: {
       navigation: {
@@ -114,6 +114,7 @@ To setup the plugin properly we recommend to put following snippet as part of `c
           'blog_posts': ['altTitle'],
           'pages': ['title'],
         },
+        gql: { ... }
       },
     },
     ...
@@ -123,6 +124,34 @@ To setup the plugin properly we recommend to put following snippet as part of `c
 - `additionalFields` - Additional fields: 'audience', more in the future
 - `allowedLevels` - Maximum level for which your're able to mark item as "Menu attached"
 - `contentTypesNameFields` - Definition of content type title fields like `'content_type_name': ['field_name_1', 'field_name_2']`, if not set titles are pulled from fields like `['title', 'subject', 'name']`
+- `gql` - If you're using GraphQL that's the right place to put all necessary settings. More **[ here ](#gql-configuration)**
+
+## GQL Configuration
+To properly configure GQL to work with navigation you should provide `gql` prop which should contain union types which will be used for define GQL response format for your data while fetching:
+
+```gql
+master: Int
+items: [NavigationItem]
+related: NavigationRelated
+```
+
+as follows:   
+
+```js
+gql: {
+    navigationItemRelated: 'union NavigationRelated = <your GQL related entities>',
+},
+```
+
+for example:   
+
+```js
+gql: {
+        navigationItemRelated: 'union NavigationRelated = Pages | UploadFile',
+},
+```
+where `Pages` and `UploadFile` are your types to the **Content Types** you're referring by navigation items relations. 
+
 
 ## Public API Navigation Item model
 
