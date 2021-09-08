@@ -104,7 +104,7 @@ inside the `attributes` section like in example below:
 ## Configuration
 To setup the plugin properly we recommend to put following snippet as part of `config/custom.js` or `config/<env>/custom.js` file. If you've got already configurations for other plugins stores by this way, use just the `navigation` part within exising `plugins` item.
 
-```
+```js
     ...
     plugins: {
       navigation: {
@@ -118,6 +118,23 @@ To setup the plugin properly we recommend to put following snippet as part of `c
     },
     ...
 ```
+
+## GQL
+To correctly configure GQL with navigation you should add in previous configurations add property `gql`.
+```js
+contentTypesNameFields: {....},
+gql: {
+    navigationItemRelated: 'union NavigationRelated = <your GQL related entities>',
+  },
+},
+```
+That property should contain union types which one will be used for definition GQL response when you fetch data:
+```gql
+master: Int
+items: [NavigationItem]
+related: NavigationRelated
+```
+
 
 ### Properties
 - `additionalFields` - Additional fields: 'audience', more in the future
