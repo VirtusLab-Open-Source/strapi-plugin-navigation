@@ -114,32 +114,44 @@ To setup the plugin properly we recommend to put following snippet as part of `c
           'blog_posts': ['altTitle'],
           'pages': ['title'],
         },
+        gql: { ... }
       },
     },
     ...
 ```
 
-## GQL
-To correctly configure GQL with navigation you should add in previous configurations add property `gql`.
-```js
-contentTypesNameFields: {....},
-gql: {
-    navigationItemRelated: 'union NavigationRelated = <your GQL related entities>',
-  },
-},
-```
-That property should contain union types which one will be used for definition GQL response when you fetch data:
+### Properties
+- `additionalFields` - Additional fields: 'audience', more in the future
+- `allowedLevels` - Maximum level for which your're able to mark item as "Menu attached"
+- `contentTypesNameFields` - Definition of content type title fields like `'content_type_name': ['field_name_1', 'field_name_2']`, if not set titles are pulled from fields like `['title', 'subject', 'name']`
+- `gql` - If you're using GraphQL that's the right place to put all necessary settings. More **[ here ](#gql-configuration)**
+
+## GQL Configuration
+To properly configure GQL to work with navigation you should provide `gql` prop which should contain union types which will be used for define GQL response format for your data while fetching:
+
 ```gql
 master: Int
 items: [NavigationItem]
 related: NavigationRelated
 ```
 
+as follows:   
 
-### Properties
-- `additionalFields` - Additional fields: 'audience', more in the future
-- `allowedLevels` - Maximum level for which your're able to mark item as "Menu attached"
-- `contentTypesNameFields` - Definition of content type title fields like `'content_type_name': ['field_name_1', 'field_name_2']`, if not set titles are pulled from fields like `['title', 'subject', 'name']`
+```js
+gql: {
+    navigationItemRelated: 'union NavigationRelated = <your GQL related entities>',
+},
+```
+
+for example:   
+
+```js
+gql: {
+        navigationItemRelated: 'union NavigationRelated = Pages | UploadFile',
+},
+```
+where `Pages` and `UploadFile` are your types to the **Content Types** you're referring by navigation items relations. 
+
 
 ## Public API Navigation Item model
 
