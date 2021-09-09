@@ -25,12 +25,12 @@ const NAVIGATION = `
 `;
 
 const getContentTypesNamesFields = () => {
-  const contentTypesNameFields = strapi.config.get('custom.plugins.navigation.contentTypesNameFields');
+  const contentTypesNameFields = strapi.config.plugins.navigation.gql.contentTypesNameFields;
   return Object.keys(contentTypesNameFields || {}).map(key => `${key}: [String]!`).join('\n');
 };
 
 const getNavigationRelated = () => {
-  const related = strapi.config.get('custom.plugins.navigation.gql.navigationItemRelated');
+  const related = strapi.config.plugins.navigation.gql.navigationItemRelated;
   if (related) {
     return related;
   }
