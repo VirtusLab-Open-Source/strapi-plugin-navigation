@@ -18,6 +18,7 @@ const {
   last,
   upperFirst,
   isString,
+  pick
 } = require('lodash');
 const { KIND_TYPES } = require("./utils/constant");
 const utilsFunctions = require('./utils/functions');
@@ -304,23 +305,30 @@ module.exports = {
         case renderType.RFR:
           const itemParser = (item, path = '', field) => {
             const isExternal = item.type === itemType.EXTERNAL;
-            const parentPath = isExternal ? undefined : `${path === '/' ? '' : path}/${item.path === '/' ? '' : item.path}`;
+            const parentPath = isExternal ? undefined : `${strapi.config.plugins.shop_url}/${item.path === '/' ? '' : item.path}`;
+
+            //const parentPath = isExternal ? undefined : `${path === '/' ? '' : path}/${item.path === '/' ? '' : item.path}`;
             const slug = isString(parentPath) ? slugify((first(parentPath) === '/' ? parentPath.substring(1) : parentPath).replace(/\//g, '-')) : undefined;
-            const lastRelated = item.related ? last(item.related) : undefined;
+            let lastRelated = item.related ? last(item.related) : undefined;
+
+            if (lastRelated && lastRelated.__contentType === 'NavigationMenu') {
+              lastRelated = pick(lastRelated, ['title', 'caption', 'columnType', 'buttonText', 'buttonUrl']);
+            }
+
             return {
               id: item.id,
               title: utilsFunctions.composeItemTitle(item, contentTypesNameFields, contentTypes),
-              menuAttached: item.menuAttached,
-              path: isExternal ? item.externalPath : parentPath,
-              type: item.type,
-              uiRouterKey: item.uiRouterKey,
-              slug: !slug && item.uiRouterKey ? slugify(item.uiRouterKey) : slug,
-              external: isExternal,
+              //menuAttached: item.menuAttached,
+              url: isExternal ? item.externalPath : parentPath,
+              //type: item.type,
+              //uiRouterKey: item.uiRouterKey,
+              //slug: !slug && item.uiRouterKey ? slugify(item.uiRouterKey) : slug,
+              //external: isExternal,
               related: isExternal || !lastRelated ? undefined : {
                 ...lastRelated,
-                __templateName: getTemplateName(lastRelated.__contentType, lastRelated.id),
+                //__templateName: getTemplateName(lastRelated.__contentType, lastRelated.id),
               },
-              audience: !isEmpty(item.audience) ? item.audience.map(aItem => aItem.key) : undefined,
+              //audience: !isEmpty(item.audience) ? item.audience.map(aItem => aItem.key) : undefined,
               items: isExternal ? undefined : service.renderTree({
                 items,
                 id: item.id,
