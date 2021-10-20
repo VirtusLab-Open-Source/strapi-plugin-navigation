@@ -46,8 +46,7 @@ export const transformItemToRESTPayload = (
     order,
     uiRouterKey,
     menuAttached,
-    audience: audience.map((audienceItem) =>
-      isObject(audienceItem) ? audienceItem.value : audienceItem,
+    audience: audience.map((audienceItem) => isObject(audienceItem) ? audienceItem.value || audienceItem.id : audienceItem,
     ),
     path: isExternal ? undefined : path,
     externalPath: isExternal ? externalPath : undefined,
@@ -65,7 +64,7 @@ export const transformItemToRESTPayload = (
 };
 
 export const transformToRESTPayload = (payload, config = {}) => {
-  const { id, name, visible, items } = payload;
+	const { id, name, visible, items } = payload;
   return {
     id,
     name,
