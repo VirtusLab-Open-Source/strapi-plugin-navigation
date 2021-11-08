@@ -1,5 +1,5 @@
 import { isUuid, uuid } from 'uuidv4';
-import { find, get, isArray, isEmpty, isNil, isNumber, isObject, isString, kebabCase, last, omit, orderBy } from 'lodash';
+import { find, get, isArray, isEmpty, isNil, isNumber, isObject, isString, last, omit, orderBy } from 'lodash';
 import { navigationItemType } from './enums';
 
 export const transformItemToRESTPayload = (
@@ -119,7 +119,7 @@ const linkRelations = (item, config) => {
   const shouldBuildRelated = !relatedRef || (relatedRef && (relatedRef.id !== relatedId));
   if (shouldBuildRelated && !shouldFindRelated) {
     const relatedContentType = find(contentTypes,
-      ct => kebabCase(ct.contentTypeName) === kebabCase(relatedItem.__contentType), {});
+      ct => ct.uid === relatedItem.__contentType, {});
     const { uid, labelSingular, isSingle } = relatedContentType;
     relation = {
       related: relatedItem.id,
@@ -261,7 +261,7 @@ export const usedContentTypes = (items = []) => items.flatMap(
     if (item.relatedRef) {
       return [item.relatedRef, ...used];
     }
-    return used; 
+    return used;
   },
 );
 
@@ -283,11 +283,11 @@ export const isRelationPublished = ({ relatedRef, relatedType = {}, type, isColl
   return true;
 };
 
-export const validateNavigationStructure = (items = []) => 
-  items.map(item => 
-    (item.removed || isRelationCorrect({ 
-      related: item.related, 
+export const validateNavigationStructure = (items = []) =>
+  items.map(item =>
+    (item.removed || isRelationCorrect({
+      related: item.related,
       type: item.type,
-    })) && 
+    })) &&
     validateNavigationStructure(item.items)
   ).filter(item => !item).length === 0;
