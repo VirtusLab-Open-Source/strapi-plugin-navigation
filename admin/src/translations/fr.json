@@ -31,6 +31,8 @@
   "popup.item.form.button.update": "Modifier l'élément",
   "popup.item.form.button.restore": "Restaurer l'élément",
   "popup.item.form.button.remove": "Supprimer",
+  "popup.item.form.button.save": "Sauvegarder",
+  "popup.item.form.button.cancel": "Annuler",
   "notification.navigation.submit": "Les modifications de navigation ont été enregistrées",
   "notification.navigation.error": "Chemin indisponible: { path } dans le parent: { parentTitle } pour l'élément { errorTitles }",
   "notification.navigation.item.relation": "L'entitée n'a pas de relations!",

@@ -1,7 +1,6 @@
 import styled from "styled-components";
-import { Button } from "@buffetjs/styles";
-
-import { colors } from "strapi-helper-plugin";
+import { Box } from '@strapi/design-system/Box';
+import { Button } from "@strapi/design-system/Button";
 
 const EmptyView = styled.div`
   display: flex;
@@ -11,24 +10,16 @@ const EmptyView = styled.div`
   justify-content: center;
   padding-left: 2rem;
   padding-right: 2rem;
-  padding-bottom: ${(props) => (props.fixPosition ? "8rem" : 0)};
+  padding-bottom: "8rem" };
 
   font-size: 2rem;
   font-weight: 600;
-  color: ${colors.leftMenu.grey};
+  color: ${({ theme }) => theme.colors.neutral600};
   text-align: center;
 
-  svg {
-    margin-bottom: 1rem;
-  }
-
-  ${Button} {
-    margin-top: 2rem;
-
-    svg {
-      margin-bottom: 0;
-    }
-  }
+	> {
+		margin: 1rem;
+	}
 `;
 
 export default EmptyView;

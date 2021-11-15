@@ -1,49 +1,53 @@
-import pluginPkg from "../../package.json";
-import pluginId from "./pluginId";
-import App from "./containers/App";
-import Initializer from "./containers/Initializer";
-import lifecycles from "./lifecycles";
-import trads from "./translations";
-import pluginPermissions from "./permissions";
+import { prefixPluginTranslations } from '@strapi/helper-plugin';
+import PluginIcon from './components/PluginIcon';
+import pluginPkg from '../../package.json';
+import pluginId from './pluginId';
 
-export default (strapi) => {
-  const pluginDescription =
-    pluginPkg.strapi.description || pluginPkg.description;
-  const { icon, name } = pluginPkg.strapi;
+const name = pluginPkg.strapi.name;
 
-  const plugin = {
-    blockerComponent: null,
-    blockerComponentProps: {},
-    description: pluginDescription,
-    icon,
-    id: pluginId,
-    initializer: Initializer,
-    injectedComponents: [],
-    isReady: false,
-    isRequired: pluginPkg.strapi.required || false,
-    layout: null,
-    lifecycles,
-    leftMenuLinks: [],
-    leftMenuSections: [],
-    mainComponent: App,
-    name,
-    preventComponentRendering: false,
-    trads,
-    menu: {
-      pluginsSectionLinks: [
-        {
-          destination: `/plugins/${pluginId}`,
-          icon,
-          name,
-          label: {
-            id: `${pluginId}.plugin.name`,
-            defaultMessage: "NAVIGATION",
-          },
-          permissions: pluginPermissions.main,
-        },
-      ],
-    },
-  };
+export default {
+  register(app) {
+    app.addMenuLink({
+      to: `/plugins/${pluginId}`,
+      icon: PluginIcon,
+      intlLabel: {
+        id: `${pluginId}.plugin.name`,
+        defaultMessage: 'Navigation',
+      },
+      Component: async () => {
+        const component = await import(/* webpackChunkName: "my-plugin" */ './pages/App');
 
-  return strapi.registerPlugin(plugin);
+        return component;
+      },
+      permissions: [],
+    });
+    app.registerPlugin({
+      id: pluginId,
+      name,
+    });
+  },
+  bootstrap() {},
+  async registerTrads({ locales }) {
+    const importedTrads = await Promise.all(
+      locales.map(locale => {
+        return import(
+          /* webpackChunkName: "[pluginId]-[request]" */ `./translations/${locale}.json`
+        )
+          .then(({ default: data }) => {
+            return {
+              data: prefixPluginTranslations(data, pluginId),
+              locale,
+            };
+          })
+          .catch(() => {
+            return {
+              data: {},
+              locale,
+            };
+          });
+      })
+    );
+
+    return Promise.resolve(importedTrads);
+  },
 };
