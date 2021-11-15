@@ -5,7 +5,8 @@
   "strapi": {
     "name": "Navigation",
     "icon": "hamburger",
-    "description": "UI navigation management"
+    "description": "UI navigation management",
+    "kind": "plugin"
   },
   "repository": {
     "type": "git",
@@ -27,8 +28,8 @@
     "reactstrap": "8.4.1",
     "redux-saga": "^0.16.0",
     "request": "^2.83.0",
-    "strapi-helper-plugin": "3.6.5",
-    "strapi-utils": "3.6.5",
+		"@strapi/helper-plugin": "4.0.0-beta.12",
+		"@strapi/utils": "4.0.0-beta.12",
     "uuidv4": "^6.2.6",
     "slugify": "^1.4.5",
     "pluralize": "^8.0.0"
