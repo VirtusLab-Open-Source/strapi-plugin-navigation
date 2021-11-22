@@ -36,9 +36,9 @@ const contentTypesNameFieldsDefaults = [
   'subject',
   'name',
 ];
-const contentTypesNameFields = get(
+const getContentTypesNameFields = () => get(
   strapi.config,
-  'custom.plugins.navigation.contentTypesNameFields',
+  'plugins.navigation.contentTypesNameFields',
   {},
 );
 
@@ -51,15 +51,15 @@ module.exports = {
   // Get plugin configuration
   async config() {
     const { pluginName, service, audienceModel } = utilsFunctions.extractMeta(strapi.plugins);
-    const additionalFields = get(strapi.config, 'custom.plugins.navigation.additionalFields', []);
+    const additionalFields = get(strapi.config, 'plugins.navigation.additionalFields', []);
     let extendedResult = {};
     const result = {
       contentTypes: await service.configContentTypes(),
       contentTypesNameFields: {
         default: contentTypesNameFieldsDefaults,
-        ...(isObject(contentTypesNameFields) ? contentTypesNameFields : {}),
+        ...getContentTypesNameFields(),
       },
-      allowedLevels: get(strapi.config, 'custom.plugins.navigation.allowedLevels'),
+      allowedLevels: get(strapi.config, 'plugins.navigation.allowedLevels'),
       additionalFields,
     };
 

@@ -73,40 +73,22 @@ Complete installation requirements are exact same as for Strapi itself and can b
 
 ## Content Type model relation to Navigation Item
 
-To enable Content Type to work with Navigation Item, you've to add following field to your model `*.settings.json`:
-
-```
-    "navigation": {
-      "model": "navigationitem",
-      "plugin": "navigation",
-      "via": "related",
-      "configurable": false,
-      "hidden": true
-    }
-```
-
-inside the `attributes` section like in example below:
-
-```
-    "attributes": {
-        ...,
-        "navigation": {
-            "model": "navigationitem",
-            "plugin": "navigation",
-            "via": "related",
-            "configurable": false,
-            "hidden": true
-        },
-        ...
-    },
+We can define in `config/plugins.js`
+```js
+  navigation: {
+    ...
+    relatedContentTypes: [
+      'application::pages.pages'
+    ],
+    ...
+  },
 ```
 
 ## Configuration
-To setup the plugin properly we recommend to put following snippet as part of `config/custom.js` or `config/<env>/custom.js` file. If you've got already configurations for other plugins stores by this way, use just the `navigation` part within exising `plugins` item.
+To setup the plugin properly we recommend to put following snippet as part of `config/plugins.js` or `config/<env>/plugins.js` file. If you've got already configurations for other plugins stores by this way, use just the `navigation` part within exising `plugins` item.
 
 ```js
     ...
-    plugins: {
       navigation: {
         additionalFields: ['audience'],
         allowedLevels: 2,
@@ -116,7 +98,6 @@ To setup the plugin properly we recommend to put following snippet as part of `c
         },
         gql: { ... }
       },
-    },
     ...
 ```
 

@@ -1,4 +1,3 @@
-const {get} = require('lodash');
 const NAVIGATION_DATE = `
 # SQL
   created_at: String
@@ -25,12 +24,12 @@ const NAVIGATION = `
 `;
 
 const getContentTypesNamesFields = () => {
-  const contentTypesNameFields = strapi.config.get('custom.plugins.navigation.contentTypesNameFields');
+  const contentTypesNameFields = strapi.config.get('plugins.navigation.contentTypesNameFields');
   return Object.keys(contentTypesNameFields || {}).map(key => `${key}: [String]!`).join('\n');
 };
 
 const getNavigationRelated = () => {
-  const related = strapi.config.get('custom.plugins.navigation.gql.navigationItemRelated');
+  const related = strapi.config.get('plugins.navigation.gql.navigationItemRelated');
   if (related) {
     return related;
   }
