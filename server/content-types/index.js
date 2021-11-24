@@ -1,7 +1,7 @@
 "use strict"
 
-const navigationsItemsRelated = require("./navigations_items_related");
-const navigationItem = require("./navigationItem");
+const navigationsItemsRelated = require("./navigations-items-related");
+const navigationItem = require("./navigation-item");
 const navigation = require("./navigation");
 const audience = require("./audience");
 
