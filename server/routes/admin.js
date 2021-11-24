@@ -10,6 +10,11 @@ module.exports = {
       method: 'GET',
       path: '/config',
       handler: 'navigation.config',
-    }
+    },
+    {
+      method: 'GET',
+      path: '/:id',
+      handler: 'navigation.getById',
+    },
   ]
 }

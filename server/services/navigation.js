@@ -16,8 +16,40 @@ const contentTypesNameFieldsDefaults = ['title', 'subject', 'name'];
 
 module.exports = ({ strapi }) => {
 	const utilsFunctions = utilsFunctionsFactory(strapi);
-	
+
 	return {
+		// Get all available navigations
+		async get() {
+			const { pluginName, masterModel } = utilsFunctions.extractMeta(strapi.plugins);
+			const entities = await strapi
+				.query(`plugin::${pluginName}.${masterModel.modelName}`)
+				.findMany({
+					_limit: -1,
+				}, []);
+			return entities;
+		},
+
+		async getById(id) {
+			const { pluginName, masterModel, itemModel } = utilsFunctions.extractMeta(strapi.plugins);
+			const entity = await strapi
+				.query(`plugin::${pluginName}.${masterModel.modelName}`)
+				.findOne({ id });
+
+			const entityItems = await strapi
+				.query(`plugin::${pluginName}.${itemModel.modelName}`)
+				.findMany({
+					master: id,
+					_limit: -1,
+					_sort: 'order:asc',
+				});
+			const entities = await this.getRelatedItems(entityItems);
+			return {
+				...entity,
+				items: utilsFunctions.buildNestedStructure(entities),
+			};
+		},
+
+		// Get plugin config
 		async config() {
 			const { pluginName, audienceModel } = utilsFunctions.extractMeta(strapi.plugins);
 			const additionalFields = strapi.plugin(pluginName).config('additionalFields')
@@ -129,6 +161,55 @@ module.exports = ({ strapi }) => {
 				})
 				.filter((item) => item && item.visible);
 		},
-	}
 
+		async getRelatedItems(entityItems) {
+			const relatedTypes = new Set(entityItems.flatMap((item) => map(item.related, 'relatedType')));
+			const groupedItems = Array.from(relatedTypes).reduce(
+				(acc, relatedType) => Object.assign(acc, {
+					[relatedType]: [
+						...(acc[relatedType] || []),
+						...entityItems
+							.filter((item => item?.related.some(related => related.relatedType === relatedType)))
+							.flatMap((item) => item.related.map(related => Object.assign(related, { navigationItemId: item.id }))),
+					],
+				}),
+				{});
+
+			const data = new Map(
+				(
+					await Promise.all(
+						Object.entries(groupedItems)
+							.map(async ([model, related]) => {
+								const relationData = await strapi
+									.query(model)
+									.findMany({
+										id_in: map(related, 'relatedId')
+									});
+								return relationData
+									.flatMap(_ =>
+										Object.assign(
+											_,
+											{
+												__contentType: model,
+												navigationItemId: related.find(
+													({ relatedId }) => relatedId === _.id.toString())?.navigationItemId,
+											},
+										),
+									);
+							}),
+					)
+				)
+					.flat(1)
+					.map(_ => [_.navigationItemId, _]),
+			);
+			return entityItems
+				.map(({ related, ...item }) => {
+					const relatedData = data.get(item.id);
+					if (relatedData) {
+						return Object.assign(item, { related: [relatedData] });
+					}
+					return item;
+				});
+		},
+	}
 }
