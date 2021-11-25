@@ -327,7 +327,7 @@ module.exports = {
               external: isExternal,
               related: isExternal || !lastRelated ? undefined : {
                 ...lastRelated,
-                __templateName: getTemplateName(lastRelated.relatedType, lastRelated.id),
+                __templateName: getTemplateName(lastRelated.relatedType || lastRelated.__contentType, lastRelated.id),
               },
               audience: !isEmpty(item.audience) ? item.audience.map(aItem => aItem.key) : undefined,
               items: isExternal ? undefined : service.renderTree({
