@@ -21,4 +21,9 @@ module.exports = {
     const { id } = parseParams(params);
     return getService().getById(id);
   },
+  async getContentTypeItems(ctx) {
+    const { params } = ctx;
+    const { model } = parseParams(params);
+    return getService().getContentTypeItems(model)
+  }
 };
