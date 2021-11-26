@@ -5,13 +5,27 @@
  *
  */
 
-import React from "react";
-import { Text } from '@strapi/design-system/Text'
-
-const App = () => {
-  return (
-    <Text>To be migrated...</Text>
-  );
-};
-
-export default App;
+ import React, { Suspense, lazy } from "react";
+ import { Switch, Route } from "react-router-dom";
+ import { NotFound, LoadingIndicatorPage } from "@strapi/helper-plugin";
+ // Utils
+ import DataManagerProvider from "../DataManagerProvider";
+ import pluginId from "../../pluginId";
+ // Containers
+ const View = lazy(() => import("../View"));
+ 
+ const App = () => {
+   return (
+     <DataManagerProvider>
+       <Suspense fallback={<LoadingIndicatorPage />}>
+         <Switch>
+           <Route path={`/plugins/${pluginId}`} component={View} exact />
+           <Route component={NotFound} />
+         </Switch>
+       </Suspense>
+     </DataManagerProvider>
+   );
+ };
+ 
+ export default App;
+ 

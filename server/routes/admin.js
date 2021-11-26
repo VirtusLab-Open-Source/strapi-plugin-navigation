@@ -16,5 +16,13 @@ module.exports = {
       path: '/:id',
       handler: 'navigation.getById',
     },
+    {
+      method: 'GET',
+      path: '/content-type-items/:model',
+      handler: 'navigation.getContentTypeItems',
+      policies: [
+        'admin::isAuthenticatedAdmin'
+      ]
+    }
   ]
 }

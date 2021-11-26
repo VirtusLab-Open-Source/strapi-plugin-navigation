@@ -211,5 +211,14 @@ module.exports = ({ strapi }) => {
 					return item;
 				});
 		},
+
+		async getContentTypeItems(model) {
+			try {
+				const contentTypeItems = await strapi.query(model).findMany()
+				return contentTypeItems;
+			} catch (err) {
+				return [];
+			}
+		}
 	}
 }
