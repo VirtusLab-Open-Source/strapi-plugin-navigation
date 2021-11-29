@@ -39,7 +39,7 @@ const DataManagerProvider = ({ children }) => {
   const toggleNotification = useNotification();
   const { autoReload } = useAppInfos();
   const { formatMessage } = useIntl();
-
+ 
   const {
     items,
     config,
@@ -169,7 +169,7 @@ const DataManagerProvider = ({ children }) => {
     dispatch({
       type: GET_CONTENT_TYPE_ITEMS,
     });
-    const url =`/navigation/${modelUID}`;
+    const url =`/navigation/content-type-items/${modelUID}`;
     const queryParams = new URLSearchParams();
     queryParams.append('_publicationState', 'preview');
     if (query) {
@@ -181,14 +181,14 @@ const DataManagerProvider = ({ children }) => {
       signal,
     });
 
-    const fetchedContentType = find(config.contentTypes, ct => ct.endpoint === type);
+    const fetchedContentType = find(config.contentTypes, ct => ct.uid === modelUID);
 
     const isArray = Array.isArray(contentTypeItems);
     dispatch({
       type: GET_CONTENT_TYPE_ITEMS_SUCCEEDED,
       contentTypeItems: (isArray ? contentTypeItems : [contentTypeItems]).map(item => ({
         ...item,
-        __collectionName: get(fetchedContentType, 'collectionName', type),
+        __collectionUID: get(fetchedContentType, 'collectionName', modelUID),
       })),
     });
   };
@@ -217,6 +217,11 @@ const DataManagerProvider = ({ children }) => {
       changedActiveItem: payload,
       forceClosePopups,
     });
+
+    toggleNotification({
+      type: 'info',
+      message: { id: '', defaultMessage: 'To be migrated...' },
+    });
   };
 
   const handleResetNavigationData = () => {
@@ -227,52 +232,58 @@ const DataManagerProvider = ({ children }) => {
   };
 
   const handleSubmitNavigation = async (formatMessage, payload = {}) => {
-    try {
-      dispatch({
-        type: SUBMIT_NAVIGATION,
-      });
-
-      const nagivationId = payload.id ? `/${payload.id}` : "";
-      const method = payload.id ? "PUT" : "POST";
-      const navigation = await request(`/${pluginId}${nagivationId}`, {
-        method,
-        signal,
-        body: payload,
-      });
-
-      dispatch({
-        type: SUBMIT_NAVIGATION_SUCCEEDED,
-        navigation: {
-          ...navigation,
-          items: prepareItemToViewPayload(navigation.items, null, config),
-        },
-      });
-      toggleNotification({
-        type: 'success',
-        message: { id: 'notification.navigation.submit' },
-      });
-    } catch (err) {
-      dispatch({
-        type: SUBMIT_NAVIGATION_ERROR,
-        error: err.response.payload.data
-      });
-      console.error({ err: err.response });
-      if (err.response.payload.data && err.response.payload.data.errorTitles) {
-        return toggleNotification({
-          type: 'error',
-          message: {
-            id: formatMessage(
-              getTrad('notification.navigation.error'),
-              { ...err.response.payload.data, errorTitles: err.response.payload.data.errorTitles.join(' and ') },
-            )
-          },
-        });
-      }
-      toggleNotification({
-        type: 'error',
-        message: { id: 'notification.error' },
-      });
-    }
+    toggleNotification({
+      type: 'info',
+      message: { id: '', defaultMessage: 'To be migrated...' },
+    });
+    /** TODO:
+     try {
+       dispatch({
+         type: SUBMIT_NAVIGATION,
+       });
+ 
+       const nagivationId = payload.id ? `/${payload.id}` : "";
+       const method = payload.id ? "PUT" : "POST";
+       const navigation = await request(`/${pluginId}${nagivationId}`, {
+         method,
+         signal,
+         body: payload,
+       });
+ 
+       dispatch({
+         type: SUBMIT_NAVIGATION_SUCCEEDED,
+         navigation: {
+           ...navigation,
+           items: prepareItemToViewPayload(navigation.items, null, config),
+         },
+       });
+       toggleNotification({
+         type: 'success',
+         message: { id: 'notification.navigation.submit' },
+       });
+     } catch (err) {
+       dispatch({
+         type: SUBMIT_NAVIGATION_ERROR,
+         error: err.response.payload.data
+       });
+       console.error({ err: err.response });
+       if (err.response.payload.data && err.response.payload.data.errorTitles) {
+         return toggleNotification({
+           type: 'error',
+           message: {
+             id: formatMessage(
+               getTrad('notification.navigation.error'),
+               { ...err.response.payload.data, errorTitles: err.response.payload.data.errorTitles.join(' and ') },
+             )
+           },
+         });
+       }
+       toggleNotification({
+         type: 'error',
+         message: { id: 'notification.error' },
+       });
+     }
+     */
   };
 
   return (
