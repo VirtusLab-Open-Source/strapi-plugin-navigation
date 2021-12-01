@@ -219,6 +219,229 @@ module.exports = ({ strapi }) => {
 			} catch (err) {
 				return [];
 			}
-		}
+		},
+
+		async post(payload, auditLog) {
+      const { masterModel, service } = utilsFunctions.extractMeta(strapi.plugins);
+      const { name, visible } = payload;
+
+      const existingEntity = await strapi
+        .query(masterModel.uid)
+        .create({
+          name,
+          slug: slugify(name).toLowerCase(),
+          visible,
+        });
+
+      return service
+        .createBranch(payload.items, existingEntity, null)
+        .then(() => service.getById(existingEntity.id))
+        .then((newEntity) => {
+          utilsFunctions.sendAuditLog(auditLog, 'onChangeNavigation',
+            { actionType: 'CREATE', oldEntity: existingEntity, newEntity });
+          return newEntity;
+        });
+		},
+
+		async put(id, payload, auditLog) {
+      const { pluginName, masterModel, service } = utilsFunctions.extractMeta(strapi.plugins);
+      const { name, visible } = payload;
+
+      const existingEntity = await service.getById(id);
+      const entityNameHasChanged = existingEntity.name !== name || existingEntity.visible !== visible;
+      if (entityNameHasChanged) {
+        await strapi.query(masterModel.uid).update(
+          { id },
+          {
+            name: entityNameHasChanged ? name : existingEntity.name,
+            slug: entityNameHasChanged ? slugify(name).toLowerCase() : existingEntity.slug,
+            visible,
+          },
+        );
+      }
+      return service
+        .analyzeBranch(payload.items, existingEntity, null)
+        .then((auditLogsOperations) =>
+          Promise.all([
+            auditLog ? utilsFunctions.prepareAuditLog((auditLogsOperations || []).flat(Number.MAX_SAFE_INTEGER)) : [],
+            service.getById(existingEntity.id)],
+          ))
+        .then(([actionType, newEntity]) => {
+          utilsFunctions.sendAuditLog(auditLog, 'onChangeNavigation',
+            { actionType, oldEntity: existingEntity, newEntity });
+          return newEntity;
+        });
+    },
+
+		createBranch(items = [], masterEntity = null, parentItem = null, operations = {}) {
+      const { itemModel, service } = utilsFunctions.extractMeta(strapi.plugins);
+      return Promise.all(
+        items.map(async (item) => {
+          operations.create = true;
+          const { parent, master, related, ...params } = item;
+          const relatedItems = await this.getIdsRelated(related, master);
+          const navigationItem = await strapi
+            .query(itemModel.uid)
+            .create({
+              ...params,
+              related: relatedItems,
+              master: masterEntity,
+              parent: parentItem ? { ...parentItem, _id: parentItem.id } : null,
+            });
+          return !isEmpty(item.items)
+            ? service.createBranch(
+              item.items,
+              masterEntity,
+              navigationItem,
+              operations,
+            )
+            : operations;
+        }),
+      );
+		},
+
+    removeBranch(items = [], operations = {}) {
+      const { itemModel, service } = utilsFunctions.extractMeta(strapi.plugins);
+      return Promise.all(
+        items
+          .filter(item => item.id)
+          .map(async (item) => {
+            operations.remove = true;
+            const { id, related, master } = item;
+            await Promise.all([
+              strapi
+                .query(itemModel.uid)
+                .delete({ id }),
+              this.removeRelated(related, master),
+            ]);
+            return !isEmpty(item.items)
+              ? service.removeBranch(
+                item.items,
+                operations,
+              )
+              : operations;
+          }),
+      );
+    },
+
+    async updateBranch(toUpdate, masterEntity, parentItem, operations) {
+      const { itemModel, service } = utilsFunctions.extractMeta(strapi.plugins);
+      const databaseModel = strapi.query(itemModel.uid);
+      return Promise.all(
+        toUpdate.map(async (item) => {
+          operations.update = true;
+          const { id, updated, parent, master, related, items, ...params } = item;
+          let currentItem;
+          if (updated) {
+            const relatedItems = await this.getIdsRelated(related, master);
+            currentItem = await databaseModel
+              .update(
+                { id },
+                {
+                  ...params,
+                  related: relatedItems,
+                  master: masterEntity,
+                  parent: parentItem ? { ...parentItem, _id: parentItem.id } : null,
+                },
+              );
+          } else {
+            currentItem = item;
+          }
+          return !isEmpty(items)
+            ? service.analyzeBranch(
+              items,
+              masterEntity,
+              currentItem,
+              operations,
+            )
+            : operations;
+        }),
+      );
+		},
+		
+		analyzeBranch(items = [], masterEntity = null, parentItem = null, prevOperations = {}) {
+      const { service } = utilsFunctions.extractMeta(strapi.plugins);
+      const { toCreate, toRemove, toUpdate } = items
+        .reduce((acc, _) => {
+            const branchName = service.getBranchName(_);
+            if (branchName) {
+              return { ...acc, [branchName]: [...acc[branchName], _] };
+            }
+            return acc;
+          },
+          { toRemove: [], toCreate: [], toUpdate: [] },
+        );
+      const operations = {
+        create: prevOperations.create || !!toCreate.length,
+        update: prevOperations.update || !!toUpdate.length,
+        remove: prevOperations.remove || !!toRemove.length,
+      };
+      return utilsFunctions.checkDuplicatePath(parentItem || masterEntity, toCreate.concat(toUpdate))
+        .then(() => Promise.all(
+          [
+            service.createBranch(toCreate, masterEntity, parentItem, operations),
+            service.removeBranch(toRemove, operations),
+            service.updateBranch(toUpdate, masterEntity, parentItem, operations),
+          ],
+        ));
+		},
+
+		getIdsRelated(relatedItems, master) {
+      if (relatedItems) {
+        return Promise.all(relatedItems.map(async relatedItem => {
+          try {
+            const query = {
+              related_id: relatedItem.refId,
+              related_type: relatedItem.ref,
+              field: relatedItem.field,
+              master,
+            };
+            const model = strapi.query('plugin::navigation.navigations-items-related');
+            const entity = await model
+              .findOne(query);
+            if (!entity) {
+              const newEntity = {
+                master,
+                order: 1,
+                field: relatedItem.field,
+                related_id: relatedItem.refId,
+                related_type: relatedItem.ref,
+              };
+              return model.create(newEntity).then(({ id }) => id);
+            }
+            return entity.id;
+          } catch (e) {
+            console.error(e);
+          }
+        }));
+      }
+		},
+
+		removeRelated(relatedItems, master) {
+      return Promise.all(relatedItems.map(relatedItem => {
+        const model = strapi.query('plugin::navigation.navigations-items-related');
+        const entityToRemove = {
+          master,
+          field: relatedItem.field,
+          related_id: relatedItem.refId,
+          related_type: relatedItem.ref,
+        };
+        return model.delete(entityToRemove).then(({ id }) => id);
+      }));
+    },
+		
+		getBranchName(item) {
+      const hasId = !isNil(item.id);
+      const toRemove = item.removed;
+      if (hasId && !toRemove) {
+        return 'toUpdate';
+      }
+      if (hasId && toRemove) {
+        return 'toRemove';
+      }
+      if (!hasId && !toRemove) {
+        return 'toCreate';
+      }
+    },
 	}
 }

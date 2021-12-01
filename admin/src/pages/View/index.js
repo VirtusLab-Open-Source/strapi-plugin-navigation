@@ -91,7 +91,7 @@ const View = () => {
   const pullUsedContentTypeItem = (items = []) =>
   items.reduce((prev, curr) =>
       [...prev, curr.relatedRef ? {
-        __collectionName: curr.relatedRef.__collectionName,
+        __collectionUid: curr.relatedRef.__collectionUid,
         id: curr.relatedRef.id
       } : undefined, ...pullUsedContentTypeItem(curr.items)].filter(item => item)
     , []);

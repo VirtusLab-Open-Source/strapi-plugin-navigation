@@ -182,13 +182,12 @@ const DataManagerProvider = ({ children }) => {
     });
 
     const fetchedContentType = find(config.contentTypes, ct => ct.uid === modelUID);
-
     const isArray = Array.isArray(contentTypeItems);
     dispatch({
       type: GET_CONTENT_TYPE_ITEMS_SUCCEEDED,
       contentTypeItems: (isArray ? contentTypeItems : [contentTypeItems]).map(item => ({
         ...item,
-        __collectionUID: get(fetchedContentType, 'collectionName', modelUID),
+        __collectionUid: get(fetchedContentType, 'collectionUid', modelUID),
       })),
     });
   };
