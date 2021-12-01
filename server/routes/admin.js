@@ -7,6 +7,11 @@ module.exports = {
       handler: 'navigation.get',
     },
     {
+      method: 'POST',
+      path: '/',
+      handler: 'navigation.post',
+    },
+    {
       method: 'GET',
       path: '/config',
       handler: 'navigation.config',
@@ -15,6 +20,11 @@ module.exports = {
       method: 'GET',
       path: '/:id',
       handler: 'navigation.getById',
+    },
+    {
+      method: 'PUT',
+      path: '/:id',
+      handler: 'navigation.put',
     },
     {
       method: 'GET',

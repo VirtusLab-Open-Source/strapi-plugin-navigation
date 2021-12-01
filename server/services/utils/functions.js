@@ -2,6 +2,10 @@ const {
   last,
 } = require('lodash');
 
+const { type: itemType } = require('../../content-types/navigation-item');
+const { NavigationError } = require('../../../utils/NavigationError');
+const { TEMPLATE_DEFAULT } = require('./constant');
+
 module.exports = ({ strapi }) => {
   return {
     singularize(value = '') {
@@ -48,6 +52,51 @@ module.exports = ({ strapi }) => {
             items: this.buildNestedStructure(entities, entity.id, field),
           });
         });
+    },
+
+    prepareAuditLog(actions) {
+      return [
+        ...new Set(
+          actions
+            .filter(_ => !!_)
+            .flatMap(({ remove, create, update }) => {
+              return [create ? 'CREATE' : '', update ? 'UPDATE' : '', remove ? 'REMOVE' : '']
+                .filter(_ => !!_);
+            }),
+        ),
+      ]
+        .join('_');
+    },
+
+    sendAuditLog(auditLogInstance, event, data) {
+      if (auditLogInstance && auditLogInstance.emit) {
+        auditLogInstance.emit(event, data);
+      }
+    },
+
+    checkDuplicatePath(parentItem, checkData) {
+      return new Promise((resolve, reject) => {
+        if (parentItem && parentItem.items) {
+          for (let item of checkData) {
+            for (let _ of parentItem.items) {
+              if (_.path === item.path && (_.id !== item.id) && (item.type === itemType.INTERNAL)) {
+                return reject(
+                  new NavigationError(
+                    `Duplicate path:${item.path} in parent: ${parentItem.title || 'root'} for ${item.title} and ${_.title} items`,
+                    {
+                      parentTitle: parentItem.title,
+                      parentId: parentItem.id,
+                      path: item.path,
+                      errorTitles: [item.title, _.title],
+                    },
+                  ),
+                );
+              }
+            }
+          }
+        }
+        return resolve();
+      });
     },
   };
 }

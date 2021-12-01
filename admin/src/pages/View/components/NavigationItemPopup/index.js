@@ -66,7 +66,7 @@ const NavigationItemPopUp = ({
         label: appendLabelPublicationStatus(
           extractRelatedItemLabel({
             ...relatedItem,
-            __collectionName: relatedType,
+            __collectionUid: relatedType,
           }, contentTypesNameFields, config),
           relatedItem,
         ),

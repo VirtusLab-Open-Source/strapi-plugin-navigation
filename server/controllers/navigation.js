@@ -25,5 +25,17 @@ module.exports = {
     const { params } = ctx;
     const { model } = parseParams(params);
     return getService().getContentTypeItems(model)
-  }
+  },
+  post(ctx) {
+    const { auditLog } = ctx;
+    const { body = {} } = ctx.request;
+    return getService().post(body, auditLog);
+  },
+  put(ctx) {
+    const { params, auditLog } = ctx;
+    const { id } = parseParams(params);
+    const { body = {} } = ctx.request;
+    return getService().put(id, body, auditLog)
+      .catch(errorHandler(ctx));
+  },
 };

@@ -106,7 +106,7 @@ const NavigationItemForm = ({
     } else if (related) {
       const relationTitle = extractRelatedItemLabel({
         ...contentTypeEntities.find(_ => _.id === related),
-        __collectionName: relatedType
+        __collectionUid: relatedType
       }, contentTypesNameFields, { contentTypes });
       return isString(relationTitle) && !isEmpty(relationTitle) ? slugify(relationTitle).toLowerCase() : undefined;
     }
@@ -124,14 +124,14 @@ const NavigationItemForm = ({
   const relatedSelectOptions = contentTypeEntities
     .filter((item) => {
       const usedContentTypeEntitiesOfSameType = usedContentTypeEntities
-        .filter(uctItem => (get(relatedTypeSelectValue, 'value') === uctItem.__collectionName) && (uctItem.id !== get(relatedSelectValue, 'value')));
+        .filter(uctItem => (get(relatedTypeSelectValue, 'value') === uctItem.__collectionUid) && (uctItem.id !== get(relatedSelectValue, 'value')));
       return !find(usedContentTypeEntitiesOfSameType, uctItem => item.id === uctItem.id);
     })
     .map((item) => {
       const label = appendLabelPublicationStatus(
         extractRelatedItemLabel({
           ...item,
-          __collectionName: get(relatedTypeSelectValue, 'value', relatedTypeSelectValue),
+          __collectionUid: get(relatedTypeSelectValue, 'value', relatedTypeSelectValue),
         }, contentTypesNameFields, { contentTypes }),
         item
       );
@@ -184,7 +184,7 @@ const NavigationItemForm = ({
     () => contentTypes
       .filter((contentType) => {
         if (contentType.isSingle) {
-          return !usedContentTypesData.some((_) => _.__collectionName === contentType.uid);
+          return !usedContentTypesData.some((_) => _.__collectionUid === contentType.uid);
         }
         return true;
       })

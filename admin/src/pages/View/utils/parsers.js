@@ -91,7 +91,7 @@ const linkRelations = (item, config) => {
       relatedRef: {
         ...omit(relatedContentType, 'collectionName'),
         isSingle,
-        __collectionName: relatedContentType.uid,
+        __collectionUid: relatedContentType.uid,
       },
     };
   }
@@ -126,7 +126,7 @@ const linkRelations = (item, config) => {
       related: relatedItem.id,
       relatedRef: {
         ...relatedItem,
-        __collectionName: uid,
+        __collectionUid: uid,
         isSingle,
         labelSingular,
       },
@@ -139,7 +139,7 @@ const linkRelations = (item, config) => {
     relation = {
       relatedRef: {
         ...relatedRef,
-        __collectionName: uid,
+        __collectionUid: uid,
         __contentType: contentTypeName,
         isSingle,
         labelSingular,
@@ -250,8 +250,8 @@ export const prepareItemToViewPayload = (items = [], viewParentId = null, config
 
 export const extractRelatedItemLabel = (item = {}, fields = {}, config = {}) => {
   const { contentTypes = [] } = config;
-  const { __collectionName } = item;
-  const contentType = contentTypes.find(_ => _.uid === __collectionName)
+  const { __collectionUid } = item;
+  const contentType = contentTypes.find(_ => _.uid === __collectionUid)
   const { default: defaultFields = [] } = fields;
   return get(fields, `${contentType ? contentType.collectionName : ''}`, defaultFields).map((_) => item[_]).filter((_) => _)[0] || '';
 };
