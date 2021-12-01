@@ -12,7 +12,6 @@ import { isEmpty, get } from "lodash";
 import { Main } from '@strapi/design-system/Main';
 import { ContentLayout } from '@strapi/design-system/Layout';
 import { Button } from '@strapi/design-system/Button';
-import { Text } from '@strapi/design-system/Text';
 import { LoadingIndicatorPage } from "@strapi/helper-plugin";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHamburger } from "@fortawesome/free-solid-svg-icons";
@@ -31,6 +30,7 @@ import {
   usedContentTypes,
   validateNavigationStructure,
 } from './utils/parsers';
+import Item from '../../components/Item';
 
 
 const View = () => {
@@ -109,13 +109,14 @@ const View = () => {
     e.stopPropagation();
     changeNavigationItemPopupState(false);
   };
-  
+
   return (
     <Main labelledBy="title" aria-busy={isLoadingForSubmit}>
       <NavigationHeader
         structureHasErrors={structureHasErrors}
         isLoadingForSubmit={isLoadingForSubmit}
         handleSubmitNavigationItem={handleSubmitNavigationItem}
+        addNewNavigationItem={addNewNavigationItem}
         handleSave={handleSave}
       />
       <ContentLayout>
@@ -135,7 +136,17 @@ const View = () => {
                 >{formatMessage(getTrad('empty.cta'))}</Button>
               </EmptyView>
             )}
-            {!isEmpty(changedActiveNavigation.items || []) && <Text>To be migrated...</Text>}
+            {
+              !isEmpty(changedActiveNavigation.items || [])
+              && changedActiveNavigation.items.map(
+                (item, index) => <Item
+                  key={index}
+                  item={item}
+                  relatedRef={item.relatedRef}
+                  onItemLevelAddClick={addNewNavigationItem}
+                />
+              )
+            }
           </>
         )}
       </ContentLayout>

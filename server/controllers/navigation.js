@@ -1,4 +1,7 @@
+const { NavigationError } = require('../../utils/NavigationError'); 
+
 const getService = () => strapi.plugin('navigation').service('navigation');
+
 const parseParams = (params) =>
   Object.keys(params).reduce((prev, curr) => {
     const value = params[curr];
@@ -9,10 +12,17 @@ const parseParams = (params) =>
     };
   }, {});
 
+const errorHandler = (ctx) => (error) => {
+  if (error instanceof NavigationError) {
+    return ctx.badRequest(error.message, error.additionalInfo);
+  }
+  throw error;
+};
+
 module.exports = {
-	async config() {
+  async config() {
     return getService().config();
-	},
+  },
   async get() {
     return getService().get();
   },

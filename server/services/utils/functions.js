@@ -1,5 +1,7 @@
 const {
   last,
+  isObject,
+  isEmpty,
 } = require('lodash');
 
 const { type: itemType } = require('../../content-types/navigation-item');
@@ -36,7 +38,7 @@ module.exports = ({ strapi }) => {
     buildNestedStructure(entities, id = null, field = 'parent') {
       return entities
         .filter(entity => {
-          if (entity[field] === null && id === null) {
+          if (entity[field] == null && id === null) {
             return true;
           }
           let data = entity[field];

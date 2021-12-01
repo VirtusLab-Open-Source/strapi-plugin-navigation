@@ -95,8 +95,7 @@ const DataManagerProvider = ({ children }) => {
         });
       }
     } catch (err) {
-      // please don't do this, because js stringify a error and that error is not readable in dev tool
-      console.error(err);
+      console.error({ err });
       toggleNotification({
         type: 'error',
         message: { id: 'notification.error' },
@@ -231,11 +230,6 @@ const DataManagerProvider = ({ children }) => {
   };
 
   const handleSubmitNavigation = async (formatMessage, payload = {}) => {
-    toggleNotification({
-      type: 'info',
-      message: { id: '', defaultMessage: 'To be migrated...' },
-    });
-    /** TODO:
      try {
        dispatch({
          type: SUBMIT_NAVIGATION,
@@ -248,7 +242,6 @@ const DataManagerProvider = ({ children }) => {
          signal,
          body: payload,
        });
- 
        dispatch({
          type: SUBMIT_NAVIGATION_SUCCEEDED,
          navigation: {
@@ -282,7 +275,6 @@ const DataManagerProvider = ({ children }) => {
          message: { id: 'notification.error' },
        });
      }
-     */
   };
 
   return (
