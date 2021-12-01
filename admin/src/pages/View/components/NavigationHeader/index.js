@@ -6,6 +6,7 @@ import { Button } from '@strapi/design-system/Button';
 import { IconButton } from '@strapi/design-system/IconButton';
 import Check from '@strapi/icons/Check';
 import More from '@strapi/icons/More';
+import Plus from '@strapi/icons/Plus';
 import styled from 'styled-components';
 import { getTrad } from '../../../../translations';
 import { transformToRESTPayload } from '../../utils/parsers';
@@ -23,6 +24,7 @@ const NavigationHeader = ({
   structureHasErrors,
   isLoadingForSubmit,
   handleSubmitNavigation,
+  addNewNavigationItem,
   handleSave,
 }) => {
   const { formatMessage } = useIntl();
@@ -30,7 +32,15 @@ const NavigationHeader = ({
   return (
     <HeaderLayout
         primaryAction={
-          <Stack horizontal size={2}>
+        <Stack horizontal size={2}>
+          <Button
+              onClick={addNewNavigationItem}
+              startIcon={<Plus />}
+              disabled={isLoadingForSubmit}
+              type="submit"
+            >
+              {formatMessage(getTrad('header.action.newItem'))}
+            </Button>
             <Button
               onClick={handleSave}
               startIcon={<Check />}

@@ -3,7 +3,7 @@
   "info": {
     "singularName": "navigation-item",
     "pluralName": "navigation-items",
-    "displayName": "NavigationItem",
+    "displayName": "Navigation Item",
     "tableName": "navigation-item"
   },
   "options": {
