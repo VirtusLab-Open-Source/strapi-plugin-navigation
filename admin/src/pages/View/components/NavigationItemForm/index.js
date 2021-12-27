@@ -51,9 +51,24 @@ const NavigationItemForm = ({
 
   if (!hasBeenInitialized && !isEmpty(data)) {
     setInitializedState(true);
-    setFormState({ ...data });
+    setFormState({
+      ...data,
+      type: data.type || navigationItemType.INTERNAL,
+      related: data.related?.value,
+      relatedType: data.relatedType?.value
+    });
   }
 
+  const generatePreviewPath = () => {
+    if (!isExternal) {
+      return {
+        id: `${data.levelPath !== '/' ? `${data.levelPath}` : ''}/${form.path || ''}`,
+        defaultMessage: `${data.levelPath !== '/' ? `${data.levelPath}` : ''}/${form.path || ''}`
+      }
+    }
+    return null;
+  };
+  
   const sanitizePayload = (payload = {}) => {
     const { onItemClick, onItemLevelAddClick, related, relatedType, menuAttached, ...purePayload } = payload;
     const sanitizedType = purePayload.type || navigationItemType.INTERNAL;
@@ -124,8 +139,8 @@ const NavigationItemForm = ({
   const relatedSelectOptions = contentTypeEntities
     .filter((item) => {
       const usedContentTypeEntitiesOfSameType = usedContentTypeEntities
-        .filter(uctItem => (get(relatedTypeSelectValue, 'value') === uctItem.__collectionUid) && (uctItem.id !== get(relatedSelectValue, 'value')));
-      return !find(usedContentTypeEntitiesOfSameType, uctItem => item.id === uctItem.id);
+        .filter(uctItem => relatedTypeSelectValue === uctItem.__collectionUid);
+      return !find(usedContentTypeEntitiesOfSameType, uctItem => (item.id === uctItem.id && uctItem.id !== form.related)); 
     })
     .map((item) => {
       const label = appendLabelPublicationStatus(
@@ -297,6 +312,7 @@ const NavigationItemForm = ({
                   error={get(formErrors, `${inputsPrefix}${pathSourceName}.id`)}
                   onChange={onChange}
                   value={get(form, `${inputsPrefix}${pathSourceName}`, '')}
+                  description={generatePreviewPath()}
                 />
               </GridItem>
               {!isExternal && (

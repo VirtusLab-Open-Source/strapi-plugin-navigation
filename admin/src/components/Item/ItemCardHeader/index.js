@@ -4,15 +4,15 @@ import { useIntl } from 'react-intl';
 import { Flex } from '@strapi/design-system/Flex';
 import { IconButton } from '@strapi/design-system/IconButton';
 import { Typography } from '@strapi/design-system/Typography';
-import DragIcon from '@strapi/icons/Drag';
 import PencilIcon from '@strapi/icons/Pencil';
 import TrashIcon from '@strapi/icons/Trash';
+import RefreshIcon from '@strapi/icons/Refresh';
 
 import Wrapper from './Wrapper';
 import ItemCardBadge from '../ItemCardBadge';
-import { getTradId } from "../../../translations";
+import { getTrad } from "../../../translations";
 
-const ItemCardHeader = ({ title, path, icon, isPublished }) => {
+const ItemCardHeader = ({ title, path, icon, removed, isPublished, onItemRemove, onItemEdit, onItemRestore }) => {
 	const badgeColor = isPublished ? 'success' : 'secondary';
 	const { formatMessage } = useIntl();
 
@@ -28,23 +28,29 @@ const ItemCardHeader = ({ title, path, icon, isPublished }) => {
 				</Typography>
 			</Flex>
 			<Flex alignItems="center">
-				<ItemCardBadge
-					borderColor={`${badgeColor}200`}
-					backgroundColor={`${badgeColor}100`}
-					textColor={`${badgeColor}600`}
-					className="action"
-				>
-					{
-						formatMessage({
-							id: getTradId(`notification.navigation.item.relation.status.${isPublished ? 'published' : 'draft'}`),
-							defaultMessage: isPublished ? 'published' : 'draft'
-						})
-					}
-				</ItemCardBadge>
+				{removed ?
+					<ItemCardBadge
+						borderColor={`danger200`}
+						backgroundColor={`danger100`}
+						textColor={`danger600`}
+					>
+						{formatMessage(getTrad("navigation.item.badge.removed"))}
+					</ItemCardBadge>
+					: <ItemCardBadge
+						borderColor={`${badgeColor}200`}
+						backgroundColor={`${badgeColor}100`}
+						textColor={`${badgeColor}600`}
+						className="action"
+					>
+						{formatMessage(getTrad(`navigation.item.badge.${isPublished ? 'published' : 'draft'}`))}
+					</ItemCardBadge>
+				}
 
-				<IconButton onClick={() => console.log('Edit')} label="Edit" icon={<PencilIcon />} />
-				<IconButton onClick={() => console.log('Remove')} label="Remove" icon={<TrashIcon />} />
-				<IconButton onClick={() => console.log('Drag')} label="Drag" icon={<DragIcon />} />
+				<IconButton disabled={removed} onClick={onItemEdit} label="Edit" icon={<PencilIcon />} />
+				{removed ?
+					<IconButton onClick={onItemRestore} label="Restore" icon={<RefreshIcon />} /> :
+					<IconButton onClick={onItemRemove} label="Remove" icon={<TrashIcon />} />
+				}
 			</Flex>
 		</Wrapper>
 	);

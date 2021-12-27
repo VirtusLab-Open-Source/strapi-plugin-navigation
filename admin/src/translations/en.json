@@ -39,6 +39,10 @@
 	"notification.navigation.error": "Duplicate path: { path } in parent: { parentTitle } for { errorTitles } items",
 	"notification.navigation.item.relation": "Entity relation does not exist!",
 	"notification.navigation.item.relation.status.draft": "draft",
-	"notification.navigation.item.relation.status.published": "published"
+	"notification.navigation.item.relation.status.published": "published",
+	"navigation.item.action.newItem": "New nested item",
+	"navigation.item.badge.removed": "Removed",
+	"navigation.item.badge.draft": "Draft",
+	"navigation.item.badge.published": "Published"
   }
   

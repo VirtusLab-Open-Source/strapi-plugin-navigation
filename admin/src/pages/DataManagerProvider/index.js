@@ -215,11 +215,6 @@ const DataManagerProvider = ({ children }) => {
       changedActiveItem: payload,
       forceClosePopups,
     });
-
-    toggleNotification({
-      type: 'info',
-      message: { id: '', defaultMessage: 'To be migrated...' },
-    });
   };
 
   const handleResetNavigationData = () => {

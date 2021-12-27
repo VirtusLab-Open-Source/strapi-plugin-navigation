@@ -22,7 +22,7 @@ module.exports = ({ strapi }) => {
   return {
     // Get all available navigations
     async get() {
-      const {  masterModel } = utilsFunctions.extractMeta(strapi.plugins);
+      const { masterModel } = utilsFunctions.extractMeta(strapi.plugins);
       const entities = await strapi
         .query(masterModel.uid)
         .findMany({
@@ -40,9 +40,14 @@ module.exports = ({ strapi }) => {
       const entityItems = await strapi
         .query(itemModel.uid)
         .findMany({
-          master: id,
-          _limit: -1,
-          _sort: 'order:asc',
+          where: {
+            master: id,
+          },
+          paggination: {
+            limit: -1,
+          },
+          sort: ['order:asc'],
+          populate: ['related', 'parent']
         });
       const entities = await this.getRelatedItems(entityItems);
       return {
@@ -165,14 +170,14 @@ module.exports = ({ strapi }) => {
     },
 
     async getRelatedItems(entityItems) {
-      const relatedTypes = new Set(entityItems.flatMap((item) => map(item.related, 'relatedType')));
+      const relatedTypes = new Set(entityItems.flatMap((item) => get(item.related, 'related_type')));
       const groupedItems = Array.from(relatedTypes).reduce(
         (acc, relatedType) => Object.assign(acc, {
           [relatedType]: [
             ...(acc[relatedType] || []),
             ...entityItems
-              .filter((item => item?.related.some(related => related.relatedType === relatedType)))
-              .flatMap((item) => item.related.map(related => Object.assign(related, { navigationItemId: item.id }))),
+              .filter((item => item?.related.related_type === relatedType))
+              .flatMap((item) => Object.assign(item.related, { navigationItemId: item.id })),
           ],
         }),
         {});
@@ -194,7 +199,7 @@ module.exports = ({ strapi }) => {
                       {
                         __contentType: model,
                         navigationItemId: related.find(
-                          ({ relatedId }) => relatedId === _.id.toString())?.navigationItemId,
+                          ({ related_id }) => related_id === _.id.toString())?.navigationItemId,
                       },
                     ),
                   );
@@ -254,14 +259,14 @@ module.exports = ({ strapi }) => {
       const entityNameHasChanged = existingEntity.name !== name || existingEntity.visible !== visible;
       if (entityNameHasChanged) {
 
-        await strapi.query(masterModel.uid).update(
-          { id },
-          {
+        await strapi.query(masterModel.uid).update({
+          where: { id },
+          data: {
             name: entityNameHasChanged ? name : existingEntity.name,
             slug: entityNameHasChanged ? slugify(name).toLowerCase() : existingEntity.slug,
             visible,
           },
-        );
+        });
       }
       return service
         .analyzeBranch(payload.items, existingEntity, null)
@@ -316,7 +321,7 @@ module.exports = ({ strapi }) => {
             await Promise.all([
               strapi
                 .query(itemModel.uid)
-                .delete({ id }),
+                .delete({ where: { id } }),
               this.removeRelated(related, master),
             ]);
             return !isEmpty(item.items)
@@ -340,15 +345,15 @@ module.exports = ({ strapi }) => {
           if (updated) {
             const relatedItems = await this.getIdsRelated(related, master);
             currentItem = await databaseModel
-              .update(
-                { id },
-                {
+              .update({
+                where: { id },
+                data: {
                   ...params,
                   related: relatedItems,
                   master: masterEntity,
                   parent: parentItem ? { ...parentItem, _id: parentItem.id } : null,
                 },
-              );
+              });
           } else {
             currentItem = item;
           }
@@ -395,15 +400,17 @@ module.exports = ({ strapi }) => {
       if (relatedItems) {
         return Promise.all(relatedItems.map(async relatedItem => {
           try {
-            const query = {
-              related_id: relatedItem.refId,
-              related_type: relatedItem.ref,
-              field: relatedItem.field,
-              master,
-            };
+
             const model = strapi.query('plugin::navigation.navigations-items-related');
             const entity = await model
-              .findOne(query);
+              .findOne({
+                where: {
+                  related_id: relatedItem.refId,
+                  related_type: relatedItem.ref,
+                  field: relatedItem.field,
+                  master,
+                }
+              });
             if (!entity) {
               const newEntity = {
                 master,
@@ -431,7 +438,7 @@ module.exports = ({ strapi }) => {
           related_id: relatedItem.refId,
           related_type: relatedItem.ref,
         };
-        return model.delete(entityToRemove).then(({ id }) => id);
+        return model.delete({ where: entityToRemove }).then(({ id }) => id);
       }));
     },
 

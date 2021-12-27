@@ -13,25 +13,23 @@ import { Main } from '@strapi/design-system/Main';
 import { ContentLayout } from '@strapi/design-system/Layout';
 import { Button } from '@strapi/design-system/Button';
 import { LoadingIndicatorPage } from "@strapi/helper-plugin";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHamburger } from "@fortawesome/free-solid-svg-icons";
-import Plus from "@strapi/icons/Plus"
+import { EmptyStateLayout } from '@strapi/design-system/EmptyStateLayout';
+import EmptyDocuments from '@strapi/icons/EmptyDocuments';
+import Plus from "@strapi/icons/Plus";
 
 // Components 
 import EmptyView from '../../components/EmptyView';
 import NavigationHeader from './components/NavigationHeader';
 import NavigationItemPopUp from "./components/NavigationItemPopup";
-
+import List from '../../components/NavigationItemList';
 import useDataManager from "../../hooks/useDataManager";
-import { getTrad, getTradId } from '../../translations';
+import { getTrad } from '../../translations';
 import {
   transformItemToViewPayload,
   transformToRESTPayload,
   usedContentTypes,
   validateNavigationStructure,
 } from './utils/parsers';
-import Item from '../../components/Item';
-
 
 const View = () => {
   const {
@@ -58,8 +56,8 @@ const View = () => {
   const structureHasErrors = !validateNavigationStructure((changedActiveNavigation || {}).items);
   const navigationSelectValue = get(activeNavigation, "id", null);
   const handleSave = () => isLoadingForSubmit || structureHasErrors
-      ? null
-      : handleSubmitNavigation(formatMessage, transformToRESTPayload(changedActiveNavigation, config));
+    ? null
+    : handleSubmitNavigation(formatMessage, transformToRESTPayload(changedActiveNavigation, config));
 
   const changeNavigationItemPopupState = (visible, editedItem = {}) => {
     setActiveNavigationItemState(editedItem);
@@ -89,12 +87,12 @@ const View = () => {
   );
 
   const pullUsedContentTypeItem = (items = []) =>
-  items.reduce((prev, curr) =>
+    items.reduce((prev, curr) =>
       [...prev, curr.relatedRef ? {
         __collectionUid: curr.relatedRef.__collectionUid,
         id: curr.relatedRef.id
       } : undefined, ...pullUsedContentTypeItem(curr.items)].filter(item => item)
-    , []);
+      , []);
   const usedContentTypeItems = pullUsedContentTypeItem((changedActiveNavigation || {}).items);
   const handleSubmitNavigationItem = (payload) => {
     const changedStructure = {
@@ -102,6 +100,32 @@ const View = () => {
       items: transformItemToViewPayload(payload, changedActiveNavigation.items, config),
     };
     handleChangeNavigationData(changedStructure, true);
+  };
+
+  const handleItemRemove = (item) => {
+    handleSubmitNavigationItem({
+      ...item,
+      removed: true,
+    });
+  }
+
+  const handleItemRestore = (item) => {
+    handleSubmitNavigationItem({
+      ...item,
+      removed: false,
+    });
+  };
+
+  const handleItemEdit = (
+    item,
+    levelPath = '',
+    parentAttachedToMenu = true,
+  ) => {
+    changeNavigationItemPopupState(true, {
+      ...item,
+      levelPath,
+      parentAttachedToMenu,
+    });
   };
 
   const onPopUpClose = (e) => {
@@ -124,28 +148,36 @@ const View = () => {
         {changedActiveNavigation && (
           <>
             {isEmpty(changedActiveNavigation.items || []) && (
-              // FIXME: this does not look properly
-              <EmptyView>
-                <FontAwesomeIcon icon={faHamburger} size="4x" />
-                <FormattedMessage id={getTradId('empty')}/>
-                <Button
-                  color="primary"
-                  startIcon={<Plus />}
-                  label={formatMessage(getTrad('empty.cta'))}
-                  onClick={addNewNavigationItem}
-                >{formatMessage(getTrad('empty.cta'))}</Button>
-              </EmptyView>
+              <EmptyStateLayout
+                action={
+                  <Button
+                    variant='secondary'
+                    startIcon={<Plus />}
+                    label={formatMessage(getTrad('empty.cta'))}
+                    onClick={addNewNavigationItem}
+                  >
+                    {formatMessage(getTrad('empty.cta'))}
+                  </Button>
+                }
+                icon={<EmptyDocuments width='10rem' />}
+                content={formatMessage(getTrad('empty'))}
+              />
             )}
             {
               !isEmpty(changedActiveNavigation.items || [])
-              && changedActiveNavigation.items.map(
-                (item, index) => <Item
-                  key={index}
-                  item={item}
-                  relatedRef={item.relatedRef}
-                  onItemLevelAddClick={addNewNavigationItem}
-                />
-              )
+              && <List
+                items={changedActiveNavigation.items || []}
+                onItemLevelAdd={addNewNavigationItem}
+                onItemRemove={handleItemRemove}
+                onItemEdit={handleItemEdit}
+                onItemRestore={handleItemRestore}
+                root
+                error={error}
+                allowedLevels={config.allowedLevels}
+                contentTypes={config.contentTypes}
+                isParentAttachedToMenu={true}
+                contentTypesNameFields={config.contentTypesNameFields}
+              />
             }
           </>
         )}
