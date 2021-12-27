@@ -23,7 +23,6 @@ module.exports = ({ strapi }) => {
         audience: audienceModel,
         'navigations-items-related': relatedModel,
       } = plugin.contentTypes;
-      // FIXME: Plugin Name should be fetched from the package file
       return {
         masterModel,
         itemModel,

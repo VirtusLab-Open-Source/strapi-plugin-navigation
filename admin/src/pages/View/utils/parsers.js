@@ -234,7 +234,7 @@ export const transformItemToViewPayload = (payload, items = [], config) => {
 };
 
 export const prepareItemToViewPayload = (items = [], viewParentId = null, config = {}) =>
-  items.map((item, n) => {
+  reOrderItems(items.map((item, n) => {
     const viewId = uuid();
     return {
       ...linkRelations({
@@ -246,7 +246,7 @@ export const prepareItemToViewPayload = (items = [], viewParentId = null, config
       }, config),
       items: prepareItemToViewPayload(item.items, viewId, config),
     };
-  });
+  }));
 
 export const extractRelatedItemLabel = (item = {}, fields = {}, config = {}) => {
   const { contentTypes = [] } = config;
