@@ -132,7 +132,7 @@ const NavigationItemForm = ({
   const relatedSelectValue = form.related;
 
   const isSingleSelected = useMemo(
-    () => relatedTypeSelectValue ? contentTypes.find(_ => _.uid === relatedType.value)?.isSingle : false,
+    () => relatedTypeSelectValue ? contentTypes.find(_ => _.uid === relatedTypeSelectValue)?.isSingle || false : false,
     [relatedTypeSelectValue, contentTypes],
   );
 
@@ -154,8 +154,8 @@ const NavigationItemForm = ({
         key: get(item, 'id'),
         metadatas: {
           intlLabel: {
-            id: label,
-            defaultMessage: label,
+            id: label || " ",
+            defaultMessage: label || " ",
           }
         },
         value: item.id,
@@ -185,9 +185,7 @@ const NavigationItemForm = ({
     setFormState(prevState => ({
       ...prevState,
       updated: true,
-      related: relatedTypeBeingReverted ? {
-        ...data.related
-      } : undefined,
+      related: relatedTypeBeingReverted ? data.related?.value : undefined,
       [name]: value,
     }));
     if (!hasChanged) {
@@ -199,7 +197,7 @@ const NavigationItemForm = ({
     () => contentTypes
       .filter((contentType) => {
         if (contentType.isSingle) {
-          return !usedContentTypesData.some((_) => _.__collectionUid === contentType.uid);
+          return !usedContentTypesData.some((_) => _.__collectionUid === contentType.uid && _.__collectionUid !== form.relatedType);
         }
         return true;
       })
@@ -354,21 +352,17 @@ const NavigationItemForm = ({
                         inputValue={contentTypeSearchInputValue}
                         options={relatedSelectOptions}
                         value={relatedSelectValue}
-                      />
-                      {!isLoading && thereAreNoMoreContentTypes && (
-                        <Flex marginTop="1px">
-                          <Information />
-                          <Text
-                            textColor="warning600"
-                          >
-                            {
-                              formatMessage(getTrad('popup.item.form.related.empty'), {
-                                contentTypeName: get(relatedTypeSelectValue, 'label')
-                              })
+                        disabled={isLoading || thereAreNoMoreContentTypes}
+                        description={
+                          !isLoading && thereAreNoMoreContentTypes
+                            ? {
+                              id: getTradId('popup.item.form.related.empty'),
+                              defaultMessage: 'There are no more entities',
+                              values: { contentTypeName: relatedTypeSelectValue },
                             }
-                          </Text>
-                        </Flex>
-                      )}
+                            : undefined
+                        }
+                      />
                     </GridItem>
                   )}
                 </>

@@ -26,8 +26,10 @@ module.exports = ({ strapi }) => {
       const entities = await strapi
         .query(masterModel.uid)
         .findMany({
-          _limit: -1,
-        }, []);
+          paggination: {
+            limit: -1,
+          }
+        });
       return entities;
     },
 
@@ -35,7 +37,7 @@ module.exports = ({ strapi }) => {
       const { masterModel, itemModel } = utilsFunctions.extractMeta(strapi.plugins);
       const entity = await strapi
         .query(masterModel.uid)
-        .findOne({ id });
+        .findOne({ where: { id }});
 
       const entityItems = await strapi
         .query(itemModel.uid)
@@ -78,7 +80,9 @@ module.exports = ({ strapi }) => {
         const audienceItems = await strapi
           .query(`plugin::${pluginName}.${audienceModel.modelName}`)
           .findMany({
-            _limit: -1,
+            paggination: {
+              limit: -1,
+            }
           });
         extendedResult = {
           ...extendedResult,
@@ -117,7 +121,7 @@ module.exports = ({ strapi }) => {
                   if (isSingleTypeWithPublishFlow) {
                     const itemsCountOrBypass = isSingleTypeWithPublishFlow ?
                       await strapi.query(uid).count({
-                        _publicationState: 'live',
+                        publicationState: 'live',
                       }) :
                       true;
                     return returnType(itemsCountOrBypass !== 0);
@@ -171,12 +175,12 @@ module.exports = ({ strapi }) => {
 
     async getRelatedItems(entityItems) {
       const relatedTypes = new Set(entityItems.flatMap((item) => get(item.related, 'related_type')));
-      const groupedItems = Array.from(relatedTypes).reduce(
+      const groupedItems = Array.from(relatedTypes).filter((relatedType) => relatedType).reduce(
         (acc, relatedType) => Object.assign(acc, {
           [relatedType]: [
             ...(acc[relatedType] || []),
             ...entityItems
-              .filter((item => item?.related.related_type === relatedType))
+              .filter((item => item.related?.related_type === relatedType))
               .flatMap((item) => Object.assign(item.related, { navigationItemId: item.id })),
           ],
         }),
@@ -189,9 +193,9 @@ module.exports = ({ strapi }) => {
               .map(async ([model, related]) => {
                 const relationData = await strapi
                   .query(model)
-                  .findMany({
-                    id_in: map(related, 'relatedId')
-                  });
+                  .findMany({where: {
+                    id: { $in: map(related, 'related_id') }
+                  }});
                 return relationData
                   .flatMap(_ =>
                     Object.assign(
