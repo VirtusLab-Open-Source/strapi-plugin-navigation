@@ -5,7 +5,7 @@
  */
 
 import React, { memo, useMemo, useState } from 'react';
-import { FormattedMessage, useIntl } from "react-intl";
+import { useIntl } from "react-intl";
 import { isEmpty, get } from "lodash";
 
 // Design System
@@ -18,7 +18,6 @@ import EmptyDocuments from '@strapi/icons/EmptyDocuments';
 import Plus from "@strapi/icons/Plus";
 
 // Components 
-import EmptyView from '../../components/EmptyView';
 import NavigationHeader from './components/NavigationHeader';
 import NavigationItemPopUp from "./components/NavigationItemPopup";
 import List from '../../components/NavigationItemList';

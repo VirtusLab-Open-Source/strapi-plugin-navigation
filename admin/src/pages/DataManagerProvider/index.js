@@ -246,7 +246,7 @@ const DataManagerProvider = ({ children }) => {
        });
        toggleNotification({
          type: 'success',
-         message: { id: 'notification.navigation.submit' },
+         message: { id: getTrad('notification.navigation.submit') },
        });
      } catch (err) {
        dispatch({
@@ -254,6 +254,7 @@ const DataManagerProvider = ({ children }) => {
          error: err.response.payload.data
        });
        console.error({ err: err.response });
+
        if (err.response.payload.data && err.response.payload.data.errorTitles) {
          return toggleNotification({
            type: 'error',
@@ -267,7 +268,7 @@ const DataManagerProvider = ({ children }) => {
        }
        toggleNotification({
          type: 'error',
-         message: { id: 'notification.error' },
+         message: { id: getTrad('notification.error') },
        });
      }
   };

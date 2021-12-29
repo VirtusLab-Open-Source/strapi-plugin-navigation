@@ -9,6 +9,7 @@ import { TextButton } from '@strapi/design-system/TextButton';
 import { Typography } from '@strapi/design-system/Typography';
 import PlusIcon from '@strapi/icons/Plus';
 import EarthIcon from '@strapi/icons/Earth';
+import LinkIcon from '@strapi/icons/Link';
 
 import { navigationItemType } from '../../pages/View/utils/enums';
 import ItemCardHeader from './ItemCardHeader';
@@ -55,7 +56,7 @@ const Item = (props) => {
           <ItemCardHeader
             title={title}
             path={isExternal ? externalPath : absolutePath}
-            icon={isExternal ? <LinkIcon /> : <EarthIcon />}
+            icon={isExternal ? <EarthIcon /> : <LinkIcon />}
             isPublished={isPublished}
             onItemRemove={() => onItemRemove(item)}
             onItemEdit={() => onItemEdit(item, levelPath, isParentAttachedToMenu)}
