@@ -5,14 +5,14 @@ position: relative;
 margin-top: ${({theme}) => theme.spaces[2]};
 margin-left: ${({ theme, level }) => level && theme.spaces[8]}};
 
-${({ level, theme }) => level && `
+${({ level, theme, isLast }) => level && `
 	&::before {
-		content: "";
+		${!isLast && 'content: "";'}
 		display: block;
-		top: -103px;
+		top: ${theme.spaces[1]};
 		left: -24px;
 		position: absolute;
-		height: 108px;
+		height: calc(100% + ${theme.spaces[2]});
 		width: 19px;
 		border: 0px solid transparent;
 		border-left: 4px solid ${theme.colors.neutral300};

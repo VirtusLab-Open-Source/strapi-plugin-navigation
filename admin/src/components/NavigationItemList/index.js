@@ -16,13 +16,14 @@ const List = ({
   onItemRemove,
   onItemRestore,
 }) => (
-  <Wrapper level={items.length > 1 && level}>
+  <Wrapper level={level}>
     {items.map((item, n) => {
       const { relatedRef, ...itemProps } = item
       return (
         <Item
           key={`list-item-${item.viewId || n}`}
           item={itemProps}
+          isLast={n === items.length - 1}
           relatedRef={relatedRef}
           level={level}
           levelPath={levelPath}

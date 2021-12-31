@@ -6,11 +6,8 @@ import { Formik } from 'formik'
 
 // Design System
 import { ModalBody } from '@strapi/design-system/ModalLayout';
-import { Text } from '@strapi/design-system/Text';
 import { Grid, GridItem } from '@strapi/design-system/Grid';
-import { Flex } from '@strapi/design-system/Flex';
 import { Form, GenericInput } from '@strapi/helper-plugin';
-import Information from '@strapi/icons/Information';
 
 import { NavigationItemPopupFooter } from '../NavigationItemPopup/NavigationItemPopupFooter';
 
@@ -20,7 +17,7 @@ import slugify from 'slugify';
 import { extractRelatedItemLabel } from '../../utils/parsers';
 import { form as formDefinition } from './utils/form';
 import { checkFormValidity } from '../../utils/form';
-import { getTrad, getTradId } from '../../../../translations';
+import { getTradId } from '../../../../translations';
 
 const NavigationItemForm = ({
   isLoading,
@@ -280,6 +277,7 @@ const NavigationItemForm = ({
                   error={get(formErrors, `${inputsPrefix}menuAttached.id`)}
                   onChange={onChange}
                   value={get(form, `${inputsPrefix}menuAttached`, '')}
+                  disabled={!(data.isMenuAllowedLevel && data.parentAttachedToMenu)}
                 />
               </GridItem>
               <GridItem key={`${inputsPrefix}type`} col={6} lg={12}>

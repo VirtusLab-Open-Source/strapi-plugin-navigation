@@ -14,13 +14,16 @@ import { ContentLayout } from '@strapi/design-system/Layout';
 import { Button } from '@strapi/design-system/Button';
 import { LoadingIndicatorPage } from "@strapi/helper-plugin";
 import { EmptyStateLayout } from '@strapi/design-system/EmptyStateLayout';
-import EmptyDocuments from '@strapi/icons/EmptyDocuments';
-import Plus from "@strapi/icons/Plus";
+import { IconButton } from '@strapi/design-system/IconButton';
+import EmptyDocumentsIcon from '@strapi/icons/EmptyDocuments';
+import PlusIcon from "@strapi/icons/Plus";
+import SearchIcon from "@strapi/icons/Search";
 
 // Components 
+import List from '../../components/NavigationItemList';
+import NavigationContentHeader from './components/NavigationContentHeader';
 import NavigationHeader from './components/NavigationHeader';
 import NavigationItemPopUp from "./components/NavigationItemPopup";
-import List from '../../components/NavigationItemList';
 import useDataManager from "../../hooks/useDataManager";
 import { getTrad } from '../../translations';
 import {
@@ -137,28 +140,36 @@ const View = () => {
     <Main labelledBy="title" aria-busy={isLoadingForSubmit}>
       <NavigationHeader
         structureHasErrors={structureHasErrors}
-        isLoadingForSubmit={isLoadingForSubmit}
-        handleSubmitNavigationItem={handleSubmitNavigationItem}
-        addNewNavigationItem={addNewNavigationItem}
         handleSave={handleSave}
       />
       <ContentLayout>
         {isLoading && <LoadingIndicatorPage />}
         {changedActiveNavigation && (
           <>
+            <NavigationContentHeader
+              startActions={<IconButton icon={<SearchIcon />} />}
+              endActions={<Button
+                onClick={addNewNavigationItem}
+                startIcon={<PlusIcon />}
+                disabled={isLoadingForSubmit}
+                type="submit"
+              >
+                {formatMessage(getTrad('header.action.newItem'))}
+              </Button>}
+            />
             {isEmpty(changedActiveNavigation.items || []) && (
               <EmptyStateLayout
                 action={
                   <Button
                     variant='secondary'
-                    startIcon={<Plus />}
+                    startIcon={<PlusIcon />}
                     label={formatMessage(getTrad('empty.cta'))}
                     onClick={addNewNavigationItem}
                   >
                     {formatMessage(getTrad('empty.cta'))}
                   </Button>
                 }
-                icon={<EmptyDocuments width='10rem' />}
+                icon={<EmptyDocumentsIcon width='10rem' />}
                 content={formatMessage(getTrad('empty'))}
               />
             )}
