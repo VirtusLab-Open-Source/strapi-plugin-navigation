@@ -20,6 +20,7 @@ import { getTrad } from '../../translations';
 const Item = (props) => {
   const {
     item,
+    isLast = false,
     level = 0,
     levelPath = '',
     allowedLevels,
@@ -46,11 +47,12 @@ const Item = (props) => {
   const isExternal = type === navigationItemType.EXTERNAL;
   const isPublished = relatedRef && relatedRef?.publishedAt;
   const isNextMenuAllowedLevel = isNumber(allowedLevels) ? level < (allowedLevels - 1) : true;
+  const isMenuAllowedLevel = isNumber(allowedLevels) ? level < allowedLevels : true;
   const hasChildren = !isEmpty(item.items) && !isExternal;
   const absolutePath = isExternal ? undefined : `${levelPath === '/' ? '' : levelPath}/${path === '/' ? '' : path}`;
 
   return (
-    <Wrapper level={level}>
+    <Wrapper level={level} isLast={isLast}>
       <Card style={{ width: "728px", zIndex: 1, position: "relative" }}>
         <CardBody>
           <ItemCardHeader
@@ -59,7 +61,11 @@ const Item = (props) => {
             icon={isExternal ? <EarthIcon /> : <LinkIcon />}
             isPublished={isPublished}
             onItemRemove={() => onItemRemove(item)}
-            onItemEdit={() => onItemEdit(item, levelPath, isParentAttachedToMenu)}
+            onItemEdit={() => onItemEdit({
+              ...item,
+              isMenuAllowedLevel,
+              isParentAttachedToMenu,
+            }, levelPath, isParentAttachedToMenu)}
             onItemRestore={() => onItemRestore(item)}
             removed={removed}
           />

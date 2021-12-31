@@ -22,9 +22,6 @@ const MoreButton = styled(IconButton)`
 
 const NavigationHeader = ({
   structureHasErrors,
-  isLoadingForSubmit,
-  handleSubmitNavigation,
-  addNewNavigationItem,
   handleSave,
 }) => {
   const { formatMessage } = useIntl();
@@ -33,14 +30,6 @@ const NavigationHeader = ({
     <HeaderLayout
         primaryAction={
         <Stack horizontal size={2}>
-          <Button
-              onClick={addNewNavigationItem}
-              startIcon={<Plus />}
-              disabled={isLoadingForSubmit}
-              type="submit"
-            >
-              {formatMessage(getTrad('header.action.newItem'))}
-            </Button>
             <Button
               onClick={handleSave}
               startIcon={<Check />}

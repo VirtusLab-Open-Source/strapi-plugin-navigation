@@ -6,11 +6,11 @@ const Wrapper = styled.div`
     &::before {
       content: "";
       display: block;
-      height: 100px;
+      height: ${theme.spaces[3]};
       width: 19px;
 
       position: absolute;
-      top: ${theme.spaces[2]};
+      top: -${theme.spaces[2]};
       left: ${theme.spaces[4]};
       
       border: 0px solid transparent;
