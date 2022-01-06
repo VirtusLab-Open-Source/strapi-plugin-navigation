@@ -1,4 +1,4 @@
-# Strapi - Navigation plugin
+# Strapi v4 - Navigation plugin - BETA
 
 <p align="center">
   <a href="https://www.npmjs.org/package/strapi-plugin-navigation">
@@ -58,10 +58,9 @@ Complete installation requirements are exact same as for Strapi itself and can b
 
 **Supported Strapi versions**:
 
-- Strapi v3.6.8 (recently tested)
-- Strapi v3.x
+- Strapi v4.0.2 (recently tested)
 
-(This plugin may work with the older Strapi versions, but these are not tested nor officially supported at this time.)
+(This plugin is not working with v3.x and not may work with the older Strapi v4 versions, but these are not tested nor officially supported at this time.)
 
 **We recommend always using the latest version of Strapi to start your new projects**.
 
