@@ -21,7 +21,10 @@ A plugin for [Strapi Headless CMS](https://github.com/strapi/strapi) that provid
 - Tree (nested)
 - RFR (ready for handling by Redux First Router)
 
-<img src="public/assets/preview.png" alt="UI preview" />
+### Versions
+
+- **Stable** - [v1.1.2](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation)
+- **Beta** - v4 support - [v2.0.0-beta.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/feat/strapi-v4-support)
 
 ### ⚙️ Versions
 
