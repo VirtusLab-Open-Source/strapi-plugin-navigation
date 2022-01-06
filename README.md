@@ -23,6 +23,11 @@ A plugin for [Strapi Headless CMS](https://github.com/strapi/strapi) that provid
 
 <img src="public/assets/preview.png" alt="UI preview" />
 
+### Versions
+
+- **Stable** - [v1.1.2](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation)
+- **Beta** - v4 support - [v2.0.0-beta.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/feat/strapi-v4-support)
+
 ### ⏳ Installation
 
 (Use **yarn** to install this plugin within your Strapi project (recommended). [Install yarn with these docs](https://yarnpkg.com/lang/en/docs/install/).)
