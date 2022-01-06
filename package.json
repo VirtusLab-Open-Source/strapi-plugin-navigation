@@ -1,6 +1,6 @@
 {
   "name": "strapi-plugin-navigation",
-  "version": "1.0.4",
+  "version": "2.0.0-beta.1",
   "description": "Strapi - Navigation plugin",
   "strapi": {
     "name": "Navigation",
@@ -47,6 +47,16 @@
     {
       "name": "VirtusLab // Mateusz Ziarko",
       "email": "mziarko@virtuslab.com",
+      "url": "https://virtuslab.com"
+    },
+    {
+      "name": "VirtusLab // Maksymilian Pamuła",
+      "email": "mpamula@virtuslab.com",
+      "url": "https://virtuslab.com"
+    },
+    {
+      "name": "VirtusLab // Maciej Witkowski",
+      "email": "mwitkowski@virtuslab.com",
       "url": "https://virtuslab.com"
     }
   ],
