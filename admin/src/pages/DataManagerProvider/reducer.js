@@ -1,4 +1,5 @@
-import { fromJS } from "immutable";
+import produce from 'immer';
+
 import {
   GET_LIST_DATA,
   GET_LIST_DATA_SUCCEEDED,
@@ -18,7 +19,7 @@ import {
   SUBMIT_NAVIGATION_ERROR,
 } from './actions';
 
-const initialState = fromJS({
+const initialState = {
   items: [],
   activeItem: undefined,
   changedActiveItem: undefined,
@@ -31,106 +32,94 @@ const initialState = fromJS({
   isLoadingForAdditionalDataToBeSet: false,
   isLoadingForSubmit: false,
   error: undefined,
-});
+};
 
-const reducer = (state, action) => {
+const reducer = (state, action) => produce(state, draftState => {
   switch (action.type) {
     case GET_CONFIG: {
-      return state
-        .update("isLoadingForAdditionalDataToBeSet", () => true)
-        .removeIn("config");
+      draftState.isLoadingForDetailsDataToBeSet = true;
+      draftState.config = {};
+      break;
     }
     case GET_CONFIG_SUCCEEDED: {
-      return state
-        .update("isLoadingForAdditionalDataToBeSet", () => false)
-        .update("config", () => fromJS(action.config));
+      draftState.isLoadingForDetailsDataToBeSet = false;
+      draftState.config = action.config;
+      break;
     }
     case GET_LIST_DATA: {
-      return state
-        .removeIn("items")
-        .update("isLoadingForDataToBeSet", () => true);
+      draftState.items = [];
+      draftState.isLoadingForDataToBeSet = true;
+      break;
     }
     case GET_LIST_DATA_SUCCEEDED: {
-      return state
-        .update("items", () => fromJS(action.items))
-        .update("isLoading", () => false)
-        .update("isLoadingForDataToBeSet", () => false);
+      draftState.items = action.items;
+      draftState.isLoading = false;
+      draftState.isLoadingForDataToBeSet = false;
+      break;
     }
     case GET_NAVIGATION_DATA: {
-      return state
-        .removeIn("activeItem")
-        .removeIn("changedActiveItem")
-        .update("isLoadingForDetailsDataToBeSet", () => true);
+      draftState.activeItem = undefined;
+      draftState.changedActiveItem = undefined;
+      draftState.isLoadingForDetailsDataToBeSet = true;
+      break;
     }
     case GET_NAVIGATION_DATA_SUCCEEDED: {
-      const { activeItem = {} } = action;
-      return state
-        .update("activeItem", () => fromJS(activeItem))
-        .update("changedActiveItem", () => fromJS(activeItem))
-        .update("isLoadingForDetailsDataToBeSet", () => false);
+      const activeItem = action.activeItem || {};
+      draftState.activeItem = activeItem;
+      draftState.changedActiveItem = activeItem;
+      draftState.isLoadingForDetailsDataToBeSet = false;
+      break;
     }
     case CHANGE_NAVIGATION_DATA: {
-      return state
-        .update("changedActiveItem", () => action.changedActiveItem)
-        .update("navigationPopupOpened", () =>
-          action.forceClosePopups ? false : state.navigationPopupOpened,
-        )
-        .update("navigationItemPopupOpened", () =>
-          action.forceClosePopups ? false : state.navigationItemPopupOpened,
-        );
+      draftState.changedActiveItem = action.changedActiveItem;
+      draftState.navigationPopupOpened = action.forceClosePopups ? false : state.navigationPopupOpened;
+      draftState.navigationItemPopupOpened = action.forceClosePopups ? false : state.navigationItemPopupOpened;
+      break;
     }
-    case RESET_NAVIGATION_DATA: {
-      const { activeItem = {} } = action;
-      return state.update("changedActiveItem", () => activeItem);
+    case RESET_NAVIGATION_DATA : {
+      draftState.changedActiveItem = action.activeItem || {};
+      break;
     }
     case GET_CONTENT_TYPE_ITEMS: {
-      return state.update("isLoadingForAdditionalDataToBeSet", () => true);
+      draftState.isLoadingForAdditionalDataToBeSet = true;
+      break;
     }
     case GET_CONTENT_TYPE_ITEMS_SUCCEEDED: {
-      return state
-        .update("isLoadingForAdditionalDataToBeSet", () => false)
-        .updateIn(["config", "contentTypeItems"], () =>
-          fromJS(action.contentTypeItems),
-        );
+      draftState.isLoadingForAdditionalDataToBeSet = false;
+      draftState.config.contentTypeItems = action.contentTypeItems;
+      break;
     }
     case CHANGE_NAVIGATION_POPUP_VISIBILITY: {
-      return state.update(
-        "navigationPopupOpened",
-        () => action.navigationPopupOpened,
-      );
+      draftState.navigationPopupOpened = action.navigationPopupOpened;
+      break;
     }
     case CHANGE_NAVIGATION_ITEM_POPUP_VISIBILITY: {
-      return state.update(
-        "navigationItemPopupOpened",
-        () => action.navigationItemPopupOpened,
-      );
+      draftState.navigationItemPopupOpened = action.navigationItemPopupOpened;
+      break;
     }
     case SUBMIT_NAVIGATION: {
-      return state
-        .update('isLoadingForSubmit', () => true)
-        .update('error', () => undefined);
+      draftState.isLoadingForSubmit = true;
+      draftState.error = undefined;
+      break;
     }
     case SUBMIT_NAVIGATION_SUCCEEDED: {
-      const { navigation = {} } = action;
-      return state
-        .update("activeItem", () => fromJS(navigation))
-        .update("changedActiveItem", () => fromJS(navigation))
-        .update(
-          'isLoadingForSubmit',
-          () => false,
-        );
+      draftState.activeItem = action.navigation || {};
+      draftState.changedActiveItem = action.navigation || {};
+      draftState.isLoadingForSubmit = false;
+      break;
     }
     case SUBMIT_NAVIGATION_ERROR: {
-      return state
-        .update('isLoadingForSubmit', () => false)
-        .update('error', () => action.error);
+      draftState.isLoadingForSubmit = false;
+      draftState.error = action.error;
+      break;
     }
-    case RELOAD_PLUGIN:
+    case RELOAD_PLUGIN: {
       return initialState;
+    }
     default:
-      return state;
+      return draftState;
   }
-};
+});
 
 export default reducer;
 export { initialState };
