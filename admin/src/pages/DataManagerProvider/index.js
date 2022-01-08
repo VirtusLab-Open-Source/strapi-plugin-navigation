@@ -8,7 +8,6 @@ import {
   LoadingIndicatorPage,
   useNotification,
   useAppInfos,
-  useStrapiApp,
 } from "@strapi/helper-plugin";
 import DataManagerContext from "../../contexts/DataManagerContext";
 import getTrad from "../../utils/getTrad";
@@ -39,7 +38,7 @@ const DataManagerProvider = ({ children }) => {
   const toggleNotification = useNotification();
   const { autoReload } = useAppInfos();
   const { formatMessage } = useIntl();
- 
+
   const {
     items,
     config,
@@ -54,10 +53,8 @@ const DataManagerProvider = ({ children }) => {
     isLoadingForAdditionalDataToBeSet,
     isLoadingForSubmit,
     error
-  } = reducerState.toJS();
+  } = reducerState;
   const { pathname } = useLocation();
-  const { getPlugin } = useStrapiApp();
-  const { apis } = getPlugin(pluginId);
   const formatMessageRef = useRef();
   formatMessageRef.current = formatMessage;
 
@@ -164,7 +161,7 @@ const DataManagerProvider = ({ children }) => {
     }
   }, [autoReload]);
 
-  const getContentTypeItems = async ({ modelUID, query }, plugin = "") => {
+  const getContentTypeItems = async ({ modelUID, query }) => {
     dispatch({
       type: GET_CONTENT_TYPE_ITEMS,
     });
@@ -174,7 +171,7 @@ const DataManagerProvider = ({ children }) => {
     if (query) {
       queryParams.append('_q', query);
     }
-    
+
     const contentTypeItems = await request(`${url}?${queryParams.toString()}`, {
       method: "GET",
       signal,
@@ -229,7 +226,7 @@ const DataManagerProvider = ({ children }) => {
        dispatch({
          type: SUBMIT_NAVIGATION,
        });
- 
+
        const nagivationId = payload.id ? `/${payload.id}` : "";
        const method = payload.id ? "PUT" : "POST";
        const navigation = await request(`/${pluginId}${nagivationId}`, {
