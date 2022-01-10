@@ -58,7 +58,7 @@ Complete installation requirements are exact same as for Strapi itself and can b
 
 **Supported Strapi versions**:
 
-- Strapi v4.0.2 (recently tested)
+- Strapi v4.0.3 (recently tested)
 
 (This plugin is not working with v3.x and not may work with the older Strapi v4 versions, but these are not tested nor officially supported at this time.)
 
@@ -72,59 +72,31 @@ Complete installation requirements are exact same as for Strapi itself and can b
 - **Customizable:** Possibility to customize the options like: available Content Types, Maximum level for "attach to menu", Additional fields (audience)
 - **[Audit log](https://github.com/VirtusLab/strapi-molecules/tree/master/packages/strapi-plugin-audit-log):** integration with Strapi Molecules Audit Log plugin that provides changes track record
 
-
-## Content Type model relation to Navigation Item
-
-To enable Content Type to work with Navigation Item, you've to add following field to your model `*.settings.json`:
-
-```
-    "navigation": {
-      "model": "navigationitem",
-      "plugin": "navigation",
-      "via": "related",
-      "configurable": false,
-      "hidden": true
-    }
-```
-
-inside the `attributes` section like in example below:
-
-```
-    "attributes": {
-        ...,
-        "navigation": {
-            "model": "navigationitem",
-            "plugin": "navigation",
-            "via": "related",
-            "configurable": false,
-            "hidden": true
-        },
-        ...
-    },
-```
-
 ## Configuration
-To setup the plugin properly we recommend to put following snippet as part of `config/custom.js` or `config/<env>/custom.js` file. If you've got already configurations for other plugins stores by this way, use just the `navigation` part within exising `plugins` item.
+To setup the plugin properly we recommend to put following snippet as part of `config/plugins.js` or `config/<env>/custom.js` file. If you've got already configurations for other plugins stores by this way, use just the `navigation` part within exising `plugins` item.
 
 ```js
-    ...
-    plugins: {
-      navigation: {
-        additionalFields: ['audience'],
-        allowedLevels: 2,
-        contentTypesNameFields: {
-          'blog_posts': ['altTitle'],
-          'pages': ['title'],
-        },
-        gql: { ... }
-      },
-    },
-    ...
+    module.exports = ({ env }) => ({
+        // ...
+        navigation: {
+            enabled: true,
+            config: {
+                additionalFields: ['audience'],
+                contentTypes: ['api::page::page'],
+                contentTypesNameFields: {
+                    'page': ['title']
+                },
+                allowedLevels: 2,
+                gql: {...},
+            }
+        }
+    });
 ```
 
 ### Properties
 - `additionalFields` - Additional fields: 'audience', more in the future
 - `allowedLevels` - Maximum level for which your're able to mark item as "Menu attached"
+- `contentTypes` - UIDs of related content types
 - `contentTypesNameFields` - Definition of content type title fields like `'content_type_name': ['field_name_1', 'field_name_2']`, if not set titles are pulled from fields like `['title', 'subject', 'name']`
 - `gql` - If you're using GraphQL that's the right place to put all necessary settings. More **[ here ](#gql-configuration)**
 
@@ -141,7 +113,7 @@ as follows:
 
 ```js
 gql: {
-    navigationItemRelated: 'union NavigationRelated = <your GQL related entities>',
+    navigationItemRelated: ['<your GQL related content types>'],
 },
 ```
 
@@ -149,10 +121,10 @@ for example:
 
 ```js
 gql: {
-        navigationItemRelated: 'union NavigationRelated = Pages | UploadFile',
+    navigationItemRelated: ['Page', 'UploadFile'],
 },
 ```
-where `Pages` and `UploadFile` are your types to the **Content Types** you're referring by navigation items relations. 
+where `Page` and `UploadFile` are your types to the **Content Types** you're referring by navigation items relations. 
 
 
 ## Public API Navigation Item model
@@ -386,25 +358,6 @@ Depending on a content type `templateName` will be resolved differently
 For collection types it will be read from content type's attribute name `template` holding a component which definition has option named `templateName`.
 
 For single types a global name of this content type will be used as a template name or it can be set manually with an option named `templateName`.
-
-## Audit log
-If you would like to use the [Strapi Molecules Audit Log](https://github.com/VirtusLab/strapi-molecules/tree/master/packages/strapi-plugin-audit-log) plugin you've to first install and then add in you `config/middleware.js` following section enable it:
-```js
-{
-    'audit-log': {
-          enabled: true,
-          exclude: [],
-          map: [
-            {
-              pluginName: 'navigation',
-              serviceName: 'navigation',
-              Class: Navigation,
-            },
-          ]
-        }
-}
-```
-As a last step you've to provide the Navigation class to let Audit Log use it. To not provide external & hard dependencies we've added the example of class code in the `examples/audit-log-integration.js` .
 
 ## Examples
 
