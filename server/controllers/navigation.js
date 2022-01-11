@@ -48,4 +48,25 @@ module.exports = {
     return getService().put(id, body, auditLog)
       .catch(errorHandler(ctx));
   },
+  async render(ctx) {
+    const { params, query = {} } = ctx;
+    const { type, menu: menuOnly } = query;
+    const { idOrSlug } = parseParams(params);
+    return getService().render(
+      idOrSlug,
+      type,
+      menuOnly,
+    );
+  },
+  async renderChild(ctx) {
+    const { params, query = {} } = ctx;
+    const { type, menu: menuOnly } = query;
+    const { idOrSlug, childUIKey } = parseParams(params);
+    return getService().renderChildren(
+      idOrSlug,
+      childUIKey,
+      type,
+      menuOnly
+    );
+  },
 };
