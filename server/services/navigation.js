@@ -8,10 +8,17 @@ const {
   last,
   upperFirst,
   map,
+  toNumber,
+  isString,
+  first,
+
 } = require('lodash');
+const { validate: isUuid } = require('uuid');
+const slugify = require('slugify');
 const { KIND_TYPES } = require('./utils/constant');
 const utilsFunctionsFactory = require('./utils/functions');
-const { additionalFields: configAdditionalFields } = require('../content-types/navigation-item').lifecycle;
+const { renderType } = require('../content-types/navigation/lifecycle');
+const { type: itemType, additionalFields: configAdditionalFields } = require('../content-types/navigation-item').lifecycle;
 
 const excludedContentTypes = ['strapi::'];
 const contentTypesNameFieldsDefaults = ['title', 'subject', 'name'];
@@ -37,7 +44,7 @@ module.exports = ({ strapi }) => {
       const { masterModel, itemModel } = utilsFunctions.extractMeta(strapi.plugins);
       const entity = await strapi
         .query(masterModel.uid)
-        .findOne({ where: { id }});
+        .findOne({ where: { id } });
 
       const entityItems = await strapi
         .query(itemModel.uid)
@@ -193,9 +200,11 @@ module.exports = ({ strapi }) => {
               .map(async ([model, related]) => {
                 const relationData = await strapi
                   .query(model)
-                  .findMany({where: {
-                    id: { $in: map(related, 'related_id') }
-                  }});
+                  .findMany({
+                    where: {
+                      id: { $in: map(related, 'related_id') }
+                    }
+                  });
                 return relationData
                   .flatMap(_ =>
                     Object.assign(
@@ -284,6 +293,263 @@ module.exports = ({ strapi }) => {
             { actionType, oldEntity: existingEntity, newEntity });
           return newEntity;
         });
+    },
+
+    async renderChildren(
+      idOrSlug,
+      childUIKey,
+      type = renderType.FLAT,
+      menuOnly = false,
+    ) {
+      const { service } = utilsFunctions.extractMeta(strapi.plugins);
+      const findById = !isNaN(toNumber(idOrSlug)) || isUuid(idOrSlug);
+      const criteria = findById ? { id: idOrSlug } : { slug: idOrSlug };
+      const filter = type === renderType.FLAT ? null : childUIKey;
+
+      const itemCriteria = {
+        ...(menuOnly && { menuAttached: true }),
+        ...(type === renderType.FLAT ? { uiRouterKey: childUIKey } : {}),
+      };
+
+      return service.renderType(type, criteria, itemCriteria, filter);
+    },
+
+    async render(idOrSlug, type = renderType.FLAT, menuOnly = false) {
+      const { service } = utilsFunctions.extractMeta(strapi.plugins);
+
+      const findById = !isNaN(toNumber(idOrSlug)) || isUuid(idOrSlug);
+      const criteria = findById ? { id: idOrSlug } : { slug: idOrSlug };
+      const itemCriteria = menuOnly ? { menuAttached: true } : {};
+
+      return service.renderType(type, criteria, itemCriteria);
+    },
+
+    async renderType(type = renderType.FLAT, criteria = {}, itemCriteria = {}, filter = null) {
+      const { pluginName, service, masterModel, itemModel } = utilsFunctions.extractMeta(
+        strapi.plugins,
+      );
+
+      const entity = await strapi
+        .query(masterModel.uid)
+        .findOne({
+          where: {
+            ...criteria,
+            visible: true,
+          }
+        });
+      if (entity && entity.id) {
+        const entities = await strapi.query(itemModel.uid).findMany({
+          where: {
+            master: entity.id,
+            ...itemCriteria,
+          },
+          paggination: {
+            limit: -1,
+          },
+          sort: ['order:asc'],
+          populate: ['related', 'audience'],
+        });
+
+        if (!entities) {
+          return [];
+        }
+        const items = await this.getRelatedItems(entities);
+        const { contentTypes, contentTypesNameFields } = await service.config();
+
+        switch (type?.toLowerCase()) {
+          case renderType.TREE:
+          case renderType.RFR:
+            const getTemplateName = await utilsFunctions.templateNameFactory(items, strapi, contentTypes);
+            const itemParser = (item, path = '', field) => {
+              const isExternal = item.type === itemType.EXTERNAL;
+              const parentPath = isExternal ? undefined : `${path === '/' ? '' : path}/${item.path === '/'
+                ? ''
+                : item.path}`;
+              const slug = isString(parentPath) ? slugify(
+                (first(parentPath) === '/' ? parentPath.substring(1) : parentPath).replace(/\//g, '-')) : undefined;
+              const lastRelated = item.related ? last(item.related) : undefined;
+              return {
+                id: item.id,
+                title: utilsFunctions.composeItemTitle(item, contentTypesNameFields, contentTypes),
+                menuAttached: item.menuAttached,
+                path: isExternal ? item.externalPath : parentPath,
+                type: item.type,
+                uiRouterKey: item.uiRouterKey,
+                slug: !slug && item.uiRouterKey ? slugify(item.uiRouterKey) : slug,
+                external: isExternal,
+                related: isExternal || !lastRelated ? undefined : {
+                  ...lastRelated,
+                  __templateName: getTemplateName(lastRelated.relatedType || lastRelated.__contentType, lastRelated.id),
+                },
+                audience: !isEmpty(item.audience) ? item.audience.map(aItem => aItem.key) : undefined,
+                items: isExternal ? undefined : service.renderTree({
+                  items,
+                  id: item.id,
+                  field,
+                  path: parentPath,
+                  itemParser,
+                }),
+              };
+            };
+            const treeStructure = service.renderTree({
+              items,
+              field: 'parent',
+              itemParser,
+            });
+
+            const filteredStructure = filter
+              ? treeStructure.filter((item) => item.uiRouterKey === filter)
+              : treeStructure;
+
+            if (type === renderType.RFR) {
+              return service.renderRFR({
+                items: filteredStructure,
+                contentTypes,
+              });
+            }
+            return filteredStructure;
+          default:
+            return items
+              .filter(utilsFunctions.filterOutUnpublished)
+              .map((item) => ({
+                ...item,
+                audience: item.audience?.map(_ => _.key),
+                title: utilsFunctions.composeItemTitle(item, contentTypesNameFields, contentTypes),
+                related: item.related?.map(({ localizations, ...item }) => item),
+                items: null,
+              }));
+        }
+      }
+      throw strapi.errors.notFound();
+    },
+
+    renderTree({
+      items = [],
+      id = null,
+      field = 'parent',
+      path = '',
+      itemParser = (i) => i,
+    }) {
+      return items
+        .filter(
+          (item) => {
+            if (item[field] === null && id === null) {
+              return true;
+            }
+            let data = item[field];
+            if (data && typeof id === 'string') {
+              data = data.toString();
+            }
+            return (data && data === id) || (isObject(item[field]) && (item[field].id === id));
+          },
+        )
+        .filter(utilsFunctions.filterOutUnpublished)
+        .map(item => itemParser({
+          ...item,
+        }, path, field));
+    },
+
+    renderRFR({ items, parent = null, parentNavItem = null, contentTypes = [] }) {
+      const { service } = utilsFunctions.extractMeta(strapi.plugins);
+      let pages = {};
+      let nav = {};
+      let navItems = [];
+
+      items.forEach(item => {
+        const { items: itemChilds, ...itemProps } = item;
+        const itemNav = service.renderRFRNav(itemProps);
+        const itemPage = service.renderRFRPage({
+          item: itemProps,
+          parent,
+        });
+
+        if (item.type === itemType.INTERNAL) {
+          pages = {
+            ...pages,
+            [itemPage.id]: {
+              ...itemPage,
+            },
+          };
+        }
+
+        if (item.menuAttached) {
+          navItems.push(itemNav);
+        }
+
+        if (!parent) {
+          nav = {
+            ...nav,
+            root: navItems,
+          };
+        } else {
+          const navLevel = navItems
+            .filter(navItem => navItem.type === itemType.INTERNAL.toLowerCase());
+          if (!isEmpty(navLevel))
+            nav = {
+              ...nav,
+              [parent]: [].concat(parentNavItem ? parentNavItem : [], navLevel),
+            };
+        }
+
+        if (!isEmpty(itemChilds)) {
+          const { nav: nestedNavs } = service.renderRFR({
+            items: itemChilds,
+            parent: itemPage.id,
+            parentNavItem: itemNav,
+            contentTypes,
+          });
+          const { pages: nestedPages } = service.renderRFR({
+            items: itemChilds.filter(child => child.type === itemType.INTERNAL),
+            parent: itemPage.id,
+            parentNavItem: itemNav,
+            contentTypes,
+          });
+          pages = {
+            ...pages,
+            ...nestedPages,
+          };
+          nav = {
+            ...nav,
+            ...nestedNavs,
+          };
+        }
+      });
+
+      return {
+        pages,
+        nav,
+      };
+    },
+
+    renderRFRNav(item) {
+      const { uiRouterKey, title, path, type, audience } = item;
+      return {
+        label: title,
+        type: type.toLowerCase(),
+        page: type === itemType.INTERNAL ? uiRouterKey : undefined,
+        url: type === itemType.EXTERNAL ? path : undefined,
+        audience,
+      };
+    },
+
+    renderRFRPage({ item, parent }) {
+      const { uiRouterKey, title, path, slug, related, type, audience, menuAttached } = item;
+      const { __contentType, id, __templateName } = related || {};
+      const contentType = __contentType || '';
+      return {
+        id: uiRouterKey,
+        title,
+        templateName: __templateName,
+        related: type === itemType.INTERNAL ? {
+          contentType,
+          id,
+        } : undefined,
+        path,
+        slug,
+        parent,
+        audience,
+        menuAttached,
+      };
     },
 
     createBranch(items = [], masterEntity = null, parentItem = null, operations = {}) {

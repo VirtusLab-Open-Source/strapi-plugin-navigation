@@ -2,9 +2,13 @@ const {
   last,
   isObject,
   isEmpty,
+  flatten,
+  find,
+  isString,
+  get,
 } = require('lodash');
 
-const { type: itemType } = require('../../content-types/navigation-item');
+const { type: itemType } = require('../../content-types/navigation-item/lifecycle');
 const { NavigationError } = require('../../../utils/NavigationError');
 const { TEMPLATE_DEFAULT } = require('./constant');
 
@@ -13,7 +17,7 @@ module.exports = ({ strapi }) => {
     singularize(value = '') {
       return last(value) === 's' ? value.substr(0, value.length - 1) : value;
     },
-    
+
     extractMeta(plugins) {
       const { navigation: plugin } = plugins;
       const { navigation: service } = plugin.services;
@@ -98,6 +102,84 @@ module.exports = ({ strapi }) => {
         }
         return resolve();
       });
+    },
+
+    async templateNameFactory(items, strapi, contentTypes = []) {
+      const flatRelated = flatten(items.map(i => i.related)).filter(_ => !!_);
+      const relatedMap = flatRelated.reduce((acc, curr) => {
+        if (!acc[curr.__contentType]) {
+          acc[curr.__contentType] = [];
+        }
+        acc[curr.__contentType].push(curr.id);
+        return acc;
+      }, {});
+      const responses = await Promise.all(
+        Object.entries(relatedMap)
+          .map(
+            ([contentType, ids]) => {
+              const contentTypeUid = get(find(contentTypes, cnt => cnt.uid === contentType), 'uid');
+              return strapi.query(contentTypeUid)
+                .findMany({ id_in: ids, _limit: -1 })
+                .then(res => ({ [contentType]: res }))
+            }),
+      );
+      const relatedResponseMap = responses.reduce((acc, curr) => ({ ...acc, ...curr }), {});
+      const singleTypes = new Map(
+        contentTypes
+          .filter(x => x.isSingle)
+          .map(({ contentTypeName, templateName }) => [contentTypeName, templateName || contentTypeName])
+      );
+
+      return (contentType, id) => {
+        const template = get(relatedResponseMap[contentType].find(data => data.id === id), 'template');
+
+        if (template) {
+          const templateComponent = this.getTemplateComponentFromTemplate(template);
+          return get(templateComponent, 'options.templateName', TEMPLATE_DEFAULT);
+        }
+
+        if (singleTypes.get(contentType)) {
+          return singleTypes.get(contentType);
+        }
+
+        return TEMPLATE_DEFAULT;
+      };
+    },
+
+    getTemplateComponentFromTemplate(template = []) {
+      const componentName = get(first(template), '__component');
+      return componentName ? strapi.components[componentName] : null;
+    },
+
+    composeItemTitle(item = {}, fields = {}, contentTypes = []) {
+      const { title, related } = item;
+      if (title) {
+        return isString(title) && !isEmpty(title) ? title : undefined;
+      } else if (related) {
+        const relationTitle = this.extractItemRelationTitle(isArray(related) ? last(related) : related, fields, { contentTypes });
+        return isString(relationTitle) && !isEmpty(relationTitle) ? relationTitle : undefined;
+      }
+      return undefined;
+    },
+
+    extractItemRelationTitle(relatedItem = {}, fields = {}, contentTypes = []) {
+      const { __contentType } = relatedItem;
+      const contentType = find(contentTypes, _ => _.contentTypeName === __contentType);
+      const { default: defaultFields = [] } = fields;
+      return get(fields, `${contentType ? contentType.collectionName : ''}`, defaultFields).map((_) => relatedItem[_]).filter((_) => _)[0] || '';
+    },
+
+    filterOutUnpublished(item) {
+      const relatedItem = item.related && last(item.related);
+      const isHandledByPublshFlow = relatedItem ? 'published_at' in relatedItem : false;
+
+      if (isHandledByPublshFlow) {
+        const isRelatedDefinedAndPublished = relatedItem ?
+          isHandledByPublshFlow && get(relatedItem, 'published_at') :
+          false;
+        return item.type === itemType.INTERNAL ? isRelatedDefinedAndPublished : true;
+      }
+      return (item.type === itemType.EXTERNAL) || relatedItem;
     },
   };
 }
