@@ -12,7 +12,7 @@ import Wrapper from './Wrapper';
 import ItemCardBadge from '../ItemCardBadge';
 import { getTrad } from "../../../translations";
 
-const ItemCardHeader = ({ title, path, icon, removed, isPublished, onItemRemove, onItemEdit, onItemRestore }) => {
+const ItemCardHeader = ({ title, path, icon, removed, isExternal, isPublished, onItemRemove, onItemEdit, onItemRestore }) => {
 	const badgeColor = isPublished ? 'success' : 'secondary';
 	const { formatMessage } = useIntl();
 
@@ -36,7 +36,7 @@ const ItemCardHeader = ({ title, path, icon, removed, isPublished, onItemRemove,
 					>
 						{formatMessage(getTrad("navigation.item.badge.removed"))}
 					</ItemCardBadge>
-					: <ItemCardBadge
+					: !isExternal && <ItemCardBadge
 						borderColor={`${badgeColor}200`}
 						backgroundColor={`${badgeColor}100`}
 						textColor={`${badgeColor}600`}

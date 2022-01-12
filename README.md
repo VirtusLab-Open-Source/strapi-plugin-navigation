@@ -73,7 +73,7 @@ Complete installation requirements are exact same as for Strapi itself and can b
 - **[Audit log](https://github.com/VirtusLab/strapi-molecules/tree/master/packages/strapi-plugin-audit-log):** integration with Strapi Molecules Audit Log plugin that provides changes track record
 
 ## Configuration
-To setup the plugin properly we recommend to put following snippet as part of `config/plugins.js` or `config/<env>/custom.js` file. If you've got already configurations for other plugins stores by this way, use just the `navigation` part within exising `plugins` item.
+To setup the plugin properly we recommend to put following snippet as part of `config/plugins.js` or `config/<env>/plugins.js` file. If you've got already configurations for other plugins stores by this way, use just the `navigation` part within exising `plugins` item.
 
 ```js
     module.exports = ({ env }) => ({
