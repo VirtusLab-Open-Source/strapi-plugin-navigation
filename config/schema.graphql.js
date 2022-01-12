@@ -66,7 +66,7 @@ module.exports = {
     parent: Int
     master: Int
     items: [NavigationItem]
-    related: NavigationRelated
+    related: [NavigationRelated]
     audience: [String]
     ${NAVIGATION_DATE}
     ${NAVIGATION_USER}
@@ -148,6 +148,11 @@ module.exports = {
     navigationUpdate(id: String!, navigation: CreateNavigation!): Navigation!
   `,
   resolver: {
+    NavigationRelated: {
+      __resolveType: (data) => {
+        return strapi.contentTypes[data.__contentType]?.globalId
+      }
+    },
     Query: {
       renderNavigation: {
         resolverOf: 'plugins::navigation.navigation.render',
