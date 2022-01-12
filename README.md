@@ -82,7 +82,7 @@ To setup the plugin properly we recommend to put following snippet as part of `c
             enabled: true,
             config: {
                 additionalFields: ['audience'],
-                contentTypes: ['api::page::page'],
+                contentTypes: ['api::page.page'],
                 contentTypesNameFields: {
                     'page': ['title']
                 },
