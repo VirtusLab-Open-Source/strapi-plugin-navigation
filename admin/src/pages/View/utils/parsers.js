@@ -28,7 +28,7 @@ export const transformItemToRESTPayload = (
   const { contentTypes = [] } = config;
 
   const parsedRelated = Number(related);
-  const relatedId = isExternal || isNaN(parsedRelated) ? related.value || related : parsedRelated;
+  const relatedId = isExternal || isNaN(parsedRelated) ? related?.value || related : parsedRelated;
 
   const relatedContentType = relatedType ?
     find(contentTypes,

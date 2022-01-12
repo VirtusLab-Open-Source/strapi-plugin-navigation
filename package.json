@@ -16,7 +16,7 @@
     "test:unit": "jest --verbose --coverage"
   },
   "dependencies": {
-    "@types/uuid": "^8.3.0",
+    "uuid": "^8.3.0",
     "bad-words": "^3.0.3",
     "lodash": "^4.17.11",
     "react": "^16.9.0",

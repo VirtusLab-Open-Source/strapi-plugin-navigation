@@ -60,6 +60,7 @@ const Item = (props) => {
             path={isExternal ? externalPath : absolutePath}
             icon={isExternal ? <EarthIcon /> : <LinkIcon />}
             isPublished={isPublished}
+            isExternal={isExternal}
             onItemRemove={() => onItemRemove(item)}
             onItemEdit={() => onItemEdit({
               ...item,
