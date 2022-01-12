@@ -185,7 +185,8 @@ module.exports = {
         _limit: -1,
         _sort: 'order:asc',
       });
-    const entities = await this.getRelatedItems(entityItems);
+    let entities = await this.getRelatedItems(entityItems);
+    entities = entities.map((_) => sanitizeEntity(_, { model: itemModel }));
     return {
       ...sanitizeEntity(entity,
         { model: masterModel },
@@ -301,7 +302,8 @@ module.exports = {
       if (!entities) {
         return [];
       }
-      const items = await this.getRelatedItems(entities);
+      let items = await this.getRelatedItems(entities);
+      items = items.map((_) => sanitizeEntity(_, { model: itemModel }));
       const { contentTypes, contentTypesNameFields } = await service.config();
 
       switch (type?.toLowerCase()) {
