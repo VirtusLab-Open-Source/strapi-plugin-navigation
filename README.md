@@ -84,7 +84,7 @@ To setup the plugin properly we recommend to put following snippet as part of `c
                 additionalFields: ['audience'],
                 contentTypes: ['api::page.page'],
                 contentTypesNameFields: {
-                    'page': ['title']
+                    'api::page.page': ['title']
                 },
                 allowedLevels: 2,
                 gql: {...},
@@ -97,7 +97,7 @@ To setup the plugin properly we recommend to put following snippet as part of `c
 - `additionalFields` - Additional fields: 'audience', more in the future
 - `allowedLevels` - Maximum level for which your're able to mark item as "Menu attached"
 - `contentTypes` - UIDs of related content types
-- `contentTypesNameFields` - Definition of content type title fields like `'content_type_name': ['field_name_1', 'field_name_2']`, if not set titles are pulled from fields like `['title', 'subject', 'name']`
+- `contentTypesNameFields` - Definition of content type title fields like `'api::<collection name>.<content type name>': ['field_name_1', 'field_name_2']`, if not set titles are pulled from fields like `['title', 'subject', 'name']`. **TIP** - Proper content type uid you can find in the URL of Content Manager where you're managing relevant entities like: `admin/content-manager/collectionType/< THE UID HERE >?page=1&pageSize=10&sort=Title:ASC&plugins[i18n][locale]=en`
 - `gql` - If you're using GraphQL that's the right place to put all necessary settings. More **[ here ](#gql-configuration)**
 
 ## GQL Configuration
