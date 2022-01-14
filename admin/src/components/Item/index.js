@@ -31,6 +31,7 @@ const Item = (props) => {
     onItemRestore,
     onItemEdit,
     error,
+    displayChildren,
   } = props;
 
   const {
@@ -48,7 +49,7 @@ const Item = (props) => {
   const isPublished = relatedRef && relatedRef?.publishedAt;
   const isNextMenuAllowedLevel = isNumber(allowedLevels) ? level < (allowedLevels - 1) : true;
   const isMenuAllowedLevel = isNumber(allowedLevels) ? level < allowedLevels : true;
-  const hasChildren = !isEmpty(item.items) && !isExternal;
+  const hasChildren = !isEmpty(item.items) && !isExternal && !displayChildren;
   const absolutePath = isExternal ? undefined : `${levelPath === '/' ? '' : levelPath}/${path === '/' ? '' : path}`;
 
   return (

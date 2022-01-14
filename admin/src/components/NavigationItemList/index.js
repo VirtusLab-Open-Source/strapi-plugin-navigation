@@ -15,6 +15,7 @@ const List = ({
   onItemLevelAdd,
   onItemRemove,
   onItemRestore,
+  displayFlat,
 }) => (
   <Wrapper level={level}>
     {items.map((item, n) => {
@@ -34,6 +35,7 @@ const List = ({
           onItemRemove={onItemRemove}
           onItemEdit={onItemEdit}
           error={error}
+          displayChildren={displayFlat}
         />
       );
     })}
