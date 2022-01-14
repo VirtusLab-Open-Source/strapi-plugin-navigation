@@ -14,10 +14,8 @@ import { ContentLayout } from '@strapi/design-system/Layout';
 import { Button } from '@strapi/design-system/Button';
 import { LoadingIndicatorPage } from "@strapi/helper-plugin";
 import { EmptyStateLayout } from '@strapi/design-system/EmptyStateLayout';
-import { IconButton } from '@strapi/design-system/IconButton';
 import EmptyDocumentsIcon from '@strapi/icons/EmptyDocuments';
 import PlusIcon from "@strapi/icons/Plus";
-import SearchIcon from "@strapi/icons/Search";
 
 // Components 
 import List from '../../components/NavigationItemList';
@@ -32,6 +30,7 @@ import {
   usedContentTypes,
   validateNavigationStructure,
 } from './utils/parsers';
+import Search from '../../components/Search';
 
 const View = () => {
   const {
@@ -54,6 +53,9 @@ const View = () => {
 
   const [activeNavigationItem, setActiveNavigationItemState] = useState({});
   const { formatMessage } = useIntl();
+
+  const [searchValue, setSearchValue] = useState('');
+  const isSearchEmpty = isEmpty(searchValue);
 
   const structureHasErrors = !validateNavigationStructure((changedActiveNavigation || {}).items);
   const navigationSelectValue = get(activeNavigation, "id", null);
@@ -104,6 +106,15 @@ const View = () => {
     handleChangeNavigationData(changedStructure, true);
   };
 
+  const filteredListFactory = (items, filterFunction) => items.reduce((acc, item) => {
+    const subItems = !isEmpty(item.items) ? filteredListFactory(item.items, filterFunction) : [];
+    if (filterFunction(item))
+      return [item, ...subItems, ...acc];
+    else
+      return [...subItems, ...acc];
+  }, []);
+  const filteredList = !isSearchEmpty ? filteredListFactory(changedActiveNavigation.items, (item) => item?.title.includes(searchValue)) : [];
+
   const handleItemRemove = (item) => {
     handleSubmitNavigationItem({
       ...item,
@@ -147,7 +158,7 @@ const View = () => {
         {changedActiveNavigation && (
           <>
             <NavigationContentHeader
-              startActions={<IconButton icon={<SearchIcon />} />}
+              startActions={<Search value={searchValue} setValue={setSearchValue}/>}
               endActions={<Button
                 onClick={addNewNavigationItem}
                 startIcon={<PlusIcon />}
@@ -176,11 +187,12 @@ const View = () => {
             {
               !isEmpty(changedActiveNavigation.items || [])
               && <List
-                items={changedActiveNavigation.items || []}
+                items={isSearchEmpty ? changedActiveNavigation.items || [] : filteredList}
                 onItemLevelAdd={addNewNavigationItem}
                 onItemRemove={handleItemRemove}
                 onItemEdit={handleItemEdit}
                 onItemRestore={handleItemRestore}
+                displayFlat={!isSearchEmpty}
                 root
                 error={error}
                 allowedLevels={config.allowedLevels}
