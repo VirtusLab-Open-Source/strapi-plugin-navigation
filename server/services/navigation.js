@@ -19,7 +19,7 @@ const { KIND_TYPES } = require('./utils/constant');
 const utilsFunctionsFactory = require('./utils/functions');
 const { renderType } = require('../content-types/navigation/lifecycle');
 const { type: itemType, additionalFields: configAdditionalFields } = require('../content-types/navigation-item').lifecycle;
-
+const { NotFoundError } =  require('@strapi/utils').errors
 const excludedContentTypes = ['strapi::'];
 const contentTypesNameFieldsDefaults = ['title', 'subject', 'name'];
 
@@ -347,7 +347,7 @@ module.exports = ({ strapi }) => {
             limit: -1,
           },
           sort: ['order:asc'],
-          populate: ['related', 'audience'],
+          populate: ['related', 'audience', 'parent'],
         });
 
         if (!entities) {
@@ -420,7 +420,7 @@ module.exports = ({ strapi }) => {
               }));
         }
       }
-      throw strapi.errors.notFound();
+      throw new NotFoundError();
     },
 
     renderTree({
