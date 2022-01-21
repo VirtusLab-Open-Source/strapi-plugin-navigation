@@ -68,9 +68,11 @@ Complete installation requirements are exact same as for Strapi itself and can b
 
 **Supported Strapi versions**:
 
-- Strapi v4.0.4 (recently tested)
+- Strapi v4.0.5 (recently tested)
+- Strapi v4.x
 
-This plugin is not working with v3.x.
+_This plugin is not working with v3.x._
+
 It may or may not work with the older Strapi v4 versions, these are not tested nor officially supported at this time.
 
 **We recommend always using the latest version of Strapi to start your new projects**.
