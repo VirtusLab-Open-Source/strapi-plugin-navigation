@@ -36,7 +36,6 @@ const DataManagerProvider = ({ children }) => {
   const [reducerState, dispatch] = useReducer(reducer, initialState, init);
   const {
     autoReload,
-    emitEvent,
     currentEnvironment,
     formatMessage,
   } = useGlobalContext();
@@ -195,47 +194,36 @@ const DataManagerProvider = ({ children }) => {
   };
 
   const handleChangeNavigationPopupVisibility = (visible) => {
-    emitEvent("willChangeNavigationPopupVisibility");
     dispatch({
       type: CHANGE_NAVIGATION_POPUP_VISIBILITY,
       navigationPopupOpened: visible,
     });
-    emitEvent("didChangeNavigationPopupVisibility");
-    emitEvent(`navigationPopup${visible ? "Visible" : "Hidden"}`);
   };
 
   const handleChangeNavigationItemPopupVisibility = (visible) => {
-    emitEvent("willChangeNavigationItemPopupVisibility");
     dispatch({
       type: CHANGE_NAVIGATION_ITEM_POPUP_VISIBILITY,
       navigationItemPopupOpened: visible,
     });
-    emitEvent("didChangeNavigationItemPopupVisibility");
-    emitEvent(`navigationItemPopup${visible ? "Visible" : "Hidden"}`);
   };
 
   const handleChangeNavigationData = (payload, forceClosePopups) => {
-    emitEvent("willChangeNavigationData");
     dispatch({
       type: CHANGE_NAVIGATION_DATA,
       changedActiveItem: payload,
       forceClosePopups,
     });
-    emitEvent("didChangeNavigationData");
   };
 
   const handleResetNavigationData = () => {
-    emitEvent("willResetNavigationChanges");
     dispatch({ 
       type: RESET_NAVIGATION_DATA,
       activeItem,
     });
-    emitEvent("didResetNavigationChanges");
   };
 
   const handleSubmitNavigation = async (formatMessage, payload = {}) => {
     try {
-      emitEvent("willSubmitNavigation");
       dispatch({
         type: SUBMIT_NAVIGATION,
       });
@@ -255,7 +243,6 @@ const DataManagerProvider = ({ children }) => {
           items: prepareItemToViewPayload(navigation.items, null, config),
         },
       });
-      emitEvent("didSubmitNavigation");
 
       strapi.notification.success(getTradId('notification.navigation.submit'));
     } catch (err) {
@@ -264,7 +251,6 @@ const DataManagerProvider = ({ children }) => {
         error: err.response.payload.data
       });
       console.error({ err: err.response });
-      emitEvent('didNotSubmitNavigation');
       if (err.response.payload.data && err.response.payload.data.errorTitles) {
         return strapi.notification.error(
           formatMessage(

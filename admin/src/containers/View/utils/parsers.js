@@ -252,7 +252,7 @@ export const extractRelatedItemLabel = (item = {}, fields = {}, config = {}) => 
   const { __collectionName } = item;
   const contentType = contentTypes.find(_ => _.uid === __collectionName)
   const { default: defaultFields = [] } = fields;
-  return get(fields, `${contentType ? contentType.collectionName : ''}`, defaultFields).map((_) => item[_]).filter((_) => _)[0] || '';
+  return get(fields, `${contentType ? contentType.collectionName : __collectionName}`, defaultFields).map((_) => item[_]).filter((_) => _)[0] || '';
 };
 
 export const usedContentTypes = (items = []) => items.flatMap(

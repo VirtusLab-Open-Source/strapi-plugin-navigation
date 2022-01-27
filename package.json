@@ -27,8 +27,8 @@
     "reactstrap": "8.4.1",
     "redux-saga": "^0.16.0",
     "request": "^2.83.0",
-    "strapi-helper-plugin": "3.6.5",
-    "strapi-utils": "3.6.5",
+    "strapi-helper-plugin": "3.6.8",
+    "strapi-utils": "3.6.8",
     "uuidv4": "^6.2.6",
     "slugify": "^1.4.5",
     "pluralize": "^8.0.0"
@@ -39,6 +39,9 @@
     "jest-cli": "^26.0.1",
     "jest-styled-components": "^7.0.2",
     "codecov": "^3.7.2"
+  },
+  "peerDependencies": {
+    "strapi": "3.x"
   },
   "author": {
     "name": "VirtusLab // Mateusz Ziarko",

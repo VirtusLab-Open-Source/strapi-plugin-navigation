@@ -23,10 +23,10 @@ A plugin for [Strapi Headless CMS](https://github.com/strapi/strapi) that provid
 
 <img src="public/assets/preview.png" alt="UI preview" />
 
-### Versions
+### ⚙️ Versions
 
-- **Stable** - [v1.1.2](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation)
-- **Beta** - v4 support - [v2.0.0-beta.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/feat/strapi-v4-support)
+- **Strapi v4** - (current) - [v2.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation)
+- **Strapi v3** - [v1.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/strapi-v3)
 
 ### ⏳ Installation
 
@@ -413,7 +413,8 @@ For general help using Strapi, please refer to [the official Strapi documentatio
 - [Slack](http://slack.strapi.io) We're present on official Strapi slack workspace. Look for @cyp3r and DM.
 - [Slack - VirtusLab Open Source](https://virtuslab-oss.slack.com) We're present on a public channel #strapi-molecules
 - [GitHub](https://github.com/VirtusLab/strapi-plugin-navigation/issues) (Bug reports, Contributions, Questions and Discussions)
+- [E-mail](mailto:strapi@virtuslab.com) - we will respond back as soon as possible
 
 ## License
 
-[MIT License](LICENSE.md) Copyright (c) 2021 [VirtusLab Sp. z o.o.](https://virtuslab.com/) &amp; [Strapi Solutions](https://strapi.io/).
+[MIT License](LICENSE.md) Copyright (c) [VirtusLab Sp. z o.o.](https://virtuslab.com/) &amp; [Strapi Solutions](https://strapi.io/).
