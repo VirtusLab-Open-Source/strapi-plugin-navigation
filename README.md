@@ -25,8 +25,8 @@ A plugin for [Strapi Headless CMS](https://github.com/strapi/strapi) that provid
 
 ### ⚙️ Versions
 
-- **Strapi v4** - (current) - [v2.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation)
-- **Strapi v3** - [v1.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/strapi-v3)
+- **Strapi v4** - [v2.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation)
+- **Strapi v3** - (current) - [v1.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/strapi-v3)
 
 ### ⏳ Installation
 
