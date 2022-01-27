@@ -1,11 +1,12 @@
 {
   "name": "strapi-plugin-navigation",
-  "version": "1.1.4",
+  "version": "2.0.0-beta.5",
   "description": "Strapi - Navigation plugin",
   "strapi": {
-    "name": "Navigation",
+    "name": "navigation",
     "icon": "hamburger",
-    "description": "UI navigation management"
+    "description": "UI navigation management",
+    "kind": "plugin"
   },
   "repository": {
     "type": "git",
@@ -15,7 +16,8 @@
     "test:unit": "jest --verbose --coverage"
   },
   "dependencies": {
-    "@types/uuid": "^8.3.0",
+    "@strapi/utils": "^4.0.5",
+    "uuid": "^8.3.0",
     "bad-words": "^3.0.3",
     "lodash": "^4.17.11",
     "react": "^16.9.0",
@@ -27,9 +29,6 @@
     "reactstrap": "8.4.1",
     "redux-saga": "^0.16.0",
     "request": "^2.83.0",
-    "strapi-helper-plugin": "3.6.8",
-    "strapi-utils": "3.6.8",
-    "uuidv4": "^6.2.6",
     "slugify": "^1.4.5",
     "pluralize": "^8.0.0"
   },
@@ -41,7 +40,7 @@
     "codecov": "^3.7.2"
   },
   "peerDependencies": {
-    "strapi": "3.x"
+    "@strapi/strapi": "4.x"
   },
   "author": {
     "name": "VirtusLab // Mateusz Ziarko",
@@ -52,6 +51,16 @@
     {
       "name": "VirtusLab // Mateusz Ziarko",
       "email": "mziarko@virtuslab.com",
+      "url": "https://virtuslab.com"
+    },
+    {
+      "name": "VirtusLab // Maksymilian Pamuła",
+      "email": "mpamula@virtuslab.com",
+      "url": "https://virtuslab.com"
+    },
+    {
+      "name": "VirtusLab // Maciej Witkowski",
+      "email": "mwitkowski@virtuslab.com",
       "url": "https://virtuslab.com"
     }
   ],

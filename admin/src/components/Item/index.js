@@ -1,43 +1,37 @@
-import React from 'react';
-import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import { isEmpty, isNil, isNumber } from 'lodash';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
-import { Button } from '@buffetjs/core';
-import CardWrapper from './CardWrapper';
-import CardItem from './CardItem';
-import ItemFooter from '../ItemFooter';
-import { navigationItemType } from '../../containers/View/utils/enums';
-import CardItemPath from './CardItemPath';
-import CardItemTitle from './CardItemTitle';
-import CardItemLevelAdd from './CardItemLevelAdd';
-import List from '../List';
-import CardItemLevelWrapper from './CardItemLevelWrapper';
-import CardItemRestore from './CardItemRestore';
-import ItemOrdering from '../ItemOrdering';
+import React from 'react';
+import { isEmpty, isNumber } from 'lodash';
+import { useIntl } from "react-intl";
+
+import { Card, CardBody } from '@strapi/design-system/Card';
+import { Divider } from '@strapi/design-system/Divider';
+import { TextButton } from '@strapi/design-system/TextButton';
+import { Typography } from '@strapi/design-system/Typography';
+import PlusIcon from '@strapi/icons/Plus';
+import EarthIcon from '@strapi/icons/Earth';
+import LinkIcon from '@strapi/icons/Link';
+
+import { navigationItemType } from '../../pages/View/utils/enums';
+import ItemCardHeader from './ItemCardHeader';
+import List from '../NavigationItemList';
+import Wrapper from './Wrapper';
 import { getTrad } from '../../translations';
-import { extractRelatedItemLabel } from '../../containers/View/utils/parsers';
 
 const Item = (props) => {
-  const { formatMessage } = useIntl();
-
   const {
     item,
+    isLast = false,
     level = 0,
     levelPath = '',
     allowedLevels,
-    contentTypesNameFields,
-    contentTypes,
     relatedRef,
-    isFirst = false,
-    isLast = false,
     isParentAttachedToMenu,
-    onItemClick,
-    onItemReOrder,
-    onItemRestoreClick,
-    onItemLevelAddClick,
+    onItemLevelAdd,
+    onItemRemove,
+    onItemRestore,
+    onItemEdit,
     error,
+    displayChildren,
   } = props;
 
   const {
@@ -45,108 +39,72 @@ const Item = (props) => {
     title,
     type,
     path,
-    relatedType,
     removed,
     externalPath,
     menuAttached,
   } = item;
 
-  const isRelationDefined = !isNil(relatedRef);
-
-  const formatRelationName = () =>
-    isRelationDefined ? extractRelatedItemLabel(relatedRef, contentTypesNameFields) : '';
-
-  const footerProps = {
-    contentTypes,
-    type: type || navigationItemType.INTERNAL,
-    removed,
-    menuAttached,
-    relatedRef,
-    relatedType,
-    attachButtons: !(isFirst && isLast),
-    formatRelationName,
-  };
-
-  const cardTitle = isRelationDefined && !title ? formatRelationName() : title;
+  const { formatMessage } = useIntl();
+  const isExternal = type === navigationItemType.EXTERNAL;
+  const isPublished = relatedRef && relatedRef?.publishedAt;
   const isNextMenuAllowedLevel = isNumber(allowedLevels) ? level < (allowedLevels - 1) : true;
   const isMenuAllowedLevel = isNumber(allowedLevels) ? level < allowedLevels : true;
-  const isExternal = item.type === navigationItemType.EXTERNAL;
+  const hasChildren = !isEmpty(item.items) && !isExternal && !displayChildren;
   const absolutePath = isExternal ? undefined : `${levelPath === '/' ? '' : levelPath}/${path === '/' ? '' : path}`;
-  const hasChildren = !isEmpty(item.items) && !isExternal;
-
-  const handleReOrder = (e, moveBy = 0) => onItemReOrder(e, {
-    ...item,
-    relatedRef,
-  }, moveBy);
-
-  const hasError = error?.parentId === item.parent && error?.errorTitles.includes(cardTitle);
 
   return (
-    <CardWrapper
-      level={level}
-      error={hasError}
-    >
-      <CardItem
-        hasChildren={hasChildren}
-        removed={removed}
-        hasError={hasError}
-        onClick={(e) =>
-          removed ? null : onItemClick(e, {
-            ...item,
-            isMenuAllowedLevel,
-            isParentAttachedToMenu,
-          }, levelPath)
-        }
-      >
-        {removed && (<CardItemRestore>
-          <Button
-            onClick={e => onItemRestoreClick(e, item)}
-            color="secondary"
-            label={formatMessage(getTrad('popup.item.form.button.restore'))}
+    <Wrapper level={level} isLast={isLast}>
+      <Card style={{ width: "728px", zIndex: 1, position: "relative" }}>
+        <CardBody>
+          <ItemCardHeader
+            title={title}
+            path={isExternal ? externalPath : absolutePath}
+            icon={isExternal ? <EarthIcon /> : <LinkIcon />}
+            isPublished={isPublished}
+            isExternal={isExternal}
+            onItemRemove={() => onItemRemove(item)}
+            onItemEdit={() => onItemEdit({
+              ...item,
+              isMenuAllowedLevel,
+              isParentAttachedToMenu,
+            }, levelPath, isParentAttachedToMenu)}
+            onItemRestore={() => onItemRestore(item)}
+            removed={removed}
           />
-        </CardItemRestore>)}
-        <CardItemTitle>{cardTitle}</CardItemTitle>
-        <CardItemPath>
-          {isExternal ? externalPath : absolutePath}
-        </CardItemPath>
-        <ItemFooter {...footerProps} />
-        <ItemOrdering
-          isFirst={isFirst}
-          isLast={isLast}
-          onChangeOrder={handleReOrder}
-        />
-      </CardItem>
-      {!(isExternal || removed) && (
-        <CardItemLevelAdd
-          color={isNextMenuAllowedLevel ? 'primary' : 'secondary'}
-          icon={<FontAwesomeIcon icon={faPlus} size="3x" />}
-          onClick={(e) => onItemLevelAddClick(e, viewId, isNextMenuAllowedLevel, levelPath, menuAttached)}
-          menuLevel={isNextMenuAllowedLevel}
-        />
-      )}
-      {hasChildren && !removed && (
-        <List
-          items={item.items}
-          onItemClick={onItemClick}
-          onItemReOrder={onItemReOrder}
-          onItemRestoreClick={onItemRestoreClick}
-          onItemLevelAddClick={onItemLevelAddClick}
-          as={CardItemLevelWrapper}
-          level={level + 1}
-          levelPath={absolutePath}
-          allowedLevels={allowedLevels}
-          isParentAttachedToMenu={menuAttached}
-          contentTypesNameFields={contentTypesNameFields}
-          contentTypes={contentTypes}
-          error={error}
-        />
-      )}
-    </CardWrapper>
+        </CardBody>
+        <Divider />
+        <CardBody style={{ margin: '8px' }}>
+          <TextButton
+            disabled={removed}
+            startIcon={<PlusIcon />}
+            onClick={(e) => onItemLevelAdd(e, viewId, isNextMenuAllowedLevel, absolutePath, menuAttached)}
+          >
+            <Typography variant="pi" fontWeight="bold" textColor={removed ? "neutral600" : "primary600"}>
+              {formatMessage(getTrad("navigation.item.action.newItem"))}
+            </Typography>
+          </TextButton>
+        </CardBody>
+      </Card>
+      {hasChildren && !removed && <List
+        onItemLevelAdd={onItemLevelAdd}
+        onItemRemove={onItemRemove}
+        onItemEdit={onItemEdit}
+        onItemRestore={onItemRestore}
+        error={error}
+        allowedLevels={allowedLevels}
+        isParentAttachedToMenu={true}
+        items={item.items}
+        level={level + 1}
+        levelPath={absolutePath}
+      />
+      }
+    </Wrapper>
+
   );
 };
 
 Item.propTypes = {
-  item: PropTypes.objectOf({
+  item: PropTypes.shape({
     title: PropTypes.string,
     type: PropTypes.string,
     uiRouterKey: PropTypes.string,
@@ -154,19 +112,15 @@ Item.propTypes = {
     externalPath: PropTypes.string,
     audience: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])),
     related: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    menuAttached: PropTypes.bool,
+    menuAttached: PropTypes.bool
   }).isRequired,
   relatedRef: PropTypes.object,
-  contentTypes: PropTypes.array,
-  contentTypesNameFields: PropTypes.object.isRequired,
   level: PropTypes.number,
   levelPath: PropTypes.string,
-  isFirst: PropTypes.bool,
-  isLast: PropTypes.bool,
   isParentAttachedToMenu: PropTypes.bool,
-  onItemClick: PropTypes.func.isRequired,
-  onItemRestoreClick: PropTypes.func.isRequired,
-  onItemLevelAddClick: PropTypes.func.isRequired,
+  onItemRestore: PropTypes.func.isRequired,
+  onItemLevelAdd: PropTypes.func.isRequired,
+  onItemRemove: PropTypes.func.isRequired,
 };
 
 export default Item;
