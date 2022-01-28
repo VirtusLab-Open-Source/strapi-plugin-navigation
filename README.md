@@ -1,17 +1,17 @@
 <div align="center">
-  <h1>Strapi v4 - Navigation plugin - BETA</h1>
-  <p>Create consumable navigation with a simple and straigthforward visual builder.</p>
+  <h1>Strapi v4 - Navigation plugin</h1>
+  <p>Create consumable navigation with a simple and straigthforward visual builder</p>
   <a href="https://www.npmjs.org/package/strapi-plugin-navigation">
-    <img src="https://img.shields.io/github/package-json/v/VirtusLab-Open-Source/strapi-plugin-navigation/feat%252Fstrapi-v4-support?label=npm" alt="NPM Version" />
+    <img src="https://img.shields.io/npm/v/strapi-plugin-navigation/latest.svg" alt="NPM Version" />
   </a>
   <a href="https://www.npmjs.org/package/strapi-plugin-navigation">
     <img src="https://img.shields.io/npm/dm/strapi-plugin-navigation.svg" alt="Monthly download on NPM" />
   </a>
   <a href="https://circleci.com/gh/VirtusLab/strapi-plugin-navigation">
-    <img src="https://circleci.com/gh/VirtusLab-Open-Source/strapi-plugin-navigation/tree/feat%2Fstrapi-v4-support.svg?style=shield" alt="CircleCI" />
+    <img src="https://circleci.com/gh/VirtusLab-Open-Source/strapi-plugin-navigation.svg?style=shield" alt="CircleCI" />
   </a>
   <a href="https://codecov.io/gh/VirtusLab/strapi-plugin-navigation">
-    <img src="https://codecov.io/gh/VirtusLab/strapi-plugin-navigation/coverage.svg?branch=feat%2Fstrapi-v4-support" alt="codecov.io" />
+    <img src="https://codecov.io/gh/VirtusLab/strapi-plugin-navigation/coverage.svg?branch=master" alt="codecov.io" />
   </a>
 </div>
 
