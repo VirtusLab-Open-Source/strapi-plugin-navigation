@@ -2,7 +2,7 @@
   <h1>Strapi v4 - Navigation plugin</h1>
   <p>Create consumable navigation with a simple and straigthforward visual builder</p>
   <a href="https://www.npmjs.org/package/strapi-plugin-navigation">
-    <img src="https://img.shields.io/npm/v/strapi-plugin-navigation/latest.svg" alt="NPM Version" />
+    <img alt="GitHub package.json version" src="https://img.shields.io/github/package-json/v/VirtusLab-Open-Source/strapi-plugin-navigation?label=npm&logo=npm">
   </a>
   <a href="https://www.npmjs.org/package/strapi-plugin-navigation">
     <img src="https://img.shields.io/npm/dm/strapi-plugin-navigation.svg" alt="Monthly download on NPM" />
