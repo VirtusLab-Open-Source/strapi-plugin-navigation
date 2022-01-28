@@ -105,7 +105,7 @@ Config for this plugin is stored as a part of `config/plugins.js` or `config/<en
 - `contentTypesNameFields` - Definition of content type title fields like `'api::<collection name>.<content type name>': ['field_name_1', 'field_name_2']`, if not set titles are pulled from fields like `['title', 'subject', 'name']`. **TIP** - Proper content type uid you can find in the URL of Content Manager where you're managing relevant entities like: `admin/content-manager/collectionType/< THE UID HERE >?page=1&pageSize=10&sort=Title:ASC&plugins[i18n][locale]=en`
 - `gql` - If you're using GraphQL that's the right place to put all necessary settings. More **[ here ](#gql-configuration)**
 
-## GQL Configuration
+## 🔧 GQL Configuration
 Using navigation with GraphQL requires both plugins to be installed and working. You can find instalation guide for GraphQL plugin **[here](https://docs.strapi.io/developer-docs/latest/plugins/graphql.html#graphql)**.  To properly configure GQL to work with navigation you should provide `gql` prop. This should contain union types that will be used to define GQL response format for your data while fetching:
 
 ```gql
@@ -131,8 +131,14 @@ gql: {
 ```
 where `Page` and `UploadFile` are your type names for the **Content Types** you're referring by navigation items relations. 
 
+## 👤 RBAC
+Plugin provides granular permissions based on Strapi RBAC functionality.
 
-## Public API Navigation Item model
+### Mandatory permissions
+For any role different than **Super Admin**, to access the **Navigation panel** you must set following permissions:
+- _Plugins_ -> _Navigation_ -> _Read_ - gives you the access to **Navigation Panel**
+
+## Base Navigation Item model
 
 ### Flat
 ```
@@ -146,8 +152,8 @@ where `Page` and `UploadFile` are your type names for the **Content Types** you'
     "menuAttached": false,
     "parent": 8, // Parent Navigation Item 'id', null in case of root level
     "master": 1, // Navigation 'id'
-    "created_at": "2020-09-29T13:29:19.086Z",
-    "updated_at": "2020-09-29T13:29:19.128Z",
+    "createdAt": "2020-09-29T13:29:19.086Z",
+    "updatedAt": "2020-09-29T13:29:19.128Z",
     "related": [ <Content Type model > ],
     "audience": []
 }
@@ -198,7 +204,7 @@ where `Page` and `UploadFile` are your type names for the **Content Types** you'
 }
 ```
 
-## Public API specification
+## 🕸️ Public API specification
 
 ### Render
 

@@ -1,6 +1,7 @@
 import { prefixPluginTranslations } from '@strapi/helper-plugin';
 import pluginPkg from '../../package.json';
 import pluginId from './pluginId';
+import pluginPermissions from './permissions';
 import NavigationIcon from './components/icons/navigation';
 
 const name = pluginPkg.strapi.name;
@@ -19,7 +20,7 @@ export default {
 
         return component;
       },
-      permissions: [],
+      permissions: pluginPermissions.access,
     });
     app.registerPlugin({
       id: pluginId,

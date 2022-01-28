@@ -1,4 +1,5 @@
 const { isEmpty } = require("lodash");
+const permissions = require('./../permissions');
 
 module.exports = async ({ strapi }) => {
   // Check if the plugin users-permissions is installed because the navigation needs it
@@ -11,14 +12,14 @@ module.exports = async ({ strapi }) => {
   const actions = [
     {
       section: "plugins",
-      displayName: "Access the Navigation",
-      uid: "read",
+      displayName: "Read",
+      uid: permissions.navigation.read,
       pluginName: "navigation",
     },
     {
       section: "plugins",
-      displayName: "Ability to change the Navigation",
-      uid: "update",
+      displayName: "Update",
+      uid: permissions.navigation.update,
       pluginName: "navigation",
     },
   ];
