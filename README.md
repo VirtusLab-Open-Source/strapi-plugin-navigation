@@ -1,19 +1,21 @@
-# Strapi - Navigation plugin
-
-<p align="center">
+<div align="center">
+  <h1>Strapi v3 - Navigation plugin</h1>
+  <p>Create consumable navigation with a simple and straigthforward visual builder</p>
   <a href="https://www.npmjs.org/package/strapi-plugin-navigation">
-    <img src="https://img.shields.io/npm/v/strapi-plugin-navigation/latest.svg" alt="NPM Version" />
+    <img alt="GitHub package.json version" src="https://img.shields.io/github/package-json/v/VirtusLab-Open-Source/strapi-plugin-navigation/strapi-v3?label=npm&logo=npm">
   </a>
   <a href="https://www.npmjs.org/package/strapi-plugin-navigation">
     <img src="https://img.shields.io/npm/dm/strapi-plugin-navigation.svg" alt="Monthly download on NPM" />
   </a>
   <a href="https://circleci.com/gh/VirtusLab/strapi-plugin-navigation">
-    <img src="https://circleci.com/gh/VirtusLab/strapi-plugin-navigation.svg?style=shield" alt="CircleCI" />
+    <img src="https://circleci.com/gh/VirtusLab-Open-Source/strapi-plugin-navigation.svg?style=shield" alt="CircleCI" />
   </a>
   <a href="https://codecov.io/gh/VirtusLab/strapi-plugin-navigation">
     <img src="https://codecov.io/gh/VirtusLab/strapi-plugin-navigation/coverage.svg?branch=master" alt="codecov.io" />
   </a>
-</p>
+</div>
+
+---
 
 A plugin for [Strapi Headless CMS](https://github.com/strapi/strapi) that provides navigation / menu builder feature with their possibility to control the audience and different output structure renderers:
 
