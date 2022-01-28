@@ -71,9 +71,7 @@ Complete installation requirements are exact same as for Strapi itself and can b
 - Strapi v4.0.5 (recently tested)
 - Strapi v4.x
 
-_This plugin is not working with v3.x._
-
-It may or may not work with the older Strapi v4 versions, these are not tested nor officially supported at this time.
+> This plugin is designed for **Strapi v4** and is not working with v3.x. To get version for **Strapi v3** install version [v1.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/strapi-v3).
 
 **We recommend always using the latest version of Strapi to start your new projects**.
 
