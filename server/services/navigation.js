@@ -700,7 +700,7 @@ module.exports = ({ strapi }) => {
     },
 
     removeRelated(relatedItems, master) {
-      return Promise.all(relatedItems.map(relatedItem => {
+      return Promise.all((relatedItems || []).map(relatedItem => {
         const model = strapi.query('plugin::navigation.navigations-items-related');
         const entityToRemove = {
           master,

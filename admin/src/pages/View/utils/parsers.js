@@ -118,6 +118,7 @@ const linkRelations = (item, config) => {
 
   const shouldFindRelated = (isNumber(related) || isUuid(related) || isString(related)) && !relatedRef;
   const shouldBuildRelated = !relatedRef || (relatedRef && (relatedRef.id !== relatedId));
+  
   if (shouldBuildRelated && !shouldFindRelated) {
     const relatedContentType = find(contentTypes,
       ct => ct.uid === relatedItem.__contentType, {});
@@ -136,6 +137,7 @@ const linkRelations = (item, config) => {
     const relatedRef = find(contentTypeItems, cti => cti.id === relatedId);
     const relatedContentType = find(contentTypes, ct => ct.uid === relatedType);
     const { uid, contentTypeName, labelSingular, isSingle } = relatedContentType;
+
     relation = {
       relatedRef: {
         ...relatedRef,
@@ -253,7 +255,7 @@ export const extractRelatedItemLabel = (item = {}, fields = {}, config = {}) => 
   const { __collectionUid } = item;
   const contentType = contentTypes.find(_ => _.uid === __collectionUid)
   const { default: defaultFields = [] } = fields;
-  return get(fields, `${contentType ? contentType.collectionName : ''}`, defaultFields).map((_) => item[_]).filter((_) => _)[0] || '';
+  return get(fields, `${contentType ? contentType.uid : __collectionUid}`, defaultFields).map((_) => item[_]).filter((_) => _)[0] || '';
 };
 
 export const usedContentTypes = (items = []) => items.flatMap(

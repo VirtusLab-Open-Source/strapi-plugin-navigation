@@ -58,9 +58,11 @@ const NavigationItemForm = ({
 
   const generatePreviewPath = () => {
     if (!isExternal) {
+      const value = `${data.levelPath !== '/' ? `${data.levelPath}` : ''}/${form.path !== '/' ? form.path || '' : ''}`;
       return {
-        id: `${data.levelPath !== '/' ? `${data.levelPath}` : ''}/${form.path || ''}`,
-        defaultMessage: `${data.levelPath !== '/' ? `${data.levelPath}` : ''}/${form.path || ''}`
+        id: getTradId('popup.item.form.type.external.description'),
+        defaultMessage: '',
+        values: { value  }
       }
     }
     return null;

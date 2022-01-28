@@ -3,25 +3,15 @@ import { useIntl } from 'react-intl';
 import { HeaderLayout } from '@strapi/design-system/Layout';
 import { Stack } from '@strapi/design-system/Stack';
 import { Button } from '@strapi/design-system/Button';
-import { IconButton } from '@strapi/design-system/IconButton';
 import Check from '@strapi/icons/Check';
 import More from '@strapi/icons/More';
-import Plus from '@strapi/icons/Plus';
-import styled from 'styled-components';
 import { getTrad } from '../../../../translations';
-import { transformToRESTPayload } from '../../utils/parsers';
-const MoreButton = styled(IconButton)`
-  margin: ${({ theme }) => `0 ${theme.spaces[2]}`};
-  padding: ${({ theme }) => theme.spaces[2]};
+import { MoreButton } from './styles';
 
-  svg {
-    width: ${18 / 16}rem;
-    height: ${18 / 16}rem;
-  }
-`;
 
 const NavigationHeader = ({
   structureHasErrors,
+  structureHAsChanged,
   handleSave,
 }) => {
   const { formatMessage } = useIntl();
@@ -33,16 +23,16 @@ const NavigationHeader = ({
             <Button
               onClick={handleSave}
               startIcon={<Check />}
-              disabled={structureHasErrors}
+              disabled={structureHasErrors || !structureHAsChanged}
               type="submit"
             >
               {formatMessage(getTrad('submit.cta.save'))}
             </Button>
-            <MoreButton
+            {/* <MoreButton
               id="more"
               label="More"
               icon={<More />}
-            />
+            /> */}
           </Stack>
         }
         title={formatMessage({

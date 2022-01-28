@@ -12,8 +12,8 @@ import Wrapper from './Wrapper';
 import ItemCardBadge from '../ItemCardBadge';
 import { getTrad } from "../../../translations";
 
-const ItemCardHeader = ({ title, path, icon, removed, isExternal, isPublished, onItemRemove, onItemEdit, onItemRestore }) => {
-	const badgeColor = isPublished ? 'success' : 'secondary';
+const ItemCardHeader = ({ title, path, icon, removed, onItemRemove, onItemEdit, onItemRestore }) => {
+
 	const { formatMessage } = useIntl();
 
 	return (
@@ -27,23 +27,15 @@ const ItemCardHeader = ({ title, path, icon, removed, isExternal, isPublished, o
 					{path}
 				</Typography>
 			</Flex>
-			<Flex alignItems="center">
-				{removed ?
-					<ItemCardBadge
+			<Flex alignItems="center" style={{ zIndex: 2 }}>
+				{removed && 
+					(<ItemCardBadge
 						borderColor={`danger200`}
 						backgroundColor={`danger100`}
 						textColor={`danger600`}
 					>
 						{formatMessage(getTrad("navigation.item.badge.removed"))}
-					</ItemCardBadge>
-					: !isExternal && <ItemCardBadge
-						borderColor={`${badgeColor}200`}
-						backgroundColor={`${badgeColor}100`}
-						textColor={`${badgeColor}600`}
-						className="action"
-					>
-						{formatMessage(getTrad(`navigation.item.badge.${isPublished ? 'published' : 'draft'}`))}
-					</ItemCardBadge>
+					</ItemCardBadge>)
 				}
 
 				<IconButton disabled={removed} onClick={onItemEdit} label="Edit" icon={<PencilIcon />} />

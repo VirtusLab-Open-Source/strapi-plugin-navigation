@@ -10,7 +10,8 @@ const EmptyView = styled.div`
   justify-content: center;
   padding-left: 2rem;
   padding-right: 2rem;
-  padding-bottom: "8rem" };
+  padding-bottom: 8rem;
+
 
   font-size: 2rem;
   font-weight: 600;

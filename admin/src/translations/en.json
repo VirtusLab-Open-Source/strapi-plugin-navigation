@@ -22,6 +22,7 @@
 	"popup.item.form.type.label": "Internal link",
 	"popup.item.form.type.internal.label": "Internal source",
 	"popup.item.form.type.external.label": "External source",
+	"popup.item.form.type.external.description": "Output path: {value}",
 	"popup.item.form.audience.label": "Audience",
 	"popup.item.form.audience.placeholder": "Type to start searching...",
 	"popup.item.form.relatedSection.label": "Relation to",
@@ -42,7 +43,7 @@
 	"notification.navigation.item.relation.status.published": "published",
 	"navigation.item.action.newItem": "New nested item",
 	"navigation.item.badge.removed": "Removed",
-	"navigation.item.badge.draft": "Draft",
-	"navigation.item.badge.published": "Published"
+	"navigation.item.badge.draft": "{type}: Draft",
+	"navigation.item.badge.published": "{type}: Published"
   }
   

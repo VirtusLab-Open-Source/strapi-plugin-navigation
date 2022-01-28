@@ -1,7 +1,7 @@
 import { prefixPluginTranslations } from '@strapi/helper-plugin';
-import PluginIcon from './components/PluginIcon';
 import pluginPkg from '../../package.json';
 import pluginId from './pluginId';
+import NavigationIcon from './components/icons/navigation';
 
 const name = pluginPkg.strapi.name;
 
@@ -9,7 +9,7 @@ export default {
   register(app) {
     app.addMenuLink({
       to: `/plugins/${pluginId}`,
-      icon: PluginIcon,
+      icon: NavigationIcon,
       intlLabel: {
         id: `${pluginId}.plugin.name`,
         defaultMessage: 'Navigation',

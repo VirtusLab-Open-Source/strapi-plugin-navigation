@@ -16,6 +16,8 @@ const List = ({
   onItemRemove,
   onItemRestore,
   displayFlat,
+  contentTypes,
+  contentTypesNameFields,
 }) => (
   <Wrapper level={level}>
     {items.map((item, n) => {
@@ -36,6 +38,10 @@ const List = ({
           onItemEdit={onItemEdit}
           error={error}
           displayChildren={displayFlat}
+          config={{
+            contentTypes,
+            contentTypesNameFields
+          }}
         />
       );
     })}
@@ -51,6 +57,8 @@ List.propTypes = {
   onItemRemove: PropTypes.func.isRequired,
   onItemRestore: PropTypes.func.isRequired,
   onItemRestore: PropTypes.func.isRequired,
+  contentTypes: PropTypes.array.isRequired,
+  contentTypesNameFields: PropTypes.object.isRequired
 };
 
 export default List;

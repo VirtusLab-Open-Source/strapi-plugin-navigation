@@ -11,6 +11,7 @@ import { isEmpty, get } from "lodash";
 // Design System
 import { Main } from '@strapi/design-system/Main';
 import { ContentLayout } from '@strapi/design-system/Layout';
+import { Box } from '@strapi/design-system/Box';
 import { Button } from '@strapi/design-system/Button';
 import { LoadingIndicatorPage } from "@strapi/helper-plugin";
 import { EmptyStateLayout } from '@strapi/design-system/EmptyStateLayout';
@@ -55,6 +56,7 @@ const View = () => {
   const { formatMessage } = useIntl();
 
   const [searchValue, setSearchValue] = useState('');
+  const [structureChanged, setStructureChanged] = useState(false);
   const isSearchEmpty = isEmpty(searchValue);
 
   const structureHasErrors = !validateNavigationStructure((changedActiveNavigation || {}).items);
@@ -104,6 +106,7 @@ const View = () => {
       items: transformItemToViewPayload(payload, changedActiveNavigation.items, config),
     };
     handleChangeNavigationData(changedStructure, true);
+    setStructureChanged(true);
   };
 
   const filteredListFactory = (items, filterFunction) => items.reduce((acc, item) => {
@@ -151,6 +154,7 @@ const View = () => {
     <Main labelledBy="title" aria-busy={isLoadingForSubmit}>
       <NavigationHeader
         structureHasErrors={structureHasErrors}
+        structureHAsChanged={structureChanged}
         handleSave={handleSave}
       />
       <ContentLayout>
@@ -168,21 +172,22 @@ const View = () => {
                 {formatMessage(getTrad('header.action.newItem'))}
               </Button>}
             />
-            {isEmpty(changedActiveNavigation.items || []) && (
-              <EmptyStateLayout
-                action={
-                  <Button
-                    variant='secondary'
-                    startIcon={<PlusIcon />}
-                    label={formatMessage(getTrad('empty.cta'))}
-                    onClick={addNewNavigationItem}
-                  >
-                    {formatMessage(getTrad('empty.cta'))}
-                  </Button>
-                }
-                icon={<EmptyDocumentsIcon width='10rem' />}
-                content={formatMessage(getTrad('empty'))}
-              />
+            {isEmpty(changedActiveNavigation.items || []) && (<Box paddingTop={4} >
+                <EmptyStateLayout
+                  action={
+                    <Button
+                      variant='secondary'
+                      startIcon={<PlusIcon />}
+                      label={formatMessage(getTrad('empty.cta'))}
+                      onClick={addNewNavigationItem}
+                    >
+                      {formatMessage(getTrad('empty.cta'))}
+                    </Button>
+                  }
+                  icon={<EmptyDocumentsIcon width='10rem' />}
+                  content={formatMessage(getTrad('empty'))}
+                />
+              </Box>
             )}
             {
               !isEmpty(changedActiveNavigation.items || [])
