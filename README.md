@@ -1,6 +1,7 @@
 <div align="center">
+  <img style="width: 150px; height: auto;" src="public/assets/logo.png" alt="Logo - Strapi Navigation plugin" />
   <h1>Strapi v4 - Navigation plugin</h1>
-  <p>Create consumable navigation with a simple and straigthforward visual builder</p>
+  <p>Create consumable navigation with a simple and straighthforward visual builder</p>
   <a href="https://www.npmjs.org/package/strapi-plugin-navigation">
     <img alt="GitHub package.json version" src="https://img.shields.io/github/package-json/v/VirtusLab-Open-Source/strapi-plugin-navigation?label=npm&logo=npm">
   </a>
@@ -16,6 +17,10 @@
 </div>
 
 ---
+
+<div style="margin: 20px 0" align="center">
+  <img style="width: 100%; height: auto;" src="public/assets/preview.png" alt="UI preview" />
+</div>
 
 Strapi Navigation Plugin provides a website navigation / menu builder feature for [Strapi Headless CMS](https://github.com/strapi/strapi) admin panel. Navigation has the possibility to control the audience and can be consumed by the website with different output structure renderers:
 
