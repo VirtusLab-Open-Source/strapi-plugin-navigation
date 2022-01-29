@@ -1,6 +1,6 @@
 <div align="center">
   <h1>Strapi v3 - Navigation plugin</h1>
-  <p>Create consumable navigation with a simple and straigthforward visual builder</p>
+  <p>Create consumable navigation with a simple and straightforward visual builder</p>
   <a href="https://www.npmjs.org/package/strapi-plugin-navigation">
     <img alt="GitHub package.json version" src="https://img.shields.io/github/package-json/v/VirtusLab-Open-Source/strapi-plugin-navigation/strapi-v3?label=npm&logo=npm">
   </a>
@@ -35,7 +35,7 @@ A plugin for [Strapi Headless CMS](https://github.com/strapi/strapi) that provid
 (Use **yarn** to install this plugin within your Strapi project (recommended). [Install yarn with these docs](https://yarnpkg.com/lang/en/docs/install/).)
 
 ```bash
-yarn add strapi-plugin-navigation@latest
+yarn add strapi-plugin-navigation@latest-v3
 ```
 
 After successful installation you've to build a fresh package that includes  plugin UI. To archive that simply use:
