@@ -23,6 +23,7 @@ import List from '../../components/NavigationItemList';
 import NavigationContentHeader from './components/NavigationContentHeader';
 import NavigationHeader from './components/NavigationHeader';
 import NavigationItemPopUp from "./components/NavigationItemPopup";
+import Search from '../../components/Search';
 import useDataManager from "../../hooks/useDataManager";
 import { getTrad } from '../../translations';
 import {
@@ -31,7 +32,6 @@ import {
   usedContentTypes,
   validateNavigationStructure,
 } from './utils/parsers';
-import Search from '../../components/Search';
 
 const View = () => {
   const {

@@ -331,6 +331,15 @@ const NavigationItemForm = ({
                       onChange={onChangeRelatedType}
                       options={relatedTypeSelectOptions}
                       value={relatedTypeSelectValue}
+                      disabled={isLoading || isEmpty(relatedTypeSelectOptions)}
+                      description={
+                        !isLoading && isEmpty(relatedTypeSelectOptions)
+                          ? {
+                            id: getTradId('popup.item.form.relatedType.empty'),
+                            defaultMessage: 'There are no more content types',
+                          }
+                          : undefined
+                      }
                     />
                   </GridItem>
                   {relatedTypeSelectValue && !isSingleSelected && (

@@ -7,6 +7,7 @@ export const transformItemToRESTPayload = (
   parent = undefined,
   master = undefined,
   config = {},
+  parentAttachedToMenu = true,
 ) => {
   const {
     id,
@@ -34,7 +35,7 @@ export const transformItemToRESTPayload = (
     find(contentTypes,
       ct => ct.uid === relatedType) :
     undefined;
-
+  const itemAttachedToMenu = menuAttached && parentAttachedToMenu
   return {
     id,
     parent,
@@ -45,7 +46,7 @@ export const transformItemToRESTPayload = (
     removed,
     order,
     uiRouterKey,
-    menuAttached,
+    menuAttached: itemAttachedToMenu,
     audience: audience.map((audienceItem) =>
       isObject(audienceItem) ? audienceItem.value : audienceItem,
     ),
@@ -60,7 +61,7 @@ export const transformItemToRESTPayload = (
           field: relatedContentType && relatedContentType.relatedField ? relatedContentType.relatedField : 'navigation',
         },
       ],
-    items: items.map((iItem) => transformItemToRESTPayload(iItem, id, master, config)),
+    items: items.map((iItem) => transformItemToRESTPayload(iItem, id, master, config, itemAttachedToMenu)),
   };
 };
 
@@ -251,6 +252,9 @@ export const prepareItemToViewPayload = (items = [], viewParentId = null, config
   }));
 
 export const extractRelatedItemLabel = (item = {}, fields = {}, config = {}) => {
+  if (get(item, 'isSingle', false)) {
+    return get(item, 'labelSingular', '');
+  }
   const { contentTypes = [] } = config;
   const { __collectionUid } = item;
   const contentType = contentTypes.find(_ => _.uid === __collectionUid)

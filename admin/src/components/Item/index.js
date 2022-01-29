@@ -131,7 +131,7 @@ const Item = (props) => {
         onItemRestore={onItemRestore}
         error={error}
         allowedLevels={allowedLevels}
-        isParentAttachedToMenu={true}
+        isParentAttachedToMenu={menuAttached}
         items={item.items}
         level={level + 1}
         levelPath={absolutePath}
