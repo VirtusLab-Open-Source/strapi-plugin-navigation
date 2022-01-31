@@ -154,7 +154,10 @@ const View = () => {
     <Main labelledBy="title" aria-busy={isLoadingForSubmit}>
       <NavigationHeader
         structureHasErrors={structureHasErrors}
-        structureHAsChanged={structureChanged}
+        structureHasChanged={structureChanged}
+        availableNavigations={availableNavigations}
+        activeNavigation={activeNavigation}
+        handleChangeSelection={handleChangeSelection}
         handleSave={handleSave}
       />
       <ContentLayout>
@@ -162,7 +165,7 @@ const View = () => {
         {changedActiveNavigation && (
           <>
             <NavigationContentHeader
-              startActions={<Search value={searchValue} setValue={setSearchValue}/>}
+              startActions={<Search value={searchValue} setValue={setSearchValue} />}
               endActions={<Button
                 onClick={addNewNavigationItem}
                 startIcon={<PlusIcon />}
@@ -173,21 +176,21 @@ const View = () => {
               </Button>}
             />
             {isEmpty(changedActiveNavigation.items || []) && (<Box paddingTop={4} >
-                <EmptyStateLayout
-                  action={
-                    <Button
-                      variant='secondary'
-                      startIcon={<PlusIcon />}
-                      label={formatMessage(getTrad('empty.cta'))}
-                      onClick={addNewNavigationItem}
-                    >
-                      {formatMessage(getTrad('empty.cta'))}
-                    </Button>
-                  }
-                  icon={<EmptyDocumentsIcon width='10rem' />}
-                  content={formatMessage(getTrad('empty'))}
-                />
-              </Box>
+              <EmptyStateLayout
+                action={
+                  <Button
+                    variant='secondary'
+                    startIcon={<PlusIcon />}
+                    label={formatMessage(getTrad('empty.cta'))}
+                    onClick={addNewNavigationItem}
+                  >
+                    {formatMessage(getTrad('empty.cta'))}
+                  </Button>
+                }
+                icon={<EmptyDocumentsIcon width='10rem' />}
+                content={formatMessage(getTrad('empty'))}
+              />
+            </Box>
             )}
             {
               !isEmpty(changedActiveNavigation.items || [])
