@@ -12,6 +12,7 @@
     "url": "https://github.com/VirtusLab/strapi-plugin-navigation"
   },
   "scripts": {
+    "publish": "npm publish --tag latest-v3",
     "test:unit": "jest --verbose --coverage"
   },
   "dependencies": {
