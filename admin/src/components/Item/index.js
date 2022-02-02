@@ -71,7 +71,7 @@ const Item = (props) => {
           <ItemCardHeader
             title={title}
             path={isExternal ? externalPath : absolutePath}
-            icon={isExternal ? <Earth /> : <LinkIcon />}
+            icon={isExternal ? Earth : LinkIcon }
             onItemRemove={() => onItemRemove({
               ...item,
               relatedRef,
@@ -102,7 +102,6 @@ const Item = (props) => {
             </TextButton>
             { relatedItemLabel && (<Box>
                 <ItemCardBadge
-                  style={{ marginRight: 4 }}
                   borderColor={`${relatedBadgeColor}200`}
                   backgroundColor={`${relatedBadgeColor}100`}
                   textColor={`${relatedBadgeColor}600`}

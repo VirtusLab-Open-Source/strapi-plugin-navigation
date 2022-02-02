@@ -80,7 +80,7 @@ const NavigationItemPopUp = ({
 
   return (
     <ModalLayout labelledBy="condition-modal-breadcrumbs" onClose={onClose} isOpen={isOpen}>
-      <NavigationItemPopupHeader />
+      <NavigationItemPopupHeader isNewItem={!data.viewId}/>
       <NavigationItemForm
         data={prepareFormData(data)}
         isLoading={isLoading}

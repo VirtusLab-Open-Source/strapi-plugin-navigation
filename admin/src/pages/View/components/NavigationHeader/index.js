@@ -23,18 +23,18 @@ const NavigationHeader = ({
     <HeaderLayout
       primaryAction={
         <Stack horizontal size={2}>
-          <Box width="200px">
-          <Select
-            type="select"
-            placeholder={'Change navigation'}
-            name={`navigationSelect`}
-            onChange={handleChangeSelection}
-            value={activeNavigation?.id}
-            size="S"
-            style={null}
-          >
-            {availableNavigations.map(({ id, name }) => <Option key={id} value={id}>{name}</Option>)}
-          </Select >
+          <Box width="10vw">
+            <Select
+              type="select"
+              placeholder={'Change navigation'}
+              name={`navigationSelect`}
+              onChange={handleChangeSelection}
+              value={activeNavigation?.id}
+              size="S"
+              style={null}
+            >
+              {availableNavigations.map(({ id, name }) => <Option key={id} value={id}>{name}</Option>)}
+            </Select >
           </Box>
           <Button
             onClick={handleSave}

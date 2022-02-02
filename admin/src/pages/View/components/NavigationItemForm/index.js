@@ -259,6 +259,10 @@ const NavigationItemForm = ({
                   }}
                   name={`${inputsPrefix}title`}
                   placeholder={{
+                    id: "e.g. Blog",
+                    defaultMessage: 'e.g. Blog',
+                  }}
+                  description={{
                     id: getTradId('popup.item.form.title.placeholder'),
                     defaultMessage: 'e.g. Blog',
                   }}
