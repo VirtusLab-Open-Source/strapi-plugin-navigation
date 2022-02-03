@@ -4,7 +4,7 @@
     "singularName": "navigation-item",
     "pluralName": "navigation-items",
     "displayName": "Navigation Item",
-    "tableName": "navigation-item"
+    "name": "navigation-item"
   },
   "options": {
     "increments": true,
