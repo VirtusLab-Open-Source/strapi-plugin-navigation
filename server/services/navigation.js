@@ -67,14 +67,14 @@ module.exports = ({ strapi }) => {
 
     // Get plugin config
     async config() {
-      const { pluginName, audienceModel } = utilsFunctions.extractMeta(strapi.plugins);
+      const { pluginName, audienceModel, service } = utilsFunctions.extractMeta(strapi.plugins);
       const additionalFields = strapi.plugin(pluginName).config('additionalFields')
       const contentTypesNameFields = strapi.plugin(pluginName).config('contentTypesNameFields');
       const allowedLevels = strapi.plugin(pluginName).config('allowedLevels');
 
       let extendedResult = {};
       const result = {
-        contentTypes: await strapi.plugin(pluginName).service('navigation').configContentTypes(),
+        contentTypes: await service.configContentTypes(),
         contentTypesNameFields: {
           default: contentTypesNameFieldsDefaults,
           ...(isObject(contentTypesNameFields) ? contentTypesNameFields : {}),
@@ -85,7 +85,7 @@ module.exports = ({ strapi }) => {
 
       if (additionalFields.includes(configAdditionalFields.AUDIENCE)) {
         const audienceItems = await strapi
-          .query(`plugin::${pluginName}.${audienceModel.modelName}`)
+          .query(audienceModel.uid)
           .findMany({
             paggination: {
               limit: -1,
