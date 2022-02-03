@@ -4,6 +4,7 @@ import { useIntl } from 'react-intl';
 import { Flex } from '@strapi/design-system/Flex';
 import { IconButton } from '@strapi/design-system/IconButton';
 import { Typography } from '@strapi/design-system/Typography';
+import { Icon } from '@strapi/design-system/Icon';
 import PencilIcon from '@strapi/icons/Pencil';
 import TrashIcon from '@strapi/icons/Trash';
 import RefreshIcon from '@strapi/icons/Refresh';
@@ -19,7 +20,7 @@ const ItemCardHeader = ({ title, path, icon, removed, onItemRemove, onItemEdit, 
 	return (
 		<Wrapper>
 			<Flex alignItems="center">
-				{icon}
+				<Icon as={icon} />
 				<Typography variant="omega" fontWeight="bold">
 					{title}
 				</Typography>

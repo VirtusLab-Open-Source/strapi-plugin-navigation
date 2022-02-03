@@ -6,14 +6,12 @@ import { ModalHeader } from '@strapi/design-system/ModalLayout';
 import { useIntl } from 'react-intl';
 import { getTrad } from '../../../../translations';
 
-export const NavigationItemPopupHeader = () => {
+export const NavigationItemPopupHeader = ({isNewItem}) => {
 	const { formatMessage } = useIntl();
 	return (
 		<ModalHeader>
 			<ButtonText textColor="neutral800" as="h2" id="asset-dialog-title">
-				{formatMessage(
-					getTrad('popup.item.header'),
-				)}
+				{formatMessage(getTrad(`popup.item.header.${isNewItem ? 'new' : 'edit'}`))}
 			</ButtonText>
 		</ModalHeader>
 	);

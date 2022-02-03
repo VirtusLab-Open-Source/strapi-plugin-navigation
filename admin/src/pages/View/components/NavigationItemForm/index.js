@@ -259,6 +259,10 @@ const NavigationItemForm = ({
                   }}
                   name={`${inputsPrefix}title`}
                   placeholder={{
+                    id: "e.g. Blog",
+                    defaultMessage: 'e.g. Blog',
+                  }}
+                  description={{
                     id: getTradId('popup.item.form.title.placeholder'),
                     defaultMessage: 'e.g. Blog',
                   }}
@@ -331,6 +335,15 @@ const NavigationItemForm = ({
                       onChange={onChangeRelatedType}
                       options={relatedTypeSelectOptions}
                       value={relatedTypeSelectValue}
+                      disabled={isLoading || isEmpty(relatedTypeSelectOptions)}
+                      description={
+                        !isLoading && isEmpty(relatedTypeSelectOptions)
+                          ? {
+                            id: getTradId('popup.item.form.relatedType.empty'),
+                            defaultMessage: 'There are no more content types',
+                          }
+                          : undefined
+                      }
                     />
                   </GridItem>
                   {relatedTypeSelectValue && !isSingleSelected && (
