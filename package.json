@@ -1,11 +1,11 @@
 {
   "name": "strapi-plugin-navigation",
-  "version": "2.0.0-rc.1",
+  "version": "2.0.0",
   "description": "Strapi - Navigation plugin",
   "strapi": {
     "name": "navigation",
-    "icon": "hamburger",
-    "description": "UI navigation management",
+    "displayName": "Navigation",
+    "description": "Create consumable navigation with a simple and straightforward visual builder",
     "kind": "plugin"
   },
   "repository": {
@@ -13,10 +13,11 @@
     "url": "https://github.com/VirtusLab/strapi-plugin-navigation"
   },
   "scripts": {
+    "publish": "npm publish --tag latest",
     "test:unit": "jest --verbose --coverage"
   },
   "dependencies": {
-    "@strapi/utils": "^4.0.5",
+    "@strapi/utils": "^4.0.7",
     "uuid": "^8.3.0",
     "bad-words": "^3.0.3",
     "lodash": "^4.17.11",
