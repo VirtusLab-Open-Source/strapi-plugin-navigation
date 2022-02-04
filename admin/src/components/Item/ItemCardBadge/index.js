@@ -6,6 +6,7 @@ const ItemCardBadge = styled(Badge)`
 
 		${ props => props.small && `
 			padding: 0 4px;
+			margin: 0px ${props.theme.spaces[3]};
 			vertical-align: middle;
 
 			cursor: default;

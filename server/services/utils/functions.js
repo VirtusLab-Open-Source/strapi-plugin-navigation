@@ -20,19 +20,12 @@ module.exports = ({ strapi }) => {
 
     extractMeta(plugins) {
       const { navigation: plugin } = plugins;
-      const { navigation: service } = plugin.services;
-      const {
-        navigation: masterModel,
-        'navigation-item': itemModel,
-        audience: audienceModel,
-        'navigations-items-related': relatedModel,
-      } = plugin.contentTypes;
       return {
-        masterModel,
-        itemModel,
-        relatedModel,
-        audienceModel,
-        service,
+        masterModel: plugin.contentType('navigation'),
+        itemModel: plugin.contentType('navigation-item'),
+        relatedModel: plugin.contentType('navigations-items-related'),
+        audienceModel: plugin.contentType('audience'),
+        service: plugin.service('navigation'),
         plugin,
         pluginName: 'navigation',
       };

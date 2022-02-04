@@ -10,11 +10,13 @@ import { isEmpty, get } from "lodash";
 
 // Design System
 import { Main } from '@strapi/design-system/Main';
+import { Flex } from '@strapi/design-system/Flex';
 import { ContentLayout } from '@strapi/design-system/Layout';
+import { Typography } from '@strapi/design-system/Typography';
 import { Box } from '@strapi/design-system/Box';
+import { Icon } from '@strapi/design-system/Icon';
 import { Button } from '@strapi/design-system/Button';
 import { LoadingIndicatorPage } from "@strapi/helper-plugin";
-import { EmptyStateLayout } from '@strapi/design-system/EmptyStateLayout';
 import EmptyDocumentsIcon from '@strapi/icons/EmptyDocuments';
 import PlusIcon from "@strapi/icons/Plus";
 
@@ -23,6 +25,7 @@ import List from '../../components/NavigationItemList';
 import NavigationContentHeader from './components/NavigationContentHeader';
 import NavigationHeader from './components/NavigationHeader';
 import NavigationItemPopUp from "./components/NavigationItemPopup";
+import Search from '../../components/Search';
 import useDataManager from "../../hooks/useDataManager";
 import { getTrad } from '../../translations';
 import {
@@ -31,7 +34,6 @@ import {
   usedContentTypes,
   validateNavigationStructure,
 } from './utils/parsers';
-import Search from '../../components/Search';
 
 const View = () => {
   const {
@@ -150,11 +152,19 @@ const View = () => {
     changeNavigationItemPopupState(false);
   };
 
+  const handleChangeNavigationSelection = (...args) => {
+    handleChangeSelection(...args);
+    setSearchValue('');
+  }
+
   return (
     <Main labelledBy="title" aria-busy={isLoadingForSubmit}>
       <NavigationHeader
         structureHasErrors={structureHasErrors}
-        structureHAsChanged={structureChanged}
+        structureHasChanged={structureChanged}
+        availableNavigations={availableNavigations}
+        activeNavigation={activeNavigation}
+        handleChangeSelection={handleChangeNavigationSelection}
         handleSave={handleSave}
       />
       <ContentLayout>
@@ -162,7 +172,7 @@ const View = () => {
         {changedActiveNavigation && (
           <>
             <NavigationContentHeader
-              startActions={<Search value={searchValue} setValue={setSearchValue}/>}
+              startActions={<Search value={searchValue} setValue={setSearchValue} />}
               endActions={<Button
                 onClick={addNewNavigationItem}
                 startIcon={<PlusIcon />}
@@ -172,22 +182,21 @@ const View = () => {
                 {formatMessage(getTrad('header.action.newItem'))}
               </Button>}
             />
-            {isEmpty(changedActiveNavigation.items || []) && (<Box paddingTop={4} >
-                <EmptyStateLayout
-                  action={
-                    <Button
-                      variant='secondary'
-                      startIcon={<PlusIcon />}
-                      label={formatMessage(getTrad('empty.cta'))}
-                      onClick={addNewNavigationItem}
-                    >
-                      {formatMessage(getTrad('empty.cta'))}
-                    </Button>
-                  }
-                  icon={<EmptyDocumentsIcon width='10rem' />}
-                  content={formatMessage(getTrad('empty'))}
-                />
-              </Box>
+            {isEmpty(changedActiveNavigation.items || []) && (
+              <Flex direction="column" minHeight="400px" justifyContent="center">
+                <Icon as={EmptyDocumentsIcon} width="160px" height="88px" color=""/>
+                <Box padding={4}>
+                  <Typography variant="beta" textColor="neutral600">{formatMessage(getTrad('empty'))}</Typography>
+                </Box>
+                <Button
+                  variant='secondary'
+                  startIcon={<PlusIcon />}
+                  label={formatMessage(getTrad('empty.cta'))}
+                  onClick={addNewNavigationItem}
+                >
+                  {formatMessage(getTrad('empty.cta'))}
+                </Button>
+              </Flex>
             )}
             {
               !isEmpty(changedActiveNavigation.items || [])
