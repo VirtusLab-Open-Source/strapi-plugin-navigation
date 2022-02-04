@@ -16,6 +16,12 @@
   <a href="https://codecov.io/gh/VirtusLab/strapi-plugin-navigation">
     <img src="https://codecov.io/gh/VirtusLab/strapi-plugin-navigation/coverage.svg?branch=master" alt="codecov.io" />
   </a>
+  <a href="https://sharing.clickup.com/tl/xhcmx-43/strapiv-4-navigation-roadmap">
+    <img src="https://img.shields.io/website?down_message=roadmap&label=product&up_message=roadmap&url=https%3A%2F%2Fsharing.clickup.com%2Ftl%2Fxhcmx-43%2Fstrapiv-4-navigation-roadmap">
+  </a>
+  <a href="https://sharing.clickup.com/b/6-169004201-2/strapiv-4-navigation-board">
+    <img src="https://img.shields.io/website?down_message=board&label=product&up_color=blue&up_message=board&url=https%3A%2F%2Fsharing.clickup.com%2Fb%2F6-169004201-2%2Fstrapiv-4-navigation-board">
+  </a>
 </div>
 
 ---
@@ -35,9 +41,9 @@ Strapi Navigation Plugin provides a website navigation / menu builder feature fo
 - **Navigation Public API:** Simple and ready for use API endpoint for consuming the navigation structure you've created
 - **Visual builder:** Elegant and easy to use visual builder
 - **Any Content Type relation:** Navigation can by linked to any of your Content Types by default. Simply, you're controlling it and also limiting available content types by configuration props
+- **Multiple navigations:** Create as many Navigation containers as you want, setup them and use in the consumer application
 - **Customizable:** Possibility to customize the options like: available Content Types, Maximum level for "attach to menu", Additional fields (audience)
 - **[Audit log](https://github.com/VirtusLab/strapi-molecules/tree/master/packages/strapi-plugin-audit-log):** integration with Strapi Molecules Audit Log plugin that provides changes track record
-
 
 ## ⚙️ Versions
 
@@ -388,6 +394,15 @@ Live example of plugin usage can be found in the [VirtusLab Strapi Examples](htt
 **A:** As an authors of the plugin we're not supporting any editing of mentioned content types via built-in Strapi Content Manager. Plugin delivers highly customized & extended functionality which might be covered only by dedicated editor UI accessible via **Plugins Section > UI Navigation**. Only issues that has been recognized there, are in the scope of support we've providing.
 
 ## 🤝 Contributing
+
+<div>
+  <a href="https://sharing.clickup.com/tl/xhcmx-43/strapiv-4-navigation-roadmap">
+    <img src="https://img.shields.io/website?down_message=roadmap&label=product&up_message=roadmap&url=https%3A%2F%2Fsharing.clickup.com%2Ftl%2Fxhcmx-43%2Fstrapiv-4-navigation-roadmap">
+  </a>
+  <a href="https://sharing.clickup.com/b/6-169004201-2/strapiv-4-navigation-board">
+    <img src="https://img.shields.io/website?down_message=board&label=product&up_color=blue&up_message=board&url=https%3A%2F%2Fsharing.clickup.com%2Fb%2F6-169004201-2%2Fstrapiv-4-navigation-board">
+  </a>
+</div>
 
 Feel free to fork and make a Pull Request to this plugin project. All the input is warmly welcome!
 
