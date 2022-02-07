@@ -6,18 +6,19 @@ import { Formik } from 'formik'
 
 // Design System
 import { ModalBody } from '@strapi/design-system/ModalLayout';
+import { Select, Option } from '@strapi/design-system/Select';
 import { Grid, GridItem } from '@strapi/design-system/Grid';
 import { Form, GenericInput } from '@strapi/helper-plugin';
 
 import { NavigationItemPopupFooter } from '../NavigationItemPopup/NavigationItemPopupFooter';
 
 
-import { navigationItemType } from '../../utils/enums';
+import { navigationItemAdditionalFields, navigationItemType } from '../../utils/enums';
 import slugify from 'slugify';
 import { extractRelatedItemLabel } from '../../utils/parsers';
 import { form as formDefinition } from './utils/form';
 import { checkFormValidity } from '../../utils/form';
-import { getTradId } from '../../../../translations';
+import { getTradId, getTrad } from '../../../../translations';
 
 const NavigationItemForm = ({
   isLoading,
@@ -52,9 +53,16 @@ const NavigationItemForm = ({
       ...data,
       type: data.type || navigationItemType.INTERNAL,
       related: data.related?.value,
-      relatedType: data.relatedType?.value
+      relatedType: data.relatedType?.value,
+      audience: data.audience?.map(item => item.id),
     });
   }
+
+  const audience = get(form, `${inputsPrefix}audience`, []);
+  const audienceOptions = availableAudience.map((item) => ({
+    value: get(item, 'id', " "),
+    label: get(item, 'name', " "),
+  }));
 
   const generatePreviewPath = () => {
     if (!isExternal) {
@@ -62,12 +70,12 @@ const NavigationItemForm = ({
       return {
         id: getTradId('popup.item.form.type.external.description'),
         defaultMessage: '',
-        values: { value  }
+        values: { value }
       }
     }
     return null;
   };
-  
+
   const sanitizePayload = (payload = {}) => {
     const { onItemClick, onItemLevelAddClick, related, relatedType, menuAttached, ...purePayload } = payload;
     const sanitizedType = purePayload.type || navigationItemType.INTERNAL;
@@ -102,6 +110,10 @@ const NavigationItemForm = ({
 
   const onTypeChange = ({ target: { name, value } }) =>
     onChange({ target: { name, value: value ? navigationItemType.INTERNAL : navigationItemType.EXTERNAL } });
+
+  const onAudienceChange = (value) => {
+    onChange({target: {name: `${inputsPrefix}audience`, value}});
+  }
 
   const onChange = ({ target: { name, value } }) => {
     setFormState(prevState => ({
@@ -139,7 +151,7 @@ const NavigationItemForm = ({
     .filter((item) => {
       const usedContentTypeEntitiesOfSameType = usedContentTypeEntities
         .filter(uctItem => relatedTypeSelectValue === uctItem.__collectionUid);
-      return !find(usedContentTypeEntitiesOfSameType, uctItem => (item.id === uctItem.id && uctItem.id !== form.related)); 
+      return !find(usedContentTypeEntitiesOfSameType, uctItem => (item.id === uctItem.id && uctItem.id !== form.related));
     })
     .map((item) => {
       const label = appendLabelPublicationStatus(
@@ -379,6 +391,22 @@ const NavigationItemForm = ({
                     </GridItem>
                   )}
                 </>
+              )}
+
+              {additionalFields.includes(navigationItemAdditionalFields.AUDIENCE) && (
+                <GridItem key={`${inputsPrefix}audience`} col={6} lg={12}>
+                  <Select
+                    id={`${inputsPrefix}audience`}
+                    placeholder={formatMessage(getTrad('popup.item.form.audience.placeholder'))}
+                    label={formatMessage(getTrad('popup.item.form.audience.label'))}
+                    onChange={onAudienceChange}
+                    value={audience}
+                    multi
+                    withTags
+                  >
+                    {audienceOptions.map(({ value, label }) => <Option key={value} value={value}>{label}</Option>)}
+                  </Select>
+                </GridItem>
               )}
             </Grid>
           </ModalBody>

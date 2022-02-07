@@ -5,7 +5,7 @@ const ItemCardBadge = styled(Badge)`
 		border: 1px solid ${({ theme, borderColor }) => theme.colors[borderColor]};
 
 		${ props => props.small && `
-			padding: 0 4px;
+			padding: ${props.theme.spaces[1]};
 			margin: 0px ${props.theme.spaces[3]};
 			vertical-align: middle;
 

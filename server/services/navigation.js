@@ -56,7 +56,7 @@ module.exports = ({ strapi }) => {
             limit: -1,
           },
           sort: ['order:asc'],
-          populate: ['related', 'parent']
+          populate: ['related', 'parent', 'audience']
         });
       const entities = await this.getRelatedItems(entityItems);
       return {
