@@ -25,7 +25,7 @@
 	"popup.item.form.type.external.label": "External source",
 	"popup.item.form.type.external.description": "Output path: {value}",
 	"popup.item.form.audience.label": "Audience",
-	"popup.item.form.audience.placeholder": "Type to start searching...",
+	"popup.item.form.audience.placeholder": "Select audience...",
 	"popup.item.form.relatedSection.label": "Relation to",
 	"popup.item.form.relatedType.label": "Content Type",
 	"popup.item.form.relatedType.placeholder": "Select content type...",

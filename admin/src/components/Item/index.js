@@ -150,7 +150,6 @@ Item.propTypes = {
     uiRouterKey: PropTypes.string,
     path: PropTypes.string,
     externalPath: PropTypes.string,
-    audience: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])),
     related: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     menuAttached: PropTypes.bool
   }).isRequired,
