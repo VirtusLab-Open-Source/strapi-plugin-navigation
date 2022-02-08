@@ -27,7 +27,24 @@ export default {
       name,
     });
   },
-  bootstrap() {},
+  bootstrap(app) { 
+    app.addSettingsLink('global', {
+      intlLabel: {
+        id: `${pluginId}.plugin.name`,
+        defaultMessage: 'Navigation',
+      },
+      id: 'navigation',
+      to: `/settings/${pluginId}`,
+      Component: async () => {
+        const component = await import(
+          /* webpackChunkName: "documentation-settings" */ './pages/SettingsPage'
+        );
+
+        return component;
+      },
+      permissions: pluginPermissions.access,
+    });
+  },
   async registerTrads({ locales }) {
     const importedTrads = await Promise.all(
       locales.map(locale => {

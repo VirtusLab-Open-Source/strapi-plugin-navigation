@@ -19,7 +19,7 @@ const { KIND_TYPES } = require('./utils/constant');
 const utilsFunctionsFactory = require('./utils/functions');
 const { renderType } = require('../content-types/navigation/lifecycle');
 const { type: itemType, additionalFields: configAdditionalFields } = require('../content-types/navigation-item').lifecycle;
-const { NotFoundError } =  require('@strapi/utils').errors
+const { NotFoundError } = require('@strapi/utils').errors
 const excludedContentTypes = ['strapi::'];
 const contentTypesNameFieldsDefaults = ['title', 'subject', 'name'];
 
@@ -68,9 +68,11 @@ module.exports = ({ strapi }) => {
     // Get plugin config
     async config() {
       const { pluginName, audienceModel, service } = utilsFunctions.extractMeta(strapi.plugins);
-      const additionalFields = strapi.plugin(pluginName).config('additionalFields')
-      const contentTypesNameFields = strapi.plugin(pluginName).config('contentTypesNameFields');
-      const allowedLevels = strapi.plugin(pluginName).config('allowedLevels');
+      const pluginStore = strapi.store({ type: 'plugin', name: 'navigation' });
+      const config = await pluginStore.get({ key: 'config' });
+      const additionalFields = config.additionalFields;
+      const contentTypesNameFields = config.contentTypesNameFields;
+      const allowedLevels = config.allowedLevels;
 
       let extendedResult = {};
       const result = {
@@ -103,9 +105,11 @@ module.exports = ({ strapi }) => {
     },
 
     async configContentTypes() {
+      const pluginStore = strapi.store({ type: 'plugin', name: 'navigation' });
+      const config = await pluginStore.get({ key: 'config' });
       const eligibleContentTypes =
         await Promise.all(
-          strapi.plugin('navigation').config('contentTypes')
+          config.contentTypes
             .filter(contentType => !!strapi.contentTypes[contentType])
             .map(
               async (key) => {

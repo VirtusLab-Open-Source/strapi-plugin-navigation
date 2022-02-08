@@ -1,8 +1,10 @@
 module.exports = ({ nexus }) => nexus.objectType({
   name: "ContentTypesNameFields",
-  definition(t) {
+  async definition(t) {
 		t.nonNull.list.nonNull.string("default")
-		const contentTypesNameFields = strapi.plugin('navigation').config('contentTypesNameFields')
+		const pluginStore = strapi.store({ type: 'plugin', name: 'navigation' });
+		const config = await pluginStore.get({ key: 'config' });
+		const contentTypesNameFields = config.contentTypesNameFields;
 		Object.keys(contentTypesNameFields || {}).forEach(key => t.nonNull.list.string(key))
   }
 })

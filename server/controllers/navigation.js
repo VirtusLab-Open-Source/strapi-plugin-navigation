@@ -23,6 +23,35 @@ module.exports = {
   async config() {
     return getService().config();
   },
+
+  async updateConfig(ctx) {
+    const newConfig = ctx.request.body;
+
+    const pluginStore = await strapi.store({ type: 'plugin', name: 'navigation' });
+
+    await pluginStore.set({ key: 'config', value: newConfig });
+
+    return ctx.send({ ok: true });
+  },
+
+  async restoreConfig(ctx) {
+    const pluginStore = await strapi.store({ type: 'plugin', name: 'navigation' });
+    const defaultConfig = await strapi.plugin('navigation').config
+
+    await pluginStore.delete({key: 'config'})
+    await pluginStore.set({
+      key: 'config', value: {
+        additionalFields: defaultConfig('additionalFields'),
+        contentTypes: defaultConfig('contentTypes'),
+        contentTypesNameFields: defaultConfig('contentTypesNameFields'),
+        allowedLevels: defaultConfig('allowedLevels'),
+        gql: defaultConfig('gql'),
+      }
+    });
+
+    return ctx.send({ ok: true });
+  },
+
   async get() {
     return getService().get();
   },

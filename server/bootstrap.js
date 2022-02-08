@@ -23,7 +23,9 @@ module.exports = async ({ strapi }) => {
       pluginName: "navigation",
     },
   ];
+  await strapi.admin.services.permission.actionProvider.registerMany(actions);
 
+  // Initialize first navigation
   const navigations = await strapi
     .query("plugin::navigation.navigation")
     .findMany();
@@ -38,5 +40,26 @@ module.exports = async ({ strapi }) => {
         }
       });
   }
-  await strapi.admin.services.permission.actionProvider.registerMany(actions);
+  
+  // Initialize configuration
+  const pluginStore = strapi.store({
+    environment: '',
+    type: 'plugin',
+    name: 'navigation',
+  });
+
+  const config = await pluginStore.get({ key: 'config' });
+  const defaultConfig = await strapi.plugin('navigation').config
+  
+  if (!config) {
+    pluginStore.set({
+      key: 'config', value: {
+        additionalFields: defaultConfig('additionalFields'),
+        contentTypes: defaultConfig('contentTypes'),
+        contentTypesNameFields: defaultConfig('contentTypesNameFields'),
+        allowedLevels: defaultConfig('allowedLevels'),
+        gql: defaultConfig('gql'),
+      }
+    });
+  }
 };

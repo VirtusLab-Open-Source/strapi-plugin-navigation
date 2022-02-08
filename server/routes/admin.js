@@ -17,6 +17,16 @@ module.exports = {
       handler: 'navigation.config',
     },
     {
+      method: 'PUT',
+      path: '/config',
+      handler: 'navigation.updateConfig',
+    },
+    {
+      method: 'DELETE',
+      path: '/config',
+      handler: 'navigation.restoreConfig',
+    },
+    {
       method: 'GET',
       path: '/:id',
       handler: 'navigation.getById',
