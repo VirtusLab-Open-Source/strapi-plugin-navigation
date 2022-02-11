@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from 'react-query';
+import { useQuery, useQueryClient } from 'react-query';
 import { useNotification } from '@strapi/helper-plugin';
 import { fetchNavigationConfig, restoreNavigationConfig, updateNavigationConfig } from '../utils/api';
 import { getTrad } from '../translations';
@@ -17,23 +17,31 @@ const useNavigationConfig = () => {
     });
   };
 
-  const handleSuccess = (type) => {
-    queryClient.invalidateQueries('navigationConfig');
+  const handleSuccess = async (type) => {
+    await queryClient.invalidateQueries('navigationConfig');
     toggleNotification({
       type: 'success',
       message: getTrad(`pages.settings.notification.${type}.success`),
     });
   };
+  
+  const submitMutation = async (...args) => {
+    try {
+      await updateNavigationConfig(...args);
+      await handleSuccess('submit');
+    } catch (e) {
+      handleError('submit');
+    }
+  } 
 
-  const submitMutation = useMutation(updateNavigationConfig, {
-    onSuccess: () => handleSuccess('submit'),
-    onError: () => handleError('submit'),
-  });
-
-  const restoreMutation = useMutation(restoreNavigationConfig, {
-    onSuccess: () => handleSuccess('restore'),
-    onError: () => handleError('restore'),
-  });
+  const restoreMutation = async (...args) => {
+    try {
+      await restoreNavigationConfig(...args);
+      await handleSuccess('restore');
+    } catch (e) {
+      handleError('restore');
+    }
+  }
 
   return { data, isLoading, submitMutation, restoreMutation, err };
 };

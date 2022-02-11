@@ -49,17 +49,23 @@ module.exports = async ({ strapi }) => {
   });
 
   const config = await pluginStore.get({ key: 'config' });
-  const defaultConfig = await strapi.plugin('navigation').config
+  const pluginDefaultConfig = await strapi.plugin('navigation').config
+  const defaultConfigValue = {
+    additionalFields: pluginDefaultConfig('additionalFields'),
+    contentTypes: pluginDefaultConfig('contentTypes'),
+    contentTypesNameFields: pluginDefaultConfig('contentTypesNameFields'),
+    allowedLevels: pluginDefaultConfig('allowedLevels'),
+    gql: pluginDefaultConfig('gql'),
+  }
   
   if (!config) {
     pluginStore.set({
-      key: 'config', value: {
-        additionalFields: defaultConfig('additionalFields'),
-        contentTypes: defaultConfig('contentTypes'),
-        contentTypesNameFields: defaultConfig('contentTypesNameFields'),
-        allowedLevels: defaultConfig('allowedLevels'),
-        gql: defaultConfig('gql'),
-      }
+      key: 'config', value: defaultConfigValue
     });
+  }
+
+  if (strapi.plugin('graphql')) {
+    const graphqlConfiguration = require('./graphql')
+    await graphqlConfiguration({ strapi, config: config || defaultConfigValue });
   }
 };

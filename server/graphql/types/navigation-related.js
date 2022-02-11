@@ -1,6 +1,4 @@
-module.exports = async ({ strapi, nexus }) => {
-	const pluginStore = await strapi.store({ type: 'plugin', name: 'navigation' });
-	const config = await pluginStore.get({ key: 'config' })
+module.exports = ({ strapi, nexus, config }) => {
 	const related = config.gql?.navigationItemRelated;
 	const name = "NavigationRelated";
 

@@ -3,11 +3,34 @@ import pluginPkg from '../../package.json';
 import pluginId from './pluginId';
 import pluginPermissions from './permissions';
 import NavigationIcon from './components/icons/navigation';
-
+import { getTrad } from './translations';
 const name = pluginPkg.strapi.name;
 
 export default {
   register(app) {
+    app.createSettingSection(
+      {
+        id: pluginId,
+        intlLabel: { id: getTrad('pages.settings.section.title'), defaultMessage: 'Navigation Plugin' },
+      },
+      [
+        {
+          intlLabel: {
+            id: getTrad('pages.settings.section.subtitle'),
+            defaultMessage: 'Configuration',
+          },
+          id: 'navigation',
+          to: `/settings/${pluginId}`,
+          Component: async () => {
+            const component = await import(
+              /* webpackChunkName: "navigation-settings" */ './pages/SettingsPage'
+            );
+    
+            return component;
+          },
+          permissions: pluginPermissions.access,
+        }
+      ]);
     app.addMenuLink({
       to: `/plugins/${pluginId}`,
       icon: NavigationIcon,
@@ -27,24 +50,7 @@ export default {
       name,
     });
   },
-  bootstrap(app) { 
-    app.addSettingsLink('global', {
-      intlLabel: {
-        id: `${pluginId}.plugin.name`,
-        defaultMessage: 'Navigation',
-      },
-      id: 'navigation',
-      to: `/settings/${pluginId}`,
-      Component: async () => {
-        const component = await import(
-          /* webpackChunkName: "documentation-settings" */ './pages/SettingsPage'
-        );
-
-        return component;
-      },
-      permissions: pluginPermissions.access,
-    });
-  },
+  bootstrap() {},
   async registerTrads({ locales }) {
     const importedTrads = await Promise.all(
       locales.map(locale => {

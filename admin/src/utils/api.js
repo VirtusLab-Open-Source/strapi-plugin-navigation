@@ -16,10 +16,10 @@ export const fetchNavigationConfig = async () => {
 }
 
 export const updateNavigationConfig = async ({ body }) =>
-  request(`/${pluginId}/config`, { method: 'PUT', body });
+  request(`/${pluginId}/config`, { method: 'PUT', body }, true);
 
 export const restoreNavigationConfig = async () =>
-  request(`/${pluginId}/config`, { method: 'DELETE' });
+  request(`/${pluginId}/config`, { method: 'DELETE' }, true);
 
 export const fetchAllContentTypes = async () => {
   try {

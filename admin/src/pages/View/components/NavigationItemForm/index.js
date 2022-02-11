@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
-import { useIntl } from 'react-intl';
 import { debounce, find, get, isEmpty, isEqual, isNil, isString } from 'lodash';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik'
@@ -18,7 +17,8 @@ import slugify from 'slugify';
 import { extractRelatedItemLabel } from '../../utils/parsers';
 import { form as formDefinition } from './utils/form';
 import { checkFormValidity } from '../../utils/form';
-import { getTradId, getTrad } from '../../../../translations';
+import { getTradId } from '../../../../translations';
+import { getMessage } from '../../../../utils';
 
 const NavigationItemForm = ({
   isLoading,
@@ -43,7 +43,6 @@ const NavigationItemForm = ({
   const [form, setFormState] = useState({});
   const [formErrors, setFormErrorsState] = useState({});
   const { relatedType } = form;
-  const { formatMessage } = useIntl();
 
   const relatedFieldName = `${inputsPrefix}related`;
 
@@ -397,8 +396,8 @@ const NavigationItemForm = ({
                 <GridItem key={`${inputsPrefix}audience`} col={6} lg={12}>
                   <Select
                     id={`${inputsPrefix}audience`}
-                    placeholder={formatMessage(getTrad('popup.item.form.audience.placeholder'))}
-                    label={formatMessage(getTrad('popup.item.form.audience.label'))}
+                    placeholder={getMessage('popup.item.form.audience.placeholder')}
+                    label={getMessage('popup.item.form.audience.label')}
                     onChange={onAudienceChange}
                     value={audience}
                     multi

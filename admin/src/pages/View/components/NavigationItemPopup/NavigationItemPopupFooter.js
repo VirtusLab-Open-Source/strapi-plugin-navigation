@@ -1,25 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { useIntl } from 'react-intl';
 
 import { Button } from '@strapi/design-system/Button';
 import { ModalFooter } from '@strapi/design-system/ModalLayout';
-
-import { getTrad } from '../../../../translations';
+import { getMessage } from '../../../../utils';
 
 export const NavigationItemPopupFooter = ({ handleCancel, handleSubmit, submitDisabled, formViewId }) => {
-	const { formatMessage } = useIntl();
 
 	return (
 		<ModalFooter
 			startActions={
 				<Button onClick={handleCancel} variant="tertiary">
-					{formatMessage(getTrad('popup.item.form.button.cancel'))}
+					{getMessage('popup.item.form.button.cancel')}
 				</Button>
 			}
 			endActions={
 				<Button onClick={handleSubmit} disabled={submitDisabled}>
-					{formatMessage(getTrad(`popup.item.form.button.save`))}
+					{getMessage(`popup.item.form.button.save`)}
 				</Button>
 			}
 		/>

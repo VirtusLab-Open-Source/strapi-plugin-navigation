@@ -67,8 +67,8 @@ module.exports = ({ strapi }) => {
 
     // Get plugin config
     async config() {
-      const { pluginName, audienceModel, service } = utilsFunctions.extractMeta(strapi.plugins);
-      const pluginStore = strapi.store({ type: 'plugin', name: 'navigation' });
+      const { audienceModel, service } = utilsFunctions.extractMeta(strapi.plugins);
+      const pluginStore = await strapi.store({ type: 'plugin', name: 'navigation' });
       const config = await pluginStore.get({ key: 'config' });
       const additionalFields = config.additionalFields;
       const contentTypesNameFields = config.contentTypesNameFields;
@@ -102,6 +102,27 @@ module.exports = ({ strapi }) => {
         ...result,
         ...extendedResult,
       };
+    },
+
+    async updateConfig(newConfig) {
+      const pluginStore = await strapi.store({ type: 'plugin', name: 'navigation' });
+      await pluginStore.set({ key: 'config', value: newConfig });
+    },
+
+    async restoreConfig() {
+      const pluginStore = await strapi.store({ type: 'plugin', name: 'navigation' });
+      const defaultConfig = await strapi.plugin('navigation').config
+
+      await pluginStore.delete({ key: 'config' })
+      await pluginStore.set({
+        key: 'config', value: {
+          additionalFields: defaultConfig('additionalFields'),
+          contentTypes: defaultConfig('contentTypes'),
+          contentTypesNameFields: defaultConfig('contentTypesNameFields'),
+          allowedLevels: defaultConfig('allowedLevels'),
+          gql: defaultConfig('gql'),
+        }
+      });
     },
 
     async configContentTypes() {

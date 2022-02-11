@@ -5,7 +5,6 @@
  */
 
 import React from 'react';
-import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { find } from 'lodash';
 
@@ -15,8 +14,8 @@ import { ModalLayout } from '@strapi/design-system/ModalLayout';
 import NavigationItemForm from '../NavigationItemForm';
 import { extractRelatedItemLabel, isRelationCorrect, isRelationPublished } from '../../utils/parsers';
 import { navigationItemType } from '../../utils/enums';
-import { getTrad } from '../../../../translations';
 import { NavigationItemPopupHeader } from './NavigationItemPopupHeader';
+import { getMessage } from '../../../../utils';
 
 const NavigationItemPopUp = ({
   isOpen,
@@ -30,7 +29,6 @@ const NavigationItemPopUp = ({
   usedContentTypesData,
 }) => {
 
-  const { formatMessage } = useIntl();
 
   const handleOnSubmit = (payload) => {
     onSubmit(payload);
@@ -51,7 +49,7 @@ const NavigationItemPopUp = ({
       relatedRef: item,
       type: item.isSingle ? navigationItemType.INTERNAL : item.type,
       isCollection,
-    }) ? '' : `[${formatMessage(getTrad('notification.navigation.item.relation.status.draft'))}] `.toUpperCase();
+    }) ? '' : `[${getMessage('notification.navigation.item.relation.status.draft')}] `.toUpperCase();
     return `${appendix}${label}`;
   };
 
