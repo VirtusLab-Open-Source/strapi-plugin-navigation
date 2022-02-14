@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Formik } from 'formik';
+import { isEmpty, capitalize } from 'lodash';
 
 import {
   CheckPermissions,
@@ -19,6 +20,11 @@ import { NumberInput } from '@strapi/design-system/NumberInput';
 import { Select, Option } from '@strapi/design-system/Select';
 import { Check, Refresh } from '@strapi/icons';
 import { SettingsPageTitle } from '@strapi/helper-plugin';
+import {
+  Card,
+  CardBody,
+  CardContent,
+} from '@strapi/design-system/Card';
 
 import permissions from '../../permissions';
 import useNavigationConfig from '../../hooks/useNavigationConfig';
@@ -40,6 +46,7 @@ const SettingsPage = () => {
     await submitMutation({
       body: {
         contentTypes: form.selectedContentTypes,
+        contentTypesNameFields: form.nameFields,
         additionalFields: form.audienceFieldChecked ? [navigationItemAdditionalFields.AUDIENCE] : [],
         allowedLevels: form.allowedLevels,
         gql: {
@@ -59,6 +66,11 @@ const SettingsPage = () => {
     }
   }
 
+  const prepareNameFieldFor = (uid, current, value) => ({
+    ...current,
+    [uid]: value && !isEmpty(value) ? [...value] : undefined,
+  });
+
   if (isLoading || isError) {
     return (
       <>
@@ -76,6 +88,7 @@ const SettingsPage = () => {
   const selectedContentTypes = navigationConfigData?.contentTypes.map(item => item.uid);
   const audienceFieldChecked = navigationConfigData?.additionalFields.includes(navigationItemAdditionalFields.AUDIENCE);
   const allowedLevels = navigationConfigData?.allowedLevels;
+  const nameFields = navigationConfigData?.contentTypesNameFields
 
   return (
     <>
@@ -88,6 +101,7 @@ const SettingsPage = () => {
             selectedContentTypes,
             audienceFieldChecked,
             allowedLevels,
+            nameFields,
           }}
           onSubmit={onSave}
         >
@@ -117,7 +131,7 @@ const SettingsPage = () => {
                         {getMessage('pages.settings.general.title')}
                       </Typography>
                       <Grid gap={4}>
-                        <GridItem col={12}>
+                        <GridItem col={12} s={12} xs={12}>
                           <Select
                             name="selectedContentTypes"
                             label={getMessage('pages.settings.form.contentTypes.label')}
@@ -132,7 +146,7 @@ const SettingsPage = () => {
                             {allContentTypes.map((item) => <Option key={item.uid} value={item.uid}>{item.info.displayName}</Option>)}
                           </Select>
                         </GridItem>
-                        <GridItem col={3}>
+                        <GridItem col={3} s={6} xs={12}>
                           <NumberInput
                             name="allowedLevels"
                             label={getMessage('pages.settings.form.allowedLevels.label')}
@@ -156,7 +170,7 @@ const SettingsPage = () => {
                         {getMessage('pages.settings.additional.title')}
                       </Typography>
                       <Grid gap={4}>
-                        <GridItem col={6}>
+                        <GridItem col={6} s={12} xs={12}>
                           <ToggleInput
                             name="audienceFieldChecked"
                             label={getMessage('pages.settings.form.audience.label')}
@@ -178,15 +192,64 @@ const SettingsPage = () => {
                   >
                     <Stack size={4}>
                       <Typography variant="delta" as="h2">
+                        {getMessage('pages.settings.additional.title')}
+                      </Typography>
+                      <Grid gap={4}>
+                        {
+                          !isEmpty(values.selectedContentTypes) &&
+                          values.selectedContentTypes.map(uid => {
+                            const { attributes, info: { displayName } } = allContentTypes.find(item => item.uid == uid);
+                            const stringAttributes = Object.keys(attributes).filter(_ => attributes[_].type === 'string');
+
+                            return !isEmpty(stringAttributes) && (
+                              <GridItem key={`collectionSettings-${uid}`} col={6} s={12} xs={12}>
+                                <Card background="primary100" borderColor="primary200">
+                                  <CardBody>
+                                    <CardContent style={{ width: '100%' }}>
+                                      <Stack size={4}>
+                                        <Typography variant="epsilon" fontWeight="semibold" as="h3">{displayName}</Typography>
+                                        <Select
+                                          name={`collectionSettings-${uid}-entryLabel`}
+                                          label={getMessage('pages.settings.form.nameField.label')}
+                                          hint={getMessage('pages.settings.form.nameField.hint')}
+                                          placeholder={getMessage('pages.settings.form.nameField.placeholder')}
+                                          onClear={() => null}
+                                          value={values.nameFields[uid] || []}
+                                          onChange={(value) => setFieldValue('nameFields', prepareNameFieldFor(uid, values.nameFields, value))}
+                                          multi
+                                          withTags
+                                        >
+                                          {stringAttributes.map(key =>
+                                            (<Option key={uid + key} value={key}>{capitalize(key.split('_').join(' '))}</Option>))}
+                                        </Select>
+                                      </Stack>
+                                    </CardContent>
+                                  </CardBody>
+                                </Card>
+                              </GridItem>
+                            );
+                          })
+                        }
+                      </Grid>
+                    </Stack>
+                  </Box>
+                  <Box
+                    background="neutral0"
+                    hasRadius
+                    shadow="filterShadow"
+                    padding={6}
+                  >
+                    <Stack size={4}>
+                      <Typography variant="delta" as="h2">
                         {getMessage('pages.settings.restoring.title')}
                       </Typography>
                       <Grid gap={4}>
-                        <GridItem col={12}>
+                        <GridItem col={12} s={12} xs={12}>
                           <Typography>
                             {getMessage('pages.settings.action.restore.description')}
                           </Typography>
                         </GridItem>
-                        <GridItem col={6}>
+                        <GridItem col={6} s={12} xs={12}>
                           <CheckPermissions permissions={permissions.access}>
                             <Button variant="danger-light" startIcon={<Refresh />} onClick={() => setIsRestorePopupOpen(true)}>
                               {getMessage('pages.settings.actions.restore')}

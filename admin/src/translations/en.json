@@ -68,6 +68,9 @@
 	"pages.settings.form.allowedLevels.hint": "Maximum level for which you're able to mark item as \"Menu attached\"",
 	"pages.settings.form.audience.label": "Audience",
 	"pages.settings.form.audience.hint": "Enable audience field",
+	"pages.settings.form.nameField.label": "Name fields",
+	"pages.settings.form.nameField.placeholder": "Select at least one or leave empty to apply defaults",
+	"pages.settings.form.nameField.hint": "If left empty name field is going to take following ordered fields: \"title\", \"subject\" and \"name\"",
 	"components.navigationItem.action.newItem": "Add nested item",
 	"components.navigationItem.badge.removed": "Removed",
 	"components.navigationItem.badge.draft": "{type}: Draft",
@@ -76,6 +79,5 @@
 	"components.confirmation.dialog.button.confirm": "Confirm",
 	"components.confirmation.dialog.description": "Do you want to continue?",
 	"components.confirmation.dialog.header": "Confirmation"
-
 }
   
