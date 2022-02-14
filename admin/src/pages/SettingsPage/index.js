@@ -184,20 +184,19 @@ const SettingsPage = () => {
                       </Grid>
                     </Stack>
                   </Box>
-                  <Box
-                    background="neutral0"
-                    hasRadius
-                    shadow="filterShadow"
-                    padding={6}
-                  >
-                    <Stack size={4}>
-                      <Typography variant="delta" as="h2">
-                        {getMessage('pages.settings.additional.title')}
-                      </Typography>
-                      <Grid gap={4}>
-                        {
-                          !isEmpty(values.selectedContentTypes) &&
-                          values.selectedContentTypes.map(uid => {
+                  {!isEmpty(values.selectedContentTypes) && (
+                    <Box
+                      background="neutral0"
+                      hasRadius
+                      shadow="filterShadow"
+                      padding={6}
+                    >
+                      <Stack size={4}>
+                        <Typography variant="delta" as="h2">
+                          {getMessage('pages.settings.nameField.title')}
+                        </Typography>
+                        <Grid gap={4}>
+                          {values.selectedContentTypes.map(uid => {
                             const { attributes, info: { displayName } } = allContentTypes.find(item => item.uid == uid);
                             const stringAttributes = Object.keys(attributes).filter(_ => attributes[_].type === 'string');
 
@@ -229,10 +228,11 @@ const SettingsPage = () => {
                               </GridItem>
                             );
                           })
-                        }
-                      </Grid>
-                    </Stack>
-                  </Box>
+                          }
+                        </Grid>
+                      </Stack>
+                    </Box>
+                  )}
                   <Box
                     background="neutral0"
                     hasRadius

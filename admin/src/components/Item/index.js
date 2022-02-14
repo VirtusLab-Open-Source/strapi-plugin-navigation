@@ -106,7 +106,7 @@ const Item = (props) => {
                   small
                   >
                 {getMessage({
-                  id: `navigationItem.badge.${isPublished ? 'published' : 'draft'}`, props: {
+                  id: `components.navigationItem.badge.${isPublished ? 'published' : 'draft'}`, props: {
                     type: relatedTypeLabel
                   }
                 })}

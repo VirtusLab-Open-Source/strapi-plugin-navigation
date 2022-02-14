@@ -45,6 +45,7 @@
 	"notification.navigation.item.relation.status.published": "published",
 	"pages.settings.general.title": "General settings",
 	"pages.settings.additional.title": "Additional settings",
+	"pages.settings.nameField.title": "Content types settings",
 	"pages.settings.restoring.title": "Restoring",
 	"pages.settings.section.title": "Navigation Plugin",
 	"pages.settings.section.subtitle": "Configuration",
