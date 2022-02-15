@@ -65,14 +65,19 @@ module.exports = ({ strapi }) => {
       };
     },
 
+    async restart() {
+        setImmediate(() => strapi.reload());
+    },
+
     // Get plugin config
-    async config() {
+    async config(viaSettingsPage = false) {
       const { audienceModel, service } = utilsFunctions.extractMeta(strapi.plugins);
       const pluginStore = await strapi.store({ type: 'plugin', name: 'navigation' });
       const config = await pluginStore.get({ key: 'config' });
       const additionalFields = config.additionalFields;
       const contentTypesNameFields = config.contentTypesNameFields;
       const allowedLevels = config.allowedLevels;
+      const isGQLPluginEnabled = !isNil(strapi.plugin('graphql'));
 
       let extendedResult = {};
       const result = {
@@ -83,6 +88,7 @@ module.exports = ({ strapi }) => {
         },
         allowedLevels,
         additionalFields,
+        isGQLPluginEnabled: viaSettingsPage ? isGQLPluginEnabled : undefined,
       };
 
       if (additionalFields.includes(configAdditionalFields.AUDIENCE)) {

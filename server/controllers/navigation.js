@@ -26,16 +26,25 @@ module.exports = ({strapi}) => ({
 
   async updateConfig(ctx) {
     await getService().updateConfig(ctx.request.body)
-    if (strapi.plugin('graphql'))
-      setImmediate(() => strapi.reload());
     return ctx.send({ status: 200 });
   },
 
   async restoreConfig(ctx) {
     await getService().restoreConfig()
-    if (strapi.plugin('graphql'))
-      setImmediate(() => strapi.reload());
     return ctx.send({ status: 200 })
+  },
+
+  async settingsConfig() {
+    return getService().config(true);
+  },
+
+  async settingsRestart(ctx) {
+    try {
+      await getService().restart();
+      return ctx.send({ status: 200 });
+    } catch (e) {
+      errorHandler(ctx, e);
+    }
   },
 
   async get() {

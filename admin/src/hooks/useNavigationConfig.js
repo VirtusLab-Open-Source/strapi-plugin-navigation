@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from 'react-query';
 import { useNotification } from '@strapi/helper-plugin';
-import { fetchNavigationConfig, restoreNavigationConfig, updateNavigationConfig } from '../utils/api';
+import { fetchNavigationConfig, restartStrapi, restoreNavigationConfig, updateNavigationConfig } from '../utils/api';
 import { getTrad } from '../translations';
 
 const useNavigationConfig = () => {
@@ -43,7 +43,16 @@ const useNavigationConfig = () => {
     }
   }
 
-  return { data, isLoading, submitMutation, restoreMutation, err };
+  const restartMutation = async (...args) => {
+    try {
+      await restartStrapi(...args);
+      await handleSuccess('restart');
+    } catch (e) {
+      handleError('restart');
+    }
+  }
+
+  return { data, isLoading, err, submitMutation, restoreMutation, restartMutation };
 };
 
 export default useNavigationConfig;

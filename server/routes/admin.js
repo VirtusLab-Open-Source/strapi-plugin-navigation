@@ -43,6 +43,19 @@ module.exports = {
       policies: [
         'admin::isAuthenticatedAdmin'
       ]
-    }
+    },
+    {
+      method: 'GET',
+      path: '/settings/config',
+      handler: 'navigation.settingsConfig',
+    },
+    {
+      method: 'GET',
+      path: '/settings/restart',
+      handler: 'navigation.settingsRestart',
+      config: {
+        policies: [],
+      },
+    },
   ]
 }

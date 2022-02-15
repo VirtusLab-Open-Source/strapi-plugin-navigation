@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Formik } from 'formik';
-import { isEmpty, capitalize } from 'lodash';
+import { isEmpty, capitalize, isEqual } from 'lodash';
 
 import {
   CheckPermissions,
   LoadingIndicatorPage,
   Form,
+  useOverlayBlocker,
   useAutoReloadOverlayBlocker,
 } from '@strapi/helper-plugin';
 import { Main } from '@strapi/design-system/Main';
@@ -18,7 +19,7 @@ import { Grid, GridItem } from '@strapi/design-system/Grid';
 import { ToggleInput } from '@strapi/design-system/ToggleInput';
 import { NumberInput } from '@strapi/design-system/NumberInput';
 import { Select, Option } from '@strapi/design-system/Select';
-import { Check, Refresh } from '@strapi/icons';
+import { Check, Refresh, Play } from '@strapi/icons';
 import { SettingsPageTitle } from '@strapi/helper-plugin';
 import {
   Card,
@@ -31,40 +32,56 @@ import useNavigationConfig from '../../hooks/useNavigationConfig';
 import useAllContentTypes from '../../hooks/useAllContentTypes';
 import { navigationItemAdditionalFields } from '../View/utils/enums';
 import ConfirmationDialog from '../../components/ConfirmationDialog';
+import RestartAlert from '../../components/RestartAlert';
 import { getMessage } from '../../utils';
 
 const SettingsPage = () => {
+  const { lockApp, unlockApp } = useOverlayBlocker();
   const { lockAppWithAutoreload, unlockAppWithAutoreload } = useAutoReloadOverlayBlocker();
   const [isRestorePopupOpen, setIsRestorePopupOpen] = useState(false);
-  const { data: navigationConfigData, isLoading: isConfigLoading, err: configErr, submitMutation, restoreMutation } = useNavigationConfig();
+  const [isRestartRequired, setIsRestartRequired] = useState(false);
+  const { data: navigationConfigData, isLoading: isConfigLoading, err: configErr, submitMutation, restoreMutation, restartMutation } = useNavigationConfig();
   const { data: allContentTypesData, isLoading: isContentTypesLoading, err: contentTypesErr } = useAllContentTypes();
   const isLoading = isConfigLoading || isContentTypesLoading;
   const isError = configErr || contentTypesErr;
 
+  const preparePayload = ({ selectedContentTypes, nameFields, audienceFieldChecked, allowedLevels }) => ({
+    contentTypes: selectedContentTypes,
+    contentTypesNameFields: nameFields,
+    additionalFields: audienceFieldChecked ? [navigationItemAdditionalFields.AUDIENCE] : [],
+    allowedLevels: allowedLevels,
+    gql: {
+      navigationItemRelated: selectedContentTypes.map(uid => allContentTypes.find(ct => ct.uid === uid).info.displayName)
+    }
+  })
   const onSave = async (form) => {
-    lockAppWithAutoreload();
-    await submitMutation({
-      body: {
-        contentTypes: form.selectedContentTypes,
-        contentTypesNameFields: form.nameFields,
-        additionalFields: form.audienceFieldChecked ? [navigationItemAdditionalFields.AUDIENCE] : [],
-        allowedLevels: form.allowedLevels,
-        gql: {
-          navigationItemRelated: form.selectedContentTypes.map(uid => allContentTypes.find(ct => ct.uid === uid).info.displayName)
-        }
-      }
-    })
-    unlockAppWithAutoreload();
+    lockApp();
+    const payload = preparePayload(form);
+    await submitMutation({ body: payload });
+    const isContentTypesChanged = !isEqual(payload.contentTypes, navigationConfigData.contentTypes);
+    if (isContentTypesChanged && navigationConfigData.isGQLPluginEnabled) {
+      setIsRestartRequired(true);
+    }
+    unlockApp();
   }
 
   const onPopupClose = async (isConfirmed) => {
     setIsRestorePopupOpen(false);
     if (isConfirmed) {
-      lockAppWithAutoreload();
+      lockApp();
       await restoreMutation();
-      unlockAppWithAutoreload();
+      unlockApp();
+      setIsRestartRequired(true);
     }
   }
+
+  const handleRestart = async () => {
+    lockAppWithAutoreload();
+    await restartMutation();
+    setIsRestartRequired(false);
+    unlockAppWithAutoreload();
+  };
+  const handleRestartDiscard = () => setIsRestartRequired(false);
 
   const prepareNameFieldFor = (uid, current, value) => ({
     ...current,
@@ -112,7 +129,7 @@ const SettingsPage = () => {
                 subtitle={getMessage('pages.settings.header.description')}
                 primaryAction={
                   <CheckPermissions permissions={permissions.access}>
-                    <Button type="submit" startIcon={<Check />} >
+                    <Button type="submit" startIcon={<Check />} disabled={isRestartRequired}>
                       {getMessage('pages.settings.actions.submit')}
                     </Button>
                   </CheckPermissions>
@@ -120,6 +137,14 @@ const SettingsPage = () => {
               />
               <ContentLayout>
                 <Stack size={7}>
+                  {isRestartRequired && (
+                    <RestartAlert
+                      closeLabel={getMessage('pages.settings.actions.restart.alert.cancel')}
+                      title={getMessage('pages.settings.actions.restart.alert.title')}
+                      action={<Box><Button onClick={handleRestart} startIcon={<Play />}>{getMessage('pages.settings.actions.restart')}</Button></Box>}
+                      onClose={handleRestartDiscard}>
+                      {getMessage('pages.settings.actions.restart.alert.description')}
+                    </RestartAlert>)}
                   <Box
                     background="neutral0"
                     hasRadius
@@ -142,6 +167,7 @@ const SettingsPage = () => {
                             onChange={(value) => setFieldValue('selectedContentTypes', value, false)}
                             multi
                             withTags
+                            disabled={isRestartRequired}
                           >
                             {allContentTypes.map((item) => <Option key={item.uid} value={item.uid}>{item.info.displayName}</Option>)}
                           </Select>
@@ -154,6 +180,7 @@ const SettingsPage = () => {
                             hint={getMessage('pages.settings.form.allowedLevels.hint')}
                             onValueChange={(value) => setFieldValue('allowedLevels', value, false)}
                             value={values.allowedLevels}
+                            disabled={isRestartRequired}
                           />
                         </GridItem>
                       </Grid>
@@ -179,6 +206,7 @@ const SettingsPage = () => {
                             onChange={({ target: { checked } }) => setFieldValue('audienceFieldChecked', checked, false)}
                             onLabel="Enabled"
                             offLabel="Disabled"
+                            disabled={isRestartRequired}
                           />
                         </GridItem>
                       </Grid>
@@ -217,6 +245,7 @@ const SettingsPage = () => {
                                           onChange={(value) => setFieldValue('nameFields', prepareNameFieldFor(uid, values.nameFields, value))}
                                           multi
                                           withTags
+                                          disabled={isRestartRequired}
                                         >
                                           {stringAttributes.map(key =>
                                             (<Option key={uid + key} value={key}>{capitalize(key.split('_').join(' '))}</Option>))}
@@ -246,7 +275,7 @@ const SettingsPage = () => {
                       <Grid gap={4}>
                         <GridItem col={12} s={12} xs={12}>
                           <Typography>
-                            {getMessage('pages.settings.action.restore.description')}
+                            {getMessage('pages.settings.actions.restore.description')}
                           </Typography>
                         </GridItem>
                         <GridItem col={6} s={12} xs={12}>
