@@ -1,6 +1,6 @@
 {
   "name": "strapi-plugin-navigation",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Strapi - Navigation plugin",
   "strapi": {
     "name": "navigation",
@@ -13,7 +13,7 @@
     "url": "https://github.com/VirtusLab/strapi-plugin-navigation"
   },
   "scripts": {
-    "publish": "npm publish --tag latest",
+    "publish:latest": "npm publish --tag latest",
     "test:unit": "jest --verbose --coverage"
   },
   "dependencies": {
