@@ -44,7 +44,7 @@ const itemModelMock = {
         },
         parent: null,
     }),
-    findMany: async ({where}) => [{
+    findMany: async ({ where }) => [{
         id: 1,
         title: "home",
         type: "INTERNAL",
@@ -55,7 +55,7 @@ const itemModelMock = {
         order: 1,
         createdAt: "2021-12-31T10:04:54.812Z",
         updatedAt: "2022-01-14T13:36:29.430Z",
-        master: 1, 
+        master: 1,
         related: {
             id: 1,
             related_id: "1",
@@ -117,22 +117,22 @@ const pageModelMock = {
         }
     }),
     findMany: async ({ where }) => [{
-            "id": 1,
-            "attributes": {
-                "title": "Page nr 1",
-                "createdAt": "2022-01-19T08:22:31.244Z",
-                "updatedAt": "2022-01-19T08:22:31.244Z",
-                "publishedAt": null
-            }
-        }, {
-            "id": 2,
-            "attributes": {
-                "title": "Page nr 2",
-                "createdAt": "2022-01-19T08:22:50.821Z",
-                "updatedAt": "2022-01-19T08:22:50.821Z",
-                "publishedAt": null
-            }
-        }]
+        "id": 1,
+        "attributes": {
+            "title": "Page nr 1",
+            "createdAt": "2022-01-19T08:22:31.244Z",
+            "updatedAt": "2022-01-19T08:22:31.244Z",
+            "publishedAt": null
+        }
+    }, {
+        "id": 2,
+        "attributes": {
+            "title": "Page nr 2",
+            "createdAt": "2022-01-19T08:22:50.821Z",
+            "updatedAt": "2022-01-19T08:22:50.821Z",
+            "publishedAt": null
+        }
+    }]
 
 };
 
@@ -185,6 +185,17 @@ const strapiFactory = (plugins, contentTypes) => ({
                     findOne: () => ({}),
                     findMany: () => [],
                 }
+        }
+    },
+    store: ({ type, name }) => {
+        if (type === 'plugin' && name === 'navigation') {
+            return {
+                get: ({ key }) => key === 'config' ? {
+                    ...require('../server/config').default,
+                    contentTypes: ['api::pages.pages']
+                } : null,
+                set: () => null,
+            }
         }
     }
 });

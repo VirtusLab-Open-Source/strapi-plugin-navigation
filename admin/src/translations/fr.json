@@ -38,8 +38,8 @@
   "notification.navigation.item.relation": "L'entitée n'a pas de relations!",
   "notification.navigation.item.relation.status.draft": "brouillon",
   "notification.navigation.item.relation.status.published": "publié",
-  "navigation.item.action.newItem": "Nouvel élément imbriqué",
-	"navigation.item.badge.removed": "Supprimé",
-	"navigation.item.badge.draft": "Brouillon",
-	"navigation.item.badge.published": "Publié"
+  "components.navigationItem.action.newItem": "Nouvel élément imbriqué",
+	"components.navigationItem.badge.removed": "Supprimé",
+	"components.navigationItem.badge.draft": "Brouillon",
+	"components.navigationItem.badge.published": "Publié"
 }

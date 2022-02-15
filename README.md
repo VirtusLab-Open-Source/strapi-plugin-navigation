@@ -89,7 +89,20 @@ Complete installation requirements are exact same as for Strapi itself and can b
 **We recommend always using the latest version of Strapi to start your new projects**.
 
 ## 🔧 Configuration
-Config for this plugin is stored as a part of `config/plugins.js` or `config/<env>/plugins.js` file. You can use following snippet to make sure that the config structure is correct. If you've got already configurations for other plugins stores by this way, you can use the `navigation` along with them. 
+
+### In `v2.0.3` and newer
+
+Version `2.0.3` introduces the intuitive **Settings** page which you can easily access via `Strapi Settings -> Section: Navigation Plugin -> Configuration`. On the dedicated page, you will be able to set up all crucial properties which drive the plugin and customize each individual collection for which **Navigation plugin** should be enabled.
+
+> *Note*
+> The default configuration for your plugin is fetched from `config/plugins.js` or, if the file is not there, directly from the plugin itself. If you would like to customize the default state to which you might revert, please follow the next section.
+
+### In `v2.0.2` and older + default configuration state for `v2.0.3` and newer
+
+Config for this plugin is stored as a part of the `config/plugins.js` or `config/<env>/plugins.js` file. You can use the following snippet to make sure that the config structure is correct. If you've got already configurations for other plugins stores by this way, you can use the `navigation` along with them. 
+
+> *Note v2.0.3 and newer only*
+> Changing this file will not automatically change plugin configuration. To synchronize plugin's config with plugins.js file, it is necessary to restore configuration through the settings page 
 
 ```js
     module.exports = ({ env }) => ({
@@ -111,13 +124,16 @@ Config for this plugin is stored as a part of `config/plugins.js` or `config/<en
 
 ### Properties
 - `additionalFields` - Additional fields: 'audience', more in the future
-- `allowedLevels` - Maximum level for which your're able to mark item as "Menu attached"
+- `allowedLevels` - Maximum level for which you're able to mark item as "Menu attached"
 - `contentTypes` - UIDs of related content types
 - `contentTypesNameFields` - Definition of content type title fields like `'api::<collection name>.<content type name>': ['field_name_1', 'field_name_2']`, if not set titles are pulled from fields like `['title', 'subject', 'name']`. **TIP** - Proper content type uid you can find in the URL of Content Manager where you're managing relevant entities like: `admin/content-manager/collectionType/< THE UID HERE >?page=1&pageSize=10&sort=Title:ASC&plugins[i18n][locale]=en`
 - `gql` - If you're using GraphQL that's the right place to put all necessary settings. More **[ here ](#gql-configuration)**
 
 ## 🔧 GQL Configuration
-Using navigation with GraphQL requires both plugins to be installed and working. You can find instalation guide for GraphQL plugin **[here](https://docs.strapi.io/developer-docs/latest/plugins/graphql.html#graphql)**.  To properly configure GQL to work with navigation you should provide `gql` prop. This should contain union types that will be used to define GQL response format for your data while fetching:
+Using navigation with GraphQL requires both plugins to be installed and working. You can find installation guide for GraphQL plugin **[here](https://docs.strapi.io/developer-docs/latest/plugins/graphql.html#graphql)**.  To properly configure GQL to work with navigation you should provide `gql` prop. This should contain union types that will be used to define GQL response format for your data while fetching:
+
+> **Important!**
+> If you're using `config/plugins.js` to configure your plugins , please put `navigation` property before `graphql`. Otherwise types are not going to be properly added to GraphQL Schema. That's because of dynamic types which base on plugin configuration which are added on `bootstrap` stage, not `register`. This is not valid if you're using `graphql` plugin without any custom configuration, so most of cases in real.
 
 ```gql
 master: Int

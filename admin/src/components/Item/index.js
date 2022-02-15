@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { isEmpty, isNumber, get } from 'lodash';
-import { useIntl } from "react-intl";
+import { isEmpty, isNumber } from 'lodash';
 
 import { Box } from '@strapi/design-system/Box';
 import { Card, CardBody } from '@strapi/design-system/Card';
@@ -10,17 +9,16 @@ import { Flex } from '@strapi/design-system/Flex';
 import { Link } from '@strapi/design-system/Link';
 import { TextButton } from '@strapi/design-system/TextButton';
 import { Typography } from '@strapi/design-system/Typography';
-
 import { ArrowRight, Link as LinkIcon, Earth, Plus } from '@strapi/icons';
 
 import { navigationItemType } from '../../pages/View/utils/enums';
 import ItemCardHeader from './ItemCardHeader';
 import List from '../NavigationItemList';
 import Wrapper from './Wrapper';
-import { getTrad } from '../../translations';
 import { extractRelatedItemLabel } from '../../pages/View/utils/parsers';
 import ItemCardBadge from './ItemCardBadge';
 import { ItemCardRemovedOverlay } from './ItemCardRemovedOverlay';
+import { getMessage } from '../../utils';
 
 const Item = (props) => {
   const {
@@ -50,7 +48,6 @@ const Item = (props) => {
     menuAttached,
   } = item;
 
-  const { formatMessage } = useIntl();
   const { contentTypes, contentTypesNameFields } = config;
   const isExternal = type === navigationItemType.EXTERNAL;
   const isPublished = relatedRef && relatedRef?.publishedAt;
@@ -97,7 +94,7 @@ const Item = (props) => {
               onClick={(e) => onItemLevelAdd(e, viewId, isNextMenuAllowedLevel, absolutePath, menuAttached)}
             >
               <Typography variant="pi" fontWeight="bold" textColor={removed ? "neutral600" : "primary600"}>
-                {formatMessage(getTrad("navigation.item.action.newItem"))}
+                {getMessage("components.navigationItem.action.newItem")}
               </Typography>
             </TextButton>
             { relatedItemLabel && (<Box>
@@ -108,9 +105,11 @@ const Item = (props) => {
                   className="action"
                   small
                   >
-                    {formatMessage(getTrad(`navigation.item.badge.${isPublished ? 'published' : 'draft'}`), {
-                      type: relatedTypeLabel
-                    })}
+                {getMessage({
+                  id: `components.navigationItem.badge.${isPublished ? 'published' : 'draft'}`, props: {
+                    type: relatedTypeLabel
+                  }
+                })}
                 </ItemCardBadge>
                 <Typography variant="pi" fontWeight="bold" textColor="neutral600">
                   { relatedItemLabel }

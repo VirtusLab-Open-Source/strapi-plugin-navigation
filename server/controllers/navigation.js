@@ -19,10 +19,34 @@ const errorHandler = (ctx) => (error) => {
   throw error;
 };
 
-module.exports = {
+module.exports = ({strapi}) => ({
   async config() {
     return getService().config();
   },
+
+  async updateConfig(ctx) {
+    await getService().updateConfig(ctx.request.body)
+    return ctx.send({ status: 200 });
+  },
+
+  async restoreConfig(ctx) {
+    await getService().restoreConfig()
+    return ctx.send({ status: 200 })
+  },
+
+  async settingsConfig() {
+    return getService().config(true);
+  },
+
+  async settingsRestart(ctx) {
+    try {
+      await getService().restart();
+      return ctx.send({ status: 200 });
+    } catch (e) {
+      errorHandler(ctx, e);
+    }
+  },
+
   async get() {
     return getService().get();
   },
@@ -69,4 +93,4 @@ module.exports = {
       menuOnly
     );
   },
-};
+});

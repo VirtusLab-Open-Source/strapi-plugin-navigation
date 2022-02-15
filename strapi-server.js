@@ -4,7 +4,6 @@ const routes = require('./server/routes');
 const controllers = require('./server/controllers');
 const contentTypes = require('./server/content-types');
 const config = require('./server/config');
-const register = require('./server/register');
 
 
 module.exports = () => {
@@ -15,6 +14,5 @@ module.exports = () => {
     controllers,
     services,
     contentTypes,
-    register,
   };
 };

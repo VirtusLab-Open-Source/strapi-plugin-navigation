@@ -1,5 +1,5 @@
-module.exports = ({ strapi, nexus }) => {
-	const related = strapi.plugin('navigation').config('gql')?.navigationItemRelated;
+module.exports = ({ strapi, nexus, config }) => {
+	const related = config.gql?.navigationItemRelated;
 	const name = "NavigationRelated";
 
 	if (related?.length) {
