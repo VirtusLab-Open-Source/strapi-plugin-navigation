@@ -8,8 +8,8 @@ module.exports = ({ strapi, nexus }) => {
 			menuOnly: booleanArg()
 		},
 		resolve(obj, args) {
-			const { navigationIdOrSlug, type, menuOnly } = args;
-			return strapi.plugin('navigation').service('navigation').render(navigationIdOrSlug, type, menuOnly);
+			const { navigationIdOrSlug: idOrSlug, type, menuOnly } = args;
+			return strapi.plugin('navigation').service('navigation').render({idOrSlug, type, menuOnly});
 		},
 	};
 }

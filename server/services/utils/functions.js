@@ -6,6 +6,7 @@ const {
   find,
   isString,
   get,
+  isNil,
 } = require('lodash');
 
 const { type: itemType } = require('../../content-types/navigation-item/lifecycle');
@@ -50,6 +51,45 @@ module.exports = ({ strapi }) => {
             items: this.buildNestedStructure(entities, entity.id, field),
           });
         });
+    },
+
+    buildNestedPaths({items, id = null, field = 'parent', parentPath = null}){
+      return items
+        .filter(entity => {
+          if (entity[field] == null && id === null) {
+            return true;
+          }
+          let data = entity[field];
+          if (data && typeof id === 'string') {
+            data = data.toString();
+          }
+          return (data && data === id) || (isObject(entity[field]) && (entity[field].id === id));
+        })
+        .reduce((acc, entity) => {
+          const path = `${parentPath || ''}/${entity.path}`
+          return [
+            {
+              id: entity.id,
+              parent: parentPath && {
+                id: get(entity, 'parent.id'),
+                path: parentPath,
+              },
+              path
+            },
+            ...this.buildNestedPaths({items, id: entity.id, field, parentPath: path}),
+            ...acc,
+          ];
+        }, [])
+    },
+
+    filterByPath(items, path) {
+      const itemsWithPaths = this.buildNestedPaths({ items }).filter(({path: itemPath}) => itemPath.includes(path));
+      const root = itemsWithPaths.find(({ path: itemPath }) => itemPath === path);
+
+      return {
+        root,
+        items: isNil(root) ? [] : items.filter(({ id }) => (itemsWithPaths.find(v => v.id === id))),
+      }
     },
 
     prepareAuditLog(actions) {

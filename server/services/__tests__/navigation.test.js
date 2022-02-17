@@ -26,7 +26,7 @@ describe('Navigation services', () => {
   describe('Render navigation', () => {
     it('Can render branch in flat format', async () => {
       const service = strapi.plugin('navigation').service('navigation');
-      const result = await service.render(1);
+      const result = await service.render({ idOrSlug: 1 });
 
       expect(result).toBeDefined()
       expect(result.length).toBe(2)
@@ -34,7 +34,10 @@ describe('Navigation services', () => {
 
     it('Can render branch in tree format', async () => {
       const service = strapi.plugin('navigation').service('navigation');
-      const result = await service.render(1, "TREE");
+      const result = await service.render({
+        idOrSlug: 1,
+        type: "TREE"
+      });
 
       expect(result).toBeDefined()
       expect(result.length).toBeGreaterThan(0)
@@ -42,7 +45,10 @@ describe('Navigation services', () => {
 
     it('Can render branch in rfr format', async () => {
       const service = strapi.plugin('navigation').service('navigation');
-      const result = await service.render(1, "RFR");
+      const result = await service.render({
+        idOrSlug: 1,
+        type: "RFR"
+      });
 
       expect(result).toBeDefined()
       expect(result.length).toBeGreaterThan(0)
@@ -50,7 +56,11 @@ describe('Navigation services', () => {
 
     it('Can render only menu attached elements', async () => {
       const service = strapi.plugin('navigation').service('navigation');
-      const result = await service.render(1, "FLAT", true);
+      const result = await service.render({
+        idOrSlug: 1,
+        type: "FLAT",
+        menuOnly: true.valueOf,
+      });
 
       expect(result).toBeDefined()
       expect(result.length).toBe(1)
