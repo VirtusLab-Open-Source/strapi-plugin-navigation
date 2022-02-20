@@ -164,8 +164,8 @@ const NavigationItemForm = ({
         key: get(item, 'id'),
         metadatas: {
           intlLabel: {
-            id: label || " ",
-            defaultMessage: label || " ",
+            id: label || `${item.__collectionUid} ${item.id}`,
+            defaultMessage: label || `${item.__collectionUid} ${item.id}`,
           }
         },
         value: item.id,
