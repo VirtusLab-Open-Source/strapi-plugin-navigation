@@ -65,6 +65,18 @@ describe('Navigation services', () => {
       expect(result).toBeDefined()
       expect(result.length).toBe(1)
     });
+
+    it('Can render branch by path', async () => {
+      const service = strapi.plugin('navigation').service('navigation');
+      const result = await service.render({
+        idOrSlug: 1,
+        type: "FLAT",
+        rootPath: '/home/side'
+      });
+
+      expect(result).toBeDefined();
+      expect(result.length).toBe(1);
+    });
   });
 
   describe('Render child', () => {
