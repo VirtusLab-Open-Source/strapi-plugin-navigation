@@ -74,13 +74,14 @@ module.exports = ({strapi}) => ({
   },
   async render(ctx) {
     const { params, query = {} } = ctx;
-    const { type, menu: menuOnly } = query;
+    const { type, menu: menuOnly, path: rootPath } = query;
     const { idOrSlug } = parseParams(params);
-    return getService().render(
+    return getService().render({
       idOrSlug,
       type,
       menuOnly,
-    );
+      rootPath
+    });
   },
   async renderChild(ctx) {
     const { params, query = {} } = ctx;

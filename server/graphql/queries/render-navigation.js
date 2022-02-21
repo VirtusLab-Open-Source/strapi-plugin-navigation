@@ -5,11 +5,12 @@ module.exports = ({ strapi, nexus }) => {
 		args: {
 			navigationIdOrSlug: nonNull(stringArg()),
 			type: 'NavigationRenderType',
-			menuOnly: booleanArg()
+			menuOnly: booleanArg(),
+			path: stringArg(),
 		},
 		resolve(obj, args) {
-			const { navigationIdOrSlug, type, menuOnly } = args;
-			return strapi.plugin('navigation').service('navigation').render(navigationIdOrSlug, type, menuOnly);
+			const { navigationIdOrSlug: idOrSlug, type, menuOnly, path: rootPath } = args;
+			return strapi.plugin('navigation').service('navigation').render({idOrSlug, type, menuOnly, rootPath});
 		},
 	};
 }

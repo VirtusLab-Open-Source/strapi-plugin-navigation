@@ -66,7 +66,7 @@ module.exports = ({ strapi }) => {
     },
 
     async restart() {
-        setImmediate(() => strapi.reload());
+      setImmediate(() => strapi.reload());
     },
 
     // Get plugin config
@@ -342,20 +342,20 @@ module.exports = ({ strapi }) => {
         ...(type === renderType.FLAT ? { uiRouterKey: childUIKey } : {}),
       };
 
-      return service.renderType(type, criteria, itemCriteria, filter);
+      return service.renderType({ type, criteria, itemCriteria, filter });
     },
 
-    async render(idOrSlug, type = renderType.FLAT, menuOnly = false) {
+    async render({ idOrSlug, type = renderType.FLAT, menuOnly = false, rootPath = null }) {
       const { service } = utilsFunctions.extractMeta(strapi.plugins);
 
       const findById = !isNaN(toNumber(idOrSlug)) || isUuid(idOrSlug);
       const criteria = findById ? { id: idOrSlug } : { slug: idOrSlug };
       const itemCriteria = menuOnly ? { menuAttached: true } : {};
 
-      return service.renderType(type, criteria, itemCriteria);
+      return service.renderType({ type, criteria, itemCriteria, rootPath });
     },
 
-    async renderType(type = renderType.FLAT, criteria = {}, itemCriteria = {}, filter = null) {
+    async renderType({ type = renderType.FLAT, criteria = {}, itemCriteria = {}, filter = null, rootPath = null }) {
       const { pluginName, service, masterModel, itemModel } = utilsFunctions.extractMeta(
         strapi.plugins,
       );
@@ -393,8 +393,8 @@ module.exports = ({ strapi }) => {
             const getTemplateName = await utilsFunctions.templateNameFactory(items, strapi, contentTypes);
             const itemParser = (item, path = '', field) => {
               const isExternal = item.type === itemType.EXTERNAL;
-              const parentPath = isExternal ? undefined : `${path === '/' ? '' : path}/${item.path === '/'
-                ? ''
+              const parentPath = isExternal ? undefined : `${path === '/' ? '' : path}/${first(item.path) === '/'
+                ? item.path.substring(1)
                 : item.path}`;
               const slug = isString(parentPath) ? slugify(
                 (first(parentPath) === '/' ? parentPath.substring(1) : parentPath).replace(/\//g, '-')) : undefined;
@@ -422,9 +422,17 @@ module.exports = ({ strapi }) => {
                 }),
               };
             };
+
+            const {
+              items: itemsFilteredByPath,
+              root: rootElement,
+            } = utilsFunctions.filterByPath(items, rootPath);
+
             const treeStructure = service.renderTree({
-              items,
+              items: isNil(rootPath) ? items : itemsFilteredByPath,
               field: 'parent',
+              id: get(rootElement, 'parent.id'),
+              path: get(rootElement, 'parent.path'),
               itemParser,
             });
 
@@ -440,7 +448,7 @@ module.exports = ({ strapi }) => {
             }
             return filteredStructure;
           default:
-            return items
+            const publishedItems = items
               .filter(utilsFunctions.filterOutUnpublished)
               .map((item) => ({
                 ...item,
@@ -449,6 +457,7 @@ module.exports = ({ strapi }) => {
                 related: item.related?.map(({ localizations, ...item }) => item),
                 items: null,
               }));
+            return isNil(rootPath) ? items : utilsFunctions.filterByPath(publishedItems, rootPath).items;
         }
       }
       throw new NotFoundError();

@@ -233,6 +233,20 @@ For any role different than **Super Admin**, to access the **Navigation panel** 
 
 ## 🕸️ Public API specification
 
+### Query Params 
+
+- `type` - Enum value representing structure type of returned navigation 
+
+    **Example URL**: `https://localhost:1337/api/navigation/render/1?type=FLAT`
+
+- `menu` - Boolean value for querying only navigation items that are attached to menu should be rendered eg.
+
+    **Example URL**: `https://localhost:1337/api/navigation/render/1?menu=true`
+
+- `path` - String value for querying navigation items by its path 
+
+    **Example URL**: `https://localhost:1337/api/navigation/render/1?path=/home/about-us`
+
 ### Render
 
 `GET <host>/api/navigation/render/<idOrSlug>?type=<type>`

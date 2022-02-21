@@ -48,7 +48,7 @@ const itemModelMock = {
         id: 1,
         title: "home",
         type: "INTERNAL",
-        path: "home1",
+        path: "home",
         externalPath: null,
         uiRouterKey: "home",
         menuAttached: true,
