@@ -13,7 +13,7 @@ module.exports = ({ nexus }) =>
 			t.int("parent")
 			t.int("master")
 			t.list.field("items", { type: 'NavigationItem' })
-			t.list.field("related", { type: 'NavigationRelated' })
+			t.field("related", { type: 'NavigationRelated' })
 			t.list.string("audience")
 			// SQL
 			t.string("created_at")
