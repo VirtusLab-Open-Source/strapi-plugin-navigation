@@ -120,6 +120,13 @@ const View = () => {
   }, []);
   const filteredList = !isSearchEmpty ? filteredListFactory(changedActiveNavigation.items, (item) => item?.title.includes(searchValue)) : [];
 
+  const handleItemReOrder = (item, newOrder) => {
+    handleSubmitNavigationItem({
+      ...item,
+      order: newOrder,
+    })
+  }
+
   const handleItemRemove = (item) => {
     handleSubmitNavigationItem({
       ...item,
@@ -206,6 +213,7 @@ const View = () => {
                 onItemRemove={handleItemRemove}
                 onItemEdit={handleItemEdit}
                 onItemRestore={handleItemRestore}
+                onItemReOrder={handleItemReOrder}
                 displayFlat={!isSearchEmpty}
                 root
                 error={error}

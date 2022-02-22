@@ -3,7 +3,7 @@ import { isString } from 'lodash';
 
 import pluginId from '../pluginId';
 
-const getMessage = (input, defaultMessage = '', inPluginScope = true) => {
+export const getMessage = (input, defaultMessage = '', inPluginScope = true) => {
     const { formatMessage } = useIntl();
     let formattedId = ''
     if (isString(input)) {
@@ -17,4 +17,6 @@ const getMessage = (input, defaultMessage = '', inPluginScope = true) => {
     }, input?.props || undefined)
 };
 
-export { getMessage };
+export const ItemTypes = {
+    NAVIGATION_ITEM: 'navigationItem'
+}
