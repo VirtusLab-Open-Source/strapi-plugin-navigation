@@ -80,8 +80,10 @@ const NavigationItemForm = ({
     const sanitizedType = purePayload.type || navigationItemType.INTERNAL;
     const relatedId = related
     const relatedCollectionType = relatedType;
+    const title = payload.title || relatedSelectOptions.find(v => v.key == relatedId)?.label
     return {
       ...purePayload,
+      title,
       menuAttached: isNil(menuAttached) ? false : menuAttached,
       type: sanitizedType,
       path: sanitizedType === navigationItemType.INTERNAL ? purePayload.path : undefined,
