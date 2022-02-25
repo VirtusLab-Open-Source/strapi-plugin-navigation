@@ -29,7 +29,7 @@ const Search = ({ value, setValue }) => {
 					onChange={(e) => setValue(e.target.value)}
 					clearLabel="Clearing the search"
 					placeholder={formatMessage({
-						id: getTradId('popup.item.form.audience.placeholder'),
+						id: getTradId('pages.main.search.placeholder'),
 						defaultMessage: 'Type to start searching...',
 					})}
 				>
