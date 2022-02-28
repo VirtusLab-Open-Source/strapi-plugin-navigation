@@ -15,6 +15,7 @@ const List = ({
   onItemLevelAdd,
   onItemRemove,
   onItemRestore,
+  onItemReOrder,
   displayFlat,
   contentTypes,
   contentTypesNameFields,
@@ -36,6 +37,7 @@ const List = ({
           onItemLevelAdd={onItemLevelAdd}
           onItemRemove={onItemRemove}
           onItemEdit={onItemEdit}
+          onItemReOrder={onItemReOrder}
           error={error}
           displayChildren={displayFlat}
           config={{
@@ -57,6 +59,7 @@ List.propTypes = {
   onItemRemove: PropTypes.func.isRequired,
   onItemRestore: PropTypes.func.isRequired,
   onItemRestore: PropTypes.func.isRequired,
+  onItemReOrder: PropTypes.func.isRequired,
   contentTypes: PropTypes.array.isRequired,
   contentTypesNameFields: PropTypes.object.isRequired
 };
