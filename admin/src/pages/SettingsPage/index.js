@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Formik } from 'formik';
-import { isEmpty, capitalize, isEqual } from 'lodash';
+import { isEmpty, capitalize, isEqual, orderBy } from 'lodash';
 
 import {
   CheckPermissions,
@@ -8,9 +8,11 @@ import {
   Form,
   useOverlayBlocker,
   useAutoReloadOverlayBlocker,
+  SettingsPageTitle,
 } from '@strapi/helper-plugin';
 import { Main } from '@strapi/design-system/Main';
 import { ContentLayout, HeaderLayout } from '@strapi/design-system/Layout';
+import { Accordion, AccordionToggle, AccordionContent, AccordionGroup } from '@strapi/design-system/Accordion';
 import { Button } from '@strapi/design-system/Button';
 import { Box } from '@strapi/design-system/Box';
 import { Stack } from '@strapi/design-system/Stack';
@@ -19,13 +21,8 @@ import { Grid, GridItem } from '@strapi/design-system/Grid';
 import { ToggleInput } from '@strapi/design-system/ToggleInput';
 import { NumberInput } from '@strapi/design-system/NumberInput';
 import { Select, Option } from '@strapi/design-system/Select';
-import { Check, Refresh, Play } from '@strapi/icons';
-import { SettingsPageTitle } from '@strapi/helper-plugin';
-import {
-  Card,
-  CardBody,
-  CardContent,
-} from '@strapi/design-system/Card';
+import { Tooltip } from '@strapi/design-system/Tooltip';
+import { Check, Refresh, Play, Information } from '@strapi/icons';
 
 import permissions from '../../permissions';
 import useNavigationConfig from '../../hooks/useNavigationConfig';
@@ -40,11 +37,18 @@ const SettingsPage = () => {
   const { lockAppWithAutoreload, unlockAppWithAutoreload } = useAutoReloadOverlayBlocker();
   const [isRestorePopupOpen, setIsRestorePopupOpen] = useState(false);
   const [isRestartRequired, setIsRestartRequired] = useState(false);
+  const [contentTypeExpanded, setContentTypeExpanded] = useState(undefined);
   const { data: navigationConfigData, isLoading: isConfigLoading, err: configErr, submitMutation, restoreMutation, restartMutation } = useNavigationConfig();
   const { data: allContentTypesData, isLoading: isContentTypesLoading, err: contentTypesErr } = useAllContentTypes();
   const isLoading = isConfigLoading || isContentTypesLoading;
   const isError = configErr || contentTypesErr;
-
+  const boxDefaultProps = {
+		background: "neutral0",
+		hasRadius: true,
+		shadow: "filterShadow",
+		padding: 6,
+	};
+  
   const preparePayload = ({ selectedContentTypes, nameFields, audienceFieldChecked, allowedLevels }) => ({
     contentTypes: selectedContentTypes,
     contentTypesNameFields: nameFields,
@@ -53,7 +57,8 @@ const SettingsPage = () => {
     gql: {
       navigationItemRelated: selectedContentTypes.map(uid => allContentTypes.find(ct => ct.uid === uid).info.displayName)
     }
-  })
+  });
+
   const onSave = async (form) => {
     lockApp();
     const payload = preparePayload(form);
@@ -82,6 +87,7 @@ const SettingsPage = () => {
     unlockAppWithAutoreload();
   };
   const handleRestartDiscard = () => setIsRestartRequired(false);
+	const handleSetContentTypeExpanded = key => setContentTypeExpanded(key === contentTypeExpanded ? undefined : key);
 
   const prepareNameFieldFor = (uid, current, value) => ({
     ...current,
@@ -145,12 +151,7 @@ const SettingsPage = () => {
                       onClose={handleRestartDiscard}>
                       {getMessage('pages.settings.actions.restart.alert.description')}
                     </RestartAlert>)}
-                  <Box
-                    background="neutral0"
-                    hasRadius
-                    shadow="filterShadow"
-                    padding={6}
-                  >
+                  <Box {...boxDefaultProps} >
                     <Stack size={4}>
                       <Typography variant="delta" as="h2">
                         {getMessage('pages.settings.general.title')}
@@ -172,7 +173,50 @@ const SettingsPage = () => {
                             {allContentTypes.map((item) => <Option key={item.uid} value={item.uid}>{item.info.displayName}</Option>)}
                           </Select>
                         </GridItem>
-                        <GridItem col={3} s={6} xs={12}>
+                        {!isEmpty(values.selectedContentTypes) && (
+                          <GridItem col={12}>
+                            <AccordionGroup
+                              label={getMessage('pages.settings.form.contentTypesSettings.label')}
+                              labelAction={<Tooltip description={getMessage('pages.settings.form.contentTypesSettings.tooltip')}>
+                                <Information aria-hidden={true} />
+                              </Tooltip>}>
+                              {orderBy(values.selectedContentTypes).map(uid => {
+                                const { attributes, info: { displayName } } = allContentTypes.find(item => item.uid == uid);
+                                const stringAttributes = Object.keys(attributes).filter(_ => attributes[_].type === 'string');
+                                const key = `collectionSettings-${uid}`;
+                                return (<Accordion
+                                  expanded={contentTypeExpanded === key}
+                                  toggle={() => handleSetContentTypeExpanded(key)}
+                                  key={key}
+                                  id={key}
+                                  size="S">
+                                  <AccordionToggle title={displayName} togglePosition="left" />
+                                  <AccordionContent>
+                                    <Box padding={6}>
+                                      <Stack size={4}>
+                                        <Select
+                                          name={`collectionSettings-${uid}-entryLabel`}
+                                          label={getMessage('pages.settings.form.nameField.label')}
+                                          hint={getMessage('pages.settings.form.nameField.hint')}
+                                          placeholder={getMessage('pages.settings.form.nameField.placeholder')}
+                                          onClear={() => null}
+                                          value={values.nameFields[uid] || []}
+                                          onChange={(value) => setFieldValue('nameFields', prepareNameFieldFor(uid, values.nameFields, value))}
+                                          multi
+                                          withTags
+                                          disabled={isRestartRequired}
+                                        >
+                                          {stringAttributes.map(key =>
+                                            (<Option key={uid + key} value={key}>{capitalize(key.split('_').join(' '))}</Option>))}
+                                        </Select>
+                                      </Stack>
+                                    </Box>
+                                  </AccordionContent>
+                                </Accordion>);
+                              })}
+                            </AccordionGroup>
+                          </GridItem>)}
+                          <GridItem col={3} s={6} xs={12}>
                           <NumberInput
                             name="allowedLevels"
                             label={getMessage('pages.settings.form.allowedLevels.label')}
@@ -186,12 +230,7 @@ const SettingsPage = () => {
                       </Grid>
                     </Stack>
                   </Box>
-                  <Box
-                    background="neutral0"
-                    hasRadius
-                    shadow="filterShadow"
-                    padding={6}
-                  >
+                  <Box {...boxDefaultProps} >
                     <Stack size={4}>
                       <Typography variant="delta" as="h2">
                         {getMessage('pages.settings.additional.title')}
@@ -212,62 +251,7 @@ const SettingsPage = () => {
                       </Grid>
                     </Stack>
                   </Box>
-                  {!isEmpty(values.selectedContentTypes) && (
-                    <Box
-                      background="neutral0"
-                      hasRadius
-                      shadow="filterShadow"
-                      padding={6}
-                    >
-                      <Stack size={4}>
-                        <Typography variant="delta" as="h2">
-                          {getMessage('pages.settings.nameField.title')}
-                        </Typography>
-                        <Grid gap={4}>
-                          {values.selectedContentTypes.map(uid => {
-                            const { attributes, info: { displayName } } = allContentTypes.find(item => item.uid == uid);
-                            const stringAttributes = Object.keys(attributes).filter(_ => attributes[_].type === 'string');
-
-                            return !isEmpty(stringAttributes) && (
-                              <GridItem key={`collectionSettings-${uid}`} col={6} s={12} xs={12}>
-                                <Card background="primary100" borderColor="primary200">
-                                  <CardBody>
-                                    <CardContent style={{ width: '100%' }}>
-                                      <Stack size={4}>
-                                        <Typography variant="epsilon" fontWeight="semibold" as="h3">{displayName}</Typography>
-                                        <Select
-                                          name={`collectionSettings-${uid}-entryLabel`}
-                                          label={getMessage('pages.settings.form.nameField.label')}
-                                          hint={getMessage('pages.settings.form.nameField.hint')}
-                                          placeholder={getMessage('pages.settings.form.nameField.placeholder')}
-                                          onClear={() => null}
-                                          value={values.nameFields[uid] || []}
-                                          onChange={(value) => setFieldValue('nameFields', prepareNameFieldFor(uid, values.nameFields, value))}
-                                          multi
-                                          withTags
-                                          disabled={isRestartRequired}
-                                        >
-                                          {stringAttributes.map(key =>
-                                            (<Option key={uid + key} value={key}>{capitalize(key.split('_').join(' '))}</Option>))}
-                                        </Select>
-                                      </Stack>
-                                    </CardContent>
-                                  </CardBody>
-                                </Card>
-                              </GridItem>
-                            );
-                          })
-                          }
-                        </Grid>
-                      </Stack>
-                    </Box>
-                  )}
-                  <Box
-                    background="neutral0"
-                    hasRadius
-                    shadow="filterShadow"
-                    padding={6}
-                  >
+                  <Box {...boxDefaultProps} >
                     <Stack size={4}>
                       <Typography variant="delta" as="h2">
                         {getMessage('pages.settings.restoring.title')}
