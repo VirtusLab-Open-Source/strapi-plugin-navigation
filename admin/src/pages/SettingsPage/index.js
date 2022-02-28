@@ -216,17 +216,6 @@ const SettingsPage = () => {
                               })}
                             </AccordionGroup>
                           </GridItem>)}
-                          <GridItem col={3} s={6} xs={12}>
-                          <NumberInput
-                            name="allowedLevels"
-                            label={getMessage('pages.settings.form.allowedLevels.label')}
-                            placeholder={getMessage('pages.settings.form.allowedLevels.placeholder')}
-                            hint={getMessage('pages.settings.form.allowedLevels.hint')}
-                            onValueChange={(value) => setFieldValue('allowedLevels', value, false)}
-                            value={values.allowedLevels}
-                            disabled={isRestartRequired}
-                          />
-                        </GridItem>
                       </Grid>
                     </Stack>
                   </Box>
@@ -236,6 +225,17 @@ const SettingsPage = () => {
                         {getMessage('pages.settings.additional.title')}
                       </Typography>
                       <Grid gap={4}>
+                        <GridItem col={3} s={6} xs={12}>
+                            <NumberInput
+                              name="allowedLevels"
+                              label={getMessage('pages.settings.form.allowedLevels.label')}
+                              placeholder={getMessage('pages.settings.form.allowedLevels.placeholder')}
+                              hint={getMessage('pages.settings.form.allowedLevels.hint')}
+                              onValueChange={(value) => setFieldValue('allowedLevels', value, false)}
+                              value={values.allowedLevels}
+                              disabled={isRestartRequired}
+                            />
+                          </GridItem>
                         <GridItem col={6} s={12} xs={12}>
                           <ToggleInput
                             name="audienceFieldChecked"
