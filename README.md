@@ -438,6 +438,28 @@ Live example of plugin usage can be found in the [VirtusLab Strapi Examples](htt
 
 Feel free to fork and make a Pull Request to this plugin project. All the input is warmly welcome!
 
+- Clone repository
+
+    ```
+    git clone git@github.com:VirtusLab-Open-Source/strapi-plugin-navigation.git
+    ```
+
+- Create a soft link in your strapi project to plugin build folder
+
+    ```sh
+    ln -s <...>/strapi-plugin-navigation/build <...>/strapi-project/src/plugins/navigation 
+    ```
+
+- Run build command 
+
+    ```ts
+    // Watch for file changes
+    yarn develop
+
+    // or run build without nodemon
+    yarn build:dev
+    ```
+
 ## 👨‍💻 Community support
 
 For general help using Strapi, please refer to [the official Strapi documentation](https://strapi.io/documentation/). For additional help, you can use one of these channels to ask a question:
