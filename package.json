@@ -13,12 +13,17 @@
     "url": "https://github.com/VirtusLab/strapi-plugin-navigation"
   },
   "scripts": {
-    "publish:latest": "npm publish --tag latest",
-    "test:unit": "jest --verbose --coverage"
+    "publish:latest": "cd build && npm publish --tag latest",
+    "prepublish:latest": "npm run clean && npm run build && node build/setup-package.js",
+    "test:unit": "jest --verbose --coverage",
+    "build": "tsc",
+    "build:dev": "npm run build && cp ./package.json ./build && cd ./build && yarn",
+    "clean": "rm -rf build"
   },
   "dependencies": {
     "@strapi/utils": "^4.1.6",
     "uuid": "^8.3.0",
+    "bad-words": "^3.0.3",
     "lodash": "^4.17.11",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
@@ -37,7 +42,8 @@
     "jest": "^26.0.1",
     "jest-cli": "^26.0.1",
     "jest-styled-components": "^7.0.2",
-    "codecov": "^3.7.2"
+    "codecov": "^3.7.2",
+    "typescript": "^4.5.5"
   },
   "peerDependencies": {
     "@strapi/strapi": "4.x"

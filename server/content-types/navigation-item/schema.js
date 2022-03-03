@@ -1,4 +1,4 @@
-{
+module.exports = {
   "collectionName": "navigations_items",
   "info": {
     "singularName": "navigation-item",
