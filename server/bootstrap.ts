@@ -1,8 +1,5 @@
-import { isEmpty, isNil } from 'lodash';
-import { ICommonService, Navigation } from '../types';
-import permissions from '../permissions';
-import { StrapiContext } from 'strapi-typed';
-import { getPluginService } from './utils';
+const { isEmpty } = require("lodash");
+const permissions = require('../permissions');
 
 export default async ({ strapi }: StrapiContext) => {
   // Check if the plugin users-permissions is installed because the navigation needs it

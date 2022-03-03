@@ -1,4 +1,4 @@
-import permissions from '../../permissions';
+const permissions = require('../../permissions');
 
 const pluginPermissions = {
     access: [{ action: permissions.render(permissions.navigation.read), subject: null }],

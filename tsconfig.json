@@ -2,8 +2,7 @@
   "compilerOptions": {
     "rootDir": "./",
     "outDir": "build",
-    "target": "esnext",
-    "module": "commonjs",
+    "target": "es5",
     "jsx": "react",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
@@ -11,7 +10,7 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "removeComments": true,
+    "removeComments": false,
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
@@ -24,7 +23,6 @@
   "include": [
     "./server/**/*",
     "./admin/**/*",
-    "./types/**/*",
     "./strapi-server.*",
     "./strapi-admin.*",
     "./setup-package.ts",
