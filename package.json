@@ -18,7 +18,8 @@
     "test:unit": "jest --verbose --coverage",
     "build": "tsc",
     "build:dev": "npm run build && cp ./package.json ./build && cd ./build && yarn",
-    "clean": "rm -rf build"
+    "clean": "rm -rf build",
+    "develop": "nodemon --exec \"npm run build:dev\""
   },
   "dependencies": {
     "@strapi/utils": "^4.1.6",
@@ -38,15 +39,12 @@
     "slugify": "^1.4.5"
   },
   "devDependencies": {
-    "@types/jest": "^27.4.1",
-    "@types/lodash": "^4.14.181",
-    "@types/pluralize": "^0.0.29",
-    "@types/uuid": "^8.3.4",
     "codecov": "^3.7.2",
-    "jest": "^27.5.1",
-    "jest-cli": "^27.5.1",
+    "jest": "^26.0.1",
+    "jest-cli": "^26.0.1",
     "jest-styled-components": "^7.0.2",
-    "codecov": "^3.7.2",
+    "koa": "^2.8.0",
+    "nodemon": "^2.0.15",
     "typescript": "^4.5.5"
   },
   "peerDependencies": {
@@ -79,15 +77,9 @@
     "npm": ">=6.0.0"
   },
   "nodemonConfig": {
-    "ignore": [
-      "./build/**/*"
-    ],
+    "ignore": ["./build/**/*"],
     "ext": "js,json,ts"
   },
-  "keywords": [
-    "strapi",
-    "plugin",
-    "navigation"
-  ],
+  "keywords": ["strapi", "plugin", "navigation"],
   "license": "MIT"
 }
