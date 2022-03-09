@@ -41,6 +41,7 @@ Strapi Navigation Plugin provides a website navigation / menu builder feature fo
 - **Navigation Public API:** Simple and ready for use API endpoint for consuming the navigation structure you've created
 - **Visual builder:** Elegant and easy to use visual builder
 - **Any Content Type relation:** Navigation can by linked to any of your Content Types by default. Simply, you're controlling it and also limiting available content types by configuration props
+- **Different types of navigation items:** Create navigation with items linked to internal types, to external links or wrapper elements to keep structure clean 
 - **Multiple navigations:** Create as many Navigation containers as you want, setup them and use in the consumer application
 - **Customizable:** Possibility to customize the options like: available Content Types, Maximum level for "attach to menu", Additional fields (audience)
 - **[Audit log](https://github.com/VirtusLab/strapi-molecules/tree/master/packages/strapi-plugin-audit-log):** integration with Strapi Molecules Audit Log plugin that provides changes track record

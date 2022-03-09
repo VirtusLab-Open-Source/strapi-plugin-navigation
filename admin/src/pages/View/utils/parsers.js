@@ -26,10 +26,11 @@ export const transformItemToRESTPayload = (
     items = [],
   } = item;
   const isExternal = type === navigationItemType.EXTERNAL;
+  const isWrapper = type === navigationItemType.WRAPPER;
   const { contentTypes = [] } = config;
 
   const parsedRelated = Number(related);
-  const relatedId = isExternal || isNaN(parsedRelated) ? related?.value || related : parsedRelated;
+  const relatedId = isExternal || isWrapper || isNaN(parsedRelated) ? related?.value || related : parsedRelated;
 
   const relatedContentType = relatedType ?
     find(contentTypes,
@@ -52,7 +53,7 @@ export const transformItemToRESTPayload = (
     ),
     path: isExternal ? undefined : path,
     externalPath: isExternal ? externalPath : undefined,
-    related: isExternal
+    related: isExternal || isWrapper
       ? undefined
       : [
         {
