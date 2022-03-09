@@ -274,7 +274,7 @@ export const usedContentTypes = (items = []) => items.flatMap(
 
 export const isRelationCorrect = ({ related, type }) => {
   const isRelationDefined = !isNil(related);
-  return type === navigationItemType.EXTERNAL || (type === navigationItemType.INTERNAL && isRelationDefined);
+  return type !== navigationItemType.INTERNAL || (type === navigationItemType.INTERNAL && isRelationDefined);
 };
 
 export const isRelationPublished = ({ relatedRef, relatedType = {}, type, isCollection }) => {
