@@ -54,6 +54,7 @@ module.exports = async ({ strapi }) => {
     additionalFields: pluginDefaultConfig('additionalFields'),
     contentTypes: pluginDefaultConfig('contentTypes'),
     contentTypesNameFields: pluginDefaultConfig('contentTypesNameFields'),
+    contentTypesPopulate: pluginDefaultConfig('contentTypesPopulate'),
     allowedLevels: pluginDefaultConfig('allowedLevels'),
     gql: pluginDefaultConfig('gql'),
   }
