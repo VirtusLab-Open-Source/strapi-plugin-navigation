@@ -55,7 +55,7 @@ const SettingsPage = () => {
     additionalFields: audienceFieldChecked ? [navigationItemAdditionalFields.AUDIENCE] : [],
     allowedLevels: allowedLevels,
     gql: {
-      navigationItemRelated: selectedContentTypes.map(uid => allContentTypes.find(ct => ct.uid === uid).info.displayName)
+      navigationItemRelated: selectedContentTypes.map(uid => allContentTypes.find(ct => ct.uid === uid).info.displayName.replace(/\s+/g, ''))
     }
   });
 
