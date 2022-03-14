@@ -11,7 +11,7 @@ import { Flex } from '@strapi/design-system/Flex';
 import { Link } from '@strapi/design-system/Link';
 import { TextButton } from '@strapi/design-system/TextButton';
 import { Typography } from '@strapi/design-system/Typography';
-import { ArrowRight, Link as LinkIcon, Earth, Plus } from '@strapi/icons';
+import { ArrowRight, Link as LinkIcon, Earth, Plus, Cog } from '@strapi/icons';
 
 import { navigationItemType } from '../../pages/View/utils/enums';
 import ItemCardHeader from './ItemCardHeader';
@@ -53,6 +53,7 @@ const Item = (props) => {
 
   const { contentTypes, contentTypesNameFields } = config;
   const isExternal = type === navigationItemType.EXTERNAL;
+  const isWrapper = type === navigationItemType.WRAPPER;
   const isPublished = relatedRef && relatedRef?.publishedAt;
   const isNextMenuAllowedLevel = isNumber(allowedLevels) ? level < (allowedLevels - 1) : true;
   const isMenuAllowedLevel = isNumber(allowedLevels) ? level < allowedLevels : true;
@@ -97,7 +98,7 @@ const Item = (props) => {
   const [{ isDragging }, drag, dragPreview] = useDrag({
     type: `${ItemTypes.NAVIGATION_ITEM}_${levelPath}`,
     item: () => {
-      return { ...item };
+      return { ...item, relatedRef };
     },
     collect: monitor => ({
       isDragging: monitor.isDragging(),
@@ -119,7 +120,7 @@ const Item = (props) => {
             <ItemCardHeader
               title={title}
               path={isExternal ? externalPath : absolutePath}
-              icon={isExternal ? Earth : LinkIcon}
+              icon={isExternal ? Earth : isWrapper ? Cog : LinkIcon}
               onItemRemove={() => onItemRemove({
                 ...item,
                 relatedRef,
@@ -128,6 +129,7 @@ const Item = (props) => {
                 ...item,
                 isMenuAllowedLevel,
                 isParentAttachedToMenu,
+                relatedRef,
               }, levelPath, isParentAttachedToMenu)}
               onItemRestore={() => onItemRestore({
                 ...item,

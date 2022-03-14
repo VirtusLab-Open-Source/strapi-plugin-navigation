@@ -37,7 +37,8 @@
       "type": "enumeration",
       "enum": [
         "INTERNAL",
-        "EXTERNAL"
+        "EXTERNAL",
+        "WRAPPER"
       ],
       "default": "INTERNAL",
       "configurable": false

@@ -10,6 +10,7 @@ module.exports = {
   type: {
     INTERNAL: 'INTERNAL',
     EXTERNAL: 'EXTERNAL',
+    WRAPPER: 'WRAPPER',
   },
   additionalFields: {
     AUDIENCE: 'audience',
