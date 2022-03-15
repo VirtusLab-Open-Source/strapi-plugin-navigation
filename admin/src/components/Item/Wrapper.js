@@ -3,7 +3,7 @@ import styled from "styled-components";
 const Wrapper = styled.div`
 position: relative;
 margin-top: ${({theme}) => theme.spaces[2]};
-margin-left: ${({ theme, level }) => level && theme.spaces[8]}};
+margin-left: ${({ level }) => level && '54px'}};
 
 ${({ level, theme, isLast }) => level && `
 	&::before {

@@ -120,6 +120,37 @@ const View = () => {
   }, []);
   const filteredList = !isSearchEmpty ? filteredListFactory(changedActiveNavigation.items, (item) => item?.title.includes(searchValue)) : [];
 
+  const changeCollapseItemDeep = (item, collapse) => {
+    if (item.collapsed !== collapse) {
+      return {
+        ...item,
+        collapsed: collapse,
+        updated: true,
+        items: item.items?.map(el => changeCollapseItemDeep(el, collapse))
+      }
+    }
+    return {
+      ...item,
+      items: item.items?.map(el => changeCollapseItemDeep(el, collapse))
+    }
+  }
+
+  const handleCollapseAll = () => {
+    handleChangeNavigationData({
+      ...changedActiveNavigation,
+      items: changedActiveNavigation.items.map(item => changeCollapseItemDeep(item, true))
+    }, true);
+    setStructureChanged(true);
+  }
+
+  const handleExpandAll = () => {
+    handleChangeNavigationData({
+      ...changedActiveNavigation,
+      items: changedActiveNavigation.items.map(item => changeCollapseItemDeep(item, false))
+    }, true);
+    setStructureChanged(true);
+  }
+
   const handleItemReOrder = (item, newOrder) => {
     handleSubmitNavigationItem({
       ...item,
@@ -140,6 +171,14 @@ const View = () => {
       removed: false,
     });
   };
+
+  const handleItemToggleCollapse = (item) => {
+    handleSubmitNavigationItem({
+      ...item,
+      collapsed: !item.collapsed,
+      updated: true,
+    });
+  }
 
   const handleItemEdit = (
     item,
@@ -164,6 +203,33 @@ const View = () => {
     setSearchValue('');
   }
 
+  const endActions = [
+    {
+      onClick: handleExpandAll,
+      disabled: isLoadingForSubmit,
+      type: "submit",
+      variant: 'tertiary',
+      tradId: 'header.action.expandAll',
+      margin: '8px',
+    },
+    {
+      onClick: handleCollapseAll,
+      disabled: isLoadingForSubmit,
+      type: "submit",
+      variant: 'tertiary',
+      tradId: 'header.action.collapseAll',
+      margin: '8px',
+    },
+    {
+      onClick: addNewNavigationItem,
+      startIcon: <PlusIcon />,
+      disabled: isLoadingForSubmit,
+      type: "submit",
+      tradId: 'header.action.newItem',
+      margin: '16px',
+    },
+  ]
+
   return (
     <Main labelledBy="title" aria-busy={isLoadingForSubmit}>
       <NavigationHeader
@@ -180,18 +246,15 @@ const View = () => {
           <>
             <NavigationContentHeader
               startActions={<Search value={searchValue} setValue={setSearchValue} />}
-              endActions={<Button
-                onClick={addNewNavigationItem}
-                startIcon={<PlusIcon />}
-                disabled={isLoadingForSubmit}
-                type="submit"
-              >
-                {formatMessage(getTrad('header.action.newItem'))}
-              </Button>}
+              endActions={endActions.map(({ tradId, margin, ...item }, i) =>
+                <Box marginLeft={margin} key={i}>
+                  <Button {...item}> {formatMessage(getTrad(tradId))} </Button>
+                </Box>
+              )}
             />
             {isEmpty(changedActiveNavigation.items || []) && (
               <Flex direction="column" minHeight="400px" justifyContent="center">
-                <Icon as={EmptyDocumentsIcon} width="160px" height="88px" color=""/>
+                <Icon as={EmptyDocumentsIcon} width="160px" height="88px" color="" />
                 <Box padding={4}>
                   <Typography variant="beta" textColor="neutral600">{formatMessage(getTrad('empty'))}</Typography>
                 </Box>
@@ -214,6 +277,7 @@ const View = () => {
                 onItemEdit={handleItemEdit}
                 onItemRestore={handleItemRestore}
                 onItemReOrder={handleItemReOrder}
+                onItemToggleCollapse={handleItemToggleCollapse}
                 displayFlat={!isSearchEmpty}
                 root
                 error={error}

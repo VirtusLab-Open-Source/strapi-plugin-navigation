@@ -16,6 +16,7 @@ const List = ({
   onItemRemove,
   onItemRestore,
   onItemReOrder,
+  onItemToggleCollapse,
   displayFlat,
   contentTypes,
   contentTypesNameFields,
@@ -38,6 +39,7 @@ const List = ({
           onItemRemove={onItemRemove}
           onItemEdit={onItemEdit}
           onItemReOrder={onItemReOrder}
+          onItemToggleCollapse={onItemToggleCollapse}
           error={error}
           displayChildren={displayFlat}
           config={{
@@ -60,6 +62,7 @@ List.propTypes = {
   onItemRestore: PropTypes.func.isRequired,
   onItemRestore: PropTypes.func.isRequired,
   onItemReOrder: PropTypes.func.isRequired,
+  onItemToggleCollapse: PropTypes.func.isRequired,
   contentTypes: PropTypes.array.isRequired,
   contentTypesNameFields: PropTypes.object.isRequired
 };
