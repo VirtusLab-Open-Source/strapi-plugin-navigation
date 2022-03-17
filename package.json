@@ -1,6 +1,6 @@
 {
   "name": "strapi-plugin-navigation",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "description": "Strapi - Navigation plugin",
   "strapi": {
     "name": "navigation",
@@ -17,9 +17,8 @@
     "test:unit": "jest --verbose --coverage"
   },
   "dependencies": {
-    "@strapi/utils": "^4.1.0",
+    "@strapi/utils": "^4.1.5",
     "uuid": "^8.3.0",
-    "bad-words": "^3.0.3",
     "lodash": "^4.17.11",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
