@@ -76,6 +76,7 @@ module.exports = ({ strapi }) => {
       const config = await pluginStore.get({ key: 'config' });
       const additionalFields = config.additionalFields;
       const contentTypesNameFields = config.contentTypesNameFields;
+      const contentTypesPopulate = config.contentTypesPopulate;
       const allowedLevels = config.allowedLevels;
       const isGQLPluginEnabled = !isNil(strapi.plugin('graphql'));
 
@@ -85,6 +86,9 @@ module.exports = ({ strapi }) => {
         contentTypesNameFields: {
           default: contentTypesNameFieldsDefaults,
           ...(isObject(contentTypesNameFields) ? contentTypesNameFields : {}),
+        },
+        contentTypesPopulate: {
+          ...(isObject(contentTypesPopulate) ? contentTypesPopulate : {}),
         },
         allowedLevels,
         additionalFields,
@@ -125,6 +129,7 @@ module.exports = ({ strapi }) => {
           additionalFields: defaultConfig('additionalFields'),
           contentTypes: defaultConfig('contentTypes'),
           contentTypesNameFields: defaultConfig('contentTypesNameFields'),
+          contentTypesPopulate: defaultConfig('contentTypesPopulate'),
           allowedLevels: defaultConfig('allowedLevels'),
           gql: defaultConfig('gql'),
         }
@@ -212,6 +217,8 @@ module.exports = ({ strapi }) => {
     },
 
     async getRelatedItems(entityItems) {
+      const pluginStore = await strapi.store({ type: 'plugin', name: 'navigation' });
+      const config = await pluginStore.get({ key: 'config' });
       const relatedTypes = new Set(entityItems.flatMap((item) => get(item.related, 'related_type')));
       const groupedItems = Array.from(relatedTypes).filter((relatedType) => relatedType).reduce(
         (acc, relatedType) => Object.assign(acc, {
@@ -233,8 +240,9 @@ module.exports = ({ strapi }) => {
                   .query(model)
                   .findMany({
                     where: {
-                      id: { $in: map(related, 'related_id') }
-                    }
+                      id: { $in: map(related, 'related_id') },
+                    },
+                    populate: config.contentTypesPopulate[model] || []
                   });
                 return relationData
                   .flatMap(_ =>
@@ -264,8 +272,12 @@ module.exports = ({ strapi }) => {
     },
 
     async getContentTypeItems(model) {
+      const pluginStore = await strapi.store({ type: 'plugin', name: 'navigation' });
+      const config = await pluginStore.get({ key: 'config' });
       try {
-        const contentTypeItems = await strapi.query(model).findMany()
+        const contentTypeItems = await strapi.query(model).findMany({
+          populate: config.contentTypesPopulate[model] || []
+        })
         return contentTypeItems;
       } catch (err) {
         return [];
