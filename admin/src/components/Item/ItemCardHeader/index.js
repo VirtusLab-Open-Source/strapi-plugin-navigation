@@ -14,16 +14,17 @@ const ItemCardHeader = ({ title, path, icon, removed, onItemRemove, onItemEdit, 
 	return (
 		<Wrapper>
 			<Flex alignItems="center">
-				<Icon as={icon} />
+				<IconButton ref={dragRef} label="Drag" icon={<Drag />} />
 				<Typography variant="omega" fontWeight="bold">
 					{title}
 				</Typography>
 				<Typography variant="omega" fontWeight="bold" textColor='neutral500'>
 					{path}
 				</Typography>
+				<Icon as={icon}/>
 			</Flex>
 			<Flex alignItems="center" style={{ zIndex: 2 }}>
-				{removed && 
+				{removed &&
 					(<ItemCardBadge
 						borderColor={`danger200`}
 						backgroundColor={`danger100`}
@@ -36,10 +37,7 @@ const ItemCardHeader = ({ title, path, icon, removed, onItemRemove, onItemEdit, 
 				<IconButton disabled={removed} onClick={onItemEdit} label="Edit" icon={<Pencil />} />
 				{removed ?
 					<IconButton onClick={onItemRestore} label="Restore" icon={<Refresh />} /> :
-					<>
-						<IconButton ref={dragRef} label="Drag" icon={<Drag />} />
-						<IconButton onClick={onItemRemove} label="Remove" icon={<Trash />} />
-					</>
+					<IconButton onClick={onItemRemove} label="Remove" icon={<Trash />} />
 				}
 			</Flex>
 		</Wrapper>

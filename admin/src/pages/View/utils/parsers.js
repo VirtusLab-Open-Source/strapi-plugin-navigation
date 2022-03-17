@@ -24,6 +24,7 @@ export const transformItemToRESTPayload = (
     order,
     audience = [],
     items = [],
+    collapsed,
   } = item;
   const isExternal = type === navigationItemType.EXTERNAL;
   const isWrapper = type === navigationItemType.WRAPPER;
@@ -47,6 +48,7 @@ export const transformItemToRESTPayload = (
     removed,
     order,
     uiRouterKey,
+    collapsed,
     menuAttached: itemAttachedToMenu,
     audience: audience.map((audienceItem) =>
       isObject(audienceItem) ? audienceItem.value : audienceItem,
