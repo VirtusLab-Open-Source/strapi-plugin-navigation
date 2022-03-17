@@ -175,20 +175,20 @@ const Item = (props) => {
                 </Flex>
                 {relatedItemLabel && (
                   <Flex justifyContent='center' alignItems='center'>
-                    {isHandledByPublishFlow && <ItemCardBadge
+                    <ItemCardBadge
                       borderColor={`${relatedBadgeColor}200`}
                       backgroundColor={`${relatedBadgeColor}100`}
                       textColor={`${relatedBadgeColor}600`}
                       className="action"
                       small
                     >
-                      {getMessage({ id: `components.navigationItem.badge.${isPublished ? 'published' : 'draft'}` })}
-                    </ItemCardBadge>}
+                      {getMessage({id: `components.navigationItem.badge.${isPublished ? 'published' : 'draft'}`})}
+                    </ItemCardBadge>
                     <Typography variant="omega" textColor='neutral600'>{relatedTypeLabel}&nbsp;/&nbsp;</Typography>
                     <Typography variant="omega" textColor='neutral800'>{relatedItemLabel}</Typography>
-                    { contentType?.visible && (<Link
-                        to={generatePreviewUrl(relatedRef)}
-                        endIcon={<ArrowRight />}>&nbsp;</Link>) }
+                      <Link
+                        to={`/content-manager/collectionType/${relatedRef?.__collectionUid}/${relatedRef?.id}`}
+                        endIcon={<ArrowRight />}>&nbsp;</Link>
                   </Flex>)
                 }
               </Flex>
