@@ -66,7 +66,7 @@ module.exports = ({ strapi }) => {
     // Get plugin config
     async config(viaSettingsPage = false) {
       const { audienceModel } = utilsFunctions.extractMeta(strapi.plugins);
-      const pluginStore = await this.getPluginStore()
+      const pluginStore = await this.getPluginStore();
       const config = await pluginStore.get({ key: 'config' });
       const additionalFields = config.additionalFields;
       const contentTypesNameFields = config.contentTypesNameFields;
@@ -110,7 +110,7 @@ module.exports = ({ strapi }) => {
     },
 
     async updateConfig(newConfig) {
-      const pluginStore = await this.getPluginStore()
+      const pluginStore = await this.getPluginStore();
       await pluginStore.set({ key: 'config', value: newConfig });
     },
 
@@ -119,7 +119,7 @@ module.exports = ({ strapi }) => {
     },
 
     async setDefaultConfig() {
-      const pluginStore = await this.getPluginStore()
+      const pluginStore = await this.getPluginStore();
       const config = await pluginStore.get({ key: 'config' });
       const pluginDefaultConfig = await strapi.plugin('navigation').config
 
@@ -128,10 +128,10 @@ module.exports = ({ strapi }) => {
       const defaultConfigValue = {
         additionalFields: get(config, 'additionalFields', pluginDefaultConfig('additionalFields')),
         contentTypes: get(config, 'contentTypes', pluginDefaultConfig('contentTypes')),
-        contentTypesNameFields: get(config, 'contentTypesNameFields', pluginDefaultConfig('contentTypesNameFields')),
-        contentTypesPopulate: get(config, 'contentTypesPopulate', pluginDefaultConfig('contentTypesPopulate')),
-        allowedLevels: get(config, 'allowedLevels', pluginDefaultConfig('allowedLevels')),
-        gql: get(config, 'gql', pluginDefaultConfig('gql')),
+        contentTypesNameFields: get(config, 'contentTypesNameFields',  pluginDefaultConfig('contentTypesNameFields')),
+        contentTypesPopulate: get(config, 'contentTypesPopulate',  pluginDefaultConfig('contentTypesPopulate')),
+        allowedLevels: get(config, 'allowedLevels',  pluginDefaultConfig('allowedLevels')),
+        gql: get(config, 'gql',  pluginDefaultConfig('gql')),
       }
       pluginStore.set({ key: 'config', value: defaultConfigValue });
 
@@ -139,20 +139,9 @@ module.exports = ({ strapi }) => {
     },
 
     async restoreConfig() {
-      const pluginStore = await strapi.store({ type: 'plugin', name: 'navigation' });
-      const defaultConfig = await strapi.plugin('navigation').config
-
-      await pluginStore.delete({ key: 'config' })
-      await pluginStore.set({
-        key: 'config', value: {
-          additionalFields: defaultConfig('additionalFields'),
-          contentTypes: defaultConfig('contentTypes'),
-          contentTypesNameFields: defaultConfig('contentTypesNameFields'),
-          contentTypesPopulate: defaultConfig('contentTypesPopulate'),
-          allowedLevels: defaultConfig('allowedLevels'),
-          gql: defaultConfig('gql'),
-        }
-      });
+      const pluginStore = await this.getPluginStore()
+      await pluginStore.delete({ key: 'config' });
+      await this.setDefaultConfig();
     },
 
     async configContentTypes(viaSettingsPage = false) {
@@ -237,7 +226,7 @@ module.exports = ({ strapi }) => {
     },
 
     async getRelatedItems(entityItems) {
-      const pluginStore = await strapi.store({ type: 'plugin', name: 'navigation' });
+      const pluginStore = await this.getPluginStore()
       const config = await pluginStore.get({ key: 'config' });
       const relatedTypes = new Set(entityItems.flatMap((item) => get(item.related, 'related_type')));
       const groupedItems = Array.from(relatedTypes).filter((relatedType) => relatedType).reduce(
@@ -292,7 +281,7 @@ module.exports = ({ strapi }) => {
     },
 
     async getContentTypeItems(model) {
-      const pluginStore = await strapi.store({ type: 'plugin', name: 'navigation' });
+      const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
       const config = await pluginStore.get({ key: 'config' });
       try {
         const contentTypeItems = await strapi.query(model).findMany({
