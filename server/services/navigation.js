@@ -72,7 +72,7 @@ module.exports = ({ strapi }) => {
     // Get plugin config
     async config(viaSettingsPage = false) {
       const { audienceModel, service } = utilsFunctions.extractMeta(strapi.plugins);
-      const pluginStore = await strapi.store({ type: 'plugin', name: 'navigation' });
+      const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
       const config = await pluginStore.get({ key: 'config' });
       const additionalFields = config.additionalFields;
       const contentTypesNameFields = config.contentTypesNameFields;
@@ -115,29 +115,42 @@ module.exports = ({ strapi }) => {
     },
 
     async updateConfig(newConfig) {
-      const pluginStore = await strapi.store({ type: 'plugin', name: 'navigation' });
+      const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
       await pluginStore.set({ key: 'config', value: newConfig });
     },
 
-    async restoreConfig() {
-      const pluginStore = await strapi.store({ type: 'plugin', name: 'navigation' });
-      const defaultConfig = await strapi.plugin('navigation').config
+    async getPluginStore() {
+      return await strapi.store({ type: 'plugin', name: 'navigation' });
+    },
 
-      await pluginStore.delete({ key: 'config' })
-      await pluginStore.set({
-        key: 'config', value: {
-          additionalFields: defaultConfig('additionalFields'),
-          contentTypes: defaultConfig('contentTypes'),
-          contentTypesNameFields: defaultConfig('contentTypesNameFields'),
-          contentTypesPopulate: defaultConfig('contentTypesPopulate'),
-          allowedLevels: defaultConfig('allowedLevels'),
-          gql: defaultConfig('gql'),
-        }
-      });
+    async setDefaultConfig() {
+      const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
+      const config = await pluginStore.get({ key: 'config' });
+      const pluginDefaultConfig = await strapi.plugin('navigation').config
+
+      // If new value gets introduced to the config it either is read from plugin store or from default plugin config
+      // This is fix for backwards compatibility and migration of config to newer version of the plugin
+      const defaultConfigValue = {
+        additionalFields: get(config, 'additionalFields', pluginDefaultConfig('additionalFields')),
+        contentTypes: get(config, 'contentTypes', pluginDefaultConfig('contentTypes')),
+        contentTypesNameFields: get(config, 'contentTypesNameFields',  pluginDefaultConfig('contentTypesNameFields')),
+        contentTypesPopulate: get(config, 'contentTypesPopulate',  pluginDefaultConfig('contentTypesPopulate')),
+        allowedLevels: get(config, 'allowedLevels',  pluginDefaultConfig('allowedLevels')),
+        gql: get(config, 'gql',  pluginDefaultConfig('gql')),
+      }
+      pluginStore.set({ key: 'config', value: defaultConfigValue });
+
+      return defaultConfigValue;
+    },
+
+    async restoreConfig() {
+      const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
+      await pluginStore.delete({ key: 'config' });
+      await strapi.plugin('navigation').service('navigation').setDefaultConfig();
     },
 
     async configContentTypes() {
-      const pluginStore = strapi.store({ type: 'plugin', name: 'navigation' });
+      const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
       const config = await pluginStore.get({ key: 'config' });
       const eligibleContentTypes =
         await Promise.all(
@@ -217,7 +230,7 @@ module.exports = ({ strapi }) => {
     },
 
     async getRelatedItems(entityItems) {
-      const pluginStore = await strapi.store({ type: 'plugin', name: 'navigation' });
+      const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
       const config = await pluginStore.get({ key: 'config' });
       const relatedTypes = new Set(entityItems.flatMap((item) => get(item.related, 'related_type')));
       const groupedItems = Array.from(relatedTypes).filter((relatedType) => relatedType).reduce(
@@ -272,7 +285,7 @@ module.exports = ({ strapi }) => {
     },
 
     async getContentTypeItems(model) {
-      const pluginStore = await strapi.store({ type: 'plugin', name: 'navigation' });
+      const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
       const config = await pluginStore.get({ key: 'config' });
       try {
         const contentTypeItems = await strapi.query(model).findMany({
