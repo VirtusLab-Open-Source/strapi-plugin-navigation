@@ -139,13 +139,13 @@ module.exports = ({ strapi }) => {
     },
 
     async restoreConfig() {
-      const pluginStore = await this.getPluginStore()
+      const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
       await pluginStore.delete({ key: 'config' });
       await this.setDefaultConfig();
     },
 
-    async configContentTypes(viaSettingsPage = false) {
-      const pluginStore = await this.getPluginStore()
+    async configContentTypes() {
+      const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
       const config = await pluginStore.get({ key: 'config' });
       const eligibleContentTypes =
         await Promise.all(
@@ -281,7 +281,7 @@ module.exports = ({ strapi }) => {
     },
 
     async getContentTypeItems(model) {
-      const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
+      const pluginStore = await this.getPluginStore();
       const config = await pluginStore.get({ key: 'config' });
       try {
         const contentTypeItems = await strapi.query(model).findMany({
