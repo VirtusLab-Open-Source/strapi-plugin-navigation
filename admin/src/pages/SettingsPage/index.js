@@ -49,9 +49,10 @@ const SettingsPage = () => {
 		padding: 6,
 	};
   
-  const preparePayload = ({ selectedContentTypes, nameFields, audienceFieldChecked, allowedLevels }) => ({
+  const preparePayload = ({ selectedContentTypes, nameFields, audienceFieldChecked, allowedLevels, populate }) => ({
     contentTypes: selectedContentTypes,
     contentTypesNameFields: nameFields,
+    contentTypesPopulate: populate,
     additionalFields: audienceFieldChecked ? [navigationItemAdditionalFields.AUDIENCE] : [],
     allowedLevels: allowedLevels,
     gql: {
@@ -110,8 +111,9 @@ const SettingsPage = () => {
   const allContentTypes = !isLoading && Object.values(allContentTypesData).filter(item => item.uid.includes('api::'));
   const selectedContentTypes = navigationConfigData?.contentTypes.map(item => item.uid);
   const audienceFieldChecked = navigationConfigData?.additionalFields.includes(navigationItemAdditionalFields.AUDIENCE);
-  const allowedLevels = navigationConfigData?.allowedLevels;
-  const nameFields = navigationConfigData?.contentTypesNameFields
+  const allowedLevels = navigationConfigData?.allowedLevels || 2;
+  const nameFields = navigationConfigData?.contentTypesNameFields || {}
+  const populate = navigationConfigData?.contentTypesPopulate || {}
 
   return (
     <>
@@ -125,6 +127,7 @@ const SettingsPage = () => {
             audienceFieldChecked,
             allowedLevels,
             nameFields,
+            populate,
           }}
           onSubmit={onSave}
         >
@@ -183,6 +186,7 @@ const SettingsPage = () => {
                               {orderBy(values.selectedContentTypes).map(uid => {
                                 const { attributes, info: { displayName } } = allContentTypes.find(item => item.uid == uid);
                                 const stringAttributes = Object.keys(attributes).filter(_ => attributes[_].type === 'string');
+                                const relationAttributes = Object.keys(attributes).filter(_ => attributes[_].type === 'relation');
                                 const key = `collectionSettings-${uid}`;
                                 return (<Accordion
                                   expanded={contentTypeExpanded === key}
@@ -197,20 +201,36 @@ const SettingsPage = () => {
                                         <Select
                                           name={`collectionSettings-${uid}-entryLabel`}
                                           label={getMessage('pages.settings.form.nameField.label')}
-                                          hint={getMessage('pages.settings.form.nameField.hint')}
+                                          hint={getMessage(`pages.settings.form.populate.${isEmpty(stringAttributes) ? 'empty' : 'hint'}`)}
                                           placeholder={getMessage('pages.settings.form.nameField.placeholder')}
                                           onClear={() => null}
                                           value={values.nameFields[uid] || []}
                                           onChange={(value) => setFieldValue('nameFields', prepareNameFieldFor(uid, values.nameFields, value))}
                                           multi
                                           withTags
-                                          disabled={isRestartRequired}
+                                          disabled={isRestartRequired || isEmpty(stringAttributes)}
                                         >
                                           {stringAttributes.map(key =>
+                                            (<Option key={uid + key} value={key}>{capitalize(key.split('_').join(' '))}</Option>))}
+                                        </Select>                                    
+                                        <Select
+                                          name={`collectionSettings-${uid}-populate`}
+                                          label={getMessage('pages.settings.form.populate.label')}
+                                          hint={getMessage(`pages.settings.form.populate.${isEmpty(relationAttributes) ? 'empty' : 'hint'}`)}
+                                          placeholder={getMessage('pages.settings.form.populate.placeholder')}
+                                          onClear={() => null}
+                                          value={values.populate[uid] || []}
+                                          onChange={(value) => setFieldValue('populate', prepareNameFieldFor(uid, values.populate, value))}
+                                          multi
+                                          withTags
+                                          disabled={isRestartRequired || isEmpty(relationAttributes)}
+                                        >
+                                          {relationAttributes.map(key =>
                                             (<Option key={uid + key} value={key}>{capitalize(key.split('_').join(' '))}</Option>))}
                                         </Select>
                                       </Stack>
                                     </Box>
+
                                   </AccordionContent>
                                 </Accordion>);
                               })}
@@ -226,16 +246,16 @@ const SettingsPage = () => {
                       </Typography>
                       <Grid gap={4}>
                         <GridItem col={3} s={6} xs={12}>
-                            <NumberInput
-                              name="allowedLevels"
-                              label={getMessage('pages.settings.form.allowedLevels.label')}
-                              placeholder={getMessage('pages.settings.form.allowedLevels.placeholder')}
-                              hint={getMessage('pages.settings.form.allowedLevels.hint')}
-                              onValueChange={(value) => setFieldValue('allowedLevels', value, false)}
-                              value={values.allowedLevels}
-                              disabled={isRestartRequired}
-                            />
-                          </GridItem>
+                          <NumberInput
+                            name="allowedLevels"
+                            label={getMessage('pages.settings.form.allowedLevels.label')}
+                            placeholder={getMessage('pages.settings.form.allowedLevels.placeholder')}
+                            hint={getMessage('pages.settings.form.allowedLevels.hint')}
+                            onValueChange={(value) => setFieldValue('allowedLevels', value, false)}
+                            value={values.allowedLevels}
+                            disabled={isRestartRequired}
+                          />
+                        </GridItem>
                         <GridItem col={6} s={12} xs={12}>
                           <ToggleInput
                             name="audienceFieldChecked"

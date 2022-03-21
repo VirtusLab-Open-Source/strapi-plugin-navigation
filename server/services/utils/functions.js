@@ -213,7 +213,7 @@ module.exports = ({ strapi }) => {
           false;
         return item.type === itemType.INTERNAL ? isRelatedDefinedAndPublished : true;
       }
-      return (item.type === itemType.EXTERNAL) || relatedItem;
+      return (item.type !== itemType.INTERNAL) || relatedItem;
     },
   };
 }

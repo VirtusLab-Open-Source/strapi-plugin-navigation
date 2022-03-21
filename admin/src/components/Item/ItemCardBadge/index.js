@@ -4,15 +4,15 @@ import { Badge } from '@strapi/design-system/Badge';
 const ItemCardBadge = styled(Badge)`
 		border: 1px solid ${({ theme, borderColor }) => theme.colors[borderColor]};
 
-		${ props => props.small && `
-			padding: ${props.theme.spaces[1]};
-			margin: 0px ${props.theme.spaces[3]};
+		${ ({small, theme}) => small && `
+			padding: ${theme.spaces[1]} ${theme.spaces[2]};
+			margin: 0px ${theme.spaces[3]};
 			vertical-align: middle;
 
 			cursor: default;
 
 			span {
-				font-size: .55rem;
+				font-size: .65rem;
 				line-height: 1;
 				vertical-align: middle;
 			}

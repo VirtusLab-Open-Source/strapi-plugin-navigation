@@ -9,10 +9,6 @@ const CardItemTitle = styled(CardTitle)`
 	justify-content: space-between;
 	align-items: center;
 	
-	color: ${({ theme }) => theme.colors.neutral800};
-	font-size: ${({ theme }) => theme.fontSizes[2]};
-	font-weight: ${({ theme }) => theme.fontWeights.bold};
-
 	> div > * {
 			margin: 0px ${({ theme }) => theme.spaces[1]};
 	}

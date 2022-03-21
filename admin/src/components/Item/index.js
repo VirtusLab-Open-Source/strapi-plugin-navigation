@@ -11,7 +11,7 @@ import { Flex } from '@strapi/design-system/Flex';
 import { Link } from '@strapi/design-system/Link';
 import { TextButton } from '@strapi/design-system/TextButton';
 import { Typography } from '@strapi/design-system/Typography';
-import { ArrowRight, Link as LinkIcon, Earth, Plus } from '@strapi/icons';
+import { ArrowRight, Link as LinkIcon, Earth, Plus, Cog } from '@strapi/icons';
 
 import { navigationItemType } from '../../pages/View/utils/enums';
 import ItemCardHeader from './ItemCardHeader';
@@ -21,6 +21,7 @@ import { extractRelatedItemLabel } from '../../pages/View/utils/parsers';
 import ItemCardBadge from './ItemCardBadge';
 import { ItemCardRemovedOverlay } from './ItemCardRemovedOverlay';
 import { getMessage, ItemTypes } from '../../utils';
+import CollapseButton from '../CollapseButton';
 
 const Item = (props) => {
   const {
@@ -36,6 +37,7 @@ const Item = (props) => {
     onItemRestore,
     onItemEdit,
     onItemReOrder,
+    onItemToggleCollapse,
     error,
     displayChildren,
     config = {},
@@ -49,10 +51,12 @@ const Item = (props) => {
     removed,
     externalPath,
     menuAttached,
+    collapsed,
   } = item;
 
   const { contentTypes, contentTypesNameFields } = config;
   const isExternal = type === navigationItemType.EXTERNAL;
+  const isWrapper = type === navigationItemType.WRAPPER;
   const isPublished = relatedRef && relatedRef?.publishedAt;
   const isNextMenuAllowedLevel = isNumber(allowedLevels) ? level < (allowedLevels - 1) : true;
   const isMenuAllowedLevel = isNumber(allowedLevels) ? level < allowedLevels : true;
@@ -97,7 +101,7 @@ const Item = (props) => {
   const [{ isDragging }, drag, dragPreview] = useDrag({
     type: `${ItemTypes.NAVIGATION_ITEM}_${levelPath}`,
     item: () => {
-      return { ...item };
+      return { ...item, relatedRef };
     },
     collect: monitor => ({
       isDragging: monitor.isDragging(),
@@ -119,7 +123,7 @@ const Item = (props) => {
             <ItemCardHeader
               title={title}
               path={isExternal ? externalPath : absolutePath}
-              icon={isExternal ? Earth : LinkIcon}
+              icon={isExternal ? Earth : isWrapper ? Cog : LinkIcon}
               onItemRemove={() => onItemRemove({
                 ...item,
                 relatedRef,
@@ -128,6 +132,7 @@ const Item = (props) => {
                 ...item,
                 isMenuAllowedLevel,
                 isParentAttachedToMenu,
+                relatedRef,
               }, levelPath, isParentAttachedToMenu)}
               onItemRestore={() => onItemRestore({
                 ...item,
@@ -138,49 +143,50 @@ const Item = (props) => {
             />
           </CardBody>
           <Divider />
-          {!isExternal && (<CardBody style={{ margin: '8px' }}>
-            <Flex style={{ width: '100%' }} direction="row" alignItems="center" justifyContent="space-between">
-              <TextButton
-                disabled={removed}
-                startIcon={<Plus />}
-                onClick={(e) => onItemLevelAdd(e, viewId, isNextMenuAllowedLevel, absolutePath, menuAttached)}
-              >
-                <Typography variant="pi" fontWeight="bold" textColor={removed ? "neutral600" : "primary600"}>
-                  {getMessage("components.navigationItem.action.newItem")}
-                </Typography>
-              </TextButton>
-              {relatedItemLabel && (<Box>
-                <ItemCardBadge
-                  borderColor={`${relatedBadgeColor}200`}
-                  backgroundColor={`${relatedBadgeColor}100`}
-                  textColor={`${relatedBadgeColor}600`}
-                  className="action"
-                  small
-                >
-                  {getMessage({
-                    id: `components.navigationItem.badge.${isPublished ? 'published' : 'draft'}`, props: {
-                      type: relatedTypeLabel
-                    }
-                  })}
-                </ItemCardBadge>
-                <Typography variant="pi" fontWeight="bold" textColor="neutral600">
-                  {relatedItemLabel}
-                  <Link
-                    to={`/content-manager/collectionType/${relatedRef?.__collectionUid}/${relatedRef?.id}`}
-                    endIcon={<ArrowRight />}>&nbsp;</Link>
-                </Typography>
-              </Box>)
-              }
-            </Flex>
-          </CardBody>)}
+          {!isExternal && (
+            <CardBody style={{ padding: '8px' }}>
+              <Flex style={{ width: '100%' }} direction="row" alignItems="center" justifyContent="space-between">
+                <Flex>
+                  {!isEmpty(item.items) && <CollapseButton toggle={() => onItemToggleCollapse({...item, relatedRef})} collapsed={collapsed} itemsCount={item.items.length}/>}
+                  <TextButton
+                    disabled={removed}
+                    startIcon={<Plus />}
+                    onClick={(e) => onItemLevelAdd(e, viewId, isNextMenuAllowedLevel, absolutePath, menuAttached)}
+                  >
+                    <Typography variant="pi" fontWeight="bold" textColor={removed ? "neutral600" : "primary600"}>
+                      {getMessage("components.navigationItem.action.newItem")}
+                    </Typography>
+                  </TextButton>
+                </Flex>
+                {relatedItemLabel && (
+                  <Flex justifyContent='center' alignItems='center'>
+                    <ItemCardBadge
+                      borderColor={`${relatedBadgeColor}200`}
+                      backgroundColor={`${relatedBadgeColor}100`}
+                      textColor={`${relatedBadgeColor}600`}
+                      className="action"
+                      small
+                    >
+                      {getMessage({id: `components.navigationItem.badge.${isPublished ? 'published' : 'draft'}`})}
+                    </ItemCardBadge>
+                    <Typography variant="omega" textColor='neutral600'>{relatedTypeLabel}&nbsp;/&nbsp;</Typography>
+                    <Typography variant="omega" textColor='neutral800'>{relatedItemLabel}</Typography>
+                      <Link
+                        to={`/content-manager/collectionType/${relatedRef?.__collectionUid}/${relatedRef?.id}`}
+                        endIcon={<ArrowRight />}>&nbsp;</Link>
+                  </Flex>)
+                }
+              </Flex>
+            </CardBody>)}
         </div>
       </Card>
-      {hasChildren && !removed && <List
+      {hasChildren && !removed && !collapsed && <List
         onItemLevelAdd={onItemLevelAdd}
         onItemRemove={onItemRemove}
         onItemEdit={onItemEdit}
         onItemRestore={onItemRestore}
         onItemReOrder={onItemReOrder}
+        onItemToggleCollapse={onItemToggleCollapse}
         error={error}
         allowedLevels={allowedLevels}
         isParentAttachedToMenu={menuAttached}
@@ -204,7 +210,8 @@ Item.propTypes = {
     path: PropTypes.string,
     externalPath: PropTypes.string,
     related: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    menuAttached: PropTypes.bool
+    menuAttached: PropTypes.bool,
+    collapsed: PropTypes.bool,
   }).isRequired,
   relatedRef: PropTypes.object,
   level: PropTypes.number,
@@ -214,6 +221,7 @@ Item.propTypes = {
   onItemLevelAdd: PropTypes.func.isRequired,
   onItemRemove: PropTypes.func.isRequired,
   onItemReOrder: PropTypes.func.isRequired,
+  onItemToggleCollapse: PropTypes.func.isRequired,
   config: PropTypes.shape({
     contentTypes: PropTypes.array.isRequired,
     contentTypesNameFields: PropTypes.object.isRequired,

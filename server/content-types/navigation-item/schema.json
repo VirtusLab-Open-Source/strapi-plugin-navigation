@@ -37,7 +37,8 @@
       "type": "enumeration",
       "enum": [
         "INTERNAL",
-        "EXTERNAL"
+        "EXTERNAL",
+        "WRAPPER"
       ],
       "default": "INTERNAL",
       "configurable": false
@@ -63,6 +64,11 @@
     "order": {
       "type": "integer",
       "default": 0,
+      "configurable": false
+    },
+    "collapsed": {
+      "type": "boolean",
+      "default": false,
       "configurable": false
     },
     "related": {

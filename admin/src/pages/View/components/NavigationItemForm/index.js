@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { debounce, find, get, isEmpty, isEqual, isNil, isString } from 'lodash';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik'
+import slugify from 'slugify';
 
 // Design System
 import { ModalBody } from '@strapi/design-system/ModalLayout';
@@ -10,10 +11,7 @@ import { Grid, GridItem } from '@strapi/design-system/Grid';
 import { Form, GenericInput } from '@strapi/helper-plugin';
 
 import { NavigationItemPopupFooter } from '../NavigationItemPopup/NavigationItemPopupFooter';
-
-
 import { navigationItemAdditionalFields, navigationItemType } from '../../utils/enums';
-import slugify from 'slugify';
 import { extractRelatedItemLabel } from '../../utils/parsers';
 import { form as formDefinition } from './utils/form';
 import { checkFormValidity } from '../../utils/form';
@@ -76,20 +74,19 @@ const NavigationItemForm = ({
   };
 
   const sanitizePayload = (payload = {}) => {
-    const { onItemClick, onItemLevelAddClick, related, relatedType, menuAttached, ...purePayload } = payload;
-    const sanitizedType = purePayload.type || navigationItemType.INTERNAL;
+    const { onItemClick, onItemLevelAddClick, related, relatedType, menuAttached, type, ...purePayload } = payload;
     const relatedId = related
     const relatedCollectionType = relatedType;
     const title = payload.title || relatedSelectOptions.find(v => v.key == relatedId)?.label
     return {
       ...purePayload,
       title,
+      type,
       menuAttached: isNil(menuAttached) ? false : menuAttached,
-      type: sanitizedType,
-      path: sanitizedType === navigationItemType.INTERNAL ? purePayload.path : undefined,
-      externalPath: sanitizedType === navigationItemType.EXTERNAL ? purePayload.externalPath : undefined,
-      related: relatedId,
-      relatedType: relatedCollectionType,
+      path: type !== navigationItemType.EXTERNAL ? purePayload.path : undefined,
+      externalPath: type === navigationItemType.EXTERNAL ? purePayload.externalPath : undefined,
+      related: type === navigationItemType.INTERNAL ? relatedId : undefined,
+      relatedType: type === navigationItemType.INTERNAL ? relatedCollectionType : undefined,
       isSingle: isSingleSelected,
       uiRouterKey: generateUiRouterKey(purePayload.title, relatedId, relatedCollectionType),
     };
@@ -109,11 +106,8 @@ const NavigationItemForm = ({
     }
   };
 
-  const onTypeChange = ({ target: { name, value } }) =>
-    onChange({ target: { name, value: value ? navigationItemType.INTERNAL : navigationItemType.EXTERNAL } });
-
   const onAudienceChange = (value) => {
-    onChange({target: {name: `${inputsPrefix}audience`, value}});
+    onChange({ target: { name: `${inputsPrefix}audience`, value } });
   }
 
   const onChange = ({ target: { name, value } }) => {
@@ -148,6 +142,20 @@ const NavigationItemForm = ({
     [relatedTypeSelectValue, contentTypes],
   );
 
+  const navigationItemTypeOptions = Object.keys(navigationItemType).map(key => {
+    const value = navigationItemType[key].toLowerCase();
+    return {
+      key,
+      value: navigationItemType[key],
+      metadatas: {
+        intlLabel: {
+          id: getTradId(`popup.item.form.type.${value}.label`),
+          defaultMessage: getTradId(`popup.item.form.type.${value}.label`),
+        }
+      }
+    }
+  });
+
   const relatedSelectOptions = contentTypeEntities
     .filter((item) => {
       const usedContentTypeEntitiesOfSameType = usedContentTypeEntities
@@ -178,7 +186,9 @@ const NavigationItemForm = ({
   const isExternal = form.type === navigationItemType.EXTERNAL;
   const pathSourceName = isExternal ? 'externalPath' : 'path';
 
-  const submitDisabled = (form.type !== navigationItemType.EXTERNAL) && isNil(form.related);
+  const submitDisabled =
+    (form.type === navigationItemType.INTERNAL && isNil(get(form, `${inputsPrefix}related`))) ||
+    (form.type === navigationItemType.WRAPPER && isNil(get(form, `${inputsPrefix}title`)));
 
   const debouncedSearch = useCallback(
     debounce(nextValue => setContentTypeSearchQuery(nextValue), 500),
@@ -285,7 +295,21 @@ const NavigationItemForm = ({
                   value={get(form, `${inputsPrefix}title`, '')}
                 />
               </GridItem>
-              <GridItem key={`${inputsPrefix}menuAttached`} col={6} lg={12}>
+              <GridItem key={`${inputsPrefix}type`} col={4} lg={12}>
+                <GenericInput
+                  intlLabel={{
+                    id: getTradId('popup.item.form.type.label'),
+                    defaultMessage: 'Internal link',
+                  }}
+                  name={`${inputsPrefix}type`}
+                  options={navigationItemTypeOptions}
+                  type='select'
+                  error={get(formErrors, `${inputsPrefix}type.id`)}
+                  onChange={onChange}
+                  value={get(form, `${inputsPrefix}type`, '')}
+                />
+              </GridItem>
+              <GridItem key={`${inputsPrefix}menuAttached`} col={4} lg={12}>
                 <GenericInput
                   intlLabel={{
                     id: getTradId('popup.item.form.menuAttached.label'),
@@ -297,19 +321,6 @@ const NavigationItemForm = ({
                   onChange={onChange}
                   value={get(form, `${inputsPrefix}menuAttached`, '')}
                   disabled={!(data.isMenuAllowedLevel && data.parentAttachedToMenu)}
-                />
-              </GridItem>
-              <GridItem key={`${inputsPrefix}type`} col={6} lg={12}>
-                <GenericInput
-                  intlLabel={{
-                    id: getTradId('popup.item.form.type.label'),
-                    defaultMessage: 'Internal link',
-                  }}
-                  name={`${inputsPrefix}type`}
-                  type='bool'
-                  error={get(formErrors, `${inputsPrefix}type.id`)}
-                  onChange={onTypeChange}
-                  value={get(form, `${inputsPrefix}type`, '') === navigationItemType.INTERNAL}
                 />
               </GridItem>
               <GridItem key={`${inputsPrefix}path`} col={12}>
@@ -330,7 +341,7 @@ const NavigationItemForm = ({
                   description={generatePreviewPath()}
                 />
               </GridItem>
-              {!isExternal && (
+              {get(form, `${inputsPrefix}type`) === navigationItemType.INTERNAL && (
                 <>
                   <GridItem col={6} lg={12}>
                     <GenericInput
@@ -402,8 +413,14 @@ const NavigationItemForm = ({
                     label={getMessage('popup.item.form.audience.label')}
                     onChange={onAudienceChange}
                     value={audience}
+                    hint={
+                      !isLoading && isEmpty(audienceOptions)
+                        ? getMessage('popup.item.form.audience.empty', 'There are no more audiences')
+                        : undefined
+                    }
                     multi
                     withTags
+                    disabled={isEmpty(audienceOptions)}
                   >
                     {audienceOptions.map(({ value, label }) => <Option key={value} value={value}>{label}</Option>)}
                   </Select>

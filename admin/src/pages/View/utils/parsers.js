@@ -24,12 +24,14 @@ export const transformItemToRESTPayload = (
     order,
     audience = [],
     items = [],
+    collapsed,
   } = item;
   const isExternal = type === navigationItemType.EXTERNAL;
+  const isWrapper = type === navigationItemType.WRAPPER;
   const { contentTypes = [] } = config;
 
   const parsedRelated = Number(related);
-  const relatedId = isExternal || isNaN(parsedRelated) ? related?.value || related : parsedRelated;
+  const relatedId = isExternal || isWrapper || isNaN(parsedRelated) ? related?.value || related : parsedRelated;
 
   const relatedContentType = relatedType ?
     find(contentTypes,
@@ -46,13 +48,14 @@ export const transformItemToRESTPayload = (
     removed,
     order,
     uiRouterKey,
+    collapsed,
     menuAttached: itemAttachedToMenu,
     audience: audience.map((audienceItem) =>
       isObject(audienceItem) ? audienceItem.value : audienceItem,
     ),
     path: isExternal ? undefined : path,
     externalPath: isExternal ? externalPath : undefined,
-    related: isExternal
+    related: isExternal || isWrapper
       ? undefined
       : [
         {
@@ -274,7 +277,7 @@ export const usedContentTypes = (items = []) => items.flatMap(
 
 export const isRelationCorrect = ({ related, type }) => {
   const isRelationDefined = !isNil(related);
-  return type === navigationItemType.EXTERNAL || (type === navigationItemType.INTERNAL && isRelationDefined);
+  return type !== navigationItemType.INTERNAL || (type === navigationItemType.INTERNAL && isRelationDefined);
 };
 
 export const isRelationPublished = ({ relatedRef, relatedType = {}, type, isCollection }) => {

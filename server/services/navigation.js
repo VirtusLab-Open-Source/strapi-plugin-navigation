@@ -72,10 +72,11 @@ module.exports = ({ strapi }) => {
     // Get plugin config
     async config(viaSettingsPage = false) {
       const { audienceModel, service } = utilsFunctions.extractMeta(strapi.plugins);
-      const pluginStore = await strapi.store({ type: 'plugin', name: 'navigation' });
+      const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
       const config = await pluginStore.get({ key: 'config' });
       const additionalFields = config.additionalFields;
       const contentTypesNameFields = config.contentTypesNameFields;
+      const contentTypesPopulate = config.contentTypesPopulate;
       const allowedLevels = config.allowedLevels;
       const isGQLPluginEnabled = !isNil(strapi.plugin('graphql'));
 
@@ -85,6 +86,9 @@ module.exports = ({ strapi }) => {
         contentTypesNameFields: {
           default: contentTypesNameFieldsDefaults,
           ...(isObject(contentTypesNameFields) ? contentTypesNameFields : {}),
+        },
+        contentTypesPopulate: {
+          ...(isObject(contentTypesPopulate) ? contentTypesPopulate : {}),
         },
         allowedLevels,
         additionalFields,
@@ -111,28 +115,42 @@ module.exports = ({ strapi }) => {
     },
 
     async updateConfig(newConfig) {
-      const pluginStore = await strapi.store({ type: 'plugin', name: 'navigation' });
+      const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
       await pluginStore.set({ key: 'config', value: newConfig });
     },
 
-    async restoreConfig() {
-      const pluginStore = await strapi.store({ type: 'plugin', name: 'navigation' });
-      const defaultConfig = await strapi.plugin('navigation').config
+    async getPluginStore() {
+      return await strapi.store({ type: 'plugin', name: 'navigation' });
+    },
 
-      await pluginStore.delete({ key: 'config' })
-      await pluginStore.set({
-        key: 'config', value: {
-          additionalFields: defaultConfig('additionalFields'),
-          contentTypes: defaultConfig('contentTypes'),
-          contentTypesNameFields: defaultConfig('contentTypesNameFields'),
-          allowedLevels: defaultConfig('allowedLevels'),
-          gql: defaultConfig('gql'),
-        }
-      });
+    async setDefaultConfig() {
+      const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
+      const config = await pluginStore.get({ key: 'config' });
+      const pluginDefaultConfig = await strapi.plugin('navigation').config
+
+      // If new value gets introduced to the config it either is read from plugin store or from default plugin config
+      // This is fix for backwards compatibility and migration of config to newer version of the plugin
+      const defaultConfigValue = {
+        additionalFields: get(config, 'additionalFields', pluginDefaultConfig('additionalFields')),
+        contentTypes: get(config, 'contentTypes', pluginDefaultConfig('contentTypes')),
+        contentTypesNameFields: get(config, 'contentTypesNameFields',  pluginDefaultConfig('contentTypesNameFields')),
+        contentTypesPopulate: get(config, 'contentTypesPopulate',  pluginDefaultConfig('contentTypesPopulate')),
+        allowedLevels: get(config, 'allowedLevels',  pluginDefaultConfig('allowedLevels')),
+        gql: get(config, 'gql',  pluginDefaultConfig('gql')),
+      }
+      pluginStore.set({ key: 'config', value: defaultConfigValue });
+
+      return defaultConfigValue;
+    },
+
+    async restoreConfig() {
+      const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
+      await pluginStore.delete({ key: 'config' });
+      await strapi.plugin('navigation').service('navigation').setDefaultConfig();
     },
 
     async configContentTypes() {
-      const pluginStore = strapi.store({ type: 'plugin', name: 'navigation' });
+      const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
       const config = await pluginStore.get({ key: 'config' });
       const eligibleContentTypes =
         await Promise.all(
@@ -212,6 +230,8 @@ module.exports = ({ strapi }) => {
     },
 
     async getRelatedItems(entityItems) {
+      const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
+      const config = await pluginStore.get({ key: 'config' });
       const relatedTypes = new Set(entityItems.flatMap((item) => get(item.related, 'related_type')));
       const groupedItems = Array.from(relatedTypes).filter((relatedType) => relatedType).reduce(
         (acc, relatedType) => Object.assign(acc, {
@@ -233,8 +253,9 @@ module.exports = ({ strapi }) => {
                   .query(model)
                   .findMany({
                     where: {
-                      id: { $in: map(related, 'related_id') }
-                    }
+                      id: { $in: map(related, 'related_id') },
+                    },
+                    populate: config.contentTypesPopulate[model] || []
                   });
                 return relationData
                   .flatMap(_ =>
@@ -264,8 +285,12 @@ module.exports = ({ strapi }) => {
     },
 
     async getContentTypeItems(model) {
+      const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
+      const config = await pluginStore.get({ key: 'config' });
       try {
-        const contentTypeItems = await strapi.query(model).findMany()
+        const contentTypeItems = await strapi.query(model).findMany({
+          populate: config.contentTypesPopulate[model] || []
+        })
         return contentTypeItems;
       } catch (err) {
         return [];

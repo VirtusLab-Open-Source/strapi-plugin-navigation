@@ -3,6 +3,7 @@ module.exports = {
 		additionalFields: [],
 		contentTypes: [],
 		contentTypesNameFields: {},
+		contentTypesPopulate: {},
 		allowedLevels: 2
 	}
 }
