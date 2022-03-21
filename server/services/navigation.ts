@@ -80,9 +80,9 @@ export default ({ strapi }: StrapiContext): NavigationService => {
     },
 
     // Get plugin config
-    async config(viaSettingsPage = false): Promise<NavigationPluginConfig> {
-      const { audienceModel } = extractMeta(strapi.plugins);
-      const pluginStore = await this.getPluginStore();
+    async config(viaSettingsPage = false) {
+      const { audienceModel } = utilsFunctions.extractMeta(strapi.plugins);
+      const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
       const config = await pluginStore.get({ key: 'config' });
 
       const additionalFields = config.additionalFields;
@@ -130,8 +130,8 @@ export default ({ strapi }: StrapiContext): NavigationService => {
       };
     },
 
-    async updateConfig(newConfig: NavigationPluginConfig): Promise<void> {
-      const pluginStore = await this.getPluginStore()
+    async updateConfig(newConfig) {
+      const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
       await pluginStore.set({ key: 'config', value: newConfig });
     },
 
@@ -139,8 +139,8 @@ export default ({ strapi }: StrapiContext): NavigationService => {
       return await strapi.store({ type: 'plugin', name: 'navigation' });
     },
 
-    async setDefaultConfig(): Promise<NavigationPluginConfig> {
-      const pluginStore = await this.getPluginStore()
+    async setDefaultConfig() {
+      const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
       const config = await pluginStore.get({ key: 'config' });
       const pluginDefaultConfig = await strapi.plugin('navigation').config
 
@@ -159,15 +159,15 @@ export default ({ strapi }: StrapiContext): NavigationService => {
       return defaultConfigValue;
     },
 
-    async restoreConfig(): Promise<void> {
-      const pluginStore = await this.getPluginStore()
+    async restoreConfig() {
+      const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
       await pluginStore.delete({ key: 'config' });
       await this.setDefaultConfig();
     },
 
-    async configContentTypes(viaSettingsPage: boolean = false): Promise<StrapiContentType<any>[]> {
-      const pluginStore = await this.getPluginStore()
-      const config: NavigationPluginConfig = await pluginStore.get({ key: 'config' });
+    async configContentTypes() {
+      const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
+      const config = await pluginStore.get({ key: 'config' });
       const eligibleContentTypes =
         await Promise.all(
           config.contentTypes
