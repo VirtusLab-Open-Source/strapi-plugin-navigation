@@ -1,10 +1,8 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import { useDrag, useDrop } from 'react-dnd';
-import { getEmptyImage } from 'react-dnd-html5-backend';
-import { drop, isEmpty, isNumber } from 'lodash';
+import { isEmpty, isNumber } from 'lodash';
 
-import { Box } from '@strapi/design-system/Box';
 import { Card, CardBody } from '@strapi/design-system/Card';
 import { Divider } from '@strapi/design-system/Divider';
 import { Flex } from '@strapi/design-system/Flex';
@@ -91,7 +89,16 @@ const Item = (props) => {
       const isAfter = hoverClientY > hoverMiddleY;
       const newOrder = isAfter ? item.order + 0.5 : item.order - 0.5;
 
+      if (dragIndex < dropIndex && hoverClientY < hoverMiddleY) {
+        return;
+      }
+      // Dragging upwards
+      if (dragIndex > dropIndex && hoverClientY > hoverMiddleY) {
+        return;
+      }
+
       onItemReOrder({ ...hoveringItem }, newOrder);
+      hoveringItem.order = newOrder;
     },
     collect: monitor => ({
       isOverCurrent: monitor.isOver({ shallow: true }),

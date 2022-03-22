@@ -22,7 +22,7 @@ const NavigationHeader = ({
   return (
     <HeaderLayout
       primaryAction={
-        <Stack horizontal size={2}>
+        <Stack horizontal spacing={2}>
           <Box width="10vw">
             <Select
               type="select"
