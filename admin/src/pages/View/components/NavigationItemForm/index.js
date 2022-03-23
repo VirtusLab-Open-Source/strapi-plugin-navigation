@@ -187,7 +187,7 @@ const NavigationItemForm = ({
   const pathSourceName = isExternal ? 'externalPath' : 'path';
 
   const submitDisabled =
-    (form.type === navigationItemType.INTERNAL && isNil(get(form, `${inputsPrefix}related`))) ||
+    (form.type === navigationItemType.INTERNAL && !isSingleSelected && isNil(get(form, `${inputsPrefix}related`))) ||
     (form.type === navigationItemType.WRAPPER && isNil(get(form, `${inputsPrefix}title`)));
 
   const debouncedSearch = useCallback(
