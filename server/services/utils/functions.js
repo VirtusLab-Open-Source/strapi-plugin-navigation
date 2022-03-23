@@ -7,7 +7,8 @@ const {
   isString,
   get,
   isNil,
-  isArray
+  isArray,
+  first,
 } = require('lodash');
 
 const { type: itemType } = require('../../content-types/navigation-item/lifecycle');

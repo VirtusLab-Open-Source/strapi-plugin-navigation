@@ -1,4 +1,5 @@
 import React from 'react';
+import styled from 'styled-components';
 
 import { Flex } from '@strapi/design-system/Flex';
 import { IconButton } from '@strapi/design-system/IconButton';
@@ -10,18 +11,41 @@ import Wrapper from './Wrapper';
 import ItemCardBadge from '../ItemCardBadge';
 import { getMessage } from '../../../utils';
 
+const IconWrapper = styled.div`
+display: flex;
+align-items: center;
+justify-content: center;
+height: ${32 / 16}rem;
+width: ${32 / 16}rem;
+
+cursor: pointer;
+  padding: ${({ theme }) => theme.spaces[2]};
+  border-radius: ${({ theme }) => theme.borderRadius};
+  background: ${({ theme }) => theme.colors.neutral0};
+  border: 1px solid ${({ theme }) => theme.colors.neutral200};
+	
+svg {
+	> g,
+	path {
+		fill: ${({ theme }) => theme.colors.neutral500};
+	}
+}
+`
+
 const ItemCardHeader = ({ title, path, icon, removed, onItemRemove, onItemEdit, onItemRestore, dragRef }) => {
 	return (
 		<Wrapper>
 			<Flex alignItems="center">
-				<IconButton ref={dragRef} label="Drag" icon={<Drag />} />
+				<IconWrapper ref={dragRef}>
+					<Icon as={Drag} />
+				</IconWrapper>
 				<Typography variant="omega" fontWeight="bold">
 					{title}
 				</Typography>
 				<Typography variant="omega" fontWeight="bold" textColor='neutral500'>
 					{path}
 				</Typography>
-				<Icon as={icon}/>
+				<Icon as={icon} />
 			</Flex>
 			<Flex alignItems="center" style={{ zIndex: 2 }}>
 				{removed &&

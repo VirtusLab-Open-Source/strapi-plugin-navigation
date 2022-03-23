@@ -145,7 +145,7 @@ const SettingsPage = () => {
                 }
               />
               <ContentLayout>
-                <Stack size={7}>
+                <Stack spacing={7}>
                   {isRestartRequired && (
                     <RestartAlert
                       closeLabel={getMessage('pages.settings.actions.restart.alert.cancel')}
@@ -155,7 +155,7 @@ const SettingsPage = () => {
                       {getMessage('pages.settings.actions.restart.alert.description')}
                     </RestartAlert>)}
                   <Box {...boxDefaultProps} >
-                    <Stack size={4}>
+                    <Stack spacing={4}>
                       <Typography variant="delta" as="h2">
                         {getMessage('pages.settings.general.title')}
                       </Typography>
@@ -197,7 +197,7 @@ const SettingsPage = () => {
                                   <AccordionToggle title={displayName} togglePosition="left" />
                                   <AccordionContent>
                                     <Box padding={6}>
-                                      <Stack size={4}>
+                                      <Stack spacing={4}>
                                         <Select
                                           name={`collectionSettings-${uid}-entryLabel`}
                                           label={getMessage('pages.settings.form.nameField.label')}
@@ -240,7 +240,7 @@ const SettingsPage = () => {
                     </Stack>
                   </Box>
                   <Box {...boxDefaultProps} >
-                    <Stack size={4}>
+                    <Stack spacing={4}>
                       <Typography variant="delta" as="h2">
                         {getMessage('pages.settings.additional.title')}
                       </Typography>
@@ -272,7 +272,7 @@ const SettingsPage = () => {
                     </Stack>
                   </Box>
                   <Box {...boxDefaultProps} >
-                    <Stack size={4}>
+                    <Stack spacing={4}>
                       <Typography variant="delta" as="h2">
                         {getMessage('pages.settings.restoring.title')}
                       </Typography>
