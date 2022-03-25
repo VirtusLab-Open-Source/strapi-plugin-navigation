@@ -122,7 +122,7 @@ const linkRelations = (item, config) => {
 
   const shouldFindRelated = (isNumber(related) || isUuid(related) || isString(related)) && !relatedRef;
   const shouldBuildRelated = !relatedRef || (relatedRef && (relatedRef.id !== relatedId));
-  
+
   if (shouldBuildRelated && !shouldFindRelated) {
     const relatedContentType = find(contentTypes,
       ct => ct.uid === relatedItem.__contentType, {});
@@ -295,9 +295,10 @@ export const isRelationPublished = ({ relatedRef, relatedType = {}, type, isColl
 
 export const validateNavigationStructure = (items = []) =>
   items.map(item =>
-    (item.removed || isRelationCorrect({
-      related: item.related,
-      type: item.type,
-    })) &&
+    (
+      item.removed ||
+      isRelationCorrect({ related: item.related, type: item.type }) ||
+      (item.isSingle && isRelationCorrect({ related: item.relatedType, type: item.type }))
+    ) &&
     validateNavigationStructure(item.items)
   ).filter(item => !item).length === 0;

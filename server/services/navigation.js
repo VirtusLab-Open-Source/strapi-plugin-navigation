@@ -33,9 +33,7 @@ module.exports = ({ strapi }) => {
       const entities = await strapi
         .query(masterModel.uid)
         .findMany({
-          paggination: {
-            limit: -1,
-          }
+          limit: -1,
         });
       return entities;
     },
@@ -52,9 +50,7 @@ module.exports = ({ strapi }) => {
           where: {
             master: id,
           },
-          paggination: {
-            limit: -1,
-          },
+          limit: -1,
           sort: ['order:asc'],
           populate: ['related', 'parent', 'audience']
         });
@@ -133,10 +129,10 @@ module.exports = ({ strapi }) => {
       const defaultConfigValue = {
         additionalFields: get(config, 'additionalFields', pluginDefaultConfig('additionalFields')),
         contentTypes: get(config, 'contentTypes', pluginDefaultConfig('contentTypes')),
-        contentTypesNameFields: get(config, 'contentTypesNameFields',  pluginDefaultConfig('contentTypesNameFields')),
-        contentTypesPopulate: get(config, 'contentTypesPopulate',  pluginDefaultConfig('contentTypesPopulate')),
-        allowedLevels: get(config, 'allowedLevels',  pluginDefaultConfig('allowedLevels')),
-        gql: get(config, 'gql',  pluginDefaultConfig('gql')),
+        contentTypesNameFields: get(config, 'contentTypesNameFields', pluginDefaultConfig('contentTypesNameFields')),
+        contentTypesPopulate: get(config, 'contentTypesPopulate', pluginDefaultConfig('contentTypesPopulate')),
+        allowedLevels: get(config, 'allowedLevels', pluginDefaultConfig('allowedLevels')),
+        gql: get(config, 'gql', pluginDefaultConfig('gql')),
       }
       pluginStore.set({ key: 'config', value: defaultConfigValue });
 
@@ -632,7 +628,7 @@ module.exports = ({ strapi }) => {
           }
           const navigationItem = await strapi
             .query(itemModel.uid)
-            .create({ data });
+            .create({ data, populate: ['related', 'items'] });
           return !isEmpty(item.items)
             ? service.createBranch(
               item.items,
@@ -735,7 +731,6 @@ module.exports = ({ strapi }) => {
       if (relatedItems) {
         return Promise.all(relatedItems.map(async relatedItem => {
           try {
-
             const model = strapi.query('plugin::navigation.navigations-items-related');
             const entity = await model
               .findOne({

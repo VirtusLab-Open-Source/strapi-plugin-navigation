@@ -55,7 +55,8 @@ const Item = (props) => {
   const { contentTypes, contentTypesNameFields } = config;
   const isExternal = type === navigationItemType.EXTERNAL;
   const isWrapper = type === navigationItemType.WRAPPER;
-  const isPublished = relatedRef && relatedRef?.publishedAt;
+  const isHandledByPublishFlow = relatedRef && typeof relatedRef.publishedAt !== 'undefined';
+  const isPublished = isHandledByPublishFlow && relatedRef.publishedAt;
   const isNextMenuAllowedLevel = isNumber(allowedLevels) ? level < (allowedLevels - 1) : true;
   const isMenuAllowedLevel = isNumber(allowedLevels) ? level < allowedLevels : true;
   const hasChildren = !isEmpty(item.items) && !isExternal && !displayChildren;
@@ -167,15 +168,15 @@ const Item = (props) => {
                 </Flex>
                 {relatedItemLabel && (
                   <Flex justifyContent='center' alignItems='center'>
-                    <ItemCardBadge
+                    {isHandledByPublishFlow && <ItemCardBadge
                       borderColor={`${relatedBadgeColor}200`}
                       backgroundColor={`${relatedBadgeColor}100`}
                       textColor={`${relatedBadgeColor}600`}
                       className="action"
                       small
                     >
-                      {getMessage({id: `components.navigationItem.badge.${isPublished ? 'published' : 'draft'}`})}
-                    </ItemCardBadge>
+                      {getMessage({ id: `components.navigationItem.badge.${isPublished ? 'published' : 'draft'}` })}
+                    </ItemCardBadge>}
                     <Typography variant="omega" textColor='neutral600'>{relatedTypeLabel}&nbsp;/&nbsp;</Typography>
                     <Typography variant="omega" textColor='neutral800'>{relatedItemLabel}</Typography>
                       <Link
