@@ -1,7 +1,7 @@
-import { StrapiRoutes } from "../../types";
+import { StrapiRoutes, StrapiRoutesTypes } from "../../types";
 
 const routes: StrapiRoutes = {
-  type: 'admin',
+  type: StrapiRoutesTypes.ADMIN,
   routes: [
     {
       method: 'GET',
@@ -41,7 +41,7 @@ const routes: StrapiRoutes = {
     {
       method: 'GET',
       path: '/content-type-items/:model',
-      handler: 'admin.getContentTypeItems',
+      handler: 'navigation.getContentTypeItems',
       config: {
         policies: [
           'admin::isAuthenticatedAdmin'

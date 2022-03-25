@@ -23,6 +23,7 @@
   "include": [
     "./server/**/*",
     "./admin/**/*",
+    "./types/**/*",
     "./strapi-server.*",
     "./strapi-admin.*",
     "./setup-package.ts",

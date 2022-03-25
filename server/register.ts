@@ -1,3 +1,3 @@
 export default () => {
-  // Register function for strapi-plugin-navigation
+	// Register function for strapi-plugin-navigation
 }

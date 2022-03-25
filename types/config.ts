@@ -1,19 +1,37 @@
-export type PluginConfigNameFields = Record<string, string[]>;
-export type PluginConfigPopulate = Record<string, string[]>;
+export type PluginConfigKeys = 'additionalFields' | 'contentTypes' | 'contentTypesNameFields' | 'contentTypesPopulate' | 'allowedLevels';
 
-export type PluginConfigGraphQL = {
-  navigationItemRelated: string[]
+export enum PluginConfigKeysEnum {
+    ADDITIONAL_FIELDS = 'additionalFields',
+    CONTENT_TYPES = 'contentTypes',
+    CONTENT_TYPES_NAME_FIELDS = 'contentTypesNameFields',
+    CONTENT_TYPES_POPULATE = 'contentTypesPopulate',
+    ALLOWED_LEVELS = 'allowedLevels',
 }
 
-export type NavigationPluginConfig = {
-  additionalFields: string[],
-  contentTypes: string[],
-  contentTypesNameFields: PluginConfigNameFields,
-  contentTypesPopulate: PluginConfigPopulate,
-  allowedLevels: number,
-  gql: PluginConfigGraphQL,
+export type PluginConfigNameFields = {
+    [key: string]: Array<string>
 };
 
-export type StrapiConfig<T> = {
-  default: T
+export type PluginConfigPopulate = {
+    [key: string]: string
 };
+
+export type PluginConfig<Type> = {
+    [Property in keyof Type]: Type[Property];
+};
+
+export type NavigationPluginConfig = PluginConfig<{
+    [PluginConfigKeysEnum.ADDITIONAL_FIELDS]: Array<string>,
+    [PluginConfigKeysEnum.CONTENT_TYPES]: Array<string>,
+    [PluginConfigKeysEnum.CONTENT_TYPES_NAME_FIELDS]: PluginConfigNameFields,
+    [PluginConfigKeysEnum.CONTENT_TYPES_POPULATE]: PluginConfigPopulate,
+    [PluginConfigKeysEnum.ALLOWED_LEVELS]: number,
+}>;
+
+export type StrapiConfig = {
+    default: NavigationPluginConfig
+};
+
+export type ConfigParamKeys = {
+    [key: string]: PluginConfigKeys
+}

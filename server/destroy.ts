@@ -1,3 +1,4 @@
-export default () => {
+
+export = () => {
   // Destroy function for strapi-plugin-navigation
 };

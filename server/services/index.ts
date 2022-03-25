@@ -1,13 +1,7 @@
 'use strict';
 
-import common from './common';
-import admin from './admin';
-import client from './client';
+import navigation from './navigation';
 
-const navigationService = {
-  common,
-  admin,
-  client,
+export = {
+  navigation
 };
-
-export default navigationService;

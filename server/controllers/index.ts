@@ -1,11 +1,7 @@
-import { NavigationController } from '../../types';
+"use strict";
 
-import admin from './admin';
-import client from './client';
+import navigationController from './navigation';
 
-const controllers: NavigationController = {
-  admin,
-  client,
+export = {
+  navigation: navigationController,
 }
-
-export default controllers;

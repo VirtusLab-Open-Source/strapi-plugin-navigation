@@ -1,7 +1,7 @@
-import { StrapiRoutes } from "../../types";
+import { StrapiRoutes, StrapiRoutesTypes } from "../../types";
 
 const routes: StrapiRoutes = {
-  type: 'content-api',
+  type: StrapiRoutesTypes.CONTENT_API,
   routes: [
     {
       method: "GET",

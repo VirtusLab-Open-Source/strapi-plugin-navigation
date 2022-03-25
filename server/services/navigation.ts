@@ -35,11 +35,11 @@ import { type as itemType, additionalFields as configAdditionalFields } from '..
 import errors from '@strapi/utils';
 import { StrapiContentType, StrapiContext, StrapiStore } from 'strapi-typed';
 
-import { Audience, AuditLogContext, ContentTypeEntity, Id, Navigation, NavigationActions, NavigationActionsPerItem, NavigationItem, NavigationItemRelated, NavigationPluginConfig, NavigationService, RenderType, RFRNavItem, ToBeFixed } from '../../types';
+import { Audience, AuditLogContext, ContentTypeEntity, Id, Navigation, NavigationActions, NavigationActionsPerItem, NavigationItem, NavigationItemRelated, NavigationPluginConfig, RenderType, RFRNavItem, ToBeFixed } from '../../types';
 const { NotFoundError } = errors
 const contentTypesNameFieldsDefaults = ['title', 'subject', 'name'];
 
-export default ({ strapi }: StrapiContext): NavigationService => {
+export default ({ strapi }: StrapiContext) => {
   return {
     // Get all available navigations
     async get(): Promise<Navigation[]> {
@@ -80,8 +80,8 @@ export default ({ strapi }: StrapiContext): NavigationService => {
     },
 
     // Get plugin config
-    async config(viaSettingsPage = false) {
-      const { audienceModel } = utilsFunctions.extractMeta(strapi.plugins);
+    async config(viaSettingsPage = false): Promise<NavigationPluginConfig> {
+      const { audienceModel } = extractMeta(strapi.plugins);
       const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
       const config = await pluginStore.get({ key: 'config' });
 
@@ -130,7 +130,7 @@ export default ({ strapi }: StrapiContext): NavigationService => {
       };
     },
 
-    async updateConfig(newConfig) {
+    async updateConfig(newConfig: NavigationPluginConfig): Promise<void> {
       const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
       await pluginStore.set({ key: 'config', value: newConfig });
     },
@@ -139,7 +139,7 @@ export default ({ strapi }: StrapiContext): NavigationService => {
       return await strapi.store({ type: 'plugin', name: 'navigation' });
     },
 
-    async setDefaultConfig() {
+    async setDefaultConfig(): Promise<NavigationPluginConfig> {
       const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
       const config = await pluginStore.get({ key: 'config' });
       const pluginDefaultConfig = await strapi.plugin('navigation').config
@@ -159,15 +159,15 @@ export default ({ strapi }: StrapiContext): NavigationService => {
       return defaultConfigValue;
     },
 
-    async restoreConfig() {
+    async restoreConfig(): Promise<void> {
       const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
       await pluginStore.delete({ key: 'config' });
       await this.setDefaultConfig();
     },
 
-    async configContentTypes() {
+    async configContentTypes(viaSettingsPage: boolean = false): Promise<StrapiContentType<any>[]> {
       const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
-      const config = await pluginStore.get({ key: 'config' });
+      const config: NavigationPluginConfig = await pluginStore.get({ key: 'config' });
       const eligibleContentTypes =
         await Promise.all(
           config.contentTypes
@@ -250,7 +250,7 @@ export default ({ strapi }: StrapiContext): NavigationService => {
     },
 
     async getRelatedItems(entityItems: NavigationItem[]): Promise<NavigationItem[]> {
-      const pluginStore = await this.getPluginStore();
+      const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore();
       const config: NavigationPluginConfig = await pluginStore.get({ key: 'config' });
       const relatedTypes: Set<string> = new Set(entityItems.flatMap((item) => get(item.related, 'related_type')));
       const groupedItems = Array.from(relatedTypes).filter((relatedType) => relatedType).reduce((
@@ -306,7 +306,7 @@ export default ({ strapi }: StrapiContext): NavigationService => {
     },
 
     async getContentTypeItems(uid: string): Promise<ContentTypeEntity[]> {
-      const pluginStore = await this.getPluginStore();
+      const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore();
       const config: NavigationPluginConfig = await pluginStore.get({ key: 'config' });
       try {
         const contentTypeItems = await strapi.query<StrapiContentType<any>>(uid).findMany({
@@ -359,7 +359,7 @@ export default ({ strapi }: StrapiContext): NavigationService => {
         });
       }
       return service
-        .analyzeBranch(payload.items, existingEntity, null, {})
+        .analyzeBranch(payload.items, existingEntity, null)
         .then((auditLogsOperations: ToBeFixed) =>
           Promise.all([
             auditLog ? prepareAuditLog((auditLogsOperations || []).flat(Number.MAX_SAFE_INTEGER)) : [],
@@ -411,7 +411,7 @@ export default ({ strapi }: StrapiContext): NavigationService => {
       criteria = {},
       itemCriteria = {},
       filter = null,
-      rootPath: string | null = null
+      rootPath = null
     ): Promise<Array<NavigationItem>> {
       const { service, masterModel, itemModel } = extractMeta(
         strapi.plugins,
@@ -442,11 +442,11 @@ export default ({ strapi }: StrapiContext): NavigationService => {
         const items = await this.getRelatedItems(entities);
         const { contentTypes, contentTypesNameFields } = await service.config(false);
 
-        switch (type) {
-          case RenderType.TREE:
-          case RenderType.RFR:
+        switch (type?.toLowerCase()) {
+          case renderType.TREE:
+          case renderType.RFR:
             const getTemplateName = await templateNameFactory(items, strapi, contentTypes);
-            const itemParser = (item: NavigationItem, path: string = '', field: keyof NavigationItem): NavigationItem => {
+            const itemParser = (item: NavigationItem, path: string = '', field: string) => {
               const isExternal = item.type === itemType.EXTERNAL;
               const parentPath = isExternal ? undefined : `${path === '/' ? '' : path}/${first(item.path) === '/'
                 ? item.path!.substring(1)
@@ -486,8 +486,8 @@ export default ({ strapi }: StrapiContext): NavigationService => {
 
             const treeStructure = service.renderTree(
               isNil(rootPath) ? items : itemsFilteredByPath,
-              get(rootElement, 'parent.id'),
               'parent',
+              get(rootElement, 'parent.id'),
               get(rootElement, 'parent.path'),
               itemParser,
             );
@@ -556,13 +556,13 @@ export default ({ strapi }: StrapiContext): NavigationService => {
     renderRFR(
       items: Array<NavigationItem>,
       parent: Id | null = null,
-      parentNavItem: RFRNavItem | null = null,
+      parentNavItem: NavigationItem | null = null,
       contentTypes = []
     ) {
       const { service } = extractMeta(strapi.plugins);
       let pages = {};
       let nav = {};
-      let navItems: RFRNavItem[] = [];
+      let navItems: NavigationItem[] = [];
 
       items.forEach(item => {
         const { items: itemChilds, ...itemProps } = item;
@@ -596,13 +596,13 @@ export default ({ strapi }: StrapiContext): NavigationService => {
           if (!isEmpty(navLevel))
             nav = {
               ...nav,
-              [parent]: ([] as RFRNavItem[]).concat(parentNavItem ? parentNavItem : [], navLevel),
+              [parent]: ([] as NavigationItem[]).concat(parentNavItem ? parentNavItem : [], navLevel),
             };
         }
 
         if (!isEmpty(itemChilds)) {
           const { nav: nestedNavs } = service.renderRFR(
-            itemChilds as NavigationItem[],
+            itemChilds,
             itemPage.id,
             itemNav,
             contentTypes,
@@ -668,7 +668,7 @@ export default ({ strapi }: StrapiContext): NavigationService => {
 
     createBranch(
       items: Array<NavigationItem> = [],
-      masterEntity: Navigation | null = null,
+      masterEntity: NavigationItem | null = null,
       parentItem: NavigationItem | null = null,
       operations: NavigationActions = {}
     ) {
@@ -728,8 +728,8 @@ export default ({ strapi }: StrapiContext): NavigationService => {
 
     async updateBranch(
       toUpdate: NavigationItem[],
-      masterEntity: Navigation | null,
-      parentItem: NavigationItem | null,
+      masterEntity: Navigation,
+      parentItem: NavigationItem,
       operations: NavigationActions
     ) {
       const { itemModel, service } = extractMeta(strapi.plugins);
@@ -768,14 +768,14 @@ export default ({ strapi }: StrapiContext): NavigationService => {
 
     analyzeBranch(
       items: Array<NavigationItem> = [],
-      masterEntity: Navigation | null = null,
+      masterEntity: NavigationItem | null = null,
       parentItem: NavigationItem | null = null,
       prevOperations: NavigationActions = {},
     ): Promise<Array<NavigationActionsPerItem>> {
       const { service } = extractMeta(strapi.plugins);
       const { toCreate, toRemove, toUpdate } = items
         .reduce((acc: NavigationActionsPerItem, _) => {
-          const branchName: keyof NavigationActionsPerItem | void = service.getBranchName(_);
+          const branchName: keyof NavigationActionsPerItem = service.getBranchName(_);
           if (branchName) {
             return { ...acc, [branchName]: [...acc[branchName], _] };
           }
