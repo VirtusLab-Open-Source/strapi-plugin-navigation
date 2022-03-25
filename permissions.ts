@@ -1,7 +1,7 @@
 'use strict';
 
-module.exports = {
-    render: function(uid) {
+export = {
+    render: function(uid: string) {
         return `plugin::navigation.${uid}`;
     },
     navigation: {

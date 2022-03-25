@@ -1,5 +1,7 @@
-module.exports = {
-  type: 'content-api',
+import { StrapiRoutes, StrapiRoutesTypes } from "../../types";
+
+const routes: StrapiRoutes = {
+  type: StrapiRoutesTypes.CONTENT_API,
   routes: [
 		 {
       method: "GET",
@@ -19,3 +21,5 @@ module.exports = {
     }
   ]
 }
+
+export default routes;

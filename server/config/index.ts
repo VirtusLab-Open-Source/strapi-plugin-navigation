@@ -1,4 +1,6 @@
-export default {
+import { StrapiConfig } from "../../types";
+
+const config: StrapiConfig = {
 	default: {
 		additionalFields: [],
 		contentTypes: [],
@@ -7,3 +9,5 @@ export default {
 		allowedLevels: 2
 	}
 }
+
+export default config;

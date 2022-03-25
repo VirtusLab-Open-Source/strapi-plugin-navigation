@@ -1,5 +1,7 @@
-module.exports = {
-  type: 'admin',
+import { StrapiRoutes, StrapiRoutesTypes } from "../../types";
+
+const routes: StrapiRoutes = {
+  type: StrapiRoutesTypes.ADMIN,
   routes: [
     {
       method: 'GET',
@@ -40,9 +42,11 @@ module.exports = {
       method: 'GET',
       path: '/content-type-items/:model',
       handler: 'navigation.getContentTypeItems',
-      policies: [
-        'admin::isAuthenticatedAdmin'
-      ]
+      config: {
+        policies: [
+          'admin::isAuthenticatedAdmin'
+        ]
+      }
     },
     {
       method: 'GET',
@@ -59,3 +63,5 @@ module.exports = {
     },
   ]
 }
+
+export default routes;

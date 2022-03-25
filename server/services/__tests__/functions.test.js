@@ -18,7 +18,7 @@ describe('Utilities functions', () => {
 						master: 1
 					}
 				});
-			const nested = utilsFunctions.buildNestedPaths({ items: entities });
+			const nested = utilsFunctions.buildNestedPaths(entities);
 
 			expect(nested.length).toBe(2);
 			expect(nested[1].path).toBe(rootPath);
