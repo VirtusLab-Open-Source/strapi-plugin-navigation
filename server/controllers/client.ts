@@ -1,8 +1,8 @@
-import { IClientController, IClientService } from '../../types';
+import { IClientController } from '../../types';
 import { getPluginService, parseParams } from '../utils';
 
 const clientControllers: IClientController = {
-  getService<T = IClientService>(name = "client"): T {
+  getService<T>(name = "navigation") {
     return getPluginService<T>(name);
   },
 

@@ -41,7 +41,7 @@ const routes: StrapiRoutes = {
     {
       method: 'GET',
       path: '/content-type-items/:model',
-      handler: 'navigation.getContentTypeItems',
+      handler: 'admin.getContentTypeItems',
       config: {
         policies: [
           'admin::isAuthenticatedAdmin'

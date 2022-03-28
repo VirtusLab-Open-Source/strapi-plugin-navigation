@@ -1,46 +1,36 @@
-import { Id, StrapiContentType, StrapiStore } from "strapi-typed";
+import { StrapiContentType, StrapiStore } from "strapi-typed";
 import { NavigationPluginConfig } from "./config";
-import { Navigation, NavigationItem, NavigationItemEntity, NestedStructure, RelatedRef } from "./contentTypes";
+import { Id, Navigation, NavigationItem, NavigationItemRelated } from "./contentTypes";
 import { AuditLogContext, ContentTypeEntity, NavigationActions, NavigationActionsPerItem, RenderType, RFRNavItem, ToBeFixed } from "./utils";
 
-export type NavigationService = {
-  common: ICommonService;
-  admin: IAdminService;
-  client: IClientService;
-}
+type ItemParserType = (item: NavigationItem, path: string, field: keyof NavigationItem) => NavigationItem;
 
-export interface IAdminService {
-  config: (viaSettingsPage?: boolean) => Promise<NavigationPluginConfig>,
-  get: () => Promise<Navigation[]>,
-  getById: (id: Id) => Promise<Navigation>,
-  post: (payload: ToBeFixed, auditLog: AuditLogContext) => ToBeFixed,
-  put: (id: Id, payload: ToBeFixed, auditLog: AuditLogContext) => ToBeFixed,
-  restart: () => Promise<void>,
-  restoreConfig: () => Promise<void>,
-  updateConfig: (newConfig: NavigationPluginConfig) => Promise<void>,
-}
-
-export interface ICommonService {
-  analyzeBranch: (items: NestedStructure<NavigationItem>[], masterEntity: Navigation | null, parentItem?: ToBeFixed, prevOperations?: NavigationActions) => Promise<NavigationActionsPerItem[]>,
-  configContentTypes: (viaSettingsPage?: boolean) => Promise<StrapiContentType<ToBeFixed>[]>,
-  createBranch: (items: NestedStructure<NavigationItem>[], masterEntity: Navigation | null, parentItem: NavigationItemEntity | null, operations: NavigationActions) => ToBeFixed,
-  getBranchName: (item: NavigationItem) => keyof NavigationActionsPerItem | void,
-  getContentTypeItems: (uid: string) => Promise<ContentTypeEntity[]>,
-  getIdsRelated: (relatedItems: RelatedRef[] | null, master: number) => Promise<(Id | undefined)[]> | void,
-  getPluginStore: () => Promise<StrapiStore>,
-  getRelatedItems: (entityItems: NavigationItemEntity[]) => Promise<NavigationItemEntity<ContentTypeEntity>[]>,
-  removeBranch: (items: NestedStructure<NavigationItem>[], operations: NavigationActions) => ToBeFixed,
-  removeRelated: (relatedItems: RelatedRef[], master: number) => ToBeFixed
-  setDefaultConfig: () => Promise<NavigationPluginConfig>,
-  updateBranch: (toUpdate: NestedStructure<NavigationItem>[], masterEntity: Navigation | null, parentItem: NavigationItemEntity | null, operations: NavigationActions) => ToBeFixed,
-}
-
-export interface IClientService {
-  render: (idOrSlug: Id, type?: RenderType, menuOnly?: boolean, rootPath?: string) => Promise<ToBeFixed>,
-  renderChildren: (idOrSlug: Id, childUIKey: string, type?: RenderType, menuOnly?: boolean) => Promise<ToBeFixed>,
-  renderRFR: (items: NestedStructure<NavigationItem>[], parent: Id | null, parentNavItem: RFRNavItem | null, contentTypes: string[]) => ToBeFixed,
-  renderRFRNav: (item: NavigationItem) => RFRNavItem,
-  renderRFRPage: (item: NavigationItem & { related: ToBeFixed }, parent: Id | null) => ToBeFixed,
-  renderTree(items: NavigationItemEntity<ContentTypeEntity>[], id: Id | null, field: keyof NavigationItemEntity, path: string | undefined, itemParser: ToBeFixed): ToBeFixed,
-  renderType: (type: RenderType, criteria: ToBeFixed, itemCriteria: ToBeFixed, filter: ToBeFixed, rootPath: string | null) => ToBeFixed,
-}
+export interface NavigationService {
+	analyzeBranch: (items: Array<NavigationItem>, masterEntity: Navigation | null, parentItem: NavigationItem | null, prevOperations: NavigationActions) => Promise<Array<NavigationActionsPerItem>>,
+	config: (viaSettingsPage?: boolean) => Promise<NavigationPluginConfig>,
+	configContentTypes: (viaSettingsPage?: boolean) => Promise<StrapiContentType<any>[]>,
+	createBranch: (items: Array<NavigationItem>, masterEntity: Navigation | null, parentItem: NavigationItem | null, operations: NavigationActions) => ToBeFixed,
+	get: () => Promise < Navigation[] >,
+	getBranchName: (item: NavigationItem) => keyof NavigationActionsPerItem | void,
+	getById: (id: Id) => Promise<Navigation>,
+	getContentTypeItems: (uid: string) => Promise<ContentTypeEntity[]>,
+	getIdsRelated: (relatedItems: Array<NavigationItemRelated> | null, master: Navigation) => Promise<Array<Id | undefined>> | void,
+	getPluginStore: () => Promise<StrapiStore>,
+	getRelatedItems: (entityItems: NavigationItem[]) => Promise<NavigationItem[]>,
+	post: (payload: ToBeFixed, auditLog: AuditLogContext) => ToBeFixed,
+	put: (id: Id, payload: ToBeFixed, auditLog: AuditLogContext) => ToBeFixed,
+	removeBranch: (items: NavigationItem[], operations: NavigationActions) => ToBeFixed,
+	removeRelated: (relatedItems: Array<NavigationItemRelated>,	master: Navigation) => Promise<Array<Id>> 
+	render: (idOrSlug: Id | string, type: RenderType, menuOnly: boolean, rootPath: string | null) => Promise<Array<NavigationItem>>,
+	renderRFR: (items: Array<NavigationItem>, parent: Id | null, parentNavItem: RFRNavItem | null, contentTypes: string[]) => ToBeFixed,
+	renderRFRNav: (item: NavigationItem) => RFRNavItem,
+	renderRFRPage: (item: NavigationItem, parent: Id | null) => ToBeFixed,
+	renderTree(items: Array<NavigationItem>, id: Id | null, field: keyof NavigationItem, path: string | undefined, itemParser: ItemParserType): Array<NavigationItem>,
+	renderType: (type: RenderType, criteria: ToBeFixed, itemCriteria: ToBeFixed, filter: ToBeFixed, rootPath: string | null) => Promise<Array<NavigationItem>>,
+	restart: () => Promise<void>,
+	restoreConfig: () => Promise<void>,
+	setDefaultConfig: () => Promise<NavigationPluginConfig>, 
+	updateBranch: (toUpdate: NavigationItem[], masterEntity: Navigation | null, parentItem: NavigationItem | null, operations: NavigationActions) => ToBeFixed,
+	updateConfig: (newConfig: NavigationPluginConfig) => Promise<void>,
+ 	renderChildren: (idOrSlug: Id | string, childUIKey: string, type: RenderType, menuOnly: boolean) => Promise < NavigationItem[] >,
+} 

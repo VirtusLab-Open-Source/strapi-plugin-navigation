@@ -1,7 +1,9 @@
-import { Audience, Id, Navigation, NavigationItem, RelationOneToMany } from "./contentTypes"
+import { Audience, Id, Navigation, NavigationItem, NavigationItemType, RelationOneToMany } from "./contentTypes"
 
 export type ToBeFixed = any;
-
+export type StrapiMap<T> = {
+	[uid: string]: T
+}
 export type NavigationActions = {
 	create?: boolean,
 	update?: boolean,
@@ -40,8 +42,8 @@ export enum RenderType {
 }
 
 export type RFRNavItem = {
-	label: string;
-	type: string;
+	label?: string;
+	type: NavigationItemType;
 	page?: string;
 	url?: string;
 	audience?: RelationOneToMany<Audience | string>;

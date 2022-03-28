@@ -1,16 +1,16 @@
-import { IAdminService, ICommonService, ToBeFixed } from '../../types';
+import { NavigationService, ToBeFixed } from '../../types';
 import { getPluginService, parseParams } from '../utils';
 import { errorHandler } from '../utils';
 import { IAdminController } from '../../types'
 
 const adminControllers: IAdminController = {
-  getService<T = IAdminService>(name = "admin") {
-    return getPluginService<T>(name);
+	getService(name = "navigation"): NavigationService {
+    return getPluginService(name);
   },
-  async get() {
-    return await this.getService().get();
-  },
-  post(ctx) {
+	async get() {
+		return await this.getService().get();
+	},
+	post(ctx) {
     const { auditLog } = ctx;
     const { body = {} } = ctx.request;
     return this.getService().post(body, auditLog);
@@ -21,24 +21,23 @@ const adminControllers: IAdminController = {
     const { body = {} } = ctx.request;
     return this.getService().put(id, body, auditLog)
       .catch(errorHandler(ctx));
-  },
-  async config() {
+	},
+	async config() {
     return this.getService().config();
-  },
-
-  async updateConfig(ctx) {
+	},
+	async updateConfig(ctx) {
     try {
       await this.getService().updateConfig(ctx.request.body);
-    } catch (e: ToBeFixed) {
+    } catch (e: ToBeFixed) { 
       errorHandler(ctx)(e);
     }
     return ctx.send({ status: 200 });
-  },
-
-  async restoreConfig(ctx) {
+	},
+	
+	async restoreConfig(ctx) {
     try {
       await this.getService().restoreConfig();
-    } catch (e: ToBeFixed) {
+    } catch (e: ToBeFixed) { 
       errorHandler(ctx)(e);
     }
     return ctx.send({ status: 200 })
@@ -46,17 +45,17 @@ const adminControllers: IAdminController = {
 
   async settingsConfig() {
     return this.getService().config(true);
-  },
-
-  async settingsRestart(ctx) {
+	},
+	
+	async settingsRestart(ctx) {
     try {
       await this.getService().restart();
       return ctx.send({ status: 200 });
     } catch (e: ToBeFixed) {
       errorHandler(ctx)(e);
     }
-  },
-  async getById(ctx) {
+	},
+	async getById(ctx) {
     const { params } = ctx;
     const { id } = parseParams(params);
     return this.getService().getById(id);
@@ -64,7 +63,7 @@ const adminControllers: IAdminController = {
   async getContentTypeItems(ctx) {
     const { params } = ctx;
     const { model } = parseParams(params);
-    return this.getService<ICommonService>('common').getContentTypeItems(model)
+    return this.getService().getContentTypeItems(model)
   },
 };
 

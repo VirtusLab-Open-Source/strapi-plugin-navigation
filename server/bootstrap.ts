@@ -42,8 +42,26 @@ export default async ({ strapi }: StrapiContext) => {
       });
   }
   // Initialize configuration
-  const commonService = getPluginService<ICommonService>('common');
-  const config = commonService.setDefaultConfig();
+  const pluginStore = strapi.store({
+    type: 'plugin',
+    name: 'navigation',
+  });
+
+  const config: NavigationPluginConfig = await pluginStore.get({ key: 'config' });
+  const pluginDefaultConfig = await strapi.plugin('navigation').config
+  const defaultConfigValue = {
+    additionalFields: config?.additionalFields || pluginDefaultConfig('additionalFields'),
+    contentTypes: config?.contentTypes || pluginDefaultConfig('contentTypes'),
+    contentTypesNameFields: config?.contentTypesNameFields || pluginDefaultConfig('contentTypesNameFields'),
+    contentTypesPopulate: config?.contentTypesPopulate || pluginDefaultConfig('contentTypesPopulate'),
+    allowedLevels: config?.allowedLevels || pluginDefaultConfig('allowedLevels'),
+    gql: config?.gql || pluginDefaultConfig('gql'),
+  }
+
+  pluginStore.set({
+    key: 'config', value: defaultConfigValue
+  });
+
 
   if (strapi.plugin('graphql')) {
     const graphqlConfiguration = require('./graphql')
