@@ -77,7 +77,9 @@ const NavigationItemForm = ({
     const { onItemClick, onItemLevelAddClick, related, relatedType, menuAttached, type, ...purePayload } = payload;
     const relatedId = related
     const relatedCollectionType = relatedType;
-    const title = payload.title || relatedSelectOptions.find(v => v.key == relatedId)?.label
+    const title = isSingleSelected ?
+      relatedTypeSelectOptions.find(v => v.key == relatedType).label :
+      payload.title || relatedSelectOptions.find(v => v.key == relatedId)?.label;
     return {
       ...purePayload,
       title,
@@ -88,7 +90,7 @@ const NavigationItemForm = ({
       related: type === navigationItemType.INTERNAL ? relatedId : undefined,
       relatedType: type === navigationItemType.INTERNAL ? relatedCollectionType : undefined,
       isSingle: isSingleSelected,
-      uiRouterKey: generateUiRouterKey(purePayload.title, relatedId, relatedCollectionType),
+      uiRouterKey: generateUiRouterKey(title, relatedId, relatedCollectionType),
     };
   };
 
@@ -232,7 +234,7 @@ const NavigationItemForm = ({
           }
         },
         value: get(item, 'uid'),
-        label: appendLabelPublicationStatus(get(item, 'label', get(item, 'name')), item, true),
+        label: get(item, 'label', get(item, 'name')),
       })),
     [contentTypes, usedContentTypesData],
   );

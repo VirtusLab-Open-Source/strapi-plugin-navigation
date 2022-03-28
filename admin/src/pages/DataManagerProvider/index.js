@@ -94,8 +94,8 @@ const DataManagerProvider = ({ children }) => {
     } catch (err) {
       console.error({ err });
       toggleNotification({
-        type: 'error',
-        message: { id: 'notification.error' },
+        type: 'warning',
+        message: { id: getTrad('notification.error') },
       });
     }
   };
@@ -133,8 +133,8 @@ const DataManagerProvider = ({ children }) => {
     } catch (err) {
       console.error({ err });
       toggleNotification({
-        type: 'error',
-        message: { id: 'notification.error' },
+        type: 'warning',
+        message: { id: getTrad('notification.error') },
       });
     }
   };
@@ -254,7 +254,7 @@ const DataManagerProvider = ({ children }) => {
 
        if (err.response.payload.data && err.response.payload.data.errorTitles) {
          return toggleNotification({
-           type: 'error',
+           type: 'warning',
            message: {
              id: formatMessage(
                getTrad('notification.navigation.error'),
@@ -264,7 +264,7 @@ const DataManagerProvider = ({ children }) => {
          });
        }
        toggleNotification({
-         type: 'error',
+         type: 'warning',
          message: { id: getTrad('notification.error') },
        });
      }
