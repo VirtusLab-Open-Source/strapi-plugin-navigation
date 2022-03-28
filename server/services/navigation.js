@@ -428,6 +428,7 @@ module.exports = ({ strapi }) => {
                 id: item.id,
                 title: utilsFunctions.composeItemTitle(item, contentTypesNameFields, contentTypes),
                 menuAttached: item.menuAttached,
+                order: item.order,
                 path: isExternal ? item.externalPath : parentPath,
                 type: item.type,
                 uiRouterKey: item.uiRouterKey,
@@ -511,7 +512,10 @@ module.exports = ({ strapi }) => {
         .filter(utilsFunctions.filterOutUnpublished)
         .map(item => itemParser({
           ...item,
-        }, path, field));
+        }, path, field))
+        .sort((x, y) => {
+          return x.order - y.order;
+       });
     },
 
     renderRFR({ items, parent = null, parentNavItem = null, contentTypes = [] }) {
