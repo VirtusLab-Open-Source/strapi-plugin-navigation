@@ -1,14 +1,14 @@
 import {
-	last,
-	isObject,
-	isEmpty,
-	flatten,
-	find,
-	isString,
-	get,
-	isNil,
-	isArray,
-	first,
+  last,
+  isObject,
+  isEmpty,
+  flatten,
+  find,
+  isString,
+  get,
+  isNil,
+  isArray,
+  first,
 } from 'lodash';
 import { Id, IStrapi, StrapiContentType, StrapiPlugin } from "strapi-typed";
 
@@ -18,131 +18,134 @@ import { TEMPLATE_DEFAULT, ALLOWED_CONTENT_TYPES, RESTRICTED_CONTENT_TYPES} from
 declare var strapi: IStrapi;
 
 export const getPluginService = <T>(name: string): T =>
-	strapi.plugin("navigation").service(name);
+  strapi.plugin("navigation").service(name);
 
 export const errorHandler = (ctx: ToBeFixed) => (error: NavigationError | string) => {
-	if (error instanceof NavigationError) {
-		return ctx.badRequest(error.message, error.additionalInfo);
-	}
-	throw error;
+  if (error instanceof NavigationError) {
+    return ctx.badRequest(error.message, error.additionalInfo);
+  }
+  throw error;
 };
 
 export const parseParams = (params: ToBeFixed): any =>
-	Object.keys(params).reduce((prev, curr) => {
-		const value = params[curr];
-		const parsedValue = isNaN(Number(value)) ? value : parseInt(value, 10);
-		return {
-			...prev,
-			[curr]: parsedValue,
-		};
-	}, {});
+  Object.keys(params).reduce((prev, curr) => {
+    const value = params[curr];
+    const parsedValue = isNaN(Number(value)) ? value : parseInt(value, 10);
+    return {
+      ...prev,
+      [curr]: parsedValue,
+    };
+  }, {});
+
+
 
 export const templateNameFactory = async (
-	items: Array<NavigationItem> = [],
-	strapi: IStrapi,
-	contentTypes: Array<StrapiContentType<any>> = [],
+  items: Array<NavigationItem> = [],
+  strapi: IStrapi,
+  contentTypes: Array<StrapiContentType<any>> = [],
 ) => {
-	const flatRelated = flatten(items.map(i => i.related)).filter(_ => !!_) as Array<NavigationItemRelated>;
-	const relatedMap = flatRelated.reduce((acc: { [key: string]: Array<Id> }, curr) => {
-		const contentTypeIndex = curr.__contentType as string;
-		return {
-			...acc,
-			[contentTypeIndex]: [
-				...acc[contentTypeIndex],
-				curr.id,
-			]
-		};
-	}, {});
-	const responses: Array<{ [uid: string]: Array<ContentTypeEntity> }> = await Promise.all(
-		Object.entries(relatedMap)
-			.map(
-				([contentType, ids]) => {
-					const contentTypeUid = get(find(contentTypes, cnt => cnt.uid === contentType), 'uid') as string;
-					return strapi.query<ContentTypeEntity>(contentTypeUid)
-						.findMany({ where: { id_in: ids }, limit: -1 })
-						.then(res => ({ [contentType]: res }))
-				}),
-	);
-	const relatedResponseMap = responses.reduce((acc, curr) => ({ ...acc, ...curr }), {});
-	const singleTypes = new Map(
-		contentTypes
-			.filter(x => x.isSingle)
-			.map(({ contentTypeName, templateName }) => [contentTypeName, templateName || contentTypeName])
-	);
+  const flatRelated = flatten(items.map(i => i.related)).filter(_ => !!_);
+  const relatedMap = (flatRelated as NavigationItemRelated[]).reduce((acc: { [key: string]: Array<Id> }, curr) => {
+    const index = curr.__contentType as string;
+    if (!acc[index]) {
+      acc[index] = [];
+    }
+    acc[index].push(curr.id);
+    return acc;
+  }, {});
+  const responses = await Promise.all(
+    Object.entries(relatedMap)
+      .map(
+        ([contentType, ids]) => {
+          const contentTypeUid = get(find(contentTypes, cnt => cnt.uid === contentType), 'uid');
+          return strapi.query<ContentTypeEntity>(contentTypeUid)
+            .findMany({
+              where: { id: { $in: ids } },
+              limit: -1
+            })
+            .then(res => ({ [contentType]: res }))
+        }),
+  );
+  const relatedResponseMap = responses.reduce((acc, curr) => ({ ...acc, ...curr }), {});
+  const singleTypes = new Map(
+    contentTypes
+      .filter(x => x.isSingle)
+      .map(({ contentTypeName, templateName }) => [contentTypeName, templateName || contentTypeName])
+  );
 
-	return (contentType: string, id: Id) => {
-		const template: Array<ToBeFixed> = get(relatedResponseMap[contentType].find(data => data.id === id), 'template');
+  return (contentType: string, id: Id) => {
+    const template: Array<ToBeFixed> = get(relatedResponseMap[contentType].find(data => data.id === id), 'template');
 
-		if (template) {
-			const templateComponent = getTemplateComponentFromTemplate(strapi, template);
-			return get(templateComponent, 'options.templateName', TEMPLATE_DEFAULT);
-		}
+    if (template) {
+      const templateComponent = getTemplateComponentFromTemplate(strapi, template);
+      return get(templateComponent, 'options.templateName', TEMPLATE_DEFAULT);
+    }
 
-		if (singleTypes.get(contentType)) {
-			return singleTypes.get(contentType);
-		}
+    if (singleTypes.get(contentType)) {
+      return singleTypes.get(contentType);
+    }
 
-		return TEMPLATE_DEFAULT;
-	};
+    return TEMPLATE_DEFAULT;
+  };
 };
 
 export const getTemplateComponentFromTemplate = (
-	strapi: IStrapi,
-	template: Array<ToBeFixed> = [],
+  strapi: IStrapi,
+  template: Array<ToBeFixed> = [],
 ) => {
-	const componentName: string = get(first(template), '__component');
-	return !!componentName ? strapi.components[componentName] : null;
+  const componentName: string = get(first(template), '__component');
+  return !!componentName ? strapi.components[componentName] : null;
 };
 
 export const prepareAuditLog = (
-	actions: Array<NavigationActions>
+  actions: Array<NavigationActions>
 ): string => {
-	return [
-		...new Set(
-			actions
-				.filter((_: ToBeFixed) => !!_)
-				.flatMap(({ remove, create, update }) => {
-					return [create ? 'CREATE' : '', update ? 'UPDATE' : '', remove ? 'REMOVE' : '']
-						.filter(_ => !!_);
-				}),
-		),
-	].join('_');
+  return [
+    ...new Set(
+      actions
+        .filter((_: ToBeFixed) => !!_)
+        .flatMap(({ remove, create, update }) => {
+          return [create ? 'CREATE' : '', update ? 'UPDATE' : '', remove ? 'REMOVE' : '']
+            .filter(_ => !!_);
+        }),
+    ),
+  ].join('_');
 };
 
 export const sendAuditLog = (
-	auditLogInstance: AuditLogContext,
-	event: string,
-	data: AuditLogParams,
+  auditLogInstance: AuditLogContext,
+  event: string,
+  data: AuditLogParams,
 ): void => {
-	if (auditLogInstance && auditLogInstance.emit) {
-		auditLogInstance.emit(event, data);
-	}
+  if (auditLogInstance && auditLogInstance.emit) {
+    auditLogInstance.emit(event, data);
+  }
 };
 
 export const composeItemTitle = (
-	item: NavigationItem,
-	fields: PluginConfigNameFields = {},
-	contentTypes: Array<StrapiContentType<any>> = []
+  item: NavigationItem,
+  fields: PluginConfigNameFields = {},
+  contentTypes: Array<StrapiContentType<any>> = []
 ): string | undefined => {
-	const { title, related } = item;
-	if (title) {
-		return isString(title) && !isEmpty(title) ? title : undefined;
-	} else if (related) {
-		const relationTitle = extractItemRelationTitle((isArray(related) ? last(related) : related) as NavigationItemRelated, fields, contentTypes);
-		return isString(relationTitle) && !isEmpty(relationTitle) ? relationTitle : undefined;
-	}
-	return undefined;
+  const { title, related } = item;
+  if (title) {
+    return isString(title) && !isEmpty(title) ? title : undefined;
+  } else if (related) {
+    const relationTitle = extractItemRelationTitle((isArray(related) ? last(related) : related) as NavigationItemRelated, fields, contentTypes);
+    return isString(relationTitle) && !isEmpty(relationTitle) ? relationTitle : undefined;
+  }
+  return undefined;
 };
 
 export const extractItemRelationTitle = (
-	relatedItem: ContentTypeEntity,
-	fields: PluginConfigNameFields = {},
-	contentTypes: Array<StrapiContentType<any>> = []
+  relatedItem: ContentTypeEntity,
+  fields: PluginConfigNameFields = {},
+  contentTypes: Array<StrapiContentType<any>> = []
 ) => {
-	const { __contentType } = relatedItem;
-	const contentType = find(contentTypes, _ => _.contentTypeName === __contentType);
-	const { default: defaultFields = [] } = fields;
-	return get(fields, `${contentType ? contentType.collectionName : ''}`, defaultFields).map((_) => relatedItem[_]).filter((_) => _)[0] || '';
+  const { __contentType } = relatedItem;
+  const contentType = find(contentTypes, _ => _.contentTypeName === __contentType);
+  const { default: defaultFields = [] } = fields;
+  return get(fields, `${contentType ? contentType.collectionName : ''}`, defaultFields).map((_) => relatedItem[_]).filter((_) => _)[0] || '';
 };
 
 export const filterOutUnpublished = (

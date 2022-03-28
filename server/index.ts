@@ -8,14 +8,14 @@ import routes from './routes';
 import services from './services';
 
 export default {
-  bootstrap,
-  config,
-  contentTypes,
-  controllers,
-  destroy,
-  middlewares: {},
-  policies: {},
-  register,
-  routes,
-  services,
+	bootstrap,
+	config,
+	contentTypes,
+	controllers,
+	destroy,
+	middlewares: {},
+	policies: {},
+	register,
+	routes,
+	services,
 };

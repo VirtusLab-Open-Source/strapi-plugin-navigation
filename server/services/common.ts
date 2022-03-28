@@ -389,4 +389,4 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
 	},
 });
 
-export = commonService;
+export default commonService;

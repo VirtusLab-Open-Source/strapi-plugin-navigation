@@ -170,4 +170,4 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
 	},
 });
 
-export = adminService;
+export default adminService;
