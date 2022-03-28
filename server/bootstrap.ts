@@ -57,8 +57,8 @@ export = async ({ strapi }: StrapiContext) => {
     contentTypes: config?.contentTypes || pluginDefaultConfig('contentTypes'),
     contentTypesNameFields: config?.contentTypesNameFields || pluginDefaultConfig('contentTypesNameFields'),
     contentTypesPopulate: config?.contentTypesPopulate || pluginDefaultConfig('contentTypesPopulate'),
-    allowedLevels: config?.contentTypesPopulate || pluginDefaultConfig('allowedLevels'),
-    gql: config?.contentTypesPopulate || pluginDefaultConfig('gql'),
+    allowedLevels: config?.allowedLevels || pluginDefaultConfig('allowedLevels'),
+    gql: config?.gql || pluginDefaultConfig('gql'),
   }
 
   pluginStore.set({

@@ -6,42 +6,42 @@ const routes: StrapiRoutes = {
     {
       method: 'GET',
       path: '/',
-      handler: 'navigation.get',
+      handler: 'admin.get',
     },
     {
       method: 'POST',
       path: '/',
-      handler: 'navigation.post',
+      handler: 'admin.post',
     },
     {
       method: 'GET',
       path: '/config',
-      handler: 'navigation.config',
+      handler: 'admin.config',
     },
     {
       method: 'PUT',
       path: '/config',
-      handler: 'navigation.updateConfig',
+      handler: 'admin.updateConfig',
     },
     {
       method: 'DELETE',
       path: '/config',
-      handler: 'navigation.restoreConfig',
+      handler: 'admin.restoreConfig',
     },
     {
       method: 'GET',
       path: '/:id',
-      handler: 'navigation.getById',
+      handler: 'admin.getById',
     },
     {
       method: 'PUT',
       path: '/:id',
-      handler: 'navigation.put',
+      handler: 'admin.put',
     },
     {
       method: 'GET',
       path: '/content-type-items/:model',
-      handler: 'navigation.getContentTypeItems',
+      handler: 'admin.getContentTypeItems',
       config: {
         policies: [
           'admin::isAuthenticatedAdmin'
@@ -51,12 +51,12 @@ const routes: StrapiRoutes = {
     {
       method: 'GET',
       path: '/settings/config',
-      handler: 'navigation.settingsConfig',
+      handler: 'admin.settingsConfig',
     },
     {
       method: 'GET',
       path: '/settings/restart',
-      handler: 'navigation.settingsRestart',
+      handler: 'admin.settingsRestart',
       config: {
         policies: [],
       },

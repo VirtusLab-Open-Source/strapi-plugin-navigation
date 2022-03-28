@@ -15,7 +15,7 @@ export type Navigation = {
 }
 export type NavigationItem = {
     id: Id;
-    title: string;
+    title?: string;
     type: NavigationItemType;
     path?: string;
     externalPath?: string;
@@ -30,6 +30,7 @@ export type NavigationItem = {
     slug?: string;
     removed?: boolean;
     updated?: boolean;
+    external?: boolean;
 }
 
 export type Audience = {

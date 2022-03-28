@@ -6,7 +6,7 @@ const routes: StrapiRoutes = {
 		 {
       method: "GET",
       path: "/render/:idOrSlug",
-      handler: "navigation.render",
+      handler: "client.render",
       config: {
         policies: []
       }
@@ -14,7 +14,7 @@ const routes: StrapiRoutes = {
     {
       method: "GET",
       path: "/render/:idOrSlug/:childUIKey",
-      handler: "navigation.renderChild",
+      handler: "client.renderChild",
       config: {
         policies: []
       }

@@ -28,6 +28,7 @@ import {
 import { type as itemType } from '../../content-types/navigation-item/lifecycle';
 import { NavigationError } from '../../../utils/NavigationError';
 import { TEMPLATE_DEFAULT, ALLOWED_CONTENT_TYPES, RESTRICTED_CONTENT_TYPES} from './constant';
+import { NavigationService } from '../../../types';
 
 export const singularize = (
   value: string = '',
@@ -44,7 +45,7 @@ export const extractMeta = (
     itemModel: plugin.contentType('navigation-item'),
     relatedModel: plugin.contentType('navigations-items-related'),
     audienceModel: plugin.contentType('audience'),
-    service: plugin.service('navigation'),
+    service: plugin.service('navigation') as NavigationService,
     plugin,
     pluginName: 'navigation',
   };
@@ -148,7 +149,7 @@ export const sendAuditLog = (
 };
 
 export const checkDuplicatePath = (
-  parentItem: NavigationItem | null,
+  parentItem: ToBeFixed | null,
   checkData: Array<NavigationItem>,
 ): Promise<void> => {
   return new Promise((resolve, reject) => {
