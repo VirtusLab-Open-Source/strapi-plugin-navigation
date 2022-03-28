@@ -33,7 +33,7 @@ module.exports = ({ strapi }) => {
       const entities = await strapi
         .query(masterModel.uid)
         .findMany({
-          limit: -1,
+          limit: 0
         });
       return entities;
     },
@@ -50,7 +50,7 @@ module.exports = ({ strapi }) => {
           where: {
             master: id,
           },
-          limit: -1,
+          limit: 0,
           sort: ['order:asc'],
           populate: ['related', 'parent', 'audience']
         });
@@ -95,9 +95,7 @@ module.exports = ({ strapi }) => {
         const audienceItems = await strapi
           .query(audienceModel.uid)
           .findMany({
-            paggination: {
-              limit: -1,
-            }
+            limit: 0
           });
         extendedResult = {
           ...extendedResult,
@@ -395,9 +393,7 @@ module.exports = ({ strapi }) => {
             master: entity.id,
             ...itemCriteria,
           },
-          paggination: {
-            limit: -1,
-          },
+          limit: 0,
           sort: ['order:asc'],
           populate: ['related', 'audience', 'parent'],
         });

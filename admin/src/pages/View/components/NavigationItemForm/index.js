@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
-import { debounce, find, get, isEmpty, isEqual, isNil, isString } from 'lodash';
+import { debounce, find, get, first, isEmpty, isEqual, isNil, isString } from 'lodash';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik'
 import slugify from 'slugify';
@@ -75,11 +75,11 @@ const NavigationItemForm = ({
 
   const sanitizePayload = (payload = {}) => {
     const { onItemClick, onItemLevelAddClick, related, relatedType, menuAttached, type, ...purePayload } = payload;
-    const relatedId = related
+    const relatedId = related;
+    const singleRelatedItem = isSingleSelected ? first(contentTypeEntities) : undefined;
     const relatedCollectionType = relatedType;
-    const title = isSingleSelected ?
-      relatedTypeSelectOptions.find(v => v.key == relatedType).label :
-      payload.title || relatedSelectOptions.find(v => v.key == relatedId)?.label;
+    const title = payload.title;
+    
     return {
       ...purePayload,
       title,
@@ -90,6 +90,7 @@ const NavigationItemForm = ({
       related: type === navigationItemType.INTERNAL ? relatedId : undefined,
       relatedType: type === navigationItemType.INTERNAL ? relatedCollectionType : undefined,
       isSingle: isSingleSelected,
+      singleRelatedItem,
       uiRouterKey: generateUiRouterKey(title, relatedId, relatedCollectionType),
     };
   };
@@ -136,6 +137,7 @@ const NavigationItemForm = ({
     return undefined;
   };
 
+  const initialRelatedTypeSelected = data?.relatedType?.value;
   const relatedTypeSelectValue = form.relatedType;
   const relatedSelectValue = form.related;
 
@@ -221,6 +223,9 @@ const NavigationItemForm = ({
     () => contentTypes
       .filter((contentType) => {
         if (contentType.isSingle) {
+          if (relatedTypeSelectValue && [relatedTypeSelectValue, initialRelatedTypeSelected].includes(contentType.uid)) {
+            return true;
+          }
           return !usedContentTypesData.some((_) => _.__collectionUid === contentType.uid && _.__collectionUid !== form.relatedType);
         }
         return true;
@@ -236,7 +241,7 @@ const NavigationItemForm = ({
         value: get(item, 'uid'),
         label: get(item, 'label', get(item, 'name')),
       })),
-    [contentTypes, usedContentTypesData],
+    [contentTypes, usedContentTypesData, relatedTypeSelectValue],
   );
 
   const thereAreNoMoreContentTypes = isEmpty(relatedSelectOptions) && !contentTypeSearchQuery;

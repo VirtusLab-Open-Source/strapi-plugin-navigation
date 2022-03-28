@@ -89,10 +89,12 @@ const linkRelations = (item, config) => {
 
   if (isSingle && relatedType) {
     const relatedContentType = contentTypes.find(_ => relatedType === _.uid) || {};
+    const { singleRelatedItem = {} } = item;
     return {
       ...item,
       relatedType,
       relatedRef: {
+        ...singleRelatedItem,
         ...omit(relatedContentType, 'collectionName'),
         isSingle,
         __collectionUid: relatedContentType.uid,

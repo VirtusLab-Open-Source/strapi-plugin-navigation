@@ -8,7 +8,9 @@ module.exports = ({ strapi, nexus, config }) => {
 			definition(t) {
 				t.members(...related)
 			},
-			resolveType: (item) => strapi.contentTypes[item.__contentType]?.globalId
+			resolveType: (item) => {
+				return strapi.contentTypes[item.__contentType]?.globalId
+			}
 		});
 	}
 	

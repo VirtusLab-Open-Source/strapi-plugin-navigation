@@ -56,7 +56,13 @@ const SettingsPage = () => {
     additionalFields: audienceFieldChecked ? [navigationItemAdditionalFields.AUDIENCE] : [],
     allowedLevels: allowedLevels,
     gql: {
-      navigationItemRelated: selectedContentTypes.map(uid => allContentTypes.find(ct => ct.uid === uid).info.displayName.replace(/\s+/g, ''))
+      navigationItemRelated: selectedContentTypes.map(uid => {
+        const singularName = allContentTypes.find(ct => ct.uid === uid).info.singularName;
+        const globalIdLike = singularName.split('-')
+          .map(_ => capitalize(_))
+          .join('')
+        return globalIdLike;
+      })
     }
   });
 
