@@ -307,4 +307,4 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
 	},
 });
 
-export = clientService;
+export default clientService;

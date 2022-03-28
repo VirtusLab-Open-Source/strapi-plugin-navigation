@@ -1,10 +1,10 @@
-import { IClientService, ICommonService, ToBeFixed } from '../../types';
+import { IAdminService, ICommonService, ToBeFixed } from '../../types';
 import { getPluginService, parseParams } from '../utils';
 import { errorHandler } from '../utils';
 import { IAdminController } from '../../types'
 
 const adminControllers: IAdminController = {
-  getService<T = IClientService>(name = "admin") {
+  getService<T = IAdminService>(name = "admin") {
     return getPluginService<T>(name);
   },
   async get() {

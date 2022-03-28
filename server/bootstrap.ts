@@ -3,7 +3,7 @@ import { Navigation, NavigationPluginConfig } from '../types';
 import permissions from '../permissions';
 import { StrapiContext } from 'strapi-typed';
 
-export = async ({ strapi }: StrapiContext) => {
+export default async ({ strapi }: StrapiContext) => {
   // Check if the plugin users-permissions is installed because the navigation needs it
   if (isNil(strapi.plugin('users-permissions'))) {
     throw new Error(
