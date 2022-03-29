@@ -1,5 +1,10 @@
-const { setupStrapi } = require('../../../__mocks__/strapi');
-const utilsFunctionsFactory = require('../utils/functions');
+import { IStrapi } from "strapi-typed";
+import { NavigationItem } from "../../../types";
+
+import setupStrapi from '../../../__mocks__/strapi';
+import { buildNestedPaths, extractMeta, filterByPath } from "../functions";
+
+declare var strapi: IStrapi;
 
 describe('Utilities functions', () => {
 	beforeAll(async () => {
@@ -8,28 +13,26 @@ describe('Utilities functions', () => {
 
 	describe('Path rendering functions', () => {
 		it('Can build nested path structure', async () => {
-			const utilsFunctions = utilsFunctionsFactory({ strapi });
-			const { itemModel } = utilsFunctions.extractMeta(strapi.plugins);
+			const { itemModel } = extractMeta(strapi.plugins);
 			const rootPath = '/home/side';
 			const entities = await strapi
-				.query(itemModel.uid)
+				.query<NavigationItem>(itemModel.uid)
 				.findMany({
 					where: {
 						master: 1
 					}
 				});
-			const nested = utilsFunctions.buildNestedPaths(entities);
+			const nested = buildNestedPaths(entities);
 
 			expect(nested.length).toBe(2);
 			expect(nested[1].path).toBe(rootPath);
 		});
 
 		it('Can filter items by path', async () => {
-			const utilsFunctions = utilsFunctionsFactory({ strapi });
-			const { itemModel } = utilsFunctions.extractMeta(strapi.plugins);
+			const { itemModel } = extractMeta(strapi.plugins);
 			const rootPath = '/home/side';
 			const entities = await strapi
-				.query(itemModel.uid)
+				.query<NavigationItem>(itemModel.uid)
 				.findMany({
 					where: {
 						master: 1
@@ -38,10 +41,10 @@ describe('Utilities functions', () => {
 			const {
 				root,
 				items
-			} = utilsFunctions.filterByPath(entities, rootPath);
+			} = filterByPath(entities, rootPath);
 
 			expect(root).toBeDefined();
-			expect(root.path).toBe(rootPath);
+			expect(root?.path).toBe(rootPath);
 			expect(items.length).toBe(1)
 		});
 	});

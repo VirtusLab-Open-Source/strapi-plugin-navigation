@@ -39,7 +39,7 @@ export interface ICommonService {
 }
 
 export interface IClientService {
-	render: (idOrSlug: Id | string, type?: RenderType, menuOnly?: boolean, rootPath?: string) => Promise<Array<NavigationItem>>,
+	render: (idOrSlug: Id | string, type?: RenderType, menuOnly?: boolean, rootPath?: string) => Promise<ToBeFixed>,
 	renderChildren: (idOrSlug: Id | string, childUIKey: string, type?: RenderType, menuOnly?: boolean) => Promise < NavigationItem[] >,
 	renderRFR: (items: Array<NavigationItem>, parent: Id | null, parentNavItem: RFRNavItem | null, contentTypes: string[]) => ToBeFixed,
 	renderRFRNav: (item: NavigationItem) => RFRNavItem,

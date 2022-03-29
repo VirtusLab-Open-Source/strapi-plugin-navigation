@@ -1,4 +1,8 @@
-const { isMatch } = require('lodash');
+import { IStrapi, StrapiContentType, StrapiContentTypeSchema, StrapiPlugin, StrapiDBQueryArgs } from "strapi-typed";
+import { default as defaultConfig } from '../server/config';
+import { StrapiMap } from "../types";
+
+import { isMatch } from 'lodash';
 
 const masterModelMock = {
     findOne: () => ({
@@ -44,7 +48,7 @@ const itemModelMock = {
         },
         parent: null,
     }),
-    findMany: async ({ where }) => [{
+    findMany: async (params: StrapiDBQueryArgs) => [{
         id: 1,
         title: "home",
         type: "INTERNAL",
@@ -103,11 +107,11 @@ const itemModelMock = {
             createdAt: "2021-12-31T10:04:54.812Z",
             updatedAt: "2022-01-14T13:36:29.430Z",
         },
-    }].filter(item => isMatch(item, where)),
+    }].filter(item => params.where ? isMatch(item, params.where) : true),
 };
 
 const pageModelMock = {
-    findOne: async ({ where }) => ({
+    findOne: async () => ({
         "id": 1,
         "attributes": {
             "title": "Page nr 1",
@@ -116,7 +120,7 @@ const pageModelMock = {
             "publishedAt": null
         }
     }),
-    findMany: async ({ where }) => [{
+    findMany: async () => [{
         "id": 1,
         "attributes": {
             "title": "Page nr 1",
@@ -136,16 +140,18 @@ const pageModelMock = {
 
 };
 
-const plugins = (strapi) => ({
+const plugins = (strapi: IStrapi): StrapiMap<StrapiPlugin> => ({
     navigation: {
         get services() { return require('../server/services') },
-        service: (key) => (require('../server/services'))[key]({ strapi }),
+        service: (key: string) => (require('../server/services').default)[key]({ strapi }),
         get contentTypes() { return require('../server/content-types') },
-        contentType: (key) => preparePluginContentType(require('../server/content-types')[key].schema, 'navigation'),
-        config: (key) => ({
-            ...require('../server/config').default,
+        contentType: (key: string) => preparePluginContentType(require('../server/content-types')[key].schema, 'navigation'),
+        config: (key: string) => ({
+            ...defaultConfig.default,
             contentTypes: ['api::pages.pages'],
         })[key],
+        get controllers() { return {}},
+        controller() { return {}},
     }
 });
 
@@ -157,7 +163,7 @@ const contentTypes = {
     },
 };
 
-const preparePluginContentType = (schema, plugin) => {
+const preparePluginContentType = (schema: StrapiContentTypeSchema, plugin: string) => {
     const { name } = schema.info;
 
     return {
@@ -167,12 +173,13 @@ const preparePluginContentType = (schema, plugin) => {
     }
 }
 
-const strapiFactory = (plugins, contentTypes) => ({
+declare var strapi: IStrapi;
+const strapiFactory = (plugins: (strapi: IStrapi) => StrapiMap<StrapiPlugin>, contentTypes: StrapiMap<StrapiContentType<any>>) => ({
     get plugins() { return plugins(strapi) },
-    plugin: (name) => plugins(strapi)[name],
+    plugin: (name: string) => plugins(strapi)[name],
     get contentTypes() { return contentTypes },
-    contentType: (key) => contentTypes[key],
-    query: (model) => {
+    contentType: (key: string) => contentTypes[key],
+    query: (model: string) => {
         switch (model) {
             case 'plugin::navigation.navigation':
                 return masterModelMock;
@@ -187,11 +194,11 @@ const strapiFactory = (plugins, contentTypes) => ({
                 }
         }
     },
-    store: ({ type, name }) => {
+    store: ({ type, name }: {type: string, name: string}) => {
         if (type === 'plugin' && name === 'navigation') {
             return {
-                get: ({ key }) => key === 'config' ? {
-                    ...require('../server/config').default,
+                get: ({ key }: {key: string}) => key === 'config' ? {
+                    ...(defaultConfig.default),
                     contentTypes: ['api::pages.pages']
                 } : null,
                 set: () => null,
@@ -204,4 +211,4 @@ const setupStrapi = () => {
     Object.defineProperty(global, 'strapi', { value: strapiFactory(plugins, contentTypes) });
 }
 
-module.exports = { setupStrapi };
+export default setupStrapi;
