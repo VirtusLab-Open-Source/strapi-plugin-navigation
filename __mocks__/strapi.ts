@@ -1,6 +1,6 @@
-import { IStrapi, StrapiContentType, StrapiContentTypeSchema, StrapiPlugin, StrapiDBQueryArgs } from "strapi-typed";
+import { IStrapi, StrapiContentType, StrapiPlugin, StrapiDBQueryArgs } from "strapi-typed";
 import { default as defaultConfig } from '../server/config';
-import { StrapiMap } from "../types";
+import { StrapiMap, ToBeFixed } from "../types";
 
 import { isMatch } from 'lodash';
 
@@ -163,7 +163,7 @@ const contentTypes = {
     },
 };
 
-const preparePluginContentType = (schema: StrapiContentTypeSchema, plugin: string) => {
+const preparePluginContentType = (schema: ToBeFixed, plugin: string) => {
     const { name } = schema.info;
 
     return {

@@ -1,9 +1,10 @@
-const { camelCase } = require('lodash');
-module.exports = {
+import { camelCase } from 'lodash';
+import { ToBeFixed } from '../../../types';
+export default {
   lifecycles: {
-    afterFind(results) {
+    afterFind(results: ToBeFixed) {
       results
-        .forEach(entity => {
+        .forEach((entity: ToBeFixed) => {
           for (const [key, value] of Object.entries(entity)) {
             const newKey = camelCase(key);
             if (value) {
