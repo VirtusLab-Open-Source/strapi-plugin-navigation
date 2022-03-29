@@ -1,7 +1,8 @@
 import { isEmpty, isNil } from 'lodash';
-import { Navigation, NavigationPluginConfig } from '../types';
+import { ICommonService, Navigation } from '../types';
 import permissions from '../permissions';
 import { StrapiContext } from 'strapi-typed';
+import { getPluginService } from './utils';
 
 export default async ({ strapi }: StrapiContext) => {
   // Check if the plugin users-permissions is installed because the navigation needs it
@@ -43,28 +44,9 @@ export default async ({ strapi }: StrapiContext) => {
         }
       });
   }
-
   // Initialize configuration
-  const pluginStore = strapi.store({
-    type: 'plugin',
-    name: 'navigation',
-  });
-
-  const config: NavigationPluginConfig = await pluginStore.get({ key: 'config' });
-  const pluginDefaultConfig = await strapi.plugin('navigation').config
-  const defaultConfigValue = {
-    additionalFields: config?.additionalFields || pluginDefaultConfig('additionalFields'),
-    contentTypes: config?.contentTypes || pluginDefaultConfig('contentTypes'),
-    contentTypesNameFields: config?.contentTypesNameFields || pluginDefaultConfig('contentTypesNameFields'),
-    contentTypesPopulate: config?.contentTypesPopulate || pluginDefaultConfig('contentTypesPopulate'),
-    allowedLevels: config?.allowedLevels || pluginDefaultConfig('allowedLevels'),
-    gql: config?.gql || pluginDefaultConfig('gql'),
-  }
-
-  pluginStore.set({
-    key: 'config', value: defaultConfigValue
-  });
-
+  const commonService = getPluginService<ICommonService>('common');
+  const config = commonService.setDefaultConfig();
 
   if (strapi.plugin('graphql')) {
     const graphqlConfiguration = require('./graphql')

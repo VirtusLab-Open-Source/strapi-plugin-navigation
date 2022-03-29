@@ -163,7 +163,7 @@ const SettingsPage = () => {
                 }
               />
               <ContentLayout>
-                <Stack spacing={7}>
+                <Stack size={7}>
                   {isRestartRequired && (
                     <RestartAlert
                       closeLabel={getMessage('pages.settings.actions.restart.alert.cancel')}
@@ -173,7 +173,7 @@ const SettingsPage = () => {
                       {getMessage('pages.settings.actions.restart.alert.description')}
                     </RestartAlert>)}
                   <Box {...boxDefaultProps} >
-                    <Stack spacing={4}>
+                    <Stack size={4}>
                       <Typography variant="delta" as="h2">
                         {getMessage('pages.settings.general.title')}
                       </Typography>
@@ -215,7 +215,7 @@ const SettingsPage = () => {
                                   <AccordionToggle title={displayName} togglePosition="left" startIcon={(isSingle && !available) && (<ExclamationMarkCircle aria-hidden={true} />)} />
                                   <AccordionContent>
                                     <Box padding={6}>
-                                      <Stack spacing={4}>
+                                      <Stack size={4}>
                                         { (isSingle && !available) && (
                                           <PermanentAlert title={getMessage('pages.settings.form.contentTypesSettings.initializationWarning.title')} variant="danger" onClose={(e) => e.preventDefault()}>
                                             { getMessage('pages.settings.form.contentTypesSettings.initializationWarning.content') }
@@ -262,7 +262,7 @@ const SettingsPage = () => {
                     </Stack>
                   </Box>
                   <Box {...boxDefaultProps} >
-                    <Stack spacing={4}>
+                    <Stack size={4}>
                       <Typography variant="delta" as="h2">
                         {getMessage('pages.settings.additional.title')}
                       </Typography>
@@ -294,7 +294,7 @@ const SettingsPage = () => {
                     </Stack>
                   </Box>
                   <Box {...boxDefaultProps} >
-                    <Stack spacing={4}>
+                    <Stack size={4}>
                       <Typography variant="delta" as="h2">
                         {getMessage('pages.settings.restoring.title')}
                       </Typography>
