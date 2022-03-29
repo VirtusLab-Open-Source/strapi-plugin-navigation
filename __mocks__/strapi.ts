@@ -145,7 +145,7 @@ const plugins = (strapi: IStrapi): StrapiMap<StrapiPlugin> => ({
         get services() { return require('../server/services') },
         service: (key: string) => (require('../server/services').default)[key]({ strapi }),
         get contentTypes() { return require('../server/content-types') },
-        contentType: (key: string) => preparePluginContentType(require('../server/content-types')[key].schema, 'navigation'),
+        contentType: (key: string) => preparePluginContentType(require('../server/content-types').default[key].schema, 'navigation'),
         config: (key: string) => ({
             ...defaultConfig.default,
             contentTypes: ['api::pages.pages'],
