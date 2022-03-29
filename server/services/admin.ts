@@ -2,8 +2,7 @@ import slugify from "slugify";
 import { isNil, isObject } from "lodash";
 import { Id, StrapiContext } from "strapi-typed";
 import { Audience, AuditLogContext, IAdminService, ICommonService, Navigation, NavigationItem, NavigationPluginConfig, ToBeFixed } from "../../types";
-import { ALLOWED_CONTENT_TYPES, buildNestedStructure, CONTENT_TYPES_NAME_FIELDS_DEFAULTS, extractMeta, getPluginService, prepareAuditLog, RESTRICTED_CONTENT_TYPES, sendAuditLog } from "../utils";
-import { additionalFields as configAdditionalFields } from '../content-types/navigation-item/lifecycle';
+import { ADDITIONAL_FIELDS, ALLOWED_CONTENT_TYPES, buildNestedStructure, CONTENT_TYPES_NAME_FIELDS_DEFAULTS, extractMeta, getPluginService, prepareAuditLog, RESTRICTED_CONTENT_TYPES, sendAuditLog } from "../utils";
 
 const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => ({
 	async config(viaSettingsPage = false): Promise<NavigationPluginConfig> {
@@ -40,7 +39,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
 			isGQLPluginEnabled: viaSettingsPage ? isGQLPluginEnabled : undefined,
 		};
 
-		if (additionalFields.includes(configAdditionalFields.AUDIENCE)) {
+		if (additionalFields.includes(ADDITIONAL_FIELDS.AUDIENCE)) {
 			const audienceItems = await strapi
 				.query<Audience>(audienceModel.uid)
 				.findMany({
