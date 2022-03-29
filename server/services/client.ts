@@ -19,8 +19,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
 		const findById = !isNaN(toNumber(idOrSlug)) || validate(idOrSlug as string);
 		const criteria = findById ? { id: idOrSlug } : { slug: idOrSlug };
 		const itemCriteria = menuOnly ? { menuAttached: true } : {};
-		const x = await clientService.renderType(type, criteria, itemCriteria, null, rootPath);
-		return x;
+		return await clientService.renderType(type, criteria, itemCriteria, null, rootPath);
 	},
 
 	async renderChildren(

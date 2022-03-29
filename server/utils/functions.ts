@@ -12,7 +12,7 @@ import {
 } from 'lodash';
 import { Id, IStrapi, StrapiContentType, StrapiPlugin } from "strapi-typed";
 
-import { AuditLogContext, AuditLogParams, ContentTypeEntity, NavigationActions, NavigationItem, NavigationItemRelated, NavigationItemType, NavigationService, NestedPath, PluginConfigNameFields, ToBeFixed } from "../../types";
+import { AuditLogContext, AuditLogParams, ContentTypeEntity, NavigationActions, NavigationItem, NavigationItemRelated, NavigationItemType, NestedPath, PluginConfigNameFields, ToBeFixed } from "../../types";
 import { NavigationError } from '../../utils/NavigationError';
 import { TEMPLATE_DEFAULT, ALLOWED_CONTENT_TYPES, RESTRICTED_CONTENT_TYPES} from './constant';
 declare var strapi: IStrapi;
@@ -206,7 +206,6 @@ export const extractMeta = (
     itemModel: plugin.contentType('navigation-item'),
     relatedModel: plugin.contentType('navigations-items-related'),
     audienceModel: plugin.contentType('audience'),
-    service: plugin.service('navigation') as NavigationService,
     plugin,
     pluginName: 'navigation',
   };

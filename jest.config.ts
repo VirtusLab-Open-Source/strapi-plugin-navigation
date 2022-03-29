@@ -1,4 +1,4 @@
-import type { Config } from '@jest/types';
+import type { Config }  from '@jest/types';
 import { defaults as tsjPreset } from 'ts-jest/presets'
 
 const config: Config.InitialOptions = {
