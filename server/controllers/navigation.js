@@ -25,12 +25,20 @@ module.exports = ({strapi}) => ({
   },
 
   async updateConfig(ctx) {
-    await getService().updateConfig(ctx.request.body)
+    try {
+      await getService().updateConfig(ctx.request.body);
+    } catch (e) { 
+      errorHandler(ctx)(e);
+    }
     return ctx.send({ status: 200 });
   },
 
   async restoreConfig(ctx) {
-    await getService().restoreConfig()
+    try {
+      await getService().restoreConfig();
+    } catch (e) { 
+      errorHandler(ctx)(e);
+    }
     return ctx.send({ status: 200 })
   },
 
@@ -43,7 +51,7 @@ module.exports = ({strapi}) => ({
       await getService().restart();
       return ctx.send({ status: 200 });
     } catch (e) {
-      errorHandler(ctx, e);
+      errorHandler(ctx)(e);
     }
   },
 

@@ -65,8 +65,8 @@ module.exports = ({ strapi }) => {
 
     // Get plugin config
     async config(viaSettingsPage = false) {
-      const { audienceModel, service } = utilsFunctions.extractMeta(strapi.plugins);
-      const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
+      const { audienceModel } = utilsFunctions.extractMeta(strapi.plugins);
+      const pluginStore = await this.getPluginStore()
       const config = await pluginStore.get({ key: 'config' });
       const additionalFields = config.additionalFields;
       const contentTypesNameFields = config.contentTypesNameFields;
@@ -79,7 +79,7 @@ module.exports = ({ strapi }) => {
         restrictedContentTypes: RESTRICTED_CONTENT_TYPES,
       };
       const result = {
-        contentTypes: await service.configContentTypes(),
+        contentTypes: await this.configContentTypes(),
         contentTypesNameFields: {
           default: contentTypesNameFieldsDefaults,
           ...(isObject(contentTypesNameFields) ? contentTypesNameFields : {}),
@@ -110,7 +110,7 @@ module.exports = ({ strapi }) => {
     },
 
     async updateConfig(newConfig) {
-      const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
+      const pluginStore = await this.getPluginStore()
       await pluginStore.set({ key: 'config', value: newConfig });
     },
 
@@ -119,7 +119,7 @@ module.exports = ({ strapi }) => {
     },
 
     async setDefaultConfig() {
-      const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
+      const pluginStore = await this.getPluginStore()
       const config = await pluginStore.get({ key: 'config' });
       const pluginDefaultConfig = await strapi.plugin('navigation').config
 
@@ -139,23 +139,20 @@ module.exports = ({ strapi }) => {
     },
 
     async restoreConfig() {
-      const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
+      const pluginStore = await this.getPluginStore()
       await pluginStore.delete({ key: 'config' });
       await strapi.plugin('navigation').service('navigation').setDefaultConfig();
     },
 
     async configContentTypes() {
-      const pluginStore = await strapi.plugin('navigation').service('navigation').getPluginStore()
+      const pluginStore = await this.getPluginStore()
       const config = await pluginStore.get({ key: 'config' });
       const eligibleContentTypes =
         await Promise.all(
           config.contentTypes
-            .filter(contentType => !!strapi.contentTypes[contentType])
+            .filter(contentType => !!strapi.contentTypes[contentType] && utilsFunctions.isContentTypeEligible(contentType))
             .map(
               async (key) => {
-                if (!utilsFunctions.isContentTypeEligible(key)) { // exclude internal content types
-                  return;
-                }
                 const item = strapi.contentTypes[key];
                 const { kind, options, uid } = item;
                 const { draftAndPublish } = options;
