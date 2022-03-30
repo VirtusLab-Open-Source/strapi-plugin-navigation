@@ -13,7 +13,7 @@ const {
 
 const { type: itemType } = require('../../content-types/navigation-item/lifecycle');
 const { NavigationError } = require('../../../utils/NavigationError');
-const { TEMPLATE_DEFAULT } = require('./constant');
+const { TEMPLATE_DEFAULT, ALLOWED_CONTENT_TYPES, RESTRICTED_CONTENT_TYPES } = require('./constant');
 
 module.exports = ({ strapi }) => {
   return {
@@ -215,6 +215,12 @@ module.exports = ({ strapi }) => {
         return item.type === itemType.INTERNAL ? isRelatedDefinedAndPublished : true;
       }
       return (item.type !== itemType.INTERNAL) || relatedItem;
+    },
+
+    isContentTypeEligible(uid = '') {
+      const isOneOfAllowedType = ALLOWED_CONTENT_TYPES.filter(_ => uid.includes(_)).length > 0;
+      const isNoneOfRestricted = RESTRICTED_CONTENT_TYPES.filter(_ => uid.includes(_) || (uid === _)).length === 0;
+      return uid && isOneOfAllowedType && isNoneOfRestricted;
     },
   };
 }

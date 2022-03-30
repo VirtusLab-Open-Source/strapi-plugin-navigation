@@ -31,6 +31,7 @@ import { navigationItemAdditionalFields } from '../View/utils/enums';
 import ConfirmationDialog from '../../components/ConfirmationDialog';
 import RestartAlert from '../../components/RestartAlert';
 import { getMessage } from '../../utils';
+import { isContentTypeEligible, resolveGlobalLikeId } from './utils/functions';
 
 const SettingsPage = () => {
   const { lockApp, unlockApp } = useOverlayBlocker();
@@ -56,13 +57,7 @@ const SettingsPage = () => {
     additionalFields: audienceFieldChecked ? [navigationItemAdditionalFields.AUDIENCE] : [],
     allowedLevels: allowedLevels,
     gql: {
-      navigationItemRelated: selectedContentTypes.map(uid => {
-        const singularName = allContentTypes.find(ct => ct.uid === uid).info.singularName;
-        const globalIdLike = singularName.split('-')
-          .map(_ => capitalize(_))
-          .join('')
-        return globalIdLike;
-      })
+      navigationItemRelated: selectedContentTypes.map(uid => resolveGlobalLikeId(uid)),
     }
   });
 
@@ -114,7 +109,10 @@ const SettingsPage = () => {
     )
   }
 
-  const allContentTypes = !isLoading && Object.values(allContentTypesData).filter(item => item.uid.includes('api::'));
+  const allContentTypes = !isLoading && Object.values(allContentTypesData).filter(({ uid }) => isContentTypeEligible(uid, {
+    allowedContentTypes: navigationConfigData?.allowedContentTypes,
+    restrictedContentTypes: navigationConfigData?.restrictedContentTypes,
+  }));
   const selectedContentTypes = navigationConfigData?.contentTypes.map(item => item.uid);
   const audienceFieldChecked = navigationConfigData?.additionalFields.includes(navigationItemAdditionalFields.AUDIENCE);
   const allowedLevels = navigationConfigData?.allowedLevels || 2;

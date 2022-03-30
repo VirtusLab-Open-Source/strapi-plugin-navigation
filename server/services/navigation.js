@@ -11,16 +11,14 @@ const {
   toNumber,
   isString,
   first,
-
 } = require('lodash');
 const { validate: isUuid } = require('uuid');
 const slugify = require('slugify');
-const { KIND_TYPES } = require('./utils/constant');
+const { KIND_TYPES, ALLOWED_CONTENT_TYPES, RESTRICTED_CONTENT_TYPES } = require('./utils/constant');
 const utilsFunctionsFactory = require('./utils/functions');
 const { renderType } = require('../content-types/navigation/lifecycle');
 const { type: itemType, additionalFields: configAdditionalFields } = require('../content-types/navigation-item').lifecycle;
 const { NotFoundError } = require('@strapi/utils').errors
-const excludedContentTypes = ['strapi::'];
 const contentTypesNameFieldsDefaults = ['title', 'subject', 'name'];
 
 module.exports = ({ strapi }) => {
@@ -33,7 +31,7 @@ module.exports = ({ strapi }) => {
       const entities = await strapi
         .query(masterModel.uid)
         .findMany({
-          limit: 0
+          limit: Number.MAX_SAFE_INTEGER,
         });
       return entities;
     },
@@ -50,7 +48,7 @@ module.exports = ({ strapi }) => {
           where: {
             master: id,
           },
-          limit: 0,
+          limit: Number.MAX_SAFE_INTEGER,
           sort: ['order:asc'],
           populate: ['related', 'parent', 'audience']
         });
@@ -76,7 +74,10 @@ module.exports = ({ strapi }) => {
       const allowedLevels = config.allowedLevels;
       const isGQLPluginEnabled = !isNil(strapi.plugin('graphql'));
 
-      let extendedResult = {};
+      let extendedResult = {
+        allowedContentTypes: ALLOWED_CONTENT_TYPES,
+        restrictedContentTypes: RESTRICTED_CONTENT_TYPES,
+      };
       const result = {
         contentTypes: await service.configContentTypes(),
         contentTypesNameFields: {
@@ -95,7 +96,7 @@ module.exports = ({ strapi }) => {
         const audienceItems = await strapi
           .query(audienceModel.uid)
           .findMany({
-            limit: 0
+            limit: Number.MAX_SAFE_INTEGER,
           });
         extendedResult = {
           ...extendedResult,
@@ -152,7 +153,7 @@ module.exports = ({ strapi }) => {
             .filter(contentType => !!strapi.contentTypes[contentType])
             .map(
               async (key) => {
-                if (find(excludedContentTypes, name => key.includes(name))) { // exclude internal content types
+                if (!utilsFunctions.isContentTypeEligible(key)) { // exclude internal content types
                   return;
                 }
                 const item = strapi.contentTypes[key];
@@ -393,7 +394,7 @@ module.exports = ({ strapi }) => {
             master: entity.id,
             ...itemCriteria,
           },
-          limit: 0,
+          limit: Number.MAX_SAFE_INTEGER,
           sort: ['order:asc'],
           populate: ['related', 'audience', 'parent'],
         });
