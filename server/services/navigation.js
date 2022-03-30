@@ -11,16 +11,14 @@ const {
   toNumber,
   isString,
   first,
-
 } = require('lodash');
 const { validate: isUuid } = require('uuid');
 const slugify = require('slugify');
-const { KIND_TYPES } = require('./utils/constant');
+const { KIND_TYPES, ALLOWED_CONTENT_TYPES, RESTRICTED_CONTENT_TYPES } = require('./utils/constant');
 const utilsFunctionsFactory = require('./utils/functions');
 const { renderType } = require('../content-types/navigation/lifecycle');
 const { type: itemType, additionalFields: configAdditionalFields } = require('../content-types/navigation-item').lifecycle;
 const { NotFoundError } = require('@strapi/utils').errors
-const excludedContentTypes = ['strapi::'];
 const contentTypesNameFieldsDefaults = ['title', 'subject', 'name'];
 
 module.exports = ({ strapi }) => {
@@ -33,7 +31,7 @@ module.exports = ({ strapi }) => {
       const entities = await strapi
         .query(masterModel.uid)
         .findMany({
-          limit: 0
+          limit: Number.MAX_SAFE_INTEGER,
         });
       return entities;
     },
@@ -50,7 +48,7 @@ module.exports = ({ strapi }) => {
           where: {
             master: id,
           },
-          limit: 0,
+          limit: Number.MAX_SAFE_INTEGER,
           sort: ['order:asc'],
           populate: ['related', 'parent', 'audience']
         });
@@ -76,7 +74,10 @@ module.exports = ({ strapi }) => {
       const allowedLevels = config.allowedLevels;
       const isGQLPluginEnabled = !isNil(strapi.plugin('graphql'));
 
-      let extendedResult = {};
+      let extendedResult = {
+        allowedContentTypes: ALLOWED_CONTENT_TYPES,
+        restrictedContentTypes: RESTRICTED_CONTENT_TYPES,
+      };
       const result = {
         contentTypes: await service.configContentTypes(),
         contentTypesNameFields: {
@@ -95,7 +96,7 @@ module.exports = ({ strapi }) => {
         const audienceItems = await strapi
           .query(audienceModel.uid)
           .findMany({
-            limit: 0
+            limit: Number.MAX_SAFE_INTEGER,
           });
         extendedResult = {
           ...extendedResult,
@@ -152,7 +153,7 @@ module.exports = ({ strapi }) => {
             .filter(contentType => !!strapi.contentTypes[contentType])
             .map(
               async (key) => {
-                if (find(excludedContentTypes, name => key.includes(name))) { // exclude internal content types
+                if (!utilsFunctions.isContentTypeEligible(key)) { // exclude internal content types
                   return;
                 }
                 const item = strapi.contentTypes[key];
@@ -188,9 +189,10 @@ module.exports = ({ strapi }) => {
         .map(({ key, available }) => {
           const item = strapi.contentTypes[key];
           const relatedField = (item.associations || []).find(_ => _.model === 'navigationitem');
-          const { uid, options, info, collectionName, modelName, apiName, plugin, kind } = item;
+          const { uid, options, info, collectionName, modelName, apiName, plugin, kind, pluginOptions } = item;
+          const { visible = true } =  pluginOptions['content-manager'] || {};
           const { name, description } = info;
-          const { isManaged, hidden, templateName } = options;
+          const { hidden, templateName } = options;
           const findRouteConfig = find(get(strapi.api, `[${modelName}].config.routes`, []),
             route => route.handler.includes('.find'));
           const findRoutePath = findRouteConfig && findRouteConfig.path.split('/')[1];
@@ -215,12 +217,12 @@ module.exports = ({ strapi }) => {
             labelSingular: utilsFunctions.singularize(labelSingular),
             endpoint,
             plugin,
-            available,
-            visible: (isManaged || isNil(isManaged)) && !hidden,
+            available: available && !hidden,
+            visible,
             templateName,
           };
         })
-        .filter((item) => item && item.visible);
+        .filter((item) => item && item.available);
     },
 
     async getRelatedItems(entityItems) {
@@ -393,7 +395,7 @@ module.exports = ({ strapi }) => {
             master: entity.id,
             ...itemCriteria,
           },
-          limit: 0,
+          limit: Number.MAX_SAFE_INTEGER,
           sort: ['order:asc'],
           populate: ['related', 'audience', 'parent'],
         });
