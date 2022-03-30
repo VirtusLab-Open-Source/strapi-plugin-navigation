@@ -189,9 +189,10 @@ module.exports = ({ strapi }) => {
         .map(({ key, available }) => {
           const item = strapi.contentTypes[key];
           const relatedField = (item.associations || []).find(_ => _.model === 'navigationitem');
-          const { uid, options, info, collectionName, modelName, apiName, plugin, kind } = item;
+          const { uid, options, info, collectionName, modelName, apiName, plugin, kind, pluginOptions } = item;
+          const { visible = true } =  pluginOptions['content-manager'] || {};
           const { name, description } = info;
-          const { isManaged, hidden, templateName } = options;
+          const { hidden, templateName } = options;
           const findRouteConfig = find(get(strapi.api, `[${modelName}].config.routes`, []),
             route => route.handler.includes('.find'));
           const findRoutePath = findRouteConfig && findRouteConfig.path.split('/')[1];
@@ -216,12 +217,12 @@ module.exports = ({ strapi }) => {
             labelSingular: utilsFunctions.singularize(labelSingular),
             endpoint,
             plugin,
-            available,
-            visible: (isManaged || isNil(isManaged)) && !hidden,
+            available: available && !hidden,
+            visible,
             templateName,
           };
         })
-        .filter((item) => item && item.visible);
+        .filter((item) => item && item.available);
     },
 
     async getRelatedItems(entityItems) {

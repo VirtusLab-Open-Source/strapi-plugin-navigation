@@ -122,6 +122,13 @@ const Item = (props) => {
     previewRef: dragPreview(previewRef),
   }
 
+  const contentTypeUid = relatedRef?.__collectionUid;
+  const contentType = contentTypes.find(_ => _.uid === contentTypeUid) || {};
+  const generatePreviewUrl = entity => {
+    const { isSingle } = contentType;
+    return `/content-manager/${ isSingle ? 'singleType' : 'collectionType'}/${entity?.__collectionUid}${!isSingle ? '/' + entity?.id : ''}`
+  }
+
   return (
     <Wrapper level={level} isLast={isLast} style={{ opacity: isDragging ? 0.2 : 1 }} ref={refs ? refs.dropRef : null} >
       <Card style={{ width: "728px", zIndex: 1, position: "relative", overflow: 'hidden' }}>
@@ -179,9 +186,9 @@ const Item = (props) => {
                     </ItemCardBadge>}
                     <Typography variant="omega" textColor='neutral600'>{relatedTypeLabel}&nbsp;/&nbsp;</Typography>
                     <Typography variant="omega" textColor='neutral800'>{relatedItemLabel}</Typography>
-                      <Link
-                        to={`/content-manager/collectionType/${relatedRef?.__collectionUid}/${relatedRef?.id}`}
-                        endIcon={<ArrowRight />}>&nbsp;</Link>
+                    { contentType?.visible && (<Link
+                        to={generatePreviewUrl(relatedRef)}
+                        endIcon={<ArrowRight />}>&nbsp;</Link>) }
                   </Flex>)
                 }
               </Flex>
