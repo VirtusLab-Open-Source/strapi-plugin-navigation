@@ -79,7 +79,7 @@ module.exports = ({ strapi }) => {
         restrictedContentTypes: RESTRICTED_CONTENT_TYPES,
       };
       const result = {
-        contentTypes: await this.configContentTypes(),
+        contentTypes: await this.configContentTypes(viaSettingsPage),
         contentTypesNameFields: {
           default: contentTypesNameFieldsDefaults,
           ...(isObject(contentTypesNameFields) ? contentTypesNameFields : {}),
@@ -144,7 +144,7 @@ module.exports = ({ strapi }) => {
       await strapi.plugin('navigation').service('navigation').setDefaultConfig();
     },
 
-    async configContentTypes() {
+    async configContentTypes(viaSettingsPage = false) {
       const pluginStore = await this.getPluginStore()
       const config = await pluginStore.get({ key: 'config' });
       const eligibleContentTypes =
@@ -154,6 +154,7 @@ module.exports = ({ strapi }) => {
             .map(
               async (key) => {
                 const item = strapi.contentTypes[key];
+
                 const { kind, options, uid } = item;
                 const { draftAndPublish } = options;
 
@@ -175,7 +176,9 @@ module.exports = ({ strapi }) => {
                     return returnType(itemsCountOrBypass !== 0);
                   }
                   const isAvailable = await strapi.query(uid).count();
-                  return isAvailable === 1 ? returnType(true) : undefined;
+                  return isAvailable === 1 ? 
+                    returnType(true) : 
+                    (viaSettingsPage ? returnType(false) : undefined);
                 }
                 return returnType(true);
               },
@@ -219,7 +222,7 @@ module.exports = ({ strapi }) => {
             templateName,
           };
         })
-        .filter((item) => item && item.available);
+        .filter((item) => viaSettingsPage || (item && item.available));
     },
 
     async getRelatedItems(entityItems) {
@@ -767,7 +770,7 @@ module.exports = ({ strapi }) => {
           related_id: relatedItem.refId,
           related_type: relatedItem.ref,
         };
-        return model.delete({ where: entityToRemove }).then(({ id }) => id);
+        return model.delete({ where: entityToRemove });
       }));
     },
 

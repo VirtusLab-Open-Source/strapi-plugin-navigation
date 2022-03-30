@@ -18,7 +18,7 @@ justify-content: center;
 height: ${32 / 16}rem;
 width: ${32 / 16}rem;
 
-cursor: pointer;
+cursor: move;
   padding: ${({ theme }) => theme.spaces[2]};
   border-radius: ${({ theme }) => theme.borderRadius};
   background: ${({ theme }) => theme.colors.neutral0};
