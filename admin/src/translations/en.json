@@ -92,6 +92,8 @@
 	"pages.settings.form.populate.empty": "This content type doesn't have any relation fields",
 	"pages.settings.form.contentTypesSettings.label": "Content types",
 	"pages.settings.form.contentTypesSettings.tooltip": "Custom configuration per content type",
+	"pages.settings.form.contentTypesSettings.initializationWarning.title": "Warning",
+	"pages.settings.form.contentTypesSettings.initializationWarning.content": "- Content Type hasn't yet been initialized. Initialize it first to be able to use in a Visual Editor.",
 	"components.navigationItem.action.newItem": "Add nested item",
 	"components.navigationItem.badge.removed": "Removed",
 	"components.navigationItem.badge.draft": "Draft",

@@ -25,6 +25,7 @@ export const transformItemToRESTPayload = (
     audience = [],
     items = [],
     collapsed,
+    isSingle
   } = item;
   const isExternal = type === navigationItemType.EXTERNAL;
   const isWrapper = type === navigationItemType.WRAPPER;
@@ -37,7 +38,7 @@ export const transformItemToRESTPayload = (
     find(contentTypes,
       ct => ct.uid === relatedType) :
     undefined;
-  const itemAttachedToMenu = menuAttached && parentAttachedToMenu
+  const itemAttachedToMenu = menuAttached && parentAttachedToMenu;
   return {
     id,
     parent,
@@ -59,7 +60,7 @@ export const transformItemToRESTPayload = (
       ? undefined
       : [
         {
-          refId: relatedId,
+          refId: isSingle && !relatedId ? 1 : relatedId,
           ref: relatedContentType ? relatedContentType.uid : relatedType,
           field: relatedContentType && relatedContentType.relatedField ? relatedContentType.relatedField : 'navigation',
         },

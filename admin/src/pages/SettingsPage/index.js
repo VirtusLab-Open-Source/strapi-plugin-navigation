@@ -22,7 +22,7 @@ import { ToggleInput } from '@strapi/design-system/ToggleInput';
 import { NumberInput } from '@strapi/design-system/NumberInput';
 import { Select, Option } from '@strapi/design-system/Select';
 import { Tooltip } from '@strapi/design-system/Tooltip';
-import { Check, Refresh, Play, Information } from '@strapi/icons';
+import { Check, Refresh, Play, Information, ExclamationMarkCircle } from '@strapi/icons';
 
 import permissions from '../../permissions';
 import useNavigationConfig from '../../hooks/useNavigationConfig';
@@ -32,6 +32,7 @@ import ConfirmationDialog from '../../components/ConfirmationDialog';
 import RestartAlert from '../../components/RestartAlert';
 import { getMessage } from '../../utils';
 import { isContentTypeEligible, resolveGlobalLikeId } from './utils/functions';
+import { PermanentAlert } from '../../components/Alert/styles';
 
 const SettingsPage = () => {
   const { lockApp, unlockApp } = useOverlayBlocker();
@@ -109,11 +110,24 @@ const SettingsPage = () => {
     )
   }
 
+  const configContentTypes = navigationConfigData?.contentTypes || [];
+
   const allContentTypes = !isLoading && Object.values(allContentTypesData).filter(({ uid }) => isContentTypeEligible(uid, {
     allowedContentTypes: navigationConfigData?.allowedContentTypes,
     restrictedContentTypes: navigationConfigData?.restrictedContentTypes,
-  }));
-  const selectedContentTypes = navigationConfigData?.contentTypes.map(item => item.uid);
+  })).map(ct => {
+    const type = configContentTypes.find(_ => _.uid === ct.uid);
+    if (type) {
+      const { available, isSingle } = type;
+      return {
+        ...ct,
+        available,
+        isSingle,
+      };
+    }
+    return ct;
+  });
+  const selectedContentTypes = configContentTypes.map(item => item.uid);
   const audienceFieldChecked = navigationConfigData?.additionalFields.includes(navigationItemAdditionalFields.AUDIENCE);
   const allowedLevels = navigationConfigData?.allowedLevels || 2;
   const nameFields = navigationConfigData?.contentTypesNameFields || {}
@@ -188,7 +202,7 @@ const SettingsPage = () => {
                                 <Information aria-hidden={true} />
                               </Tooltip>}>
                               {orderBy(values.selectedContentTypes).map(uid => {
-                                const { attributes, info: { displayName } } = allContentTypes.find(item => item.uid == uid);
+                                const { attributes, info: { displayName }, available, isSingle } = allContentTypes.find(item => item.uid == uid);
                                 const stringAttributes = Object.keys(attributes).filter(_ => attributes[_].type === 'string');
                                 const relationAttributes = Object.keys(attributes).filter(_ => attributes[_].type === 'relation');
                                 const key = `collectionSettings-${uid}`;
@@ -198,10 +212,14 @@ const SettingsPage = () => {
                                   key={key}
                                   id={key}
                                   size="S">
-                                  <AccordionToggle title={displayName} togglePosition="left" />
+                                  <AccordionToggle title={displayName} togglePosition="left" startIcon={(isSingle && !available) && (<ExclamationMarkCircle aria-hidden={true} />)} />
                                   <AccordionContent>
                                     <Box padding={6}>
                                       <Stack spacing={4}>
+                                        { (isSingle && !available) && (
+                                          <PermanentAlert title={getMessage('pages.settings.form.contentTypesSettings.initializationWarning.title')} variant="danger" onClose={(e) => e.preventDefault()}>
+                                            { getMessage('pages.settings.form.contentTypesSettings.initializationWarning.content') }
+                                          </PermanentAlert>)}
                                         <Select
                                           name={`collectionSettings-${uid}-entryLabel`}
                                           label={getMessage('pages.settings.form.nameField.label')}
