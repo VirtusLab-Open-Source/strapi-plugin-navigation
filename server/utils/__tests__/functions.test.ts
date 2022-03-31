@@ -1,5 +1,5 @@
 import { IStrapi } from "strapi-typed";
-import { NavigationItem } from "../../../types";
+import { NavigationItemEntity } from "../../../types";
 
 import setupStrapi from '../../../__mocks__/strapi';
 import { buildNestedPaths, extractMeta, filterByPath } from "../functions";
@@ -16,7 +16,7 @@ describe('Utilities functions', () => {
 			const { itemModel } = extractMeta(strapi.plugins);
 			const rootPath = '/home/side';
 			const entities = await strapi
-				.query<NavigationItem>(itemModel.uid)
+				.query<NavigationItemEntity>(itemModel.uid)
 				.findMany({
 					where: {
 						master: 1
@@ -32,7 +32,7 @@ describe('Utilities functions', () => {
 			const { itemModel } = extractMeta(strapi.plugins);
 			const rootPath = '/home/side';
 			const entities = await strapi
-				.query<NavigationItem>(itemModel.uid)
+				.query<NavigationItemEntity>(itemModel.uid)
 				.findMany({
 					where: {
 						master: 1

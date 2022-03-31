@@ -1,7 +1,7 @@
-import { StrapiRoutes, StrapiRoutesTypes } from "../../types";
+import { StrapiRoutes } from "../../types";
 
 const routes: StrapiRoutes = {
-  type: StrapiRoutesTypes.ADMIN,
+  type: 'admin',
   routes: [
     {
       method: 'GET',

@@ -1,6 +1,6 @@
-import { StrapiConfig } from "../../types";
+import { NavigationPluginConfig, StrapiConfig } from "../../types";
 
-const config: StrapiConfig = {
+const config: StrapiConfig<NavigationPluginConfig> = {
 	default: {
 		additionalFields: [],
 		contentTypes: [],

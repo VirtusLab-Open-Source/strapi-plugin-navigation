@@ -1,19 +1,19 @@
-import { first, get, isEmpty, isNil, isObject, isString, last, toNumber } from "lodash";
+import { first, get, isEmpty, isNil, isString, last, toNumber } from "lodash";
 import slugify from "slugify";
 import { Id, StrapiContext } from "strapi-typed";
 import { validate } from "uuid";
-import { Audience, IAdminService, IClientService, ICommonService, Navigation, NavigationItem, NavigationItemRelated, NavigationItemType, RenderType, RFRNavItem } from "../../types"
+import { ContentTypeEntity, IAdminService, IClientService, ICommonService, Navigation, NavigationItem, NavigationItemEntity, NestedStructure, RenderType, RFRNavItem, ToBeFixed } from "../../types"
 import { composeItemTitle, extractMeta, filterByPath, filterOutUnpublished, getPluginService, templateNameFactory } from "../utils";
 //@ts-ignore
 import errors from '@strapi/utils';
 
 const clientService: (context: StrapiContext) => IClientService = ({ strapi }) => ({
 	async render(
-		idOrSlug: Id | string,
-		type: RenderType = RenderType.FLAT,
+		idOrSlug: Id,
+		type: RenderType = 'flat',
 		menuOnly: boolean = false,
 		rootPath: string | null = null,
-	): Promise<Array<NavigationItem>> {
+	) {
 		const clientService = getPluginService<IClientService>('client');
 
 		const findById = !isNaN(toNumber(idOrSlug)) || validate(idOrSlug as string);
@@ -23,26 +23,26 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
 	},
 
 	async renderChildren(
-		idOrSlug: Id | string,
-		childUIKey: string,
-		type: RenderType = RenderType.FLAT,
-		menuOnly: boolean = false,
-	): Promise<NavigationItem[]> {
-		const clientService = getPluginService<IClientService>('client');
-		const findById = !isNaN(toNumber(idOrSlug)) || validate(idOrSlug as string);
-		const criteria = findById ? { id: idOrSlug } : { slug: idOrSlug };
-		const filter = type === RenderType.FLAT ? null : childUIKey;
+      idOrSlug: Id | string,
+      childUIKey: string,
+      type: RenderType = 'flat',
+      menuOnly: boolean = false,
+    ) {
+			const clientService = getPluginService<IClientService>('client');
+      const findById = !isNaN(toNumber(idOrSlug)) || validate(idOrSlug as string);
+      const criteria = findById ? { id: idOrSlug } : { slug: idOrSlug };
+      const filter = type === 'flat' ? null : childUIKey;
 
-		const itemCriteria = {
-			...(menuOnly && { menuAttached: true }),
-			...(type === RenderType.FLAT ? { uiRouterKey: childUIKey } : {}),
-		};
+      const itemCriteria = {
+        ...(menuOnly && { menuAttached: true }),
+        ...(type === 'flat' ? { uiRouterKey: childUIKey } : {}),
+      };
 
 		return clientService.renderType(type, criteria, itemCriteria, filter, null);
 	},
 
 	renderRFR(
-		items: Array<NavigationItem>,
+		items: NestedStructure<NavigationItem>[],
 		parent: Id | null = null,
 		parentNavItem: RFRNavItem | null = null,
 		contentTypes = []
@@ -60,7 +60,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
 				parent,
 			);
 
-			if (item.type === NavigationItemType.INTERNAL) {
+			if (item.type === "INTERNAL") {
 				pages = {
 					...pages,
 					[itemPage.id]: {
@@ -80,23 +80,23 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
 				};
 			} else {
 				const navLevel = navItems
-					.filter(navItem => navItem.type === NavigationItemType.INTERNAL.toLowerCase());
+					.filter(navItem => navItem.type === "INTERNAL");
 				if (!isEmpty(navLevel))
 					nav = {
 						...nav,
-						[parent]: ([] as RFRNavItem[]).concat(parentNavItem ? parentNavItem : [], navLevel),
+						[parent]: navLevel.concat(parentNavItem ? parentNavItem : []),
 					};
 			}
 
 			if (!isEmpty(itemChilds)) {
 				const { nav: nestedNavs } = clientService.renderRFR(
-					itemChilds as NavigationItem[],
+					itemChilds,
 					itemPage.id,
 					itemNav,
 					contentTypes,
 				);
 				const { pages: nestedPages } = clientService.renderRFR(
-					(itemChilds as NavigationItem[]).filter(child => child.type === NavigationItemType.INTERNAL),
+					(itemChilds).filter(child => child.type === "INTERNAL"),
 					itemPage.id,
 					itemNav,
 					contentTypes,
@@ -125,24 +125,24 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
 		return {
 			label: title,
 			type: type,
-			page: type === NavigationItemType.INTERNAL ? uiRouterKey : undefined,
-			url: type === NavigationItemType.EXTERNAL ? path : undefined,
+			page: type === "INTERNAL" ? uiRouterKey : undefined,
+			url: type === "EXTERNAL" ? path : undefined,
 			audience,
 		};
 	},
 
 	renderRFRPage(
-		item: NavigationItem,
+		item: NavigationItem & { related: ToBeFixed },
 		parent: Id | null,
 	) {
 		const { uiRouterKey, title, path, slug, related, type, audience, menuAttached } = item;
-		const { __contentType, id, __templateName } = related as NavigationItemRelated || {};
+		const { __contentType, id, __templateName } = related || {};
 		const contentType = __contentType || '';
 		return {
 			id: uiRouterKey,
 			title,
 			templateName: __templateName,
-			related: type === NavigationItemType.INTERNAL ? {
+			related: type === "INTERNAL" ? {
 				contentType,
 				id,
 			} : undefined,
@@ -155,12 +155,12 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
 	},
 
 	renderTree(
-		items: Array<NavigationItem> = [],
+		items: Array<NavigationItemEntity<ContentTypeEntity>> = [],
 		id: Id | null = null,
-		field: keyof NavigationItem = 'parent',
+		field: keyof NavigationItemEntity = 'parent',
 		path: string = '',
-		itemParser: (item: NavigationItem, path: string, field: keyof NavigationItem) => NavigationItem = (i) => i,
-	): Array<NavigationItem> {
+		itemParser: ToBeFixed = (i: ToBeFixed) => i,
+	): ToBeFixed {
 		return items
 			.filter(
 				(item) => {
@@ -171,7 +171,11 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
 					if (data && typeof id === 'string') {
 						data = data.toString();
 					}
-					return (data && data === id) || (isObject(item[field]) && !isNil(item[field]) && ((item[field] as NavigationItem)!.id === id));
+					if (!!data && typeof data === 'object' && 'id' in data) {
+						return data.id === id
+					}
+
+					return (data && data === id);
 				},
 			)
 			.filter(filterOutUnpublished)
@@ -187,12 +191,12 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
 	},
 
 	async renderType(
-		type: RenderType = RenderType.FLAT,
+		type: RenderType = 'flat',
 		criteria = {},
 		itemCriteria = {},
 		filter = null,
 		rootPath: string | null = null
-	): Promise<Array<NavigationItem>> {
+	) {
 		const clientService = getPluginService<IClientService>('client');
 		const adminService = getPluginService<IAdminService>('admin');
 		const commonService = getPluginService<ICommonService>('common');
@@ -210,7 +214,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
 				}
 			});
 		if (entity && entity.id) {
-			const entities = await strapi.query<NavigationItem>(itemModel.uid).findMany({
+			const entities = await strapi.query<NavigationItemEntity>(itemModel.uid).findMany({
 				where: {
 					master: entity.id,
 					...itemCriteria,
@@ -227,17 +231,17 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
 			const { contentTypes, contentTypesNameFields } = await adminService.config(false);
 
 			switch (type) {
-				case RenderType.TREE:
-				case RenderType.RFR:
+				case 'tree':
+				case 'rfr':
 					const getTemplateName = await templateNameFactory(items, strapi, contentTypes);
-					const itemParser = (item: NavigationItem, path: string = '', field: keyof NavigationItem): NavigationItem => {
-						const isExternal = item.type === NavigationItemType.EXTERNAL;
+					const itemParser = (item: NavigationItemEntity<ContentTypeEntity[]>, path: string = '', field: keyof NavigationItemEntity) => {
+						const isExternal = item.type === "EXTERNAL";
 						const parentPath = isExternal ? undefined : `${path === '/' ? '' : path}/${first(item.path) === '/'
 							? item.path!.substring(1)
 							: item.path}`;
 						const slug = isString(parentPath) ? slugify(
 							(first(parentPath) === '/' ? parentPath.substring(1) : parentPath).replace(/\//g, '-')) : undefined;
-						const lastRelated = item.related ? last(item.related as Array<NavigationItemRelated>) : undefined;
+						const lastRelated = item.related ? last(item.related) : undefined;
 						return {
 							id: item.id,
 							title: composeItemTitle(item, contentTypesNameFields, contentTypes),
@@ -250,9 +254,9 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
 							external: isExternal,
 							related: isExternal || !lastRelated ? undefined : {
 								...lastRelated,
-								__templateName: getTemplateName((lastRelated.relatedType || lastRelated.__contentType) as string, lastRelated.id),
+								__templateName: getTemplateName((lastRelated.relatedType || lastRelated.__contentType), lastRelated.id),
 							},
-							audience: !isEmpty(item.audience) ? item.audience!.map(aItem => (aItem as Audience).key) : undefined,
+							audience: !isEmpty(item.audience) ? item.audience!.map(aItem => (aItem).key) : undefined,
 							items: isExternal ? undefined : clientService.renderTree(
 								items,
 								item.id,
@@ -280,7 +284,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
 						? treeStructure.filter((item: NavigationItem) => item.uiRouterKey === filter)
 						: treeStructure;
 
-					if (type === RenderType.RFR) {
+					if (type === "rfr") {
 						return clientService.renderRFR(
 							filteredStructure,
 							null,
@@ -290,13 +294,13 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
 					}
 					return filteredStructure;
 				default:
-					const publishedItems: Array<NavigationItem> = items
+					const publishedItems = items
 						.filter(filterOutUnpublished)
-						.map((item: NavigationItem) => ({
+						.map((item: NavigationItemEntity<ContentTypeEntity>) => ({
 							...item,
-							audience: item.audience?.map(_ => (_ as Audience).key),
+							audience: item.audience?.map(_ => (_).key),
 							title: composeItemTitle(item, contentTypesNameFields, contentTypes) || '',
-							related: (item.related as NavigationItemRelated[])?.map(({ localizations, ...item }) => item),
+							related: item.related,//omit(item.related, 'localizations'),
 							items: null,
 						}));
 					return isNil(rootPath) ? items : filterByPath(publishedItems, rootPath).items;

@@ -12,7 +12,7 @@ import {
 } from 'lodash';
 import { Id, IStrapi, StrapiContentType, StrapiPlugin } from "strapi-typed";
 
-import { AuditLogContext, AuditLogParams, ContentTypeEntity, NavigationActions, NavigationItem, NavigationItemRelated, NavigationItemType, NestedPath, PluginConfigNameFields, ToBeFixed } from "../../types";
+import { AuditLogContext, AuditLogParams, ContentTypeEntity, NavigationActions, NavigationItem, NavigationItemEntity, NestedPath, NestedStructure, PluginConfigNameFields, ToBeFixed } from "../../types";
 import { NavigationError } from '../../utils/NavigationError';
 import { TEMPLATE_DEFAULT, ALLOWED_CONTENT_TYPES, RESTRICTED_CONTENT_TYPES} from './constant';
 declare var strapi: IStrapi;
@@ -40,13 +40,15 @@ export const parseParams = (params: ToBeFixed): any =>
 
 
 export const templateNameFactory = async (
-  items: Array<NavigationItem> = [],
+  items: Array<NavigationItemEntity<ContentTypeEntity[] | ContentTypeEntity>> = [],
   strapi: IStrapi,
   contentTypes: Array<StrapiContentType<any>> = [],
 ) => {
   const flatRelated = flatten(items.map(i => i.related)).filter(_ => !!_);
-  const relatedMap = (flatRelated as NavigationItemRelated[]).reduce((acc: { [key: string]: Array<Id> }, curr) => {
-    const index = curr.__contentType as string;
+  const relatedMap = (flatRelated).reduce((acc: { [key: string]: Array<Id> }, curr) => {
+    if (curr === null) return acc;
+    const index = curr.__contentType;
+    if (typeof index !== 'string') return acc;
     if (!acc[index]) {
       acc[index] = [];
     }
@@ -61,7 +63,7 @@ export const templateNameFactory = async (
           return strapi.query<ContentTypeEntity>(contentTypeUid)
             .findMany({
               where: { id: { $in: ids } },
-              limit: -1
+              limit: Number.MAX_SAFE_INTEGER,
             })
             .then(res => ({ [contentType]: res }))
         }),
@@ -73,10 +75,10 @@ export const templateNameFactory = async (
       .map(({ contentTypeName, templateName }) => [contentTypeName, templateName || contentTypeName])
   );
 
-  return (contentType: string, id: Id) => {
-    const template: Array<ToBeFixed> = get(relatedResponseMap[contentType].find(data => data.id === id), 'template');
+  return (contentType: ToBeFixed, id: Id) => {
+    const template = get(relatedResponseMap[contentType].find(data => data.id === id), 'template');
 
-    if (template) {
+    if (template && template instanceof Array) {
       const templateComponent = getTemplateComponentFromTemplate(strapi, template);
       return get(templateComponent, 'options.templateName', TEMPLATE_DEFAULT);
     }
@@ -123,15 +125,17 @@ export const sendAuditLog = (
 };
 
 export const composeItemTitle = (
-  item: NavigationItem,
+  item: NavigationItemEntity<ContentTypeEntity[] | ContentTypeEntity>,
   fields: PluginConfigNameFields = {},
   contentTypes: Array<StrapiContentType<any>> = []
 ): string | undefined => {
   const { title, related } = item;
+  const lastRelated = isArray(related) ? last(related) : related;
+
   if (title) {
     return isString(title) && !isEmpty(title) ? title : undefined;
-  } else if (related) {
-    const relationTitle = extractItemRelationTitle((isArray(related) ? last(related) : related) as NavigationItemRelated, fields, contentTypes);
+  } else if (lastRelated) {
+    const relationTitle = extractItemRelationTitle(lastRelated, fields, contentTypes);
     return isString(relationTitle) && !isEmpty(relationTitle) ? relationTitle : undefined;
   }
   return undefined;
@@ -149,18 +153,18 @@ export const extractItemRelationTitle = (
 };
 
 export const filterOutUnpublished = (
-  item: NavigationItem
+  item: NavigationItemEntity<ContentTypeEntity | ContentTypeEntity[]>
 ) => {
-  const relatedItem = item.related && last(item.related as NavigationItemRelated[]);
+  const relatedItem = item.related && (isArray(item.related) ? last(item.related) : item.related);
   const isHandledByPublishFlow = relatedItem ? 'published_at' in relatedItem : false;
 
   if (isHandledByPublishFlow) {
     const isRelatedDefinedAndPublished = relatedItem ?
       isHandledByPublishFlow && get(relatedItem, 'published_at') :
       false;
-    return item.type === NavigationItemType.INTERNAL ? isRelatedDefinedAndPublished : true;
+    return item.type === "INTERNAL" ? isRelatedDefinedAndPublished : true;
   }
-  return (item.type !== NavigationItemType.INTERNAL) || relatedItem;
+  return (item.type !== "INTERNAL") || relatedItem;
 };
 
 export const checkDuplicatePath = (
@@ -170,8 +174,8 @@ export const checkDuplicatePath = (
   return new Promise((resolve, reject) => {
     if (parentItem && parentItem.items) {
       for (let item of checkData) {
-        for (let _ of parentItem.items as NavigationItem[]) {
-          if (_.path === item.path && (_.id !== item.id) && (item.type === NavigationItemType.INTERNAL)) {
+        for (let _ of parentItem.items) {
+          if (_.path === item.path && (_.id !== item.id) && (item.type === "INTERNAL")) {
             return reject(
               new NavigationError(
                 `Duplicate path:${item.path} in parent: ${parentItem.title || 'root'} for ${item.title} and ${_.title} items`,
@@ -212,10 +216,10 @@ export const extractMeta = (
 };
 
 export const buildNestedStructure = (
-  entities: Array<NavigationItem>,
+  entities: Array<NavigationItemEntity<ContentTypeEntity>>,
   id: Id | null = null,
-  field: keyof NavigationItem = 'parent',
-): Array<NavigationItem> => {
+  field: keyof NavigationItemEntity = 'parent',
+): Array<NestedStructure<NavigationItemEntity<ContentTypeEntity>>> => {
   return entities
     .filter(entity => {
       let data = entity[field];
@@ -225,33 +229,35 @@ export const buildNestedStructure = (
       if (data && typeof id === 'string') {
         data = data.toString();
       }
-      return (data && data === id) || (isObject(entity[field]) && ((entity[field] as NavigationItem).id === id));
+      if (!!data && typeof data === 'object' && 'id' in data) {
+        return (data).id === id
+      }
+      return (data && data === id) 
     })
     .map(entity => {
       return ({
         ...entity,
-        related: !isEmpty(entity.related) ? last(entity.related as ArrayLike<any>) : entity.related,
+        related: entity.related,
         items: buildNestedStructure(entities, entity.id, field),
       });
     });
 };
 
-export const buildNestedPaths = (
-  items: Array<NavigationItem>,
+export const buildNestedPaths = <T extends Pick<NavigationItemEntity, 'parent' | 'id' | 'path'>>(
+  items: T[],
   id: Id | null = null,
-  field: keyof NavigationItem = 'parent',
   parentPath: string | null = null
-): Array<NestedPath> => {
+): NestedPath[] => {
   return items
     .filter(entity => {
-      let data = entity[field];
+      let data: NavigationItemEntity | string | null = entity.parent;
       if (data == null && id === null) {
         return true;
       }
       if (data && typeof id === 'string') {
         data = data.toString();
       }
-      return (data && data === id) || (isObject(entity[field]) && ((entity[field] as NavigationItem).id === id));
+      return (data && data === id) || (isObject(entity.parent) && ((entity.parent).id === id));
     })
     .reduce((acc: Array<NestedPath>, entity) => {
       const path = `${parentPath || ''}/${entity.path}`
@@ -260,20 +266,20 @@ export const buildNestedPaths = (
           id: entity.id,
           parent: parentPath ? {
             id: get(entity, 'parent.id'),
-            path: parentPath as string,
+            path: parentPath,
           } : undefined,
           path,
         },
-        ...buildNestedPaths(items, entity.id, field, path),
+        ...buildNestedPaths(items, entity.id, path),
         ...acc,
       ];
     }, []);
 };
 
-export const filterByPath = (
-  items: Array<NavigationItem>,
+export const filterByPath = <T extends Pick<NavigationItemEntity, 'parent' | 'id' | 'path'>>(
+  items: T[] ,
   path: string | null,
-): { root?: NestedPath, items: Array<NavigationItem> } => {
+): { root?: NestedPath, items: T[] } => {
   const itemsWithPaths = path ? buildNestedPaths(items).filter(({ path: itemPath }) => itemPath.includes(path)) : [];
   const root = itemsWithPaths.find(({ path: itemPath }) => itemPath === path);
 

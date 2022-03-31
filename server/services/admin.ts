@@ -1,7 +1,7 @@
 import slugify from "slugify";
 import { isNil, isObject } from "lodash";
 import { Id, StrapiContext } from "strapi-typed";
-import { Audience, AuditLogContext, IAdminService, ICommonService, Navigation, NavigationItem, NavigationPluginConfig, ToBeFixed } from "../../types";
+import { Audience, AuditLogContext, IAdminService, ICommonService, Navigation, NavigationItemEntity, NavigationPluginConfig, ToBeFixed } from "../../types";
 import { ADDITIONAL_FIELDS, ALLOWED_CONTENT_TYPES, buildNestedStructure, CONTENT_TYPES_NAME_FIELDS_DEFAULTS, extractMeta, getPluginService, prepareAuditLog, RESTRICTED_CONTENT_TYPES, sendAuditLog } from "../utils";
 
 const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => ({
@@ -75,7 +75,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
 			.findOne({ where: { id } });
 
 		const entityItems = await strapi
-			.query<NavigationItem>(itemModel.uid)
+			.query<NavigationItemEntity>(itemModel.uid)
 			.findMany({
 				where: {
 					master: id,
@@ -138,7 +138,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
 			});
 		}
 		return commonService
-			.analyzeBranch(payload.items, existingEntity, null, {})
+			.analyzeBranch(payload.items, existingEntity)
 			.then((auditLogsOperations: ToBeFixed) =>
 				Promise.all([
 					auditLog ? prepareAuditLog((auditLogsOperations || []).flat(Number.MAX_SAFE_INTEGER)) : [],

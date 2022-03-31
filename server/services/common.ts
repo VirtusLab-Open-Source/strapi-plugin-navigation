@@ -1,14 +1,14 @@
 import { find, get, isEmpty, isNil, last, map, upperFirst } from "lodash";
 import pluralize from "pluralize";
 import { Id, StrapiContentType, StrapiContext, StrapiStore } from "strapi-typed";
-import { ContentTypeEntity, ICommonService, Navigation, NavigationActions, NavigationActionsPerItem, NavigationItem, NavigationItemRelated, NavigationPluginConfig, ToBeFixed } from "../../types";
+import { ContentTypeEntity, ICommonService, Navigation, NavigationActions, NavigationActionsPerItem, NavigationItem, NavigationItemEntity, NavigationItemRelated, NavigationPluginConfig, NestedStructure, RelatedRef, ToBeFixed } from "../../types";
 import { checkDuplicatePath, extractMeta, getPluginService, isContentTypeEligible, KIND_TYPES, singularize } from "../utils";
 
 const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) => ({
 	analyzeBranch(
-		items: Array<NavigationItem> = [],
+		items: NestedStructure<NavigationItem>[] = [],
 		masterEntity: Navigation | null = null,
-		parentItem: NavigationItem | null = null,
+		parentItem: NavigationItemEntity | null = null,
 		prevOperations: NavigationActions = {},
 	): Promise<Array<NavigationActionsPerItem>> {
 		const commonService = getPluginService<ICommonService>('common');
@@ -79,11 +79,13 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
 							return returnType(true);
 						},
 					),
-			) as Array<{ key: string, available: boolean }>;
+			)
 
 		return eligibleContentTypes
 			.filter(key => key)
-			.map(({ key, available }) => {
+			.map((value) => {
+				if (value === undefined) return;
+				const { key, available } = value;
 				const item = strapi.contentTypes[key];
 				const relatedField = (item.associations || []).find((_: ToBeFixed) => _.model === 'navigationitem');
 				const { uid, options, info, collectionName, modelName, apiName, plugin, kind, pluginOptions } = item;
@@ -97,7 +99,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
 				const isSingle = kind === KIND_TYPES.SINGLE;
 				const endpoint = isSingle ? apiPath : pluralize(apiPath);
 				const relationName = singularize(modelName);
-				const relationNameParts = last((uid as string).split('.'))!.split('-');
+				const relationNameParts = typeof uid === 'string' ? last((uid).split('.'))!.split('-') : [];
 				const contentTypeName = relationNameParts.length > 1 ? relationNameParts.reduce(
 					(prev, curr) => `${prev}${upperFirst(curr)}`, '') : upperFirst(modelName);
 				const labelSingular = name ||
@@ -123,9 +125,9 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
 	},
 
 	createBranch(
-		items: Array<NavigationItem> = [],
+		items: NestedStructure<NavigationItem>[] = [],
 		masterEntity: Navigation | null = null,
-		parentItem: NavigationItem | null = null,
+		parentItem: NavigationItemEntity | null = null,
 		operations: NavigationActions = {}
 	) {
 		const commonService = getPluginService<ICommonService>('common');
@@ -134,7 +136,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
 			items.map(async (item) => {
 				operations.create = true;
 				const { parent, master, related, ...params } = item;
-				const relatedItems = await this.getIdsRelated(related as NavigationItemRelated[], master as Navigation);
+				const relatedItems = await this.getIdsRelated(related, master);
 				const data = {
 					...params,
 					related: relatedItems,
@@ -142,11 +144,11 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
 					parent: parentItem ? { ...parentItem, _id: parentItem.id } : null,
 				}
 				const navigationItem = await strapi
-					.query<NavigationItem>(itemModel.uid)
+					.query<NavigationItemEntity>(itemModel.uid)
 					.create({ data, populate: ['related', 'items'] });
 				return !isEmpty(item.items)
 					? commonService.createBranch(
-						item.items as NavigationItem[],
+						item.items,
 						masterEntity,
 						navigationItem,
 						operations,
@@ -187,8 +189,8 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
 	},
 
 	getIdsRelated(
-		relatedItems: Array<NavigationItemRelated> | null,
-		master: Navigation,
+		relatedItems: Array<RelatedRef> | null,
+		master: number,
 	): Promise<Array<Id | undefined>> | void {
 		if (relatedItems) {
 			return Promise.all(relatedItems.map(async relatedItem => {
@@ -225,11 +227,11 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
 		return await strapi.store({ type: 'plugin', name: 'navigation' });
 	},
 
-	async getRelatedItems(entityItems: NavigationItem[]): Promise<NavigationItem[]> {
+	async getRelatedItems(entityItems): Promise<NavigationItemEntity<ContentTypeEntity>[]> {
 		const commonService = getPluginService<ICommonService>('common');
 		const pluginStore = await commonService.getPluginStore();
 		const config: NavigationPluginConfig = await pluginStore.get({ key: 'config' });
-		const relatedTypes: Set<string> = new Set(entityItems.flatMap((item) => get(item.related, 'related_type')));
+		const relatedTypes: Set<string> = new Set(entityItems.flatMap((item) => get(item.related, 'related_type', '')));
 		const groupedItems = Array.from(relatedTypes).filter((relatedType) => relatedType).reduce((
 			acc: { [uid: string]: NavigationItemRelated[] },
 			relatedType
@@ -242,7 +244,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
 			],
 		}), {});
 
-		const data = new Map(
+		const data: Map<number, ContentTypeEntity> = new Map(
 			(
 				await Promise.all(
 					Object.entries(groupedItems)
@@ -276,14 +278,14 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
 			.map(({ related, ...item }) => {
 				const relatedData = data.get(item.id);
 				if (relatedData) {
-					return Object.assign(item, { related: [relatedData] });
+					return Object.assign(item, { related: relatedData });
 				}
-				return item;
+				return { ...item, related: null };
 			});
 	},
 
 	removeBranch(
-		items: NavigationItem[] = [],
+		items: NestedStructure<NavigationItem>[] = [],
 		operations: NavigationActions = {}
 	) {
 		const commonService = getPluginService<ICommonService>('common');
@@ -298,11 +300,11 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
 						strapi
 							.query<NavigationItem>(itemModel.uid)
 							.delete({ where: { id } }),
-						this.removeRelated(related as NavigationItemRelated[], master as Navigation),
+						this.removeRelated(related, master),
 					]);
 					return !isEmpty(item.items)
 						? commonService.removeBranch(
-							item.items as NavigationItem[],
+							item.items,
 							operations,
 						)
 						: operations;
@@ -311,8 +313,8 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
 	},
 
 	removeRelated(
-		relatedItems: Array<NavigationItemRelated>,
-		master: Navigation,
+		relatedItems: Array<RelatedRef>,
+		master: number,
 	): ToBeFixed {
 		return Promise.all((relatedItems || []).map(relatedItem => {
 			const model = strapi.query<NavigationItemRelated>('plugin::navigation.navigations-items-related');
@@ -348,21 +350,21 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
 	},
 
 	async updateBranch(
-		toUpdate: NavigationItem[],
+		toUpdate: NestedStructure<NavigationItem>[],
 		masterEntity: Navigation | null,
-		parentItem: NavigationItem | null,
+		parentItem: NavigationItemEntity | null,
 		operations: NavigationActions
 	) {
 		const commonService = getPluginService<ICommonService>('common');
 		const { itemModel } = extractMeta(strapi.plugins);
-		const databaseModel = strapi.query<NavigationItem>(itemModel.uid);
+		const databaseModel = strapi.query<NavigationItemEntity>(itemModel.uid);
 		return Promise.all(
 			toUpdate.map(async (item) => {
 				operations.update = true;
 				const { id, updated, parent, master, related, items, ...params } = item;
 				let currentItem;
 				if (updated) {
-					const relatedItems = await this.getIdsRelated(related as NavigationItemRelated[], master as Navigation);
+					const relatedItems = await this.getIdsRelated(related, master);
 					currentItem = await databaseModel
 						.update({
 							where: { id },
@@ -378,7 +380,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
 				}
 				return !isEmpty(items)
 					? commonService.analyzeBranch(
-						items as NavigationItem[],
+						items,
 						masterEntity,
 						currentItem,
 						operations,

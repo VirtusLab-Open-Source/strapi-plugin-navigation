@@ -1,36 +1,59 @@
+import { Id } from "strapi-typed";
 import { ToBeFixed } from "./utils";
-
-export type RelationOneToOne<ContentType> = ContentType | number | null;
-export type RelationManyToOne<ContentType> = Array<ContentType | number> | ContentType | number | null;
-export type RelationOneToMany<ContentType> = Array<ContentType | number> | null;
-
-export type Id = number | string;
 
 export type Navigation = {
     id: Id;
     name: string;
     slug: string;
     visible?: boolean;
-    items?: RelationOneToMany<NavigationItem>;
+    items?: NavigationItemEntity<ToBeFixed>[];
+    createdAt: string;
+    updatedAt: string;
 }
-export type NavigationItem = {
-    id: Id;
-    title?: string;
-    type: NavigationItemType;
-    path?: string;
+
+export type NavigationItem = NavigationItemPartial & {
+    id?: number;
+    master: number;
+    parent: number | null;
+    audience: string[];
     externalPath?: string;
-    uiRouterKey?: string;
-    menuAttached?: boolean;
-    order?: number;
-    related?: RelationManyToOne<NavigationItemRelated>;
-    parent?: RelationManyToOne<NavigationItem>;
-    master?: RelationManyToOne<Navigation>;
-    audience?: RelationOneToMany<Audience | string>;
-    items?: Array<NavigationItem> | null;
-    slug?: string;
-    removed?: boolean;
-    updated?: boolean;
-    external?: boolean;
+    path?: string;
+    related: RelatedRef[];
+    removed: boolean;
+    updated: boolean;
+    slug?: string
+}
+
+export type NavigationItemEntity<RelatedType = NavigationItemRelated> = NavigationItemPartial & EntityDatePartial & {
+    id: number;
+    parent: NavigationItemEntity | null;
+    master: Navigation;
+    audience: Audience[];
+    path: string | null;
+    externalPath: string | null;
+    related: RelatedType | null;
+}
+
+type NavigationItemPartial = {
+    title: string;
+    type: NavigationItemType;
+    collapsed: boolean;
+    menuAttached: boolean;
+    order: number;
+    uiRouterKey: string;
+}
+
+export type NestedStructure<T> = T & {
+    items: NestedStructure<T>[]
+}
+
+export type RelatedRef = {
+    id: number;
+    refId: number;
+    ref: string;
+    field: string;
+    __templateName?: string;
+    __contentType?: string;
 }
 
 export type Audience = {
@@ -55,8 +78,9 @@ export type NavigationItemRelated = {
     ref?: string;
 };
 
-export enum NavigationItemType {
-    INTERNAL = "INTERNAL",
-    EXTERNAL = "EXTERNAL",
-    WRAPPER = "WRAPPER",
+export type NavigationItemType = "INTERNAL" | "EXTERNAL" | "WRAPPER";
+
+type EntityDatePartial = {
+    createdAt: string;
+    updatedAt: string;
 }
