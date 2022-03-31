@@ -1,5 +1,5 @@
 import { IStrapi } from "strapi-typed";
-import { IClientService, RenderType } from "../../../types";
+import { IClientService } from "../../../types";
 
 import setupStrapi from '../../../__mocks__/strapi';
 import { getPluginService } from "../../utils";
@@ -35,19 +35,19 @@ describe('Navigation services', () => {
   });
 
   describe('Render navigation', () => {
-    // it('Can render branch in flat format', async () => {
-		// 	const clientService = getPluginService<IClientService>('client');
-		// 	const result = await clientService.render(1);
+    it('Can render branch in flat format', async () => {
+			const clientService = getPluginService<IClientService>('client');
+			const result = await clientService.render(1);
 
-    //   expect(result).toBeDefined()
-    //   expect(result.length).toBe(2)
-    // });
+      expect(result).toBeDefined()
+      expect(result.length).toBe(2)
+    });
 
     it('Can render branch in tree format', async () => {
 			const clientService = getPluginService<IClientService>('client');
 			const result = await clientService.render(
         1,
-        RenderType.TREE
+        'tree'
       );
 
       expect(result).toBeDefined()
@@ -58,7 +58,7 @@ describe('Navigation services', () => {
       const clientService = getPluginService<IClientService>('client');
 			const result = await clientService.render(
         1,
-        RenderType.RFR
+        'rfr'
       );
 
       expect(result).toBeDefined()
@@ -70,7 +70,7 @@ describe('Navigation services', () => {
       const clientService = getPluginService<IClientService>('client');
 			const result = await clientService.render(
         1,
-        RenderType.FLAT,
+        'flat',
         true,
       );
 
@@ -82,7 +82,7 @@ describe('Navigation services', () => {
       const clientService = getPluginService<IClientService>('client');
 			const result = await clientService.render(
         1,
-				RenderType.FLAT,
+				'flat',
 				false,
         '/home/side'
       );

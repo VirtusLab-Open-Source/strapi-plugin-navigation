@@ -1,18 +1,21 @@
-import { Audience, Id, Navigation, NavigationItem, NavigationItemType, RelationOneToMany } from "./contentTypes"
+import { Id } from "strapi-typed";
+import { Navigation, NavigationItem, NavigationItemType, NestedStructure } from "./contentTypes"
 
+export type NavigationActionsCategories = 'toCreate' | 'toUpdate' | 'toRemove';
+export type RenderType = "flat" | "tree" | "rfr";
+export type StrapiRoutesTypes = 'admin' | 'content-api';
 export type ToBeFixed = any;
 export type StrapiMap<T> = {
 	[uid: string]: T
 }
+
 export type NavigationActions = {
 	create?: boolean,
 	update?: boolean,
 	remove?: boolean,
 }
 
-export type NavigationActionsCategories = 'toCreate' | 'toUpdate' | 'toRemove';
-
-export type NavigationActionsPerItem = Record<NavigationActionsCategories, Array<NavigationItem>>;
+export type NavigationActionsPerItem = Record<NavigationActionsCategories, NestedStructure<NavigationItem>[]>;
 
 export type AuditLogContext = any;
 export type AuditLogParams = {
@@ -23,8 +26,7 @@ export type AuditLogParams = {
 
 export type ContentTypeEntity = {
 	id: Id,
-	[key: string]: any,
-}
+} & Record<string, unknown>;
 
 export type NestedPath = {
 	id: Id,
@@ -35,23 +37,13 @@ export type NestedPath = {
 	path: string
 }
 
-export enum RenderType {
-	FLAT = "flat",
-	TREE = "tree",
-	RFR = "rfr",
-}
 
 export type RFRNavItem = {
 	label?: string;
 	type: NavigationItemType;
 	page?: string;
 	url?: string;
-	audience?: RelationOneToMany<Audience | string>;
-}
-
-export enum StrapiRoutesTypes {
-    ADMIN = 'admin',
-    CONTENT_API = 'content-api',
+	audience?: string[];
 }
 
 export type StrapiRoute = {
