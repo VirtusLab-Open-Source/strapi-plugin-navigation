@@ -17,7 +17,7 @@
     "test:unit": "jest --verbose --coverage"
   },
   "dependencies": {
-    "@strapi/utils": "^4.1.5",
+    "@strapi/utils": "^4.1.6",
     "uuid": "^8.3.0",
     "lodash": "^4.17.11",
     "react": "^16.9.0",
