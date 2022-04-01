@@ -4,8 +4,8 @@ import admin from './admin';
 import client from './client';
 
 const controllers: NavigationController = {
-	admin,
-	client,
+  admin,
+  client,
 }
 
 export default controllers;
