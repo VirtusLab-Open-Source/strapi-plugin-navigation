@@ -17,7 +17,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
 		const allowedLevels = config.allowedLevels;
 		const isGQLPluginEnabled = !isNil(strapi.plugin('graphql'));
 
-		let extendedResult: Record<string, unknown>= {
+		let extendedResult: Record<string, unknown> = {
 			allowedContentTypes: ALLOWED_CONTENT_TYPES,
 			restrictedContentTypes: RESTRICTED_CONTENT_TYPES,
 		};
@@ -94,7 +94,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
 	async post(payload: ToBeFixed, auditLog: AuditLogContext) {
 		const commonService = getPluginService<ICommonService>('common');
 		const adminService = getPluginService<IAdminService>('admin');
-		
+
 		const { masterModel } = extractMeta(strapi.plugins);
 		const { name, visible } = payload;
 		const data = {

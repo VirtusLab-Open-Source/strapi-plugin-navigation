@@ -23,20 +23,20 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
 	},
 
 	async renderChildren(
-      idOrSlug: Id | string,
-      childUIKey: string,
-      type: RenderType = 'flat',
-      menuOnly: boolean = false,
-    ) {
-			const clientService = getPluginService<IClientService>('client');
-      const findById = !isNaN(toNumber(idOrSlug)) || validate(idOrSlug as string);
-      const criteria = findById ? { id: idOrSlug } : { slug: idOrSlug };
-      const filter = type === 'flat' ? null : childUIKey;
+		idOrSlug: Id,
+		childUIKey: string,
+		type: RenderType = 'flat',
+		menuOnly: boolean = false,
+	) {
+		const clientService = getPluginService<IClientService>('client');
+		const findById = !isNaN(toNumber(idOrSlug)) || validate(idOrSlug as string);
+		const criteria = findById ? { id: idOrSlug } : { slug: idOrSlug };
+		const filter = type === 'flat' ? null : childUIKey;
 
-      const itemCriteria = {
-        ...(menuOnly && { menuAttached: true }),
-        ...(type === 'flat' ? { uiRouterKey: childUIKey } : {}),
-      };
+		const itemCriteria = {
+			...(menuOnly && { menuAttached: true }),
+			...(type === 'flat' ? { uiRouterKey: childUIKey } : {}),
+		};
 
 		return clientService.renderType(type, criteria, itemCriteria, filter, null);
 	},
@@ -155,10 +155,10 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
 	},
 
 	renderTree(
-		items: Array<NavigationItemEntity<ContentTypeEntity>> = [],
+		items: NavigationItemEntity<ContentTypeEntity>[] = [],
 		id: Id | null = null,
 		field: keyof NavigationItemEntity = 'parent',
-		path: string = '',
+		path = '',
 		itemParser: ToBeFixed = (i: ToBeFixed) => i,
 	): ToBeFixed {
 		return items
@@ -234,7 +234,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
 				case 'tree':
 				case 'rfr':
 					const getTemplateName = await templateNameFactory(items, strapi, contentTypes);
-					const itemParser = (item: NavigationItemEntity<ContentTypeEntity[]>, path: string = '', field: keyof NavigationItemEntity) => {
+					const itemParser = (item: NavigationItemEntity<ContentTypeEntity[]>, path = '', field: keyof NavigationItemEntity) => {
 						const isExternal = item.type === "EXTERNAL";
 						const parentPath = isExternal ? undefined : `${path === '/' ? '' : path}/${first(item.path) === '/'
 							? item.path!.substring(1)

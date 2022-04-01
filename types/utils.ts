@@ -5,9 +5,7 @@ export type NavigationActionsCategories = 'toCreate' | 'toUpdate' | 'toRemove';
 export type RenderType = "flat" | "tree" | "rfr";
 export type StrapiRoutesTypes = 'admin' | 'content-api';
 export type ToBeFixed = any;
-export type StrapiMap<T> = {
-	[uid: string]: T
-}
+export type DateString = string;
 
 export type NavigationActions = {
 	create?: boolean,
@@ -47,15 +45,15 @@ export type RFRNavItem = {
 }
 
 export type StrapiRoute = {
-    method: string;
-    path: string;
-    handler: string;
-    config?: ToBeFixed;
+	method: string;
+	path: string;
+	handler: string;
+	config?: ToBeFixed;
 }
 
 export type StrapiRoutes = {
-    type: StrapiRoutesTypes;
-    routes: Array<StrapiRoute>;
+	type: StrapiRoutesTypes;
+	routes: StrapiRoute[];
 }
 
 export type StrapiControllerContext = any;
