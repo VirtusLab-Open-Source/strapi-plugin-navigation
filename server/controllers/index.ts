@@ -1,11 +1,11 @@
 import { NavigationController } from '../../types';
 
-import adminControllers from './admin';
-import clientControllers from './client';
+import admin from './admin';
+import client from './client';
 
 const controllers: NavigationController = {
-  admin: adminControllers,
-  client: clientControllers,
+	admin,
+	client,
 }
 
 export default controllers;

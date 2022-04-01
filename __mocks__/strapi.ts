@@ -1,6 +1,6 @@
-import { IStrapi, StrapiContentType, StrapiPlugin, StrapiDBQueryArgs } from "strapi-typed";
+import { IStrapi, StrapiContentType, StrapiPlugin, StrapiDBQueryArgs, StringMap } from "strapi-typed";
 import { default as defaultConfig } from '../server/config';
-import { StrapiMap, ToBeFixed } from "../types";
+import { ToBeFixed } from "../types";
 
 import { isMatch } from 'lodash';
 
@@ -140,7 +140,7 @@ const pageModelMock = {
 
 };
 
-const plugins = (strapi: IStrapi): StrapiMap<StrapiPlugin> => ({
+const plugins = (strapi: IStrapi): StringMap<StrapiPlugin> => ({
     navigation: {
         get services() { return require('../server/services') },
         service: (key: string) => (require('../server/services').default)[key]({ strapi }),
@@ -174,7 +174,7 @@ const preparePluginContentType = (schema: ToBeFixed, plugin: string) => {
 }
 
 declare var strapi: IStrapi;
-const strapiFactory = (plugins: (strapi: IStrapi) => StrapiMap<StrapiPlugin>, contentTypes: StrapiMap<StrapiContentType<any>>) => ({
+const strapiFactory = (plugins: (strapi: IStrapi) => StringMap<StrapiPlugin>, contentTypes: StringMap<StrapiContentType<ToBeFixed>>) => ({
     get plugins() { return plugins(strapi) },
     plugin: (name: string) => plugins(strapi)[name],
     get contentTypes() { return contentTypes },

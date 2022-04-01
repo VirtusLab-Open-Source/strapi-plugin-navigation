@@ -7,7 +7,7 @@ const config: StrapiConfig<NavigationPluginConfig> = {
 		contentTypesNameFields: {},
 		contentTypesPopulate: {},
 		allowedLevels: 2,
-		gql: { 
+		gql: {
 			navigationItemRelated: []
 		},
 	}

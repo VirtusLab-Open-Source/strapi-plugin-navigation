@@ -10,7 +10,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
 		masterEntity: Navigation | null = null,
 		parentItem: NavigationItemEntity | null = null,
 		prevOperations: NavigationActions = {},
-	): Promise<Array<NavigationActionsPerItem>> {
+	): Promise<NavigationActionsPerItem[]> {
 		const commonService = getPluginService<ICommonService>('common');
 		const { toCreate, toRemove, toUpdate } = items
 			.reduce((acc: NavigationActionsPerItem, _) => {
@@ -37,7 +37,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
 			));
 	},
 
-	async configContentTypes(viaSettingsPage: boolean = false): Promise<StrapiContentType<any>[]> {
+	async configContentTypes(viaSettingsPage: boolean = false): Promise<StrapiContentType<ToBeFixed>[]> {
 		const commonService = getPluginService<ICommonService>('common');
 		const pluginStore = await commonService.getPluginStore()
 		const config: NavigationPluginConfig = await pluginStore.get({ key: 'config' });
@@ -63,7 +63,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
 							if (isSingleType) {
 								if (isSingleTypeWithPublishFlow) {
 									const itemsCountOrBypass = isSingleTypeWithPublishFlow ?
-										await strapi.query<StrapiContentType<any>>(uid).count({
+										await strapi.query<StrapiContentType<ToBeFixed>>(uid).count({
 											where: {
 												publicationState: 'live',
 											}
@@ -71,7 +71,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
 										true;
 									return returnType(itemsCountOrBypass !== 0);
 								}
-								const isAvailable = await strapi.query<StrapiContentType<any>>(uid).count({});
+								const isAvailable = await strapi.query<StrapiContentType<ToBeFixed>>(uid).count({});
 								return isAvailable === 1 ?
 									returnType(true) :
 									(viaSettingsPage ? returnType(false) : undefined);
@@ -179,7 +179,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
 		const pluginStore = await commonService.getPluginStore();
 		const config: NavigationPluginConfig = await pluginStore.get({ key: 'config' });
 		try {
-			const contentTypeItems = await strapi.query<StrapiContentType<any>>(uid).findMany({
+			const contentTypeItems = await strapi.query<StrapiContentType<ToBeFixed>>(uid).findMany({
 				populate: config.contentTypesPopulate[uid] || []
 			})
 			return contentTypeItems;
@@ -189,9 +189,9 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
 	},
 
 	getIdsRelated(
-		relatedItems: Array<RelatedRef> | null,
+		relatedItems: RelatedRef[] | null,
 		master: number,
-	): Promise<Array<Id | undefined>> | void {
+	): Promise<(Id | undefined)[]> | void {
 		if (relatedItems) {
 			return Promise.all(relatedItems.map(async relatedItem => {
 				try {
@@ -250,7 +250,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
 					Object.entries(groupedItems)
 						.map(async ([model, related]) => {
 							const relationData = await strapi
-								.query<StrapiContentType<any>>(model)
+								.query<StrapiContentType<ToBeFixed>>(model)
 								.findMany({
 									where: {
 										id: { $in: map(related, 'related_id') },
@@ -313,7 +313,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
 	},
 
 	removeRelated(
-		relatedItems: Array<RelatedRef>,
+		relatedItems: RelatedRef[],
 		master: number,
 	): ToBeFixed {
 		return Promise.all((relatedItems || []).map(relatedItem => {

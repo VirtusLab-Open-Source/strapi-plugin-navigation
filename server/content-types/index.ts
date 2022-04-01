@@ -6,8 +6,8 @@ import navigation from "./navigation";
 import audience from "./audience";
 
 export default {
-  audience,
-  navigation,
-  "navigation-item": navigationItem,
-  "navigations-items-related": navigationsItemsRelated
+	audience,
+	navigation,
+	"navigation-item": navigationItem,
+	"navigations-items-related": navigationsItemsRelated
 };

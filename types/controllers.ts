@@ -3,7 +3,7 @@ import { StrapiControllerContext, ToBeFixed } from "./utils";
 
 export interface IAdminController {
 	getService: <T = IAdminService>(name?: string) => T;
-	
+
 	config: () => ToBeFixed;
 	get: () => ToBeFixed
 	getById: (ctx: StrapiControllerContext) => ToBeFixed;
