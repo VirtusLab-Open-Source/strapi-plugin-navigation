@@ -5,9 +5,9 @@ import admin from './admin';
 import client from './client';
 
 const navigationService = {
-	common,
-	admin,
-	client,
+  common,
+  admin,
+  client,
 };
 
 export default navigationService;
