@@ -40,6 +40,14 @@ export default {
       relation: "oneToMany",
       target: "plugin::navigation.navigation-item",
       configurable: false
+    },
+    localizations: {
+      type: "relation",
+      relation: "oneToMany",
+      target: "plugin::navigation.navigation",
+    },
+    localeCode: {
+      type: "string"
     }
   }
 }

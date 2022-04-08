@@ -27,9 +27,8 @@ const NavigationItemPopUp = ({
   usedContentTypeItems,
   getContentTypeItems,
   usedContentTypesData,
+  locale,
 }) => {
-
-
   const handleOnSubmit = (payload) => {
     onSubmit(payload);
   };
@@ -93,6 +92,7 @@ const NavigationItemPopUp = ({
         onSubmit={handleOnSubmit}
         onCancel={onClose}
         appendLabelPublicationStatus={appendLabelPublicationStatus}
+        locale={locale}
       />
     </ModalLayout>
 
@@ -107,6 +107,7 @@ NavigationItemPopUp.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
   getContentTypeItems: PropTypes.func.isRequired,
+  locale: PropTypes.string
 };
 
 export default NavigationItemPopUp;

@@ -1,7 +1,9 @@
 import { find, get, isEmpty, isNil, last, map, upperFirst } from "lodash";
 import pluralize from "pluralize";
-import { Id, StrapiContentType, StrapiContext, StrapiStore } from "strapi-typed";
+import { Id, StrapiContentType, StrapiContext, StrapiStore, StringMap } from "strapi-typed";
 import { ContentTypeEntity, ICommonService, Navigation, NavigationActions, NavigationActionsPerItem, NavigationItem, NavigationItemEntity, NavigationItemRelated, NavigationPluginConfig, NestedStructure, RelatedRef, ToBeFixed } from "../../types";
+import { configSetupStrategy } from "../config";
+import { addI18nWhereClause } from "../i18n";
 import { checkDuplicatePath, extractMeta, getPluginService, isContentTypeEligible, KIND_TYPES, singularize } from "../utils";
 
 const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) => ({
@@ -174,14 +176,21 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
     }
   },
 
-  async getContentTypeItems(uid: string): Promise<ContentTypeEntity[]> {
+  async getContentTypeItems(uid: string, query: StringMap<string>): Promise<ContentTypeEntity[]> {
     const commonService = getPluginService<ICommonService>('common');
     const pluginStore = await commonService.getPluginStore();
     const config: NavigationPluginConfig = await pluginStore.get({ key: 'config' });
+    const where = await addI18nWhereClause({
+      strapi,
+      previousWhere: {},
+      query,
+      modelUid: uid,
+    })
     try {
       const contentTypeItems = await strapi.query<StrapiContentType<ToBeFixed>>(uid).findMany({
-        populate: config.contentTypesPopulate[uid] || []
-      })
+        populate: config.contentTypesPopulate[uid] || [],
+        where,
+      });
       return contentTypeItems;
     } catch (err) {
       return [];
@@ -328,25 +337,8 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
     }));
   },
 
-  async setDefaultConfig(): Promise<NavigationPluginConfig> {
-    const commonService = getPluginService<ICommonService>('common');
-    const pluginStore = await commonService.getPluginStore()
-    const config = await pluginStore.get({ key: 'config' });
-    const pluginDefaultConfig = await strapi.plugin('navigation').config
-
-    // If new value gets introduced to the config it either is read from plugin store or from default plugin config
-    // This is fix for backwards compatibility and migration of config to newer version of the plugin
-    const defaultConfigValue = {
-      additionalFields: get(config, 'additionalFields', pluginDefaultConfig('additionalFields')),
-      contentTypes: get(config, 'contentTypes', pluginDefaultConfig('contentTypes')),
-      contentTypesNameFields: get(config, 'contentTypesNameFields', pluginDefaultConfig('contentTypesNameFields')),
-      contentTypesPopulate: get(config, 'contentTypesPopulate', pluginDefaultConfig('contentTypesPopulate')),
-      allowedLevels: get(config, 'allowedLevels', pluginDefaultConfig('allowedLevels')),
-      gql: get(config, 'gql', pluginDefaultConfig('gql')),
-    }
-    await pluginStore.set({ key: 'config', value: defaultConfigValue });
-
-    return defaultConfigValue;
+  setDefaultConfig(): Promise<NavigationPluginConfig> {
+    return configSetupStrategy({ strapi });
   },
 
   async updateBranch(

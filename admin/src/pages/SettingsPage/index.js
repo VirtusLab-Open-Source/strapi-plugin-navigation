@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Formik } from 'formik';
 import { isEmpty, capitalize, isEqual, orderBy } from 'lodash';
 
@@ -15,6 +15,7 @@ import { ContentLayout, HeaderLayout } from '@strapi/design-system/Layout';
 import { Accordion, AccordionToggle, AccordionContent, AccordionGroup } from '@strapi/design-system/Accordion';
 import { Button } from '@strapi/design-system/Button';
 import { Box } from '@strapi/design-system/Box';
+import { Divider } from '@strapi/design-system/Divider';
 import { Stack } from '@strapi/design-system/Stack';
 import { Typography } from '@strapi/design-system/Typography';
 import { Grid, GridItem } from '@strapi/design-system/Grid';
@@ -33,13 +34,25 @@ import RestartAlert from '../../components/RestartAlert';
 import { getMessage } from '../../utils';
 import { isContentTypeEligible, resolveGlobalLikeId } from './utils/functions';
 import { PermanentAlert } from '../../components/Alert/styles';
+import { useDisableI18nModal } from './DisableI18nModal';
+
+const RESTART_NOT_REQUIRED = { required: false }
+const RESTART_REQUIRED = { required: true, reasons: [] }
 
 const SettingsPage = () => {
   const { lockApp, unlockApp } = useOverlayBlocker();
   const { lockAppWithAutoreload, unlockAppWithAutoreload } = useAutoReloadOverlayBlocker();
   const [isRestorePopupOpen, setIsRestorePopupOpen] = useState(false);
-  const [isRestartRequired, setIsRestartRequired] = useState(false);
+  const [restartStatus, setRestartStatus] = useState(RESTART_NOT_REQUIRED);
   const [contentTypeExpanded, setContentTypeExpanded] = useState(undefined);
+  const [ pruneObsoleteI18nNavigations, setPruneObsoleteI18nNavigations ] = useState(false);
+  const {
+    disableI18nModal,
+    setDisableI18nModalOpened,
+    setI18nModalOnCancel,
+  } = useDisableI18nModal(({ pruneNavigations })=> {
+    setPruneObsoleteI18nNavigations(pruneNavigations)
+  });
   const { data: navigationConfigData, isLoading: isConfigLoading, err: configErr, submitMutation, restoreMutation, restartMutation } = useNavigationConfig();
   const { data: allContentTypesData, isLoading: isContentTypesLoading, err: contentTypesErr } = useAllContentTypes();
   const isLoading = isConfigLoading || isContentTypesLoading;
@@ -51,12 +64,23 @@ const SettingsPage = () => {
 		padding: 6,
 	};
   
-  const preparePayload = ({ selectedContentTypes, nameFields, audienceFieldChecked, allowedLevels, populate }) => ({
+  const preparePayload = ({
+    form: {
+      selectedContentTypes, 
+      nameFields,
+      audienceFieldChecked,
+      allowedLevels,
+      i18nEnabled
+    },
+    pruneObsoleteI18nNavigations
+  }) => ({
+    i18nEnabled,
+    allowedLevels,
+    pruneObsoleteI18nNavigations,
     contentTypes: selectedContentTypes,
     contentTypesNameFields: nameFields,
     contentTypesPopulate: populate,
     additionalFields: audienceFieldChecked ? [navigationItemAdditionalFields.AUDIENCE] : [],
-    allowedLevels: allowedLevels,
     gql: {
       navigationItemRelated: selectedContentTypes.map(uid => resolveGlobalLikeId(uid)),
     }
@@ -64,12 +88,28 @@ const SettingsPage = () => {
 
   const onSave = async (form) => {
     lockApp();
-    const payload = preparePayload(form);
+    const payload = preparePayload({ form, pruneObsoleteI18nNavigations });
     await submitMutation({ body: payload });
     const isContentTypesChanged = !isEqual(payload.contentTypes, navigationConfigData.contentTypes);
-    if (isContentTypesChanged && navigationConfigData.isGQLPluginEnabled) {
-      setIsRestartRequired(true);
+    const isI18nChanged = !isEqual(payload.i18nEnabled, navigationConfigData.i18nEnabled);
+    const restartReasons = []
+    if (isI18nChanged) {
+      restartReasons.push('I18N');
     }
+    if (isContentTypesChanged && navigationConfigData.isGQLPluginEnabled) {
+      restartReasons.push('GRAPH_QL');
+    }
+    if (pruneObsoleteI18nNavigations) {
+      restartReasons.push('I18N_NAVIGATIONS_PRUNE')
+    }
+    if (restartReasons.length) {
+      setRestartStatus({
+        ...RESTART_REQUIRED,
+        reasons: restartReasons,
+      });
+    }
+    setDisableI18nModalOpened(false);
+    setPruneObsoleteI18nNavigations(false);
     unlockApp();
   }
 
@@ -79,17 +119,17 @@ const SettingsPage = () => {
       lockApp();
       await restoreMutation();
       unlockApp();
-      setIsRestartRequired(true);
+      setRestartStatus(RESTART_REQUIRED);
     }
   }
 
   const handleRestart = async () => {
     lockAppWithAutoreload();
     await restartMutation();
-    setIsRestartRequired(false);
+    setRestartStatus(RESTART_NOT_REQUIRED);
     unlockAppWithAutoreload();
   };
-  const handleRestartDiscard = () => setIsRestartRequired(false);
+  const handleRestartDiscard = () => setRestartStatus(RESTART_NOT_REQUIRED);
 	const handleSetContentTypeExpanded = key => setContentTypeExpanded(key === contentTypeExpanded ? undefined : key);
 
   const prepareNameFieldFor = (uid, current, value) => ({
@@ -104,6 +144,7 @@ const SettingsPage = () => {
           name={getMessage('Settings.email.plugin.title', 'Configuration')}
         />
         <LoadingIndicatorPage>
+          {/* TODO: use translation */}
           Fetching plugin config...
         </LoadingIndicatorPage>
       </>
@@ -132,6 +173,9 @@ const SettingsPage = () => {
   const allowedLevels = navigationConfigData?.allowedLevels || 2;
   const nameFields = navigationConfigData?.contentTypesNameFields || {}
   const populate = navigationConfigData?.contentTypesPopulate || {}
+  const i18nEnabled = navigationConfigData?.i18nEnabled ?? false
+  const isI18NPluginEnabled = navigationConfigData?.isI18NPluginEnabled;
+  const defaultLocale = navigationConfigData?.defaultLocale;
 
   return (
     <>
@@ -146,6 +190,7 @@ const SettingsPage = () => {
             allowedLevels,
             nameFields,
             populate,
+            i18nEnabled,
           }}
           onSubmit={onSave}
         >
@@ -156,21 +201,32 @@ const SettingsPage = () => {
                 subtitle={getMessage('pages.settings.header.description')}
                 primaryAction={
                   <CheckPermissions permissions={permissions.access}>
-                    <Button type="submit" startIcon={<Check />} disabled={isRestartRequired}>
+                    <Button type="submit" startIcon={<Check />} disabled={restartStatus.required}>
                       {getMessage('pages.settings.actions.submit')}
                     </Button>
                   </CheckPermissions>
                 }
               />
               <ContentLayout>
-                <Stack size={7}>
-                  {isRestartRequired && (
+                <Stack spacing={7}>
+                  {restartStatus.required && (
                     <RestartAlert
                       closeLabel={getMessage('pages.settings.actions.restart.alert.cancel')}
                       title={getMessage('pages.settings.actions.restart.alert.title')}
                       action={<Box><Button onClick={handleRestart} startIcon={<Play />}>{getMessage('pages.settings.actions.restart')}</Button></Box>}
                       onClose={handleRestartDiscard}>
-                      {getMessage('pages.settings.actions.restart.alert.description')}
+                        <>
+                          <Box paddingBottom={1}>
+                            {getMessage('pages.settings.actions.restart.alert.description')}
+                          </Box>
+                          {
+                            restartStatus.reasons.map((reason, i) => <Box 
+                              paddingBottom={1}
+                              key={i}
+                              children={getMessage(`pages.settings.actions.restart.alert.reason.${reason}`)}
+                            />)
+                          }
+                        </>
                     </RestartAlert>)}
                   <Box {...boxDefaultProps} >
                     <Stack size={4}>
@@ -189,7 +245,7 @@ const SettingsPage = () => {
                             onChange={(value) => setFieldValue('selectedContentTypes', value, false)}
                             multi
                             withTags
-                            disabled={isRestartRequired}
+                            disabled={restartStatus.required}
                           >
                             {allContentTypes.map((item) => <Option key={item.uid} value={item.uid}>{item.info.displayName}</Option>)}
                           </Select>
@@ -230,7 +286,7 @@ const SettingsPage = () => {
                                           onChange={(value) => setFieldValue('nameFields', prepareNameFieldFor(uid, values.nameFields, value))}
                                           multi
                                           withTags
-                                          disabled={isRestartRequired || isEmpty(stringAttributes)}
+                                          disabled={restartStatus.required || isEmpty(stringAttributes)}
                                         >
                                           {stringAttributes.map(key =>
                                             (<Option key={uid + key} value={key}>{capitalize(key.split('_').join(' '))}</Option>))}
@@ -245,7 +301,7 @@ const SettingsPage = () => {
                                           onChange={(value) => setFieldValue('populate', prepareNameFieldFor(uid, values.populate, value))}
                                           multi
                                           withTags
-                                          disabled={isRestartRequired || isEmpty(relationAttributes)}
+                                          disabled={restartStatus.required || isEmpty(relationAttributes)}
                                         >
                                           {relationAttributes.map(key =>
                                             (<Option key={uid + key} value={key}>{capitalize(key.split('_').join(' '))}</Option>))}
@@ -275,10 +331,10 @@ const SettingsPage = () => {
                             hint={getMessage('pages.settings.form.allowedLevels.hint')}
                             onValueChange={(value) => setFieldValue('allowedLevels', value, false)}
                             value={values.allowedLevels}
-                            disabled={isRestartRequired}
+                            disabled={restartStatus.required}
                           />
                         </GridItem>
-                        <GridItem col={6} s={12} xs={12}>
+                        <GridItem col={4} s={12} xs={12}>
                           <ToggleInput
                             name="audienceFieldChecked"
                             label={getMessage('pages.settings.form.audience.label')}
@@ -287,9 +343,36 @@ const SettingsPage = () => {
                             onChange={({ target: { checked } }) => setFieldValue('audienceFieldChecked', checked, false)}
                             onLabel="Enabled"
                             offLabel="Disabled"
-                            disabled={isRestartRequired}
+                            disabled={restartStatus.required}
                           />
                         </GridItem>
+                        {isI18NPluginEnabled && (
+                          <GridItem col={4} s={12} xs={12}>
+                            <ToggleInput
+                              name="i18nEnabled"
+                              label={getMessage('pages.settings.form.i18n.label')}
+                              hint={defaultLocale
+                                ? getMessage('pages.settings.form.i18n.hint')
+                                : getMessage('pages.settings.form.i18n.hint.missingDefaultLocale')
+                              }
+                              checked={values.i18nEnabled}
+                              onChange={({ target: { checked } }) => {
+                                setFieldValue('i18nEnabled', checked, false);
+                                if (checked) {
+                                  setPruneObsoleteI18nNavigations(false);
+                                } else {
+                                  setDisableI18nModalOpened(true);
+                                  setI18nModalOnCancel(() => () => {
+                                    setFieldValue('i18nEnabled', true);
+                                  });
+                                }
+                              }}
+                              onLabel="Enabled"
+                              offLabel="Disabled"
+                              disabled={restartStatus.required || !defaultLocale}
+                            />
+                          </GridItem>
+                        )}
                       </Grid>
                     </Stack>
                   </Box>
@@ -319,6 +402,7 @@ const SettingsPage = () => {
                             onCancel={() => onPopupClose(false)}>
                             {getMessage('pages.settings.actions.restore.confirmation.description')}
                           </ConfirmationDialog>
+                          {disableI18nModal}
                         </GridItem>
                       </Grid>
                     </Stack>

@@ -130,6 +130,7 @@ Config for this plugin is stored as a part of the `config/plugins.js` or `config
 - `contentTypes` - UIDs of related content types
 - `contentTypesNameFields` - Definition of content type title fields like `'api::<collection name>.<content type name>': ['field_name_1', 'field_name_2']`, if not set titles are pulled from fields like `['title', 'subject', 'name']`. **TIP** - Proper content type uid you can find in the URL of Content Manager where you're managing relevant entities like: `admin/content-manager/collectionType/< THE UID HERE >?page=1&pageSize=10&sort=Title:ASC&plugins[i18n][locale]=en`
 - `gql` - If you're using GraphQL that's the right place to put all necessary settings. More **[ here ](#gql-configuration)**
+- `i18nEnabled` - should you want to manage multi-locale content via navigation set this value `Enabled`. More **[ here ](#i18n-internationalization)**
 
 ## 🔧 GQL Configuration
 Using navigation with GraphQL requires both plugins to be installed and working. You can find installation guide for GraphQL plugin **[here](https://docs.strapi.io/developer-docs/latest/plugins/graphql.html#graphql)**.  To properly configure GQL to work with navigation you should provide `gql` prop. This should contain union types that will be used to define GQL response format for your data while fetching:
@@ -159,6 +160,32 @@ gql: {
 },
 ```
 where `Page` and `UploadFile` are your type names for the **Content Types** you're referring by navigation items relations. 
+
+## i18n Internationalization
+
+### Settings
+
+This feature is **opt-in**.
+
+In order to use this functionality setting **default locale** is required. (See: Settings -> Internationalization)
+
+Once feature is enabled a restart is required. On server startup missing navigations for other locales will be created. From then you can manage navigation's localizations just like before.
+
+If you want go back to _pre-i18n_ way you can disable it in settings. Already created navigations will not be removed unless you make a choice for plugin to do so(this will require a restart).
+
+### Rendering
+
+Shape of the rendered navigation will not change. Querying stays almost the same. To query for specific locale version just add `locale` query param. For example:
+
+```https://yourdomain.cool/api/navigation/render/1?locale=fr```
+
+or
+
+```https://yourdomain.cool/api/navigation/render/main-navigation?locale=fr```
+
+If `locale` is not specified whatever version used to be at id `1` will be returned.
+
+Of course if you know that `fr` version is present at id `2` you can just query for that.
 
 ## 👤 RBAC
 Plugin provides granular permissions based on Strapi RBAC functionality.

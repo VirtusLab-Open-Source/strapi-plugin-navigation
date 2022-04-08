@@ -37,7 +37,7 @@ describe('Navigation services', () => {
   describe('Render navigation', () => {
     it('Can render branch in flat format', async () => {
       const clientService = getPluginService<IClientService>('client');
-      const result = await clientService.render(1);
+      const result = await clientService.render({ idOrSlug: 1 });
 
       expect(result).toBeDefined()
       expect(result.length).toBe(2)
@@ -45,10 +45,10 @@ describe('Navigation services', () => {
 
     it('Can render branch in tree format', async () => {
       const clientService = getPluginService<IClientService>('client');
-      const result = await clientService.render(
-        1,
-        'tree'
-      );
+      const result = await clientService.render({
+        idOrSlug: 1,
+        type: 'tree'
+      });
 
       expect(result).toBeDefined()
       expect(result.length).toBeGreaterThan(0)
@@ -56,10 +56,10 @@ describe('Navigation services', () => {
 
     it('Can render branch in rfr format', async () => {
       const clientService = getPluginService<IClientService>('client');
-      const result = await clientService.render(
-        1,
-        'rfr'
-      );
+      const result = await clientService.render({
+        idOrSlug: 1,
+        type: 'rfr'
+      });
 
       expect(result).toBeDefined()
       expect(result.pages).toBeDefined()
@@ -68,11 +68,11 @@ describe('Navigation services', () => {
 
     it('Can render only menu attached elements', async () => {
       const clientService = getPluginService<IClientService>('client');
-      const result = await clientService.render(
-        1,
-        'flat',
-        true,
-      );
+      const result = await clientService.render({
+        idOrSlug: 1,
+        type: 'flat',
+        menuOnly: true,
+      });
 
       expect(result).toBeDefined()
       expect(result.length).toBe(1)
@@ -80,12 +80,12 @@ describe('Navigation services', () => {
 
     it('Can render branch by path', async () => {
       const clientService = getPluginService<IClientService>('client');
-      const result = await clientService.render(
-        1,
-        'flat',
-        false,
-        '/home/side'
-      );
+      const result = await clientService.render({
+        idOrSlug: 1,
+        type: 'flat',
+        menuOnly: false,
+        rootPath: '/home/side'
+      });
 
       expect(result).toBeDefined();
       expect(result.length).toBe(1);
@@ -95,7 +95,7 @@ describe('Navigation services', () => {
   describe('Render child', () => {
     it('Can render child', async () => {
       const clientService = getPluginService<IClientService>('client');
-      const result = await clientService.renderChildren(1, "home");
+      const result = await clientService.renderChildren({idOrSlug: 1, childUIKey: "home"});
 
       expect(result).toBeDefined();
       expect(result.length).toBe(1);

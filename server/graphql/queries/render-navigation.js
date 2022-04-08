@@ -1,16 +1,26 @@
+const { addI18NRenderNavigationArgs } = require("../../i18n");
+
 module.exports = ({ strapi, nexus }) => {
   const { nonNull, list, stringArg, booleanArg } = nexus;
-  return {
-    type: nonNull(list('NavigationItem')),
-    args: {
+  const args = addI18NRenderNavigationArgs({
+    previousArgs: {
       navigationIdOrSlug: nonNull(stringArg()),
-      type: 'NavigationRenderType',
+      type: "NavigationRenderType",
       menuOnly: booleanArg(),
       path: stringArg(),
     },
-    resolve(obj, args) {
-      const { navigationIdOrSlug: idOrSlug, type, menuOnly, path: rootPath } = args;
-      return strapi.plugin('navigation').service('client').render( idOrSlug, type, menuOnly, rootPath );
+    nexus,
+  });
+
+  return {
+    args,
+    type: nonNull(list("NavigationItem")),
+    resolve(
+      obj,
+      { navigationIdOrSlug: idOrSlug, type, menuOnly, path: rootPath, locale }
+    ) {
+      const service = strapi.plugin("navigation").service("client");
+      return service.render({ idOrSlug, type, menuOnly, rootPath, locale });
     },
   };
-}
+};

@@ -1,7 +1,8 @@
-import { IAdminService, ICommonService, ToBeFixed } from '../../types';
-import { getPluginService, parseParams } from '../utils';
-import { errorHandler } from '../utils';
-import { IAdminController } from '../../types'
+import { IAdminService, ICommonService, ToBeFixed } from "../../types";
+import { getPluginService, parseParams } from "../utils";
+import { errorHandler } from "../utils";
+import { IAdminController } from "../../types";
+import { Id, StringMap } from "strapi-typed";
 
 const adminControllers: IAdminController = {
   getService<T = IAdminService>(name = "admin") {
@@ -17,10 +18,9 @@ const adminControllers: IAdminController = {
   },
   put(ctx) {
     const { params, auditLog } = ctx;
-    const { id } = parseParams(params);
+    const { id } = parseParams<StringMap<string>, { id: Id }>(params);
     const { body = {} } = ctx.request;
-    return this.getService().put(id, body, auditLog)
-      .catch(errorHandler(ctx));
+    return this.getService().put(id, body, auditLog).catch(errorHandler(ctx));
   },
   async config() {
     return this.getService().config();
@@ -41,7 +41,7 @@ const adminControllers: IAdminController = {
     } catch (e: ToBeFixed) {
       errorHandler(ctx)(e);
     }
-    return ctx.send({ status: 200 })
+    return ctx.send({ status: 200 });
   },
 
   async settingsConfig() {
@@ -58,13 +58,13 @@ const adminControllers: IAdminController = {
   },
   async getById(ctx) {
     const { params } = ctx;
-    const { id } = parseParams(params);
+    const { id } = parseParams<StringMap<string>, { id: Id }>(params);
     return this.getService().getById(id);
   },
   async getContentTypeItems(ctx) {
-    const { params } = ctx;
-    const { model } = parseParams(params);
-    return this.getService<ICommonService>('common').getContentTypeItems(model)
+    const { params, query = {} } = ctx;
+    const { model } = parseParams<StringMap<string>, { model: string }>(params);
+    return this.getService<ICommonService>("common").getContentTypeItems(model, query);
   },
 };
 

@@ -14,6 +14,8 @@ import { Typography } from '@strapi/design-system/Typography';
 import { ExclamationMarkCircle, Check } from '@strapi/icons';
 import { getMessage } from '../../utils';
 
+const DEFAULT_ICON = <ExclamationMarkCircle />
+
 const ConfirmationDialog = ({
 	isVisible = false,
 	isActionAsync = false,
@@ -23,11 +25,12 @@ const ConfirmationDialog = ({
 	header,
 	labelCancel,
 	labelConfirm,
-	iconConfirm
+	iconConfirm,
+	mainIcon = DEFAULT_ICON
 }) => (
 	<Dialog onClose={onCancel} title={header || getMessage('components.confirmation.dialog.header', 'Confirmation')} isOpen={isVisible}>
-		<DialogBody icon={<ExclamationMarkCircle />}>
-			<Stack size={2}>
+		<DialogBody icon={mainIcon}>
+			<Stack spacing={2}>
 				<Flex justifyContent="center">
 					<Typography id="dialog-confirm-description">{children || getMessage('components.confirmation.dialog.description')}</Typography>
 				</Flex>
@@ -44,7 +47,7 @@ const ConfirmationDialog = ({
 ConfirmationDialog.propTypes = {
 	isVisible: PropTypes.bool,
 	isActionAsync: PropTypes.bool,
-	children: PropTypes.string.isRequired,
+	children: PropTypes.any,
 	header: PropTypes.string,
 	labelCancel: PropTypes.string,
 	labelConfirm: PropTypes.string,

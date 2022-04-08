@@ -10,7 +10,7 @@ import {
   isArray,
   first,
 } from 'lodash';
-import { Id, IStrapi, StrapiContentType, StrapiPlugin } from "strapi-typed";
+import { Id, IStrapi, Primitive, StrapiContentType, StrapiPlugin, StringMap } from "strapi-typed";
 
 import { AuditLogContext, AuditLogParams, ContentTypeEntity, NavigationActions, NavigationItem, NavigationItemEntity, NestedPath, NestedStructure, PluginConfigNameFields, ToBeFixed } from "../../types";
 import { NavigationError } from '../../utils/NavigationError';
@@ -27,7 +27,10 @@ export const errorHandler = (ctx: ToBeFixed) => (error: NavigationError | string
   throw error;
 };
 
-export const parseParams = (params: ToBeFixed): ToBeFixed =>
+export const parseParams = <
+  TParams extends StringMap<string> = StringMap<string>,
+  TResult extends StringMap<Primitive> = StringMap<Primitive>
+>(params: TParams): TResult  =>
   Object.keys(params).reduce((prev, curr) => {
     const value = params[curr];
     const parsedValue = isNaN(Number(value)) ? value : parseInt(value, 10);
@@ -35,7 +38,7 @@ export const parseParams = (params: ToBeFixed): ToBeFixed =>
       ...prev,
       [curr]: parsedValue,
     };
-  }, {});
+  }, {} as TResult);
 
 
 

@@ -1,5 +1,6 @@
-import { IClientController, IClientService } from '../../types';
-import { getPluginService, parseParams } from '../utils';
+import { Id, StringMap } from "strapi-typed";
+import { IClientController, IClientService } from "../../types";
+import { getPluginService, parseParams } from "../utils";
 
 const clientControllers: IClientController = {
   getService<T = IClientService>(name = "client"): T {
@@ -8,25 +9,32 @@ const clientControllers: IClientController = {
 
   async render(ctx) {
     const { params, query = {} } = ctx;
-    const { type, menu: menuOnly, path: rootPath } = query;
-    const { idOrSlug } = parseParams(params);
-    return this.getService().render(
+    const { type, menu: menuOnly, path: rootPath, locale } = query;
+    const { idOrSlug } = parseParams<StringMap<string>, { idOrSlug: Id }>(
+      params
+    );
+    return this.getService().render({
       idOrSlug,
       type,
       menuOnly,
-      rootPath
-    );
+      rootPath,
+      locale,
+    });
   },
   async renderChild(ctx) {
     const { params, query = {} } = ctx;
-    const { type, menu: menuOnly } = query;
-    const { idOrSlug, childUIKey } = parseParams(params);
-    return this.getService().renderChildren(
+    const { type, menu: menuOnly, locale } = query;
+    const { idOrSlug, childUIKey } = parseParams<
+      StringMap<string>,
+      { idOrSlug: Id; childUIKey: string }
+    >(params);
+    return this.getService().renderChildren({
       idOrSlug,
       childUIKey,
       type,
-      menuOnly
-    );
+      menuOnly,
+      locale,
+    });
   },
 };
 
