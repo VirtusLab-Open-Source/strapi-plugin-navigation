@@ -1,6 +1,7 @@
-import { Id, StrapiContentType, StrapiStore } from "strapi-typed";
+import { Id, StrapiContentType, StrapiStore, StringMap } from "strapi-typed";
 import { NavigationPluginConfig } from "./config";
 import { Navigation, NavigationItem, NavigationItemEntity, NestedStructure, RelatedRef } from "./contentTypes";
+import { I18nQueryParams } from "./i18n";
 import { AuditLogContext, ContentTypeEntity, NavigationActions, NavigationActionsPerItem, RenderType, RFRNavItem, ToBeFixed } from "./utils";
 
 export type NavigationService = {
@@ -25,7 +26,7 @@ export interface ICommonService {
   configContentTypes: (viaSettingsPage?: boolean) => Promise<StrapiContentType<ToBeFixed>[]>,
   createBranch: (items: NestedStructure<NavigationItem>[], masterEntity: Navigation | null, parentItem: NavigationItemEntity | null, operations: NavigationActions) => ToBeFixed,
   getBranchName: (item: NavigationItem) => keyof NavigationActionsPerItem | void,
-  getContentTypeItems: (uid: string) => Promise<ContentTypeEntity[]>,
+  getContentTypeItems: (uid: string, query: StringMap<string>) => Promise<ContentTypeEntity[]>,
   getIdsRelated: (relatedItems: RelatedRef[] | null, master: number) => Promise<(Id | undefined)[]> | void,
   getPluginStore: () => Promise<StrapiStore>,
   getRelatedItems: (entityItems: NavigationItemEntity[]) => Promise<NavigationItemEntity<ContentTypeEntity>[]>,
@@ -36,11 +37,11 @@ export interface ICommonService {
 }
 
 export interface IClientService {
-  render: (idOrSlug: Id, type?: RenderType, menuOnly?: boolean, rootPath?: string) => Promise<ToBeFixed>,
-  renderChildren: (idOrSlug: Id, childUIKey: string, type?: RenderType, menuOnly?: boolean) => Promise<ToBeFixed>,
+  render: (input: { idOrSlug: Id, type?: RenderType, menuOnly?: boolean, rootPath?: string } & I18nQueryParams) => Promise<ToBeFixed>,
+  renderChildren: (input: { idOrSlug: Id, childUIKey: string, type?: RenderType, menuOnly?: boolean } & I18nQueryParams) => Promise<ToBeFixed>,
   renderRFR: (items: NestedStructure<NavigationItem>[], parent: Id | null, parentNavItem: RFRNavItem | null, contentTypes: string[]) => ToBeFixed,
   renderRFRNav: (item: NavigationItem) => RFRNavItem,
   renderRFRPage: (item: NavigationItem & { related: ToBeFixed }, parent: Id | null) => ToBeFixed,
   renderTree(items: NavigationItemEntity<ContentTypeEntity>[], id: Id | null, field: keyof NavigationItemEntity, path: string | undefined, itemParser: ToBeFixed): ToBeFixed,
-  renderType: (type: RenderType, criteria: ToBeFixed, itemCriteria: ToBeFixed, filter: ToBeFixed, rootPath: string | null) => ToBeFixed,
+  renderType: (input: { type: RenderType, criteria: ToBeFixed, itemCriteria: ToBeFixed, filter: ToBeFixed, rootPath: string | null } & I18nQueryParams) => ToBeFixed,
 }

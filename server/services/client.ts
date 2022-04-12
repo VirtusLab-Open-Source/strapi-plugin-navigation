@@ -2,32 +2,37 @@ import { first, get, isEmpty, isNil, isString, last, toNumber } from "lodash";
 import slugify from "slugify";
 import { Id, StrapiContext } from "strapi-typed";
 import { validate } from "uuid";
-import { ContentTypeEntity, IAdminService, IClientService, ICommonService, Navigation, NavigationItem, NavigationItemEntity, NestedStructure, RenderType, RFRNavItem, ToBeFixed } from "../../types"
+import { ContentTypeEntity, IAdminService, IClientService, ICommonService, Navigation, NavigationItem, NavigationItemEntity, NestedStructure, RFRNavItem, ToBeFixed } from "../../types"
 import { composeItemTitle, extractMeta, filterByPath, filterOutUnpublished, getPluginService, templateNameFactory } from "../utils";
 //@ts-ignore
-import errors from '@strapi/utils';
+import { errors } from '@strapi/utils';
+import { i18nAwareEntityReadHandler } from "../i18n";
 
 const clientService: (context: StrapiContext) => IClientService = ({ strapi }) => ({
-  async render(
-    idOrSlug: Id,
-    type: RenderType = 'flat',
-    menuOnly: boolean = false,
-    rootPath: string | null = null,
-  ) {
+  async render({
+    idOrSlug,
+    type = 'flat',
+    menuOnly = false,
+    rootPath = null,
+    locale,
+  }) {
     const clientService = getPluginService<IClientService>('client');
 
     const findById = !isNaN(toNumber(idOrSlug)) || validate(idOrSlug as string);
     const criteria = findById ? { id: idOrSlug } : { slug: idOrSlug };
     const itemCriteria = menuOnly ? { menuAttached: true } : {};
-    return await clientService.renderType(type, criteria, itemCriteria, null, rootPath);
+    return await clientService.renderType({
+      type, criteria, itemCriteria, filter: null, rootPath, locale,
+    });
   },
 
-  async renderChildren(
-    idOrSlug: Id,
-    childUIKey: string,
-    type: RenderType = 'flat',
-    menuOnly: boolean = false,
-  ) {
+  async renderChildren({
+    idOrSlug,
+    childUIKey,
+    type = 'flat',
+    menuOnly = false,
+    locale,
+  }) {
     const clientService = getPluginService<IClientService>('client');
     const findById = !isNaN(toNumber(idOrSlug)) || validate(idOrSlug as string);
     const criteria = findById ? { id: idOrSlug } : { slug: idOrSlug };
@@ -38,7 +43,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
       ...(type === 'flat' ? { uiRouterKey: childUIKey } : {}),
     };
 
-    return clientService.renderType(type, criteria, itemCriteria, filter, null);
+    return clientService.renderType({ type, criteria, itemCriteria, filter, rootPath: null, locale });
   },
 
   renderRFR(
@@ -190,29 +195,38 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
       });
   },
 
-  async renderType(
-    type: RenderType = 'flat',
+  async renderType({
+    type = 'flat',
     criteria = {},
     itemCriteria = {},
     filter = null,
-    rootPath: string | null = null
-  ) {
+    rootPath = null,
+    locale
+  }) {
     const clientService = getPluginService<IClientService>('client');
     const adminService = getPluginService<IAdminService>('admin');
     const commonService = getPluginService<ICommonService>('common');
+    const entityWhereClause = {
+      ...criteria,
+      visible: true,
+    }
 
     const { masterModel, itemModel } = extractMeta(
       strapi.plugins,
     );
 
-    const entity = await strapi
-      .query<Navigation>(masterModel.uid)
-      .findOne({
-        where: {
-          ...criteria,
-          visible: true,
-        }
-      });
+    const entity = await i18nAwareEntityReadHandler({
+      entity: await strapi
+        .query<Navigation>(masterModel.uid)
+        .findOne({
+          where: entityWhereClause,
+        }),
+      entityUid: masterModel.uid,
+      strapi,
+      whereClause: entityWhereClause,
+      localeCode: locale,
+    });
+
     if (entity && entity.id) {
       const entities = await strapi.query<NavigationItemEntity>(itemModel.uid).findMany({
         where: {

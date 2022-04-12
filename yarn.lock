@@ -4492,8 +4492,8 @@ statuses@2.0.1:
   integrity sha1-Fhx9rBd2Wf2YEfQ3cfqZOBR4Yow=
 
 strapi-typed@VirtusLab-Open-Source/strapi-typed:
-  version "1.0.5"
-  resolved "https://codeload.github.com/VirtusLab-Open-Source/strapi-typed/tar.gz/1b0b6ac106ed0b1496b6dfa83bf9b1b85f2856a0"
+  version "1.0.7"
+  resolved "https://codeload.github.com/VirtusLab-Open-Source/strapi-typed/tar.gz/8b88a9e752fa807a6b06e39e8712404593938b77"
   dependencies:
     "@strapi/plugin-graphql" "^4.1.6"
     "@strapi/utils" "^4.1.6"

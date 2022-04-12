@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useReducer, useRef } from "react";
+import React, { memo, useEffect, useMemo, useReducer, useRef } from "react";
 import { useLocation, useRouteMatch } from "react-router-dom";
 import { useIntl } from 'react-intl';
 import PropTypes from "prop-types";
@@ -32,6 +32,9 @@ import {
   SUBMIT_NAVIGATION_ERROR,
 } from './actions';
 import { prepareItemToViewPayload } from '../View/utils/parsers';
+
+const i18nAwareItems = ({ items, config }) => 
+  config.i18nEnabled ? items.filter(({ localeCode }) => localeCode === config.defaultLocale) : items;
 
 const DataManagerProvider = ({ children }) => {
   const [reducerState, dispatch] = useReducer(reducer, initialState, init);
@@ -70,6 +73,9 @@ const DataManagerProvider = ({ children }) => {
 
   const menuViewMatch = useRouteMatch(`/plugins/${pluginId}/:id`);
   const activeId = get(menuViewMatch, "params.id", null);
+  const passedActiveItems = useMemo(() => {
+    return i18nAwareItems({ config, items })
+  }, [config, items]);
 
   const getNavigation = async (id, cfg) => {
     try {
@@ -128,7 +134,7 @@ const DataManagerProvider = ({ children }) => {
       });
 
       if (id || !isEmpty(items)) {
-        await getNavigation(id || first(items).id, config);
+        await getNavigation(id || first(i18nAwareItems({ items, config })).id, config);
       }
     } catch (err) {
       console.error({ err });
@@ -161,7 +167,7 @@ const DataManagerProvider = ({ children }) => {
     }
   }, [autoReload]);
 
-  const getContentTypeItems = async ({ modelUID, query }) => {
+  const getContentTypeItems = async ({ modelUID, query, locale }) => {
     dispatch({
       type: GET_CONTENT_TYPE_ITEMS,
     });
@@ -170,6 +176,9 @@ const DataManagerProvider = ({ children }) => {
     queryParams.append('_publicationState', 'preview');
     if (query) {
       queryParams.append('_q', query);
+    }
+    if (locale) {
+      queryParams.append('localeCode', locale);
     }
 
     const contentTypeItems = await request(`${url}?${queryParams.toString()}`, {
@@ -189,6 +198,10 @@ const DataManagerProvider = ({ children }) => {
   };
 
   const handleChangeSelection = (id) => {
+    getNavigation(id, config);
+  };
+
+  const handleLocalizationSelection = (id) => {
     getNavigation(id, config);
   };
 
@@ -273,7 +286,7 @@ const DataManagerProvider = ({ children }) => {
   return (
     <DataManagerContext.Provider
       value={{
-        items,
+        items: passedActiveItems,
         activeItem,
         initialData,
         changedActiveItem,
@@ -289,6 +302,7 @@ const DataManagerProvider = ({ children }) => {
         handleChangeNavigationPopupVisibility,
         handleChangeNavigationItemPopupVisibility,
         handleChangeSelection,
+        handleLocalizationSelection,
         handleChangeNavigationData,
         handleResetNavigationData,
         handleSubmitNavigation,

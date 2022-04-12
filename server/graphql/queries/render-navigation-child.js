@@ -10,7 +10,8 @@ module.exports = ({ strapi, nexus }) => {
     },
     resolve(obj, args) {
       const { id, childUIKey, type, menuOnly } = args;
-      return strapi.plugin('navigation').service('client').renderChildren(id, childUIKey, type, menuOnly);
+      const service = strapi.plugin('navigation').service('client')
+      return service.renderChildren({ idOrSlug: id, childUIKey, type, menuOnly });
     },
   };
 }
