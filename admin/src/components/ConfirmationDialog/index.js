@@ -27,7 +27,7 @@ const ConfirmationDialog = ({
 }) => (
 	<Dialog onClose={onCancel} title={header || getMessage('components.confirmation.dialog.header', 'Confirmation')} isOpen={isVisible}>
 		<DialogBody icon={<ExclamationMarkCircle />}>
-			<Stack spacing={2}>
+			<Stack size={2}>
 				<Flex justifyContent="center">
 					<Typography id="dialog-confirm-description">{children || getMessage('components.confirmation.dialog.description')}</Typography>
 				</Flex>

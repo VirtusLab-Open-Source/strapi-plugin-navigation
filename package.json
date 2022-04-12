@@ -13,13 +13,20 @@
     "url": "https://github.com/VirtusLab/strapi-plugin-navigation"
   },
   "scripts": {
-    "publish:latest": "npm publish --tag latest",
-    "test:unit": "jest --verbose --coverage"
+    "publish:latest": "cd build && npm publish --tag latest",
+    "prepublish:latest": "npm run clean && npm run build && node build/setup-package.js",
+    "test:unit": "jest --verbose --coverage",
+    "build": "tsc",
+    "build:dev": "npm run build && cp ./package.json ./build && cd ./build && yarn",
+    "clean": "rm -rf build",
+    "develop": "nodemon --exec \"npm run build:dev\""
   },
   "dependencies": {
     "@strapi/utils": "^4.1.6",
     "uuid": "^8.3.0",
+    "bad-words": "^3.0.3",
     "lodash": "^4.17.11",
+    "pluralize": "^8.0.0",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-intl": "4.5.0",
@@ -29,15 +36,23 @@
     "reactstrap": "8.4.1",
     "redux-saga": "^0.16.0",
     "request": "^2.83.0",
-    "slugify": "^1.4.5",
-    "pluralize": "^8.0.0"
+    "slugify": "^1.4.5"
   },
   "devDependencies": {
-    "koa": "^2.8.0",
-    "jest": "^26.0.1",
-    "jest-cli": "^26.0.1",
+    "@types/jest": "^27.4.1",
+    "@types/lodash": "^4.14.181",
+    "@types/pluralize": "^0.0.29",
+    "@types/uuid": "^8.3.4",
+    "codecov": "^3.7.2",
+    "jest": "^27.5.1",
+    "jest-cli": "^27.5.1",
     "jest-styled-components": "^7.0.2",
-    "codecov": "^3.7.2"
+    "koa": "^2.8.0",
+    "nodemon": "^2.0.15",
+    "strapi-typed": "VirtusLab-Open-Source/strapi-typed",
+    "ts-jest": "^27.1.3",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.5.5"
   },
   "peerDependencies": {
     "@strapi/strapi": "4.x"
@@ -68,6 +83,16 @@
     "node": ">=10.16.0",
     "npm": ">=6.0.0"
   },
-  "keywords": ["strapi", "plugin", "navigation"],
+  "nodemonConfig": {
+    "ignore": [
+      "./build/**/*"
+    ],
+    "ext": "js,json,ts"
+  },
+  "keywords": [
+    "strapi",
+    "plugin",
+    "navigation"
+  ],
   "license": "MIT"
 }
