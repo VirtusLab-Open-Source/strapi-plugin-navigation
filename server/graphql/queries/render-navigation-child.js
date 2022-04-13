@@ -12,8 +12,8 @@ module.exports = ({ strapi, nexus }) => {
     },
     resolve(obj, args) {
       const { id, childUIKey, type, menuOnly } = args;
-
-      return getPluginService("client").renderChildren({
+      const clientService = getPluginService('client');
+      return clientService.renderChildren({
         idOrSlug: id,
         childUIKey,
         type,

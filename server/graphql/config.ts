@@ -1,15 +1,12 @@
 import { StrapiContext } from "strapi-typed";
-import { NavigationPluginConfig } from "../../types";
+import { ICommonService } from "../../types";
+import { getPluginService } from "../utils";
 
 const getTypes = require("./types");
 const getQueries = require("./queries");
 const getResolversConfig = require("./resolvers-config");
 
-type ConfigInput = StrapiContext & {
-  config: NavigationPluginConfig;
-};
-
-export default async ({ strapi, config }: ConfigInput) => {
+export default async ({ strapi }: StrapiContext) => {
   const extensionService = strapi.plugin("graphql").service("extension");
 
   extensionService.shadowCRUD("plugin::navigation.audience").disable();
@@ -18,6 +15,9 @@ export default async ({ strapi, config }: ConfigInput) => {
   extensionService
     .shadowCRUD("plugin::navigation.navigations-items-related")
     .disable();
+  const commonService = getPluginService<ICommonService>('common');
+  const pluginStore = await commonService.getPluginStore()
+  const config = await pluginStore.get({ key: 'config' });
 
   extensionService.use(({ strapi, nexus }: any) => {
     const types = getTypes({ strapi, nexus, config });
