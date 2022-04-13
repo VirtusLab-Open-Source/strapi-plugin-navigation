@@ -3,7 +3,7 @@ import slugify from "@sindresorhus/slugify";
 import { Id, StrapiContext } from "strapi-typed";
 import { validate } from "uuid";
 import { assertNotEmpty, ContentTypeEntity, IAdminService, IClientService, ICommonService, Navigation, NavigationItem, NavigationItemEntity, NestedStructure, RFRNavItem, ToBeFixed } from "../../types"
-import { compareArraysOfNumbers, composeItemTitle, extractMeta, filterByPath, filterOutUnpublished, getPluginService, RENDER_TYPES, templateNameFactory } from "../utils";
+import { composeItemTitle, getPluginModels, filterByPath, filterOutUnpublished, getPluginService, templateNameFactory, RENDER_TYPES, compareArraysOfNumbers } from "../utils";
 //@ts-ignore
 import { errors } from '@strapi/utils';
 import { i18nAwareEntityReadHandler } from "../i18n";
@@ -228,9 +228,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
       visible: true,
     }
 
-    const { masterModel, itemModel } = extractMeta(
-      strapi.plugins,
-    );
+    const { masterModel, itemModel } = getPluginModels();
 
     const entity = await i18nAwareEntityReadHandler({
       entity: await strapi
