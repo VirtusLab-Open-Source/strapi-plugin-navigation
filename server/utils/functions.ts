@@ -11,7 +11,7 @@ import {
   first,
   zipWith,
 } from 'lodash';
-import { Id, IStrapi, Primitive, StrapiContentType, StrapiPlugin, StringMap } from "strapi-typed";
+import { Id, IStrapi, Primitive, StrapiContentType, StringMap, StrapiContentTypeFullSchema} from "strapi-typed";
 
 import { AuditLogContext, AuditLogParams, ContentTypeEntity, NavigationActions, NavigationItem, NavigationItemEntity, NavigationService, NavigationServiceName, NestedPath, NestedStructure, PluginConfigNameFields, ToBeFixed } from "../../types";
 import { NavigationError } from '../../utils/NavigationError';
@@ -203,20 +203,6 @@ export const singularize = (
   return last(value) === 's' ? value.substr(0, value.length - 1) : value;
 };
 
-export const extractMeta = (
-  plugins: { [uid: string]: StrapiPlugin }
-) => {
-  const { navigation: plugin } = plugins;
-  return {
-    masterModel: plugin.contentType('navigation'),
-    itemModel: plugin.contentType('navigation-item'),
-    relatedModel: plugin.contentType('navigations-items-related'),
-    audienceModel: plugin.contentType('audience'),
-    plugin,
-    pluginName: 'navigation',
-  };
-};
-
 export const buildNestedStructure = (
   entities: NavigationItemEntity<ContentTypeEntity>[],
   id: Id | null = null,
@@ -312,3 +298,13 @@ export const compareArraysOfNumbers = (arrA: number[], arrB: number[]) => {
   });
   return find(diff, a => a !== 0) || 0;
 }
+  
+export const getPluginModels = (): Record<string, StrapiContentTypeFullSchema> => {
+  const plugin = strapi.plugin('navigation');
+  return {
+    masterModel: plugin.contentType('navigation'),
+    itemModel: plugin.contentType('navigation-item'),
+    relatedModel: plugin.contentType('navigations-items-related'),
+    audienceModel: plugin.contentType('audience'),
+  }
+};

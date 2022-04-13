@@ -6,7 +6,7 @@ import { sanitize } from '@strapi/utils';
 import { ContentTypeEntity, ICommonService, Navigation, NavigationActions, NavigationActionsPerItem, NavigationItem, NavigationItemEntity, NavigationItemRelated, NavigationPluginConfig, NestedStructure, RelatedRef, ToBeFixed } from "../../types";
 import { configSetupStrategy } from "../config";
 import { addI18nWhereClause } from "../i18n";
-import { checkDuplicatePath, extractMeta, getPluginService, isContentTypeEligible, KIND_TYPES, singularize } from "../utils";
+import { checkDuplicatePath, getPluginModels, getPluginService, isContentTypeEligible, KIND_TYPES, singularize } from "../utils";
 
 const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) => ({
   analyzeBranch(
@@ -136,8 +136,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
     operations,
   ) {
     const commonService = getPluginService<ICommonService>('common');
-    const { itemModel } = extractMeta(strapi.plugins);
-
+    const { itemModel } = getPluginModels();
     return await Promise.all<NavigationActions[]>(
       items.map(async (item) => {
         operations.create = true;
@@ -307,7 +306,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
     operations: NavigationActions = {}
   ) {
     const commonService = getPluginService<ICommonService>('common');
-    const { itemModel } = extractMeta(strapi.plugins);
+    const { itemModel } = getPluginModels();
     return Promise.all(
       items
         .filter(item => item.id)
@@ -357,7 +356,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
     operations: NavigationActions
   ) {
     const commonService = getPluginService<ICommonService>('common');
-    const { itemModel } = extractMeta(strapi.plugins);
+    const { itemModel } = getPluginModels();
     const databaseModel = strapi.query<NavigationItemEntity>(itemModel.uid);
     return Promise.all(
       toUpdate.map(async (item) => {
