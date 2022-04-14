@@ -36,6 +36,20 @@ Strapi Navigation Plugin provides a website navigation / menu builder feature fo
 - Tree (nested)
 - RFR (ready for handling by Redux First Router)
 
+### Table of Contents
+1. [✨ Features](#✨-features)
+2. [⏳ Installation](#⏳-installation)
+3. [🖐 Requirements](#🖐-requirements)
+4. [🔧 Basic Configuration](#🔧-configuration)
+   - [Settings page](#in-v203-and-newer)
+   - [Plugin file](#in-v202-and-older--default-configuration-state-for-v203-and-newer)
+5. [🔧 GraphQL Configuration](#🔧-gql-configuration)
+6. [🕸️ Public API - REST](#🕸️-public-api-specification)
+7. [🕸️ Public API - GraphQL](#🕸️-public-api-specification)
+8. [💬 FAQ](#💬-faq)
+9. [🤝 Contributing](#🤝-contributing)
+10. [👨‍💻 Community support](#👨‍💻-community-support)
+
 ## ✨ Features
 
 - **Navigation Public API:** Simple and ready for use API endpoint for consuming the navigation structure you've created
@@ -54,13 +68,23 @@ Strapi Navigation Plugin provides a website navigation / menu builder feature fo
 
 ## ⏳ Installation
 
+### Via Strapi Markerplace
+
+As a ✅ **verified** plugin by Strapi team we're available on the [**Strapi Marketplace**](https://market.strapi.io/plugins/strapi-plugin-navigation) as well as **In-App Marketplace** where you can follow the installation instructions.
+
+<div style="margin: 20px 0" align="center">
+  <img style="width: 100%; height: auto;" src="public/assets/marketplace.png" alt="Strapi In-App Marketplace" />
+</div>
+
+### Via command line
+
 It's recommended to use **yarn** to install this plugin within your Strapi project. [You can install yarn with these docs](https://yarnpkg.com/lang/en/docs/install/).
 
 ```bash
 yarn add strapi-plugin-navigation@latest
 ```
 
-After successful installation you've to build a fresh package that includes  plugin UI. To archive that simply use:
+After successful installation you've to re-build your Strapi instance. To archive that simply use:
 
 ```bash
 yarn build
@@ -75,7 +99,9 @@ yarn develop --watch-admin
 
 The **UI Navigation** plugin should appear in the **Plugins** section of Strapi sidebar after you run app again.
 
-Enjoy 🎉
+As a next step you must configure your the plugin by the way you want to. See [**Configuration**](#configuration) section.
+
+All done. Enjoy 🎉
 
 ## 🖐 Requirements
 
@@ -83,7 +109,7 @@ Complete installation requirements are exact same as for Strapi itself and can b
 
 **Supported Strapi versions**:
 
-- Strapi v4.1.6 (recently tested)
+- Strapi v4.1.7 (recently tested)
 - Strapi v4.x
 
 > This plugin is designed for **Strapi v4** and is not working with v3.x. To get version for **Strapi v3** install version [v1.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/strapi-v3).
@@ -92,9 +118,17 @@ Complete installation requirements are exact same as for Strapi itself and can b
 
 ## 🔧 Configuration
 
+To start your journey with **Navigation plugin** you must first setup it using the dedicated Settings page (`v2.0.3` and newer) or for any version, put your configuration in `config/plugins.js`. Anyway we're recommending the click-through option where your configuration is going to be properly validated.
+
 ### In `v2.0.3` and newer
 
-Version `2.0.3` introduces the intuitive **Settings** page which you can easily access via `Strapi Settings -> Section: Navigation Plugin -> Configuration`. On the dedicated page, you will be able to set up all crucial properties which drive the plugin and customize each individual collection for which **Navigation plugin** should be enabled.
+Version `2.0.3` introduces the intuitive **Settings** page which you can easily access via `Strapi Settings -> Section: Navigation Plugin -> Configuration`. 
+
+On the dedicated page, you will be able to set up all crucial properties which drive the plugin and customize each individual collection for which **Navigation plugin** should be enabled.
+
+<div style="margin: 20px 0" align="center">
+  <img style="width: 100%; height: auto;" src="public/assets/configuration.png" alt="Plugin configuration" />
+</div>
 
 > *Note*
 > The default configuration for your plugin is fetched from `config/plugins.js` or, if the file is not there, directly from the plugin itself. If you would like to customize the default state to which you might revert, please follow the next section.
@@ -170,7 +204,7 @@ For any role different than **Super Admin**, to access the **Navigation panel** 
 ## Base Navigation Item model
 
 ### Flat
-```
+```json
 {
     "id": 1,
     "title": "News",
@@ -183,13 +217,13 @@ For any role different than **Super Admin**, to access the **Navigation panel** 
     "master": 1, // Navigation 'id'
     "createdAt": "2020-09-29T13:29:19.086Z",
     "updatedAt": "2020-09-29T13:29:19.128Z",
-    "related": [ <Content Type model > ],
+    "related": [ /*<Content Type model >*/ ],
     "audience": []
 }
 ```
 
 ### Tree
-```
+```json
 {
     "title": "News",
     "menuAttached": true,
@@ -199,7 +233,7 @@ For any role different than **Super Admin**, to access the **Navigation panel** 
     "slug": "benefits",
     "external": false,
     "related": {
-        <Content Type model >
+        // <Content Type model >
     },
     "items": [
         {
@@ -210,13 +244,13 @@ For any role different than **Super Admin**, to access the **Navigation panel** 
             "uiRouterKey": "generic",
             "external": true
         },
-        < Tree Navigation Item models >
+       //  < Tree Navigation Item models >
     ]
 }
 ```
 
 ### RFR
-```
+```json
 {
     "id": "News",
     "title": "News",
@@ -235,33 +269,37 @@ For any role different than **Super Admin**, to access the **Navigation panel** 
 
 ## 🕸️ Public API specification
 
-### Query Params 
+Plugin supports both **REST API** and **GraphQL API** exposed by Strapi.
 
-- `type` - Enum value representing structure type of returned navigation 
+**Query Params**
 
-    **Example URL**: `https://localhost:1337/api/navigation/render/1?type=FLAT`
+- `navigationIdOrSlug` - ID or slug for which your navigation structure is generated like for REST API:
 
-- `menu` - Boolean value for querying only navigation items that are attached to menu should be rendered eg.
+  > `https://localhost:1337/api/navigation/render/1`
+  > `https://localhost:1337/api/navigation/render/main-menu`
 
-    **Example URL**: `https://localhost:1337/api/navigation/render/1?menu=true`
+- `type` - Enum value representing structure type of returned navigation:
+  > `https://localhost:1337/api/navigation/render/1?type=FLAT`
 
-- `path` - String value for querying navigation items by its path 
+- `menu` (`menuOnly` for GQL) - Boolean value for querying only navigation items that are attached to menu should be rendered eg.
+  > `https://localhost:1337/api/navigation/render/1?menu=true`
 
-    **Example URL**: `https://localhost:1337/api/navigation/render/1?path=/home/about-us`
+- `path` - String value for querying navigation items by its path:
+  > `https://localhost:1337/api/navigation/render/1?path=/home/about-us`
 
-### Render
+### REST API
 
-`GET <host>/api/navigation/render/<idOrSlug>?type=<type>`
+`GET <host>/api/navigation/render/<navigationIdOrSlug>?type=<type>`
 
 Return a rendered navigation structure depends on passed type (`tree`, `rfr` or nothing to render as `flat/raw`).
 
-*Note: The ID of navigation by default is `1`, that's for future extensions and multi-navigation feature.*
+> The ID of navigation by default is `1`, if you've got defined multiple navigations you must work with their IDs or Slugs to fetch.
 
 **Example URL**: `https://localhost:1337/api/navigation/render/1`
 
 **Example response body**
 
-```
+```json
 [
     {
         "id": 1,
@@ -279,10 +317,10 @@ Return a rendered navigation structure depends on passed type (`tree`, `rfr` or 
             "__contentType": "Page",
             "id": 1,
             "title": "News",
-            ...
+            // ...
         }]
     },
-    ...
+    // ...
 ]
 ```
 
@@ -290,7 +328,7 @@ Return a rendered navigation structure depends on passed type (`tree`, `rfr` or 
 
 **Example response body**
 
-```
+```json
 [
     {
         "title": "News",
@@ -304,7 +342,7 @@ Return a rendered navigation structure depends on passed type (`tree`, `rfr` or 
             "__contentType": "Page",
             "id": 1,
             "title": "News",
-            ...
+            // ...
         },
         "items": [
             {
@@ -315,10 +353,10 @@ Return a rendered navigation structure depends on passed type (`tree`, `rfr` or 
                 "uiRouterKey": "generic",
                 "external": true
             },
-            ...
+            // ...
         ]
     },
-    ...
+    // ...
 ]
 ```
 
@@ -326,7 +364,7 @@ Return a rendered navigation structure depends on passed type (`tree`, `rfr` or 
 
 **Example response body**
 
-```
+```json
 {
     "pages": {
         "News": {
@@ -371,7 +409,7 @@ Return a rendered navigation structure depends on passed type (`tree`, `rfr` or 
             "parent": "Community",
             "menuAttached": false
         },
-        ...
+        // ...
     },
     "nav": {
         "root": [
@@ -390,7 +428,7 @@ Return a rendered navigation structure depends on passed type (`tree`, `rfr` or 
                 "type": "external",
                 "url": "http://example.com"
             },
-            ...
+            // ...
         ],
         "Community": [
             {
@@ -398,10 +436,98 @@ Return a rendered navigation structure depends on passed type (`tree`, `rfr` or 
                 "type": "internal",
                 "page": "Highlights"
             },
-            ...
+            // ...
         ],
-        ...
+        // ...
     }
+}
+```
+
+### GraphQL API
+
+Same as [**REST API**](#rest-api) returns a rendered navigation structure depends on passed type (`tree`, `rfr` or nothing to render as `flat/raw`).
+
+**Example request**
+
+```graphql
+query {
+  renderNavigation(
+    navigationIdOrSlug: "main-navigation"
+    type: TREE
+    menuOnly: false
+  ) {
+    id
+    title
+    path
+    related {
+      __typename
+
+      ... on Page {
+        Title
+      }
+
+      ... on WithFlowType {
+        Name
+      }
+    }
+    items {
+      id
+      title
+      path
+      related {
+        __typename
+
+        ... on Page {
+          Title
+        }
+
+        ... on WithFlowType {
+          Name
+        }
+      }
+    }
+  }
+}
+```
+
+**Example response**
+
+```json
+{
+  "data": {
+    "renderNavigation": [
+      {
+        "id": 8,
+        "title": "Test page",
+        "path": "/test-path",
+        "related": {
+          "__typename": "WithFlowType",
+          "Name": "Test"
+        },
+        "items": [
+          {
+            "id": 11,
+            "title": "Nested",
+            "path": "/test-path/nested-one",
+            "related": {
+              "__typename": "Page",
+              "Title": "ghghghgh"
+            }
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "title": "Another page",
+        "path": "/another",
+        "related": {
+          "__typename": "Page",
+          "Title": "dfdfdf"
+        },
+        "items": []
+      }
+    ]
+  }
 }
 ```
 
@@ -417,13 +543,22 @@ For single types a global name of this content type will be used as a template n
 
 Live example of plugin usage can be found in the [VirtusLab Strapi Examples](https://github.com/VirtusLab/strapi-examples/tree/master/strapi-plugin-navigation) repository.
 
-## 💬 Q&A
+## 💬 FAQ
 
-### Content Types
+### GraphQL tricks
 
-**Q:** I've recognized **Navigation Item** and **Navigation** collection types in the Collections sidebar section, but they are not working properly. What should I do?
+**Q:** I would like to use GraphQL schemas but I'm not getting renderNavigation query or even proper types as Navigation, NavigationItem etc. What should I do?
 
-**A:** As an authors of the plugin we're not supporting any editing of mentioned content types via built-in Strapi Content Manager. Plugin delivers highly customized & extended functionality which might be covered only by dedicated editor UI accessible via **Plugins Section > UI Navigation**. Only issues that has been recognized there, are in the scope of support we've providing.
+**A:** There is a one trick you might try. Strapi by default is ordering plugins by the way which takes `strapi-plugin-graphql` to initialize earlier than other plugins so types might not be injected. If you don't have it yet, please create `config/plugins.js` file and put there at lease following lines:
+
+```js
+module.exports = {
+  'navigation': { enabled: true },
+  'graphql': { enabled: true },
+};
+```
+
+If you already got it, make sure that `navigation` plugin is inserted before `graphql`. That should do the job.
 
 ## 🤝 Contributing
 
