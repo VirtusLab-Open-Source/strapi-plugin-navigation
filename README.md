@@ -37,18 +37,19 @@ Strapi Navigation Plugin provides a website navigation / menu builder feature fo
 - RFR (ready for handling by Redux First Router)
 
 ### Table of Contents
-1. [✨ Features](#✨-features)
-2. [⏳ Installation](#⏳-installation)
-3. [🖐 Requirements](#🖐-requirements)
-4. [🔧 Basic Configuration](#🔧-configuration)
+1. [✨ Features](#-features)
+2. [⏳ Installation](#-installation)
+3. [🖐 Requirements](#-requirements)
+4. [🔧 Basic Configuration](#-configuration)
    - [Settings page](#in-v203-and-newer)
    - [Plugin file](#in-v202-and-older--default-configuration-state-for-v203-and-newer)
-5. [🔧 GraphQL Configuration](#🔧-gql-configuration)
-6. [🕸️ Public API - REST](#🕸️-public-api-specification)
-7. [🕸️ Public API - GraphQL](#🕸️-public-api-specification)
-8. [💬 FAQ](#💬-faq)
-9. [🤝 Contributing](#🤝-contributing)
-10. [👨‍💻 Community support](#👨‍💻-community-support)
+5. [🔧 GraphQL Configuration](#-gql-configuration)
+6. [🕸️ Public API specification](#%EF%B8%8F-public-api-specification)
+   - [REST API](#rest-api) 
+   - [GraphQL API](#graphql-api)
+8. [💬 FAQ](#-faq)
+9. [🤝 Contributing](#-contributing)
+10. [👨‍💻 Community support](#-community-support)
 
 ## ✨ Features
 
