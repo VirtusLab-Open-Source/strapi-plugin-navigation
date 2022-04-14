@@ -587,11 +587,8 @@ query {
         "title": "Another page",
         "path": "/another",
         "related": {
-          "id": 2,
-          "attributes": {
-            "__typename": "Page",
-            "Title": "dfdfdf"
-          }
+          "__typename": "Page",
+          "Title": "Eg. Page title"
         },
         "items": []
       }
