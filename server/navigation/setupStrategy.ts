@@ -1,10 +1,7 @@
 import { IStrapi } from "strapi-typed";
 import { INavigationSetupStrategy, Navigation } from "../../types";
-import {
-  DEFAULT_NAVIGATION_ITEM,
-  DEFAULT_NAVIGATION_POPULATED_FIELDS,
-} from "../common";
 import { i18nNavigationSetupStrategy } from "../i18n";
+import { DEFAULT_NAVIGATION_ITEM, DEFAULT_POPULATE } from "../utils";
 
 export const navigationSetupStrategy: INavigationSetupStrategy = async (
   context
@@ -28,7 +25,7 @@ const regularNavigationSetupStrategy: INavigationSetupStrategy = async ({
         payload: {
           ...DEFAULT_NAVIGATION_ITEM,
         },
-        populate: DEFAULT_NAVIGATION_POPULATED_FIELDS
+        populate: DEFAULT_POPULATE
       }),
     ];
   }

@@ -9,3 +9,8 @@ export const EXCLUDED_CONTENT_TYPES = ['strapi::'];
 export const CONTENT_TYPES_NAME_FIELDS_DEFAULTS = ['title', 'subject', 'name'];
 export const ADDITIONAL_FIELDS = { AUDIENCE: 'audience' };
 export const DEFAULT_POPULATE = [...I18N_DEFAULT_POPULATE]
+export const DEFAULT_NAVIGATION_ITEM = {
+  name: "Main navigation",
+  slug: "main-navigation",
+  visible: true,
+} as const;

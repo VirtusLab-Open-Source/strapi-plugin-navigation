@@ -8,9 +8,8 @@ import {
   NavigationPluginConfig,
 } from "../../types";
 import {
-  DEFAULT_NAVIGATION_ITEM,
-  DEFAULT_NAVIGATION_POPULATED_FIELDS,
-} from "../common";
+  DEFAULT_NAVIGATION_ITEM, DEFAULT_POPULATE,
+} from "../utils";
 import { DefaultLocaleMissingError } from "./errors";
 
 export const i18nNavigationSetupStrategy: INavigationSetupStrategy = async ({
@@ -43,7 +42,7 @@ export const i18nNavigationSetupStrategy: INavigationSetupStrategy = async ({
             ...DEFAULT_NAVIGATION_ITEM,
             localeCode: defaultLocale,
           },
-          populate: DEFAULT_NAVIGATION_POPULATED_FIELDS,
+          populate: DEFAULT_POPULATE,
         }),
       ];
     }
@@ -58,7 +57,7 @@ export const i18nNavigationSetupStrategy: INavigationSetupStrategy = async ({
                 payload: {
                   localeCode: defaultLocale,
                 },
-                populate: DEFAULT_NAVIGATION_POPULATED_FIELDS,
+                populate: DEFAULT_POPULATE,
               })
             : navigation;
         })

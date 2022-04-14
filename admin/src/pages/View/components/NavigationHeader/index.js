@@ -47,9 +47,10 @@ const NavigationHeader = ({
     <HeaderLayout
       primaryAction={
         <Stack horizontal size={2}>
-          <Box width={hasLocalizations ? "20vw" : "12vw"} marginRight="8px">
+          <Box width="20vw" marginRight="8px">
             <Grid gap={4}>
-              <GridItem col={hasLocalizations ? 6 : 9}>
+              {!hasLocalizations ? (<GridItem col={3} />) : null}
+              <GridItem col={6}>
                 <Select
                   type="select"
                   placeholder="Change navigation"
