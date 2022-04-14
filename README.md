@@ -99,7 +99,7 @@ yarn develop --watch-admin
 
 The **UI Navigation** plugin should appear in the **Plugins** section of Strapi sidebar after you run app again.
 
-As a next step you must configure your the plugin by the way you want to. See [**Configuration**](#configuration) section.
+As a next step you must configure your the plugin by the way you want to. See [**Configuration**](#🔧-configuration) section.
 
 All done. Enjoy 🎉
 
