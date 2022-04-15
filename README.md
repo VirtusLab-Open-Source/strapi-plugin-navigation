@@ -110,7 +110,7 @@ Complete installation requirements are exact same as for Strapi itself and can b
 
 **Supported Strapi versions**:
 
-- Strapi v4.1.7 (recently tested)
+- Strapi v4.1.8 (recently tested)
 - Strapi v4.x
 
 > This plugin is designed for **Strapi v4** and is not working with v3.x. To get version for **Strapi v3** install version [v1.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/strapi-v3).
@@ -218,7 +218,7 @@ For any role different than **Super Admin**, to access the **Navigation panel** 
     "master": 1, // Navigation 'id'
     "createdAt": "2020-09-29T13:29:19.086Z",
     "updatedAt": "2020-09-29T13:29:19.128Z",
-    "related": [ /*<Content Type model >*/ ],
+    "related": {/*<Content Type model >*/ },
     "audience": []
 }
 ```
@@ -290,6 +290,10 @@ Plugin supports both **REST API** and **GraphQL API** exposed by Strapi.
 
 ### REST API
 
+> **Important!**
+> Version `v2.0.13` introduced breaking change!
+> All responses have changed their structure. Related field will now be of type ContentType instead of Array\<ContentType\>
+
 `GET <host>/api/navigation/render/<navigationIdOrSlug>?type=<type>`
 
 Return a rendered navigation structure depends on passed type (`tree`, `rfr` or nothing to render as `flat/raw`).
@@ -314,12 +318,12 @@ Return a rendered navigation structure depends on passed type (`tree`, `rfr` or 
         "master": 1,
         "created_at": "2020-09-29T13:29:19.086Z",
         "updated_at": "2020-09-29T13:29:19.128Z",
-        "related": [{
+        "related": {
             "__contentType": "Page",
             "id": 1,
             "title": "News",
             // ...
-        }]
+        }
     },
     // ...
 ]
@@ -512,7 +516,7 @@ query {
             "path": "/test-path/nested-one",
             "related": {
               "__typename": "Page",
-              "Title": "ghghghgh"
+              "Title": "Eg. Page title"
             }
           }
         ]
