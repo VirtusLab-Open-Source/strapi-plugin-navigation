@@ -10,7 +10,7 @@ module.exports = ({ nexus }) =>
 			t.nonNull.string("uiRouterKey")
 			t.nonNull.boolean("menuAttached")
 			t.nonNull.int("order")
-			t.int("parent")
+			t.field("parent", {type: "NavigationItem"})
 			t.int("master")
 			t.list.field("items", { type: 'NavigationItem' })
 			t.field("related", { type: 'NavigationRelated' })

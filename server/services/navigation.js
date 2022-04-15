@@ -474,10 +474,10 @@ module.exports = ({ strapi }) => {
                 ...item,
                 audience: item.audience?.map(_ => _.key),
                 title: utilsFunctions.composeItemTitle(item, contentTypesNameFields, contentTypes),
-                related: item.related?.map(({ localizations, ...item }) => item),
+                related: last(item.related?.map(({ localizations, ...item }) => item)),
                 items: null,
               }));
-            return isNil(rootPath) ? items : utilsFunctions.filterByPath(publishedItems, rootPath).items;
+            return isNil(rootPath) ? publishedItems : utilsFunctions.filterByPath(publishedItems, rootPath).items;
         }
       }
       throw new NotFoundError();
