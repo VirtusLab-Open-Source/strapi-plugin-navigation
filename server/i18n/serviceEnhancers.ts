@@ -98,7 +98,7 @@ export const i18nAwareEntityReadHandler = async <
 
   const rerun = await strapi.query<T>(entityUid).findOne({
     where: whereClause,
-    populate: [...populate, ...I18N_DEFAULT_POPULATE],
+    populate: [...populate, ...I18N_DEFAULT_POPULATE] as Array<OnlyStrings<keyof T>>,
   });
 
   if (rerun) {

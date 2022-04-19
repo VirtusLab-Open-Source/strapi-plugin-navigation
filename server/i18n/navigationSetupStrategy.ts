@@ -1,4 +1,4 @@
-import { IStrapi } from "strapi-typed";
+import { IStrapi, OnlyStrings } from "strapi-typed";
 import {
   assertEntity,
   assertNotEmpty,
@@ -157,7 +157,7 @@ const updateNavigation = ({
   strapi: IStrapi;
   payload: Partial<Navigation>;
   current: Navigation;
-  populate?: string[];
+  populate?: Array<OnlyStrings<keyof Navigation>>;
 }): Promise<Navigation> =>
   strapi.query<Navigation>("plugin::navigation.navigation").update({
     data: {

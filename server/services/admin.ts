@@ -88,7 +88,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
         },
         limit: Number.MAX_SAFE_INTEGER,
         orderBy: [{ order: 'asc', }],
-        populate: ['related', 'parent', 'audience', ...DEFAULT_POPULATE]
+        populate: ['related', 'parent', 'audience']
       });
     const entities = await commonService.getRelatedItems(entityItems);
     return {
