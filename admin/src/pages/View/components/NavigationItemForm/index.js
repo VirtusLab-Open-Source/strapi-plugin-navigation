@@ -33,6 +33,7 @@ const NavigationItemForm = ({
   getContentTypeEntities,
   usedContentTypesData,
   appendLabelPublicationStatus = () => '',
+  locale,
 }) => {
   const [hasBeenInitialized, setInitializedState] = useState(false);
   const [hasChanged, setChangedState] = useState(false);
@@ -268,6 +269,7 @@ const NavigationItemForm = ({
           await getContentTypeEntities({
             modelUID: item.uid,
             query: contentTypeSearchQuery,
+            locale,
           }, item.plugin);
         }
       }

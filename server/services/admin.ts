@@ -2,14 +2,17 @@ import slugify from "slugify";
 import { isNil, isObject } from "lodash";
 import { Id, StrapiContext } from "strapi-typed";
 import { Audience, AuditLogContext, IAdminService, ICommonService, Navigation, NavigationItemEntity, NavigationPluginConfig, ToBeFixed } from "../../types";
-import { ADDITIONAL_FIELDS, ALLOWED_CONTENT_TYPES, buildNestedStructure, CONTENT_TYPES_NAME_FIELDS_DEFAULTS, extractMeta, getPluginService, prepareAuditLog, RESTRICTED_CONTENT_TYPES, sendAuditLog } from "../utils";
+import { ADDITIONAL_FIELDS, ALLOWED_CONTENT_TYPES, buildNestedStructure, CONTENT_TYPES_NAME_FIELDS_DEFAULTS, DEFAULT_POPULATE, extractMeta, getPluginService, prepareAuditLog, RESTRICTED_CONTENT_TYPES, sendAuditLog } from "../utils";
+import { addI18NConfigFields, I18NConfigFields } from "../i18n";
+
+type SettingsPageConfig = NavigationPluginConfig & I18NConfigFields
 
 const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => ({
-  async config(viaSettingsPage = false): Promise<NavigationPluginConfig> {
+  async config(viaSettingsPage = false): Promise<SettingsPageConfig> {
     const commonService = getPluginService<ICommonService>('common');
     const { audienceModel } = extractMeta(strapi.plugins);
     const pluginStore = await commonService.getPluginStore()
-    const config = await pluginStore.get({ key: 'config' });
+    const config: NavigationPluginConfig = await pluginStore.get({ key: 'config' });
 
     const additionalFields = config.additionalFields;
     const contentTypesNameFields = config.contentTypesNameFields;
@@ -38,6 +41,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
       },
       isGQLPluginEnabled: viaSettingsPage ? isGQLPluginEnabled : undefined,
     };
+    const i18nConfig = await addI18NConfigFields({strapi, viaSettingsPage, previousConfig: {}});
 
     if (additionalFields.includes(ADDITIONAL_FIELDS.AUDIENCE)) {
       const audienceItems = await strapi
@@ -53,6 +57,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
     return {
       ...result,
       ...extendedResult,
+      ...i18nConfig,
     };
   },
 
@@ -62,6 +67,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
       .query<Navigation>(masterModel.uid)
       .findMany({
         limit: Number.MAX_SAFE_INTEGER,
+        populate: DEFAULT_POPULATE,
       });
     return entities;
   },
@@ -72,7 +78,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
     const { masterModel, itemModel } = extractMeta(strapi.plugins);
     const entity = await strapi
       .query<Navigation>(masterModel.uid)
-      .findOne({ where: { id } });
+      .findOne({ where: { id }, populate: DEFAULT_POPULATE });
 
     const entityItems = await strapi
       .query<NavigationItemEntity>(itemModel.uid)
@@ -159,7 +165,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
     const commonService = getPluginService<ICommonService>('common');
     const pluginStore = await commonService.getPluginStore()
     await pluginStore.delete({ key: 'config' });
-    await strapi.plugin('navigation').service('navigation').setDefaultConfig();
+    await strapi.plugin('navigation').service('common').setDefaultConfig();
   },
 
   async updateConfig(newConfig: NavigationPluginConfig): Promise<void> {

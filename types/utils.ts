@@ -58,3 +58,22 @@ export type StrapiRoutes = {
 
 export type StrapiControllerContext = any;
 export type StrapiControllerContextParams = any;
+
+export const assertNotEmpty: <T>(
+  value: T | null | undefined,
+  customError?: Error
+) => asserts value is T = (value, customError) => {
+  if (value !== undefined && value !== null) {
+    return;
+  }
+
+  throw customError ?? new Error("Non-empty value expected, empty given");
+};
+
+export const assertEntity = <T>(entity: unknown, name = "Entity"): T => {
+  if (entity instanceof Object && entity.hasOwnProperty("id")) {
+    return entity as T;
+  }
+
+  throw new Error(`${name} instance expected. ${typeof entity} given.`);
+};

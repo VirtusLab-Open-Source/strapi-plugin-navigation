@@ -50,8 +50,9 @@ const View = () => {
     handleChangeNavigationData,
     handleResetNavigationData,
     handleSubmitNavigation,
+    handleLocalizationSelection,
     getContentTypeItems,
-    error
+    error,
   } = useDataManager();
 
   const [activeNavigationItem, setActiveNavigationItemState] = useState({});
@@ -239,6 +240,8 @@ const View = () => {
         activeNavigation={activeNavigation}
         handleChangeSelection={handleChangeNavigationSelection}
         handleSave={handleSave}
+        handleLocalizationSelection={handleLocalizationSelection}
+        config={config}
       />
       <ContentLayout>
         {isLoading && <LoadingIndicatorPage />}
@@ -299,6 +302,7 @@ const View = () => {
         getContentTypeItems={getContentTypeItems}
         onSubmit={handleSubmitNavigationItem}
         onClose={onPopUpClose}
+        locale={activeNavigation.localeCode}
       />}
     </Main>
   );

@@ -1,4 +1,4 @@
-import { Id } from "strapi-typed";
+import { Id, TypeResult } from "strapi-typed";
 import { DateString, ToBeFixed } from "./utils";
 
 export type Navigation = {
@@ -9,6 +9,8 @@ export type Navigation = {
   items?: NavigationItemEntity<ToBeFixed>[];
   createdAt: string;
   updatedAt: string;
+  localeCode?: string | null;
+  localizations?: Navigation[] | null
 }
 
 export type NavigationItem = NavigationItemPartial & {
@@ -24,7 +26,7 @@ export type NavigationItem = NavigationItemPartial & {
   slug?: string
 }
 
-export type NavigationItemEntity<RelatedType = NavigationItemRelated> = NavigationItemPartial & EntityDatePartial & {
+export type NavigationItemEntity<RelatedType = NavigationItemRelated> = TypeResult<NavigationItemPartial & EntityDatePartial & {
   id: number;
   parent: NavigationItemEntity | null;
   master: Navigation;
@@ -32,7 +34,7 @@ export type NavigationItemEntity<RelatedType = NavigationItemRelated> = Navigati
   path: string | null;
   externalPath: string | null;
   related: RelatedType | null;
-}
+}>
 
 type NavigationItemPartial = {
   title: string;
