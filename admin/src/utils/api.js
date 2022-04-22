@@ -1,7 +1,7 @@
 import { request } from '@strapi/helper-plugin';
 import pluginId from '../pluginId';
 
-export const fetchNavigationConfig = async () => {
+export const fetchNavigationConfig = async (toggleNotification) => {
   try {
     const data = await request(`/${pluginId}/settings/config`, { method: 'GET' });
     return data;
@@ -21,7 +21,7 @@ export const updateNavigationConfig = async ({ body }) =>
 export const restoreNavigationConfig = async () =>
   request(`/${pluginId}/config`, { method: 'DELETE' }, true);
 
-export const fetchAllContentTypes = async () => {
+export const fetchAllContentTypes = async (toggleNotification) => {
   try {
     const { data } = await request('/content-manager/content-types');
     return { ...data }

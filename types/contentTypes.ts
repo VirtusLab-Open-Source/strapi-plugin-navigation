@@ -94,3 +94,11 @@ type EntityDatePartial = {
 }
 
 export type NotVoid<T> = T extends undefined ? never : T;
+
+export type NavigationItemCustomField = {
+  name: string;
+  label: string;
+  type: 'string' | 'boolean';
+}
+
+export type NavigationItemAdditionalField = NavigationItemCustomField | 'audience';
