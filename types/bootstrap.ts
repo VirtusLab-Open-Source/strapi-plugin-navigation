@@ -10,10 +10,6 @@ export interface INavigationSetupStrategy {
   (context: StrapiContext): Promise<Navigation[]>;
 }
 
-export type IGraphQLSetupStrategyInput = StrapiContext & {
-  config: NavigationPluginConfig;
-};
-
 export interface IGraphQLSetupStrategy {
-  (input: IGraphQLSetupStrategyInput): Promise<void>;
+  (context: StrapiContext): Promise<void>;
 }

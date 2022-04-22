@@ -1,4 +1,4 @@
-import { Id, StrapiContentType, StrapiStore, StringMap } from "strapi-typed";
+import { Id, StrapiContentType, StrapiEvents, StrapiStore, StringMap } from "strapi-typed";
 import { NavigationPluginConfig } from "./config";
 import { Navigation, NavigationItem, NavigationItemEntity, NestedStructure, RelatedRef } from "./contentTypes";
 import { I18nQueryParams } from "./i18n";
@@ -25,6 +25,7 @@ export interface ICommonService {
   analyzeBranch: (items: NestedStructure<NavigationItem>[], masterEntity: Navigation | null, parentItem?: ToBeFixed, prevOperations?: NavigationActions) => Promise<NavigationActionsPerItem[]>,
   configContentTypes: (viaSettingsPage?: boolean) => Promise<StrapiContentType<ToBeFixed>[]>,
   createBranch: (items: NestedStructure<NavigationItem>[], masterEntity: Navigation | null, parentItem: NavigationItemEntity | null, operations: NavigationActions) => ToBeFixed,
+  emitEvent: (uid: string, event: StrapiEvents, entity: ToBeFixed) => Promise<void>,
   getBranchName: (item: NavigationItem) => keyof NavigationActionsPerItem | void,
   getContentTypeItems: (uid: string, query: StringMap<string>) => Promise<ContentTypeEntity[]>,
   getIdsRelated: (relatedItems: RelatedRef[] | null, master: number) => Promise<(Id | undefined)[]> | void,

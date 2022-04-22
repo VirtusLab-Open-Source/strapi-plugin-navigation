@@ -113,7 +113,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
       .query<Navigation>(masterModel.uid)
       .create({ data });
 
-    return commonService
+    const result = commonService
       .createBranch(payload.items, existingEntity, null, {})
       .then(() => adminService.getById(existingEntity.id))
       .then((newEntity: Navigation) => {
@@ -121,6 +121,9 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
           { actionType: 'CREATE', oldEntity: existingEntity, newEntity });
         return newEntity;
       });
+
+    await commonService.emitEvent(masterModel.uid, 'entry.create', existingEntity);
+    return result
   },
 
   async put(id: Id, payload: ToBeFixed, auditLog: AuditLogContext) {
@@ -133,7 +136,6 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
     const existingEntity = await adminService.getById(id);
     const entityNameHasChanged = existingEntity.name !== name || existingEntity.visible !== visible;
     if (entityNameHasChanged) {
-
       await strapi.query<Navigation>(masterModel.uid).update({
         where: { id },
         data: {
@@ -143,7 +145,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
         },
       });
     }
-    return commonService
+    const result = commonService
       .analyzeBranch(payload.items, existingEntity)
       .then((auditLogsOperations: ToBeFixed) =>
         Promise.all([
@@ -155,6 +157,10 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
           { actionType, oldEntity: existingEntity, newEntity });
         return newEntity;
       });
+
+    const navigationEntity = await strapi.query<Navigation>(masterModel.uid).findOne({ where: { id } });
+    await commonService.emitEvent(masterModel.uid, 'entry.update', navigationEntity);
+    return result
   },
 
   async restart(): Promise<void> {
@@ -163,9 +169,9 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
 
   async restoreConfig(): Promise<void> {
     const commonService = getPluginService<ICommonService>('common');
-    const pluginStore = await commonService.getPluginStore()
+    const pluginStore = await commonService.getPluginStore();
     await pluginStore.delete({ key: 'config' });
-    await strapi.plugin('navigation').service('common').setDefaultConfig();
+    await commonService.setDefaultConfig();
   },
 
   async updateConfig(newConfig: NavigationPluginConfig): Promise<void> {

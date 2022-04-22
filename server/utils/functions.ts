@@ -40,8 +40,6 @@ export const parseParams = <
     };
   }, {} as TResult);
 
-
-
 export const templateNameFactory = async (
   items: NavigationItemEntity<ContentTypeEntity[] | ContentTypeEntity>[] = [],
   strapi: IStrapi,

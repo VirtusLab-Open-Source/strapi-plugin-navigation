@@ -1,6 +1,8 @@
 import { find, get, isEmpty, isNil, last, map, upperFirst } from "lodash";
 import pluralize from "pluralize";
 import { Id, StrapiContentType, StrapiContext, StrapiStore, StringMap } from "strapi-typed";
+//@ts-ignore
+import { sanitize } from '@strapi/utils';
 import { ContentTypeEntity, ICommonService, Navigation, NavigationActions, NavigationActionsPerItem, NavigationItem, NavigationItemEntity, NavigationItemRelated, NavigationPluginConfig, NestedStructure, RelatedRef, ToBeFixed } from "../../types";
 import { configSetupStrategy } from "../config";
 import { addI18nWhereClause } from "../i18n";
@@ -381,6 +383,19 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
       }),
     );
   },
+
+  async emitEvent(uid, event, entity) {
+    // TODO: This could be enhanced by reacting not only with webhook but by firing all listeners in Navigation Event Hub
+    // Any developer could register new listener for any event in Navigation Plugin
+    // For now there is only one event 'navigation.update' so implementing Event hub is not valid.
+    const model: ToBeFixed = strapi.getModel(uid);
+    const sanitizedEntity = await sanitize.sanitizers.defaultSanitizeOutput(model, entity);
+  
+    strapi.webhookRunner.eventHub.emit(event, {
+      model: model.modelName,
+      entry: sanitizedEntity,
+    });
+  }
 });
 
 export default commonService;

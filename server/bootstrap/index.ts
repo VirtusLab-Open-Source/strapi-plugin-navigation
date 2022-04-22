@@ -1,22 +1,20 @@
 import { StrapiContext } from "strapi-typed";
 import permissions from "../../permissions";
 import {
+  IConfigSetupStrategy,
   IGraphQLSetupStrategy,
   INavigationSetupStrategy,
-  IConfigSetupStrategy,
 } from "../../types";
-import { configSetupStrategy } from "../config";
 import { graphQLSetupStrategy } from "../graphql";
 import { navigationSetupStrategy } from "../navigation";
+import { configSetupStrategy } from "../config";
 
 export = async ({ strapi }: StrapiContext) => {
   assertUserPermissionsAvailability({ strapi });
 
   await setupPermissions({ strapi });
-
-  const config = await setupConfig({ strapi });
-
-  await setupGraphQL({ strapi, config });
+  await setupConfig({ strapi });
+  await setupGraphQL({ strapi });
   await setupNavigation({ strapi });
 };
 
@@ -27,9 +25,9 @@ const assertUserPermissionsAvailability = ({ strapi }: StrapiContext) => {
     );
   }
 };
-const setupConfig: IConfigSetupStrategy = configSetupStrategy;
 const setupGraphQL: IGraphQLSetupStrategy = graphQLSetupStrategy;
 const setupNavigation: INavigationSetupStrategy = navigationSetupStrategy;
+const setupConfig: IConfigSetupStrategy = configSetupStrategy;
 const setupPermissions = async ({ strapi }: StrapiContext) => {
   // Add permissions
   const actions = [

@@ -1,4 +1,5 @@
 const { addI18NRenderNavigationArgs } = require("../../i18n");
+const { getPluginService } = require("../../utils");
 
 module.exports = ({ strapi, nexus }) => {
   const { nonNull, list, stringArg, booleanArg } = nexus;
@@ -19,8 +20,7 @@ module.exports = ({ strapi, nexus }) => {
       obj,
       { navigationIdOrSlug: idOrSlug, type, menuOnly, path: rootPath, locale }
     ) {
-      const service = strapi.plugin("navigation").service("client");
-      return service.render({ idOrSlug, type, menuOnly, rootPath, locale });
+      return getPluginService('client').render({ idOrSlug, type, menuOnly, rootPath, locale })
     },
   };
 };
