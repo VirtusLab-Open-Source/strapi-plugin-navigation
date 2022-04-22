@@ -3,9 +3,7 @@ import permissions from "../../permissions";
 import {
   IGraphQLSetupStrategy,
   INavigationSetupStrategy,
-  IConfigSetupStrategy,
 } from "../../types";
-import { configSetupStrategy } from "../config";
 import { graphQLSetupStrategy } from "../graphql";
 import { navigationSetupStrategy } from "../navigation";
 
@@ -14,9 +12,7 @@ export = async ({ strapi }: StrapiContext) => {
 
   await setupPermissions({ strapi });
 
-  const config = await setupConfig({ strapi });
-
-  await setupGraphQL({ strapi, config });
+  await setupGraphQL({ strapi });
   await setupNavigation({ strapi });
 };
 
@@ -27,7 +23,6 @@ const assertUserPermissionsAvailability = ({ strapi }: StrapiContext) => {
     );
   }
 };
-const setupConfig: IConfigSetupStrategy = configSetupStrategy;
 const setupGraphQL: IGraphQLSetupStrategy = graphQLSetupStrategy;
 const setupNavigation: INavigationSetupStrategy = navigationSetupStrategy;
 const setupPermissions = async ({ strapi }: StrapiContext) => {
