@@ -44,6 +44,7 @@ Strapi Navigation Plugin provides a website navigation / menu builder feature fo
 - **Different types of navigation items:** Create navigation with items linked to internal types, to external links or wrapper elements to keep structure clean 
 - **Multiple navigations:** Create as many Navigation containers as you want, setup them and use in the consumer application
 - **Light / Dark mode compatible:** By design we're supporting Strapi ☀️ Light / 🌙 Dark modes 
+- **Webhooks integration:** Changes to navigation will trigger 'entry.update' or 'entry.create' webhook events. 
 - **Customizable:** Possibility to customize the options like: available Content Types, Maximum level for "attach to menu", Additional fields (audience)
 - **[Audit log](https://github.com/VirtusLab/strapi-molecules/tree/master/packages/strapi-plugin-audit-log):** integration with Strapi Molecules Audit Log plugin that provides changes track record
 
