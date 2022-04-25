@@ -1,8 +1,8 @@
-import { IAdminService, IClientService } from "./services";
+import { IAdminService, IClientService, NavigationServiceName } from "./services";
 import { StrapiControllerContext, ToBeFixed } from "./utils";
 
 export interface IAdminController {
-  getService: <T = IAdminService>(name?: string) => T;
+  getService: <T = IAdminService>(name?: NavigationServiceName) => T;
 
   config: () => ToBeFixed;
   get: () => ToBeFixed;
@@ -17,7 +17,7 @@ export interface IAdminController {
 };
 
 export interface IClientController {
-  getService: <T = IClientService>(name?: string) => T;
+  getService: <T = IClientService>(name?: NavigationServiceName) => T;
 
   render: (ctx: StrapiControllerContext) => ToBeFixed;
   renderChild: (ctx: StrapiControllerContext) => ToBeFixed;

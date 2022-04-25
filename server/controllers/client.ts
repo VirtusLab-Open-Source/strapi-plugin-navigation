@@ -1,9 +1,9 @@
 import { Id, StringMap } from "strapi-typed";
-import { IClientController, IClientService } from "../../types";
+import { IClientController, IClientService, NavigationServiceName } from "../../types";
 import { getPluginService, parseParams } from "../utils";
 
 const clientControllers: IClientController = {
-  getService<T = IClientService>(name = "client"): T {
+  getService<T = IClientService>(name: NavigationServiceName= "client"): T {
     return getPluginService<T>(name);
   },
 

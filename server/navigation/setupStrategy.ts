@@ -1,7 +1,7 @@
 import { IStrapi } from "strapi-typed";
-import { INavigationSetupStrategy, Navigation } from "../../types";
+import { IAdminService, INavigationSetupStrategy, Navigation } from "../../types";
 import { i18nNavigationSetupStrategy } from "../i18n";
-import { DEFAULT_NAVIGATION_ITEM, DEFAULT_POPULATE } from "../utils";
+import { DEFAULT_NAVIGATION_ITEM, DEFAULT_POPULATE, getPluginService } from "../utils";
 
 export const navigationSetupStrategy: INavigationSetupStrategy = async (
   context
@@ -16,7 +16,7 @@ export const navigationSetupStrategy: INavigationSetupStrategy = async (
 const regularNavigationSetupStrategy: INavigationSetupStrategy = async ({
   strapi,
 }) => {
-  const navigations = await getCurrentNavigations(strapi);
+  const navigations = await getCurrentNavigations();
 
   if (!navigations.length) {
     return [
@@ -50,5 +50,5 @@ const createNavigation = ({
     populate,
   });
 
-const getCurrentNavigations = (strapi: IStrapi): Promise<Navigation[]> =>
-  strapi.plugin("navigation").service("navigation").get();
+const getCurrentNavigations = (): Promise<Navigation[]> =>
+  getPluginService<IAdminService>('admin').get();

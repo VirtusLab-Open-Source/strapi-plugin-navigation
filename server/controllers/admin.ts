@@ -1,11 +1,11 @@
-import { IAdminService, ICommonService, ToBeFixed } from "../../types";
+import { IAdminService, ICommonService, NavigationServiceName, ToBeFixed } from "../../types";
 import { getPluginService, parseParams } from "../utils";
 import { errorHandler } from "../utils";
 import { IAdminController } from "../../types";
 import { Id, StringMap } from "strapi-typed";
 
 const adminControllers: IAdminController = {
-  getService<T = IAdminService>(name = "admin") {
+  getService<T = IAdminService>(name: NavigationServiceName= "admin") {
     return getPluginService<T>(name);
   },
   async get() {
