@@ -149,7 +149,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
         }
         const navigationItem = await strapi
           .query<NavigationItemEntity>(itemModel.uid)
-          .create({ data, populate: ['related', 'items'] });
+          .create({ data, populate: ['related'] });
         return !isEmpty(item.items)
           ? commonService.createBranch(
             item.items,
