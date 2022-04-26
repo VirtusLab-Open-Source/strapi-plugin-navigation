@@ -2,11 +2,12 @@ import { first, get, isEmpty, isNil, isString, last, toNumber } from "lodash";
 import slugify from "slugify";
 import { Id, StrapiContext } from "strapi-typed";
 import { validate } from "uuid";
-import { ContentTypeEntity, IAdminService, IClientService, ICommonService, Navigation, NavigationItem, NavigationItemEntity, NestedStructure, RFRNavItem, ToBeFixed } from "../../types"
+import { assertNotEmpty, ContentTypeEntity, IAdminService, IClientService, ICommonService, Navigation, NavigationItem, NavigationItemEntity, NestedStructure, RFRNavItem, ToBeFixed } from "../../types"
 import { composeItemTitle, extractMeta, filterByPath, filterOutUnpublished, getPluginService, templateNameFactory } from "../utils";
 //@ts-ignore
 import { errors } from '@strapi/utils';
 import { i18nAwareEntityReadHandler } from "../i18n";
+import { NavigationError } from "../../utils/NavigationError";
 
 const clientService: (context: StrapiContext) => IClientService = ({ strapi }) => ({
   async render({
@@ -123,17 +124,30 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
     };
   },
 
-  renderRFRNav(
-    item: NavigationItem
-  ): RFRNavItem {
+  renderRFRNav(item): RFRNavItem {
     const { uiRouterKey, title, path, type, audience } = item;
-    return {
+    const itemCommon = {
       label: title,
       type: type,
-      page: type === "INTERNAL" ? uiRouterKey : undefined,
-      url: type === "EXTERNAL" ? path : undefined,
       audience,
-    };
+    }
+
+    if (type === "EXTERNAL") {
+      assertNotEmpty(path, new NavigationError("External navigation item's path is undefined", item));
+      return {
+        ...itemCommon,
+        url: path
+      };
+    }
+
+    if (type === "INTERNAL") {
+      return {
+        ...itemCommon,
+        page: uiRouterKey,
+      };
+    }
+
+    throw new NavigationError("Unknown item type", item);
   },
 
   renderRFRPage(

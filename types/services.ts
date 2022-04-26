@@ -1,15 +1,11 @@
 import { Id, StrapiContentType, StrapiEvents, StrapiStore, StringMap } from "strapi-typed";
 import { NavigationPluginConfig } from "./config";
-import { Navigation, NavigationItem, NavigationItemEntity, NestedStructure, RelatedRef } from "./contentTypes";
+import { Navigation, NavigationItem, NavigationItemEntity, NavigationItemInput, NestedStructure, RelatedRef, RelatedRefBase } from "./contentTypes";
 import { I18nQueryParams } from "./i18n";
 import { AuditLogContext, ContentTypeEntity, NavigationActions, NavigationActionsPerItem, RenderType, RFRNavItem, ToBeFixed } from "./utils";
 
-export type NavigationServiceName = "admin" | "client" | "common";
-export type NavigationService = {
-  common: ICommonService;
-  admin: IAdminService;
-  client: IClientService;
-}
+export type NavigationServiceName = "common" | "admin" | "client"
+export type NavigationService = ICommonService | IAdminService | IClientService
 
 export interface IAdminService {
   config: (viaSettingsPage?: boolean) => Promise<NavigationPluginConfig>,
@@ -20,16 +16,17 @@ export interface IAdminService {
   restart: () => Promise<void>,
   restoreConfig: () => Promise<void>,
   updateConfig: (newConfig: NavigationPluginConfig) => Promise<void>,
+  fillFromOtherLocale(payload: { source: number; target: number; auditLog: AuditLogContext}): Promise<Navigation>;
 }
 
 export interface ICommonService {
   analyzeBranch: (items: NestedStructure<NavigationItem>[], masterEntity: Navigation | null, parentItem?: ToBeFixed, prevOperations?: NavigationActions) => Promise<NavigationActionsPerItem[]>,
   configContentTypes: (viaSettingsPage?: boolean) => Promise<StrapiContentType<ToBeFixed>[]>,
-  createBranch: (items: NestedStructure<NavigationItem>[], masterEntity: Navigation | null, parentItem: NavigationItemEntity | null, operations: NavigationActions) => ToBeFixed,
+  createBranch: (items: NestedStructure<NavigationItemInput | NavigationItem>[], masterEntity: Navigation | null, parentItem: NavigationItemEntity | null, operations: NavigationActions) => ToBeFixed,
   emitEvent: (uid: string, event: StrapiEvents, entity: ToBeFixed) => Promise<void>,
   getBranchName: (item: NavigationItem) => keyof NavigationActionsPerItem | void,
   getContentTypeItems: (uid: string, query: StringMap<string>) => Promise<ContentTypeEntity[]>,
-  getIdsRelated: (relatedItems: RelatedRef[] | null, master: number) => Promise<(Id | undefined)[]> | void,
+  getIdsRelated: (relatedItems: RelatedRefBase[] | RelatedRef[] | null, master: number) => Promise<Id[] | void>,
   getPluginStore: () => Promise<StrapiStore>,
   getRelatedItems: (entityItems: NavigationItemEntity[]) => Promise<NavigationItemEntity<ContentTypeEntity>[]>,
   removeBranch: (items: NestedStructure<NavigationItem>[], operations: NavigationActions) => ToBeFixed,

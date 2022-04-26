@@ -30,6 +30,8 @@ import {
   SUBMIT_NAVIGATION,
   SUBMIT_NAVIGATION_SUCCEEDED,
   SUBMIT_NAVIGATION_ERROR,
+  I18N_COPY_NAVIGATION,
+  I18N_COPY_NAVIGATION_SUCCESS,
 } from './actions';
 import { prepareItemToViewPayload } from '../View/utils/parsers';
 
@@ -55,7 +57,8 @@ const DataManagerProvider = ({ children }) => {
     isLoadingForDetailsDataToBeSet,
     isLoadingForAdditionalDataToBeSet,
     isLoadingForSubmit,
-    error
+    error,
+    availableLocale,
   } = reducerState;
   const { pathname } = useLocation();
   const formatMessageRef = useRef();
@@ -205,6 +208,25 @@ const DataManagerProvider = ({ children }) => {
     getNavigation(id, config);
   };
 
+  const handleI18nCopy = async (sourceId, targetId) => {
+    dispatch({
+      type: I18N_COPY_NAVIGATION
+    });
+
+    const url = `/navigation/i18n/copy/${sourceId}/${targetId}`;
+
+    await request(url, {
+      method: "PUT",
+      signal,
+    });
+
+    dispatch({
+      type: I18N_COPY_NAVIGATION_SUCCESS,
+    });
+
+    handleChangeSelection(targetId);
+  }
+
   const handleChangeNavigationPopupVisibility = (visible) => {
     dispatch({
       type: CHANGE_NAVIGATION_POPUP_VISIBILITY,
@@ -306,9 +328,11 @@ const DataManagerProvider = ({ children }) => {
         handleChangeNavigationData,
         handleResetNavigationData,
         handleSubmitNavigation,
+        handleI18nCopy,
         getContentTypeItems,
         isInDevelopmentMode,
         error,
+        availableLocale,
       }}
     >
       {isLoading ? <LoadingIndicatorPage /> : children}

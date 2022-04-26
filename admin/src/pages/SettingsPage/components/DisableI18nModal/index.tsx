@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState, VFC } from "react";
-import ConfirmationDialog from "../../components/ConfirmationDialog";
-import { getMessage } from "../../utils";
+import ConfirmationDialog from "../../../../components/ConfirmationDialog";
+import { getMessage } from "../../../../utils";
 // @ts-ignore
 import { Formik } from "formik";
 // @ts-ignore
@@ -17,7 +17,7 @@ import { Grid, GridItem } from "@strapi/design-system/Grid";
 import { ToggleInput } from "@strapi/design-system/ToggleInput";
 // @ts-ignore
 import { Typography } from "@strapi/design-system/Typography";
-import { ToBeFixed } from "../../../../types";
+import { ToBeFixed } from "../../../../../../types";
 
 interface Form {
   pruneNavigations: boolean;
@@ -36,8 +36,7 @@ interface CancelEffect {
   (): void;
 }
 
-interface DisableI18nModalProps {
-  isVisible?: boolean;
+interface Props {
   onSubmit: SubmitEffect;
   onCancel: CancelEffect;
 }
@@ -46,11 +45,7 @@ const refreshIcon = <></>;
 
 const INITIAL_VALUES: Form = { pruneNavigations: false, enabled: true };
 
-export const DisableI18nModal: VFC<DisableI18nModalProps> = ({
-  isVisible,
-  onSubmit,
-  onCancel,
-}) => {
+export const DisableI18nModal: VFC<Props> = ({ onSubmit, onCancel }) => {
   const [state, setState] = useState(INITIAL_VALUES);
   const onConfirm = useCallback(() => {
     onSubmit(state);
@@ -58,7 +53,7 @@ export const DisableI18nModal: VFC<DisableI18nModalProps> = ({
 
   return (
     <ConfirmationDialog
-      isVisible={isVisible}
+      isVisible
       header={getMessage(
         "pages.settings.actions.disableI18n.confirmation.header"
       )}
@@ -148,13 +143,16 @@ export const useDisableI18nModal = (onSubmit: SubmitEffect) => {
     onCancel();
     setIsOpened(false);
   };
-  const modal = isOpened ? (
-    <DisableI18nModal
-      isVisible={isOpened}
-      onSubmit={onSubmitWithModalClose}
-      onCancel={onCancelWithModalClose}
-    />
-  ) : null;
+  const modal = useMemo(
+    () =>
+      isOpened ? (
+        <DisableI18nModal
+          onSubmit={onSubmitWithModalClose}
+          onCancel={onCancelWithModalClose}
+        />
+      ) : null,
+    [isOpened, onSubmitWithModalClose, onCancelWithModalClose]
+  );
 
   return useMemo(
     () => ({

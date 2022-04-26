@@ -17,6 +17,8 @@ import {
   SUBMIT_NAVIGATION_SUCCEEDED,
   SUBMIT_NAVIGATION,
   SUBMIT_NAVIGATION_ERROR,
+  I18N_COPY_NAVIGATION_SUCCESS,
+  I18N_COPY_NAVIGATION,
 } from './actions';
 
 const initialState = {
@@ -32,6 +34,8 @@ const initialState = {
   isLoadingForAdditionalDataToBeSet: false,
   isLoadingForSubmit: false,
   error: undefined,
+  i18nEnabled: false,
+  availableLocale: [],
 };
 
 const reducer = (state, action) => produce(state, draftState => {
@@ -49,12 +53,14 @@ const reducer = (state, action) => produce(state, draftState => {
     case GET_LIST_DATA: {
       draftState.items = [];
       draftState.isLoadingForDataToBeSet = true;
+      draftState.availableLocale = [];
       break;
     }
     case GET_LIST_DATA_SUCCEEDED: {
       draftState.items = action.items;
       draftState.isLoading = false;
       draftState.isLoadingForDataToBeSet = false;
+      draftState.availableLocale = [...action.items.reduce((set, item) => set.add(item.localeCode), new Set()).values()];
       break;
     }
     case GET_NAVIGATION_DATA: {
@@ -115,6 +121,14 @@ const reducer = (state, action) => produce(state, draftState => {
     }
     case RELOAD_PLUGIN: {
       return initialState;
+    }
+    case I18N_COPY_NAVIGATION: {
+      draftState.isLoading = true;
+      break;
+    }
+    case I18N_COPY_NAVIGATION_SUCCESS: {
+      draftState.isLoading = false;
+      break;
     }
     default:
       return draftState;

@@ -1,11 +1,12 @@
-import { IAdminService, ICommonService, NavigationServiceName, ToBeFixed } from "../../types";
+import { assertIsNumber, IAdminService, ICommonService, NavigationService, NavigationServiceName, ToBeFixed } from "../../types";
 import { getPluginService, parseParams } from "../utils";
 import { errorHandler } from "../utils";
 import { IAdminController } from "../../types";
 import { Id, StringMap } from "strapi-typed";
+import { InvalidParamNavigationError } from "../../utils/InvalidParamNavigationError"
 
 const adminControllers: IAdminController = {
-  getService<T = IAdminService>(name: NavigationServiceName= "admin") {
+  getService<T extends NavigationService = IAdminService>(name: NavigationServiceName = "admin") {
     return getPluginService<T>(name);
   },
   async get() {
@@ -66,6 +67,25 @@ const adminControllers: IAdminController = {
     const { model } = parseParams<StringMap<string>, { model: string }>(params);
     return this.getService<ICommonService>("common").getContentTypeItems(model, query);
   },
+
+  fillFromOtherLocale(ctx) {
+    const { params, auditLog } = ctx;
+    const { source, target } = parseParams<
+      StringMap<string>,
+      { source: number; target: number }
+    >(params);
+
+    assertIsNumber(
+      source,
+      new InvalidParamNavigationError("Source's id is not a number")
+    );
+    assertIsNumber(
+      target,
+      new InvalidParamNavigationError("Target's id is not a number")
+    );
+
+    return this.getService().fillFromOtherLocale({ source, target, auditLog });
+  }
 };
 
 export default adminControllers;

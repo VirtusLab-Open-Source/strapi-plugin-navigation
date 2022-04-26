@@ -12,12 +12,12 @@ import {
 } from 'lodash';
 import { Id, IStrapi, Primitive, StrapiContentType, StrapiPlugin, StringMap } from "strapi-typed";
 
-import { AuditLogContext, AuditLogParams, ContentTypeEntity, NavigationActions, NavigationItem, NavigationItemEntity, NavigationServiceName, NestedPath, NestedStructure, PluginConfigNameFields, ToBeFixed } from "../../types";
+import { AuditLogContext, AuditLogParams, ContentTypeEntity, NavigationActions, NavigationItem, NavigationItemEntity, NavigationService, NavigationServiceName, NestedPath, NestedStructure, PluginConfigNameFields, ToBeFixed } from "../../types";
 import { NavigationError } from '../../utils/NavigationError';
 import { TEMPLATE_DEFAULT, ALLOWED_CONTENT_TYPES, RESTRICTED_CONTENT_TYPES } from './constant';
 declare var strapi: IStrapi;
 
-export const getPluginService = <T>(name: NavigationServiceName): T =>
+export const getPluginService = <T extends NavigationService>(name: NavigationServiceName): T =>
   strapi.plugin("navigation").service(name);
 
 export const errorHandler = (ctx: ToBeFixed) => (error: NavigationError | string) => {

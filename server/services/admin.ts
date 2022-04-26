@@ -3,7 +3,8 @@ import { isNil, isObject } from "lodash";
 import { Id, StrapiContext } from "strapi-typed";
 import { Audience, AuditLogContext, IAdminService, ICommonService, Navigation, NavigationItemEntity, NavigationPluginConfig, ToBeFixed } from "../../types";
 import { ADDITIONAL_FIELDS, ALLOWED_CONTENT_TYPES, buildNestedStructure, CONTENT_TYPES_NAME_FIELDS_DEFAULTS, DEFAULT_POPULATE, extractMeta, getPluginService, prepareAuditLog, RESTRICTED_CONTENT_TYPES, sendAuditLog } from "../utils";
-import { addI18NConfigFields, I18NConfigFields } from "../i18n";
+import { addI18NConfigFields, getI18nStatus, I18NConfigFields, i18nNavigationContentsCopy } from "../i18n";
+import { NavigationError } from "../../utils/NavigationError";
 
 type SettingsPageConfig = NavigationPluginConfig & I18NConfigFields
 
@@ -41,7 +42,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
       },
       isGQLPluginEnabled: viaSettingsPage ? isGQLPluginEnabled : undefined,
     };
-    const i18nConfig = await addI18NConfigFields({strapi, viaSettingsPage, previousConfig: {}});
+    const i18nConfig = await addI18NConfigFields({ strapi, viaSettingsPage, previousConfig: {} });
 
     if (additionalFields.includes(ADDITIONAL_FIELDS.AUDIENCE)) {
       const audienceItems = await strapi
@@ -178,6 +179,31 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
     const commonService = getPluginService<ICommonService>('common');
     const pluginStore = await commonService.getPluginStore()
     await pluginStore.set({ key: 'config', value: newConfig });
+  },
+
+  async fillFromOtherLocale({ target, source, auditLog }) {
+    const { enabled } = await getI18nStatus({ strapi })
+
+    if (!enabled) {
+      throw new NavigationError("Not yet implemented.");
+    }
+
+    const adminService = getPluginService<IAdminService>('admin');
+    const commonService = getPluginService<ICommonService>('common');
+    const targetEntity = await adminService.getById(target);
+
+    return await i18nNavigationContentsCopy({
+      source: await adminService.getById(source),
+      target: targetEntity,
+      service: commonService,
+      strapi,
+    })
+      .then(() => adminService.getById(target))
+      .then((updated) => {
+        sendAuditLog(auditLog, 'onChangeNavigation',
+          { actionType: 'UPDATE', oldEntity: targetEntity, newEntity: updated });
+        return updated;
+      });
   },
 });
 
