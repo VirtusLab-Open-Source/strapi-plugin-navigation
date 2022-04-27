@@ -44,12 +44,13 @@ Strapi Navigation Plugin provides a website navigation / menu builder feature fo
    - [Settings page](#in-v203-and-newer)
    - [Plugin file](#in-v202-and-older--default-configuration-state-for-v203-and-newer)
 5. [🔧 GraphQL Configuration](#-gql-configuration)
-6. [🕸️ Public API specification](#%EF%B8%8F-public-api-specification)
+6. [🌍 i18n Internationalization](#-i18n-internationalization)
+7. [🕸️ Public API specification](#%EF%B8%8F-public-api-specification)
    - [REST API](#rest-api) 
    - [GraphQL API](#graphql-api)
 8. [💬 FAQ](#-faq)
-9. [🤝 Contributing](#-contributing)
-10. [👨‍💻 Community support](#-community-support)
+10. [🤝 Contributing](#-contributing)
+11. [👨‍💻 Community support](#-community-support)
 
 ## ✨ Features
 
@@ -586,7 +587,7 @@ Live example of plugin usage can be found in the [VirtusLab Strapi Examples](htt
 
 **Q:** I would like to use GraphQL schemas but I'm not getting renderNavigation query or even proper types as Navigation, NavigationItem etc. What should I do?
 
-**A:** There is a one trick you might try. Strapi by default is ordering plugins by the way which takes `strapi-plugin-graphql` to initialize earlier than other plugins so types might not be injected. If you don't have it yet, please create `config/plugins.js` file and put there at lease following lines:
+**A:** **A:** There is a one trick you might try. Strapi by default is ordering plugins by the way which takes `strapi-plugin-graphql` to initialize earlier than other plugins so types might not be injected. If you don't have it yet, please create `config/plugins.js` file and put there following lines (put `graphql` at the end):
 
 ```js
 module.exports = {

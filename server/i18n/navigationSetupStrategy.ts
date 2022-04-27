@@ -138,7 +138,7 @@ const createNavigation = ({
 }: {
   strapi: IStrapi;
   payload: Partial<Navigation>;
-  populate?: (keyof Navigation)[];
+  populate?: Array<keyof Navigation>;
 }): Promise<Navigation> =>
   strapi.query<Navigation>("plugin::navigation.navigation").create({
     data: {
