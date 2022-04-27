@@ -4,6 +4,7 @@ import { Navigation, NavigationItem, NavigationItemEntity, NestedStructure, Rela
 import { I18nQueryParams } from "./i18n";
 import { AuditLogContext, ContentTypeEntity, NavigationActions, NavigationActionsPerItem, RenderType, RFRNavItem, ToBeFixed } from "./utils";
 
+export type NavigationServiceName = "admin" | "client" | "common";
 export type NavigationService = {
   common: ICommonService;
   admin: IAdminService;
