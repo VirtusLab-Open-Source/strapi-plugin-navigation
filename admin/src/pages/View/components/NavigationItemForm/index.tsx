@@ -20,56 +20,13 @@ import { extractRelatedItemLabel } from '../../utils/parsers';
 import { form as formDefinition } from './utils/form';
 import { checkFormValidity } from '../../utils/form';
 import { getTradId } from '../../../../translations';
+import { Audience, NavigationItemAdditionalField, NavigationItemType, ToBeFixed } from '../../../../../../types';
+import { ContentTypeSearchQuery, NavigationItemFormProps, RawFormPayload, SanitizedFormPayload } from './types';
+import AdditionalFieldInput from '../../../../components/AdditionalFieldInput';
 import { getMessage, ResourceState } from '../../../../utils';
-import { Audience, NavigationItemAdditionalField, NavigationItemType, NavigationPluginConfig, PluginConfigNameFields, ToBeFixed } from '../../../../../../types';
-import { Id } from 'strapi-typed';
 
-interface NavigationItemFormProps {
-  config: NavigationPluginConfig;
-  availableLocale: string[];
-  locale: string;
-  readNavigationItemFromLocale: ToBeFixed;
-  isLoading: boolean;
-  inputsPrefix: string;
-  data: ToBeFixed; // TODO: Type this pls
-  contentTypes: Array<ToBeFixed>; // TODO: Type this pls
-  contentTypeEntities: Array<ToBeFixed>; // TODO: Type this pls
-  usedContentTypeEntities: Array<ToBeFixed>; // TODO: Type this pls
-  availableAudience: Array<string>;
-  additionalFields: Array<NavigationItemAdditionalField>;
-  contentTypesNameFields: PluginConfigNameFields;
-  onSubmit: (payload: SanitizedFormPayload) => void;
-  onCancel: () => ToBeFixed; // TODO: Type this pls
-  getContentTypeEntities: (value: {modelUID: string, query: ContentTypeSearchQuery, locale: string }, plugin: string) => ToBeFixed // TODO: Type this pls
-  usedContentTypesData: ToBeFixed; // TODO: Type this pls
-  appendLabelPublicationStatus: (label: string, entity: ToBeFixed) => string; // TODO: Content type entity type
-}
-type ContentTypeSearchQuery = ToBeFixed;
-type RawFormPayload = {
-  type: NavigationItemType;
-  related: string;
-  relatedType: string;
-  audience: number;
-  menuAttached: boolean;
-  title: string;
-  externalPath: string;
-  path: string;
-}
-
-type SanitizedFormPayload = {
-  title: string;
-  type: NavigationItemType;
-  menuAttached: boolean;
-  path: string | undefined;
-  externalPath: string | undefined;
-  related: Id | undefined;
-  relatedType: string | undefined;
-  isSingle: boolean;
-  singleRelatedItem: ToBeFixed; // TODO: This is contentTypeEntity type or undefined
-  uiRouterKey: string | undefined;
-}
-  
 const appendLabelPublicationStatusFallback = () => '';
+
 
 const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   config,
@@ -117,7 +74,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
     setInitializedState(true);
     setFormState({
       ...data,
-      type: data.type || navigationItemType.INTERNAL,
+      type: data.type || "INTERNAL",
       related: data.related?.value,
       relatedType: data.relatedType?.value,
       audience: data.audience?.map((item: Audience) => item.id),
@@ -196,6 +153,17 @@ const sanitizePayload = (payload: RawFormPayload): SanitizedFormPayload => {
     onChange({ target: { name: `${inputsPrefix}audience`, value } });
   }
 
+  const onAdditionalFieldChange = (name: string, newValue: string | boolean | string[]) => {
+    const fieldsValue = get(form, `${inputsPrefix}additionalFields`, {});
+    const value = { ...fieldsValue, [name]: newValue }
+    onChange({
+      target: {
+        name: `${inputsPrefix}additionalFields`,
+        value,
+      },
+    });
+  }
+
   const onChange = ({ target: { name, value } }: { target: { name: string, value: unknown } }) => {
     setFormState(prevState => ({
       ...prevState,
@@ -231,8 +199,7 @@ const generateUiRouterKey = (title: string, related: string, relatedType: string
     [relatedTypeSelectValue, contentTypes],
   );
 
-  const navigationItemTypeOptions = Object.keys(navigationItemType).map((k) => {
-    const key = k as keyof typeof navigationItemType; // TODO: Maybe could be refactored later
+  const navigationItemTypeOptions = (Object.keys(navigationItemType) as NavigationItemType[]).map((key) => {
     const value = navigationItemType[key].toLowerCase();
     return {
       key,
@@ -457,44 +424,44 @@ const generateUiRouterKey = (title: string, related: string, relatedType: string
                   type='text'
                   error={get(formErrors, `${inputsPrefix}title.id`)}
                   onChange={onChange}
-                  value={get(form, `${inputsPrefix} title`, '')}
+                  value={get(form, `${inputsPrefix}title`, '')}
                 />
               </GridItem>
-              <GridItem key={`${inputsPrefix} type`} col={4} lg={12}>
+              <GridItem key={`${inputsPrefix}type`} col={4} lg={12}>
                 <GenericInput
                   intlLabel={{
                     id: getTradId('popup.item.form.type.label'),
                     defaultMessage: 'Internal link',
                   }}
-                  name={`${inputsPrefix} type`}
+                  name={`${inputsPrefix}type`}
                   options={navigationItemTypeOptions}
                   type='select'
-                  error={get(formErrors, `${inputsPrefix} type.id`)}
+                  error={get(formErrors, `${inputsPrefix}type.id`)}
                   onChange={onChange}
-                  value={get(form, `${inputsPrefix} type`, '')}
+                  value={get(form, `${inputsPrefix}type`, '')}
                 />
               </GridItem>
-              <GridItem key={`${inputsPrefix} menuAttached`} col={4} lg={12}>
+              <GridItem key={`${inputsPrefix}menuAttached`} col={4} lg={12}>
                 <GenericInput
                   intlLabel={{
                     id: getTradId('popup.item.form.menuAttached.label'),
                     defaultMessage: 'MenuAttached',
                   }}
-                  name={`${inputsPrefix} menuAttached`}
+                  name={`${inputsPrefix}menuAttached`}
                   type='bool'
-                  error={get(formErrors, `${inputsPrefix} menuAttached.id`)}
+                  error={get(formErrors, `${inputsPrefix}menuAttached.id`)}
                   onChange={onChange}
-                  value={get(form, `${inputsPrefix} menuAttached`, '')}
+                  value={get(form, `${inputsPrefix}menuAttached`, '')}
                   disabled={!(data.isMenuAllowedLevel && data.parentAttachedToMenu)}
                 />
               </GridItem>
-              <GridItem key={`${inputsPrefix} path`} col={12}>
+              <GridItem key={`${inputsPrefix}path`} col={12}>
                 <GenericInput
                   intlLabel={{
                     id: getTradId(`popup.item.form.${pathSourceName}.label`),
                     defaultMessage: 'Path',
                   }}
-                  name={`${inputsPrefix}${pathSourceName} `}
+                  name={`${inputsPrefix}${pathSourceName}`}
                   placeholder={{
                     id: getTradId(`popup.item.form.${pathSourceName}.placeholder`),
                     defaultMessage: 'e.g. Blog',
@@ -502,11 +469,11 @@ const generateUiRouterKey = (title: string, related: string, relatedType: string
                   type='text'
                   error={get(formErrors, `${inputsPrefix}${pathSourceName}.id`)}
                   onChange={onChange}
-                  value={get(form, `${inputsPrefix}${pathSourceName} `, '')}
+                  value={get(form, `${inputsPrefix}${pathSourceName}`, '')}
                   description={generatePreviewPath()}
                 />
               </GridItem>
-              {get(form, `${inputsPrefix} type`) === navigationItemType.INTERNAL && (
+              {get(form, `${inputsPrefix}type`) === navigationItemType.INTERNAL && (
                 <>
                   <GridItem col={6} lg={12}>
                     <GenericInput
@@ -519,8 +486,8 @@ const generateUiRouterKey = (title: string, related: string, relatedType: string
                         id: getTradId('popup.item.form.relatedType.placeholder'),
                         defaultMessage: 'Related Type'
                       }}
-                      name={`${inputsPrefix} relatedType`}
-                      error={get(formErrors, `${inputsPrefix} relatedType.id`)}
+                      name={`${inputsPrefix}relatedType`}
+                      error={get(formErrors, `${inputsPrefix}relatedType.id`)}
                       onChange={onChangeRelatedType}
                       options={relatedTypeSelectOptions}
                       value={relatedTypeSelectValue}
@@ -570,27 +537,43 @@ const generateUiRouterKey = (title: string, related: string, relatedType: string
                 </>
               )}
 
-              {additionalFields.includes('audience') && (
-                <GridItem key={`${inputsPrefix} audience`} col={6} lg={12}>
-                  <Select
-                    id={`${inputsPrefix} audience`}
-                    placeholder={getMessage('popup.item.form.audience.placeholder')}
-                    label={getMessage('popup.item.form.audience.label')}
-                    onChange={onAudienceChange}
-                    value={audience}
-                    hint={
-                      !isLoading && isEmpty(audienceOptions)
-                        ? getMessage('popup.item.form.audience.empty', 'There are no more audiences')
-                        : undefined
-                    }
-                    multi
-                    withTags
-                    disabled={isEmpty(audienceOptions)}
-                  >
-                    {audienceOptions.map(({ value, label }) => <Option key={value} value={value}>{label}</Option>)}
-                  </Select>
-                </GridItem>
-              )}
+              {additionalFields.map((additionalField: NavigationItemAdditionalField) => {
+                if (additionalField === 'audience') {
+                  return (
+                    <GridItem key={`${inputsPrefix}audience`} col={6} lg={12}>
+                      <Select
+                        id={`${inputsPrefix}audience`}
+                        placeholder={getMessage('popup.item.form.audience.placeholder')}
+                        label={getMessage('popup.item.form.audience.label')}
+                        onChange={onAudienceChange}
+                        value={audience}
+                        hint={
+                          !isLoading && isEmpty(audienceOptions)
+                            ? getMessage('popup.item.form.audience.empty', 'There are no more audiences')
+                            : undefined
+                        }
+                        multi
+                        withTags
+                        disabled={isEmpty(audienceOptions)}
+                      >
+                        {audienceOptions.map(({ value, label }) => <Option key={value} value={value}>{label}</Option>)}
+                      </Select>
+                    </GridItem>
+                  )
+                } else {
+                  return (
+                    <GridItem key={`${inputsPrefix}${additionalField.name}`} col={6} lg={12}>
+                      <AdditionalFieldInput
+                        field={additionalField}
+                        inputsPrefix={inputsPrefix}
+                        isLoading={isLoading}
+                        onChange={onAdditionalFieldChange}
+                        value={get(form, `${inputsPrefix}additionalFields.${additionalField.name}`, null)}
+                      />
+                    </GridItem>
+                  );
+                }
+              })}
             </Grid>
             {
               isI18nBootstrapAvailable ? (
