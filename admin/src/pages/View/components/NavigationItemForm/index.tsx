@@ -400,7 +400,6 @@ const generateUiRouterKey = (title: string, related: string, relatedType: string
 
   return (
     <>
-      <Formik>
         <Form>
           <ModalBody>
             <Grid gap={5} >
@@ -604,7 +603,6 @@ const generateUiRouterKey = (title: string, related: string, relatedType: string
             }
           </ModalBody>
         </Form>
-      </Formik>
       <NavigationItemPopupFooter handleSubmit={handleSubmit} handleCancel={onCancel} submitDisabled={submitDisabled} />
     </>
   );

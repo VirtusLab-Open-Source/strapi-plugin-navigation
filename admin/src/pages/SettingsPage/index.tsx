@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { isEmpty, capitalize, isEqual, orderBy } from 'lodash';
 //@ts-ignore
 import { Formik } from 'formik';
-//@ts-ignore
-import { Formik } from 'formik';
 import {
   CheckPermissions,
   LoadingIndicatorPage,
@@ -53,41 +51,11 @@ import { isContentTypeEligible, resolveGlobalLikeId } from './utils/functions';
 import { PermanentAlert } from '../../components/Alert/styles';
 import { useDisableI18nModal } from './components/DisableI18nModal';
 
-import { NavigationItemAdditionalField, NavigationItemCustomField, NavigationPluginConfig, ToBeFixed } from '../../../../types';
+import { NavigationItemAdditionalField, NavigationItemCustomField, ToBeFixed } from '../../../../types';
 import CustomFieldModal from './CustomFieldModal';
 import CustomFieldTable from './CustomFieldTable';
+import { ContentTypeToFix, IHandleSetContentTypeExpanded, IOnPopupClose, IOnSave, IPrepareNameFieldFor, IPreparePayload, RestartReasons, RestartStatus } from './types';
 
-type RawPayload = {
-  selectedContentTypes: string[];
-  nameFields: Record<string, string[]>;
-  audienceFieldChecked: boolean;
-  allowedLevels: number;
-  populate: Record<string, string[]>;
-  i18nEnabled: boolean;
-}
-// TODO: Maybe this could be made cleaner with use of Formik types
-type FormikProps<ValuesType> = {
-  handleSubmit: (values: ValuesType) => void;
-  setFieldValue: (field: string, value: unknown, shouldValidate?: boolean) => void;
-  values: ValuesType;
-}
-
-// TODO: Change this to ContentType from new version of strapi-typed
-type ContentTypeToFix = {
-  uid: string;
-  available: boolean;
-  isSingle: boolean;
-  info: { displayName: string; };
-  attributes: ToBeFixed;
-}
-
-type IPreparePayload = (payload: { form: RawPayload, pruneObsoleteI18nNavigations: boolean }) => NavigationPluginConfig;
-type IOnSave = (form: RawPayload) => void;
-type IOnPopupClose = (isConfirmed: boolean) => void;
-type IHandleSetContentTypeExpanded = (key: string | undefined) => void;
-type IPrepareNameFieldFor = (uid: string, current: Record<string, string[] | undefined>, value: string[]) => Record<string, string[] | undefined>;
-type RestartReasons = 'I18N' | 'GRAPH_QL' | 'I18N_NAVIGATIONS_PRUNE';
-type RestartStatus = { required: boolean, reasons?: RestartReasons[] }
 const RESTART_NOT_REQUIRED: RestartStatus = { required: false }
 const RESTART_REQUIRED: RestartStatus = { required: true, reasons: [] }
 
@@ -120,7 +88,8 @@ const SettingsPage = () => {
   };
 
   useEffect(() => {
-    const additionalFields = navigationConfigData?.additionalFields.filter((f: NavigationItemAdditionalField) => f !== navigationItemAdditionalFields.AUDIENCE);
+    const additionalFields = navigationConfigData?.additionalFields
+        ?.filter((field: NavigationItemAdditionalField) => field !== navigationItemAdditionalFields.AUDIENCE);
     setCustomFields(additionalFields || []);
   }, [navigationConfigData]);
 
@@ -230,7 +199,7 @@ const SettingsPage = () => {
     return ct;
   }) : [];
   const selectedContentTypes = configContentTypes.map(item => item.uid);
-  const audienceFieldChecked = navigationConfigData?.additionalFields.includes(navigationItemAdditionalFields.AUDIENCE);
+  const audienceFieldChecked = navigationConfigData?.additionalFields?.includes(navigationItemAdditionalFields.AUDIENCE);
   const allowedLevels = navigationConfigData?.allowedLevels || 2;
   const nameFields = navigationConfigData?.contentTypesNameFields || {}
   const populate = navigationConfigData?.contentTypesPopulate || {}
@@ -274,7 +243,7 @@ const SettingsPage = () => {
           }}
           onSubmit={onSave}
         >
-          {({ handleSubmit, setFieldValue, values }: FormikProps<RawPayload>) => (
+          {({ handleSubmit, setFieldValue, values }: ToBeFixed)=> (
             <Form noValidate onSubmit={handleSubmit}>
               <HeaderLayout
                 title={getMessage('pages.settings.header.title')}
