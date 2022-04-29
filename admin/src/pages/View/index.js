@@ -16,6 +16,7 @@ import { Typography } from '@strapi/design-system/Typography';
 import { Box } from '@strapi/design-system/Box';
 import { Icon } from '@strapi/design-system/Icon';
 import { Button } from '@strapi/design-system/Button';
+import { Select, Option } from '@strapi/design-system/Select';
 // @ts-ignore
 import { Grid, GridItem } from "@strapi/design-system/Grid";
 import { LoadingIndicatorPage } from "@strapi/helper-plugin";
@@ -63,7 +64,7 @@ const View = () => {
     () => allAvailableLocale.filter(locale => locale !== changedActiveNavigation?.localeCode),
     [changedActiveNavigation, allAvailableLocale]
   );
-  const { i18nCopyItemsModal, setI18nCopyModalOpened, setI18nCopySourceLocale} = useI18nCopyNavigationItemsModal(
+  const { i18nCopyItemsModal, i18nCopySourceLocale, setI18nCopyModalOpened, setI18nCopySourceLocale} = useI18nCopyNavigationItemsModal(
     useCallback((sourceLocale) => {
       const source = activeNavigation?.localizations?.find(({ localeCode }) => localeCode === sourceLocale);
 
@@ -72,10 +73,7 @@ const View = () => {
       }
     }, [ activeNavigation, handleI18nCopy ])
   );
-  const openCopyItemsModal = (sourceLocale) => () => {
-    setI18nCopySourceLocale(sourceLocale);
-    setI18nCopyModalOpened(true);
-  };
+  const openI18nCopyModalOpened = useCallback(() => { i18nCopySourceLocale && setI18nCopyModalOpened(true) }, [setI18nCopyModalOpened, i18nCopySourceLocale]);
 
   const [activeNavigationItem, setActiveNavigationItemState] = useState({});
   const { formatMessage } = useIntl();
@@ -298,15 +296,18 @@ const View = () => {
                         <Typography variant="beta" textColor="neutral600">{formatMessage(getTrad('view.i18n.fill.cta'))}</Typography>
                       </Box>
                       <Flex direction="row" justifyContent="center" alignItems="center">
-                        {
-                          availableLocale.map(locale => 
-                            <Box paddingLeft={1} paddingRight={1}>
-                              <Button key={locale} variant="tertiary" onClick={openCopyItemsModal(locale)}>
-                                {formatMessage(getTrad('view.i18n.fill.cta.button'), { locale })}
-                              </Button>
-                            </Box>
-                          )
-                        }
+                        <Box paddingLeft={1} paddingRight={1}>
+                          <Select onChange={setI18nCopySourceLocale} value={i18nCopySourceLocale} size="S">
+                            {availableLocale.map(locale => <Option key={locale} value={locale}>
+                              {formatMessage(getTrad('view.i18n.fill.option'), { locale })}
+                            </Option>)}
+                          </Select>
+                        </Box>
+                        <Box paddingLeft={1} paddingRight={1}>
+                          <Button variant="tertiary" onClick={openI18nCopyModalOpened} disabled={!i18nCopySourceLocale} size="S">
+                            {formatMessage(getTrad('view.i18n.fill.cta.button'))}
+                          </Button>
+                        </Box>
                       </Flex>
                     </Flex>
                     ) : null

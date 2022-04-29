@@ -73,7 +73,8 @@ export const useI18nCopyNavigationItemsModal = (onConfirm: ConfirmEffect) => {
       setI18nCopyModalOpened: setIsOpened,
       setI18nCopySourceLocale: setSourceLocale,
       i18nCopyItemsModal: modal,
+      i18nCopySourceLocale: sourceLocale,
     }),
-    [setSourceLocale, setIsOpened, modal]
+    [setSourceLocale, setIsOpened, modal, sourceLocale]
   );
 };

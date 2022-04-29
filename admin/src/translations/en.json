@@ -121,6 +121,7 @@
 	"components.confirmation.dialog.button.confirm": "Confirm",
 	"components.confirmation.dialog.description": "Do you want to continue?",
 	"components.confirmation.dialog.header": "Confirmation",
-	"view.i18n.fill.cta": "or copy from",
-	"view.i18n.fill.cta.button": "\"{locale}\" version"
+	"view.i18n.fill.cta": "or bootstrap",
+	"view.i18n.fill.option": "{locale} locale",
+	"view.i18n.fill.cta.button": "copy"
 }
