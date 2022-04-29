@@ -9,21 +9,20 @@ import { Grid, GridItem } from '@strapi/design-system/Grid';
 import { Formik, Form } from 'formik';
 import { get } from 'lodash';
 import { getTradId } from '../../../translations';
-import { NavigationItemCustomField } from '../../../../../types';
+import { NavigationItemCustomField, ToBeFixed } from '../../../../../types';
 const tradPrefix = 'pages.settings.form.customFields.popup.'
 
-// TODO: Make sure CustomField.name is unique by supplying existing names to form.
 // TODO: Introduce select and multi-select custom fields types
-// TODO: Introduce options of type Array<{key, label} | string> for select and multi-select
 interface CustomFieldFormProps {
   values: NavigationItemCustomField;
   isEditForm: boolean;
   setFieldValue: (name: string, value: string) => void;
+  errors: ToBeFixed;
 }
 
 const customFieldsTypes = ["string", "boolean"];
 
-const CustomFieldForm: React.FC<CustomFieldFormProps> = ({ isEditForm, values, setFieldValue }) => {
+const CustomFieldForm: React.FC<CustomFieldFormProps> = ({ isEditForm, values, setFieldValue, errors }) => {
   const prepareSelectOptions = <T extends string = string>(options: T[]) => options.map((option, index) => ({
     key: index,
     metadatas: {
@@ -56,6 +55,7 @@ const CustomFieldForm: React.FC<CustomFieldFormProps> = ({ isEditForm, values, s
                 onChange={({ target: { name, value } }: React.BaseSyntheticEvent) => setFieldValue(name, value)}
                 value={get(values, "name", "")}
                 disabled={isEditForm}
+                error={get(errors, "name")}
               />
             </GridItem>
             <GridItem key="label" col={12}>
@@ -68,6 +68,7 @@ const CustomFieldForm: React.FC<CustomFieldFormProps> = ({ isEditForm, values, s
                 type="text"
                 onChange={({ target: { name, value } }: React.BaseSyntheticEvent) => setFieldValue(name, value)}
                 value={get(values, "label", "")}
+                error={get(errors, "label")}
               />
             </GridItem>
             <GridItem key="type" col={12}>
@@ -78,6 +79,7 @@ const CustomFieldForm: React.FC<CustomFieldFormProps> = ({ isEditForm, values, s
                 type="select"
                 onChange={({ target: { name, value } }: React.BaseSyntheticEvent) => setFieldValue(name, value)}
                 value={get(values, "type", "")}
+                error={get(errors, "type")}
               />
             </GridItem>
           </Grid>

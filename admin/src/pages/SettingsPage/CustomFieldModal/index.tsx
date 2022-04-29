@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-
+//@ts-ignore
+import { getYupInnerErrors } from '@strapi/helper-plugin';
 //@ts-ignore
 import { Typography } from '@strapi/design-system/Typography';
 //@ts-ignore
@@ -11,6 +12,7 @@ import CustomFieldForm from './CustomFieldForm';
 import { NavigationItemCustomField } from '../../../../../types';
 import { getMessage } from '../../../utils';
 import { customFieldForm as formDefinition } from '../utils/form';
+import { isEmpty } from 'lodash';
 
 interface CustomFieldModalProps {
   data: NavigationItemCustomField | null;
@@ -32,19 +34,20 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
     label: data?.label || "",
     type: data?.type || "string",
   });
+  const [formErrors, setFormErrors] = useState({});
 
   const handleSubmit = async () => {
     try {
       await formDefinition.schema(usedCustomFieldNames).validate(form, { abortEarly: false })
       onSubmit(form)
+      setFormErrors({});
     } catch (err) {
-      // TODO: Display errors on inputs they are related to
-      console.log(err)
+      const errors = getYupInnerErrors(err);
+      setFormErrors(errors);
     }
   }
 
   const isEditMode = !!data;
-  const submitDisabled = false; // TODO: Check for bugs in form input
   return (
     <ModalLayout onClose={onClose} isOpen={isOpen} labelledBy="custom-field-modal">
       <ModalHeader>
@@ -56,6 +59,7 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
         isEditForm={isEditMode}
         values={form}
         setFieldValue={(name, value) => setForm({ ...form, [name]: value })}
+        errors={formErrors}
       />
       <ModalFooter
         startActions={
@@ -64,7 +68,7 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
           </Button>
         }
         endActions={
-          <Button onClick={handleSubmit} disabled={submitDisabled}>
+          <Button onClick={handleSubmit} disabled={!isEmpty(formErrors)}>
             {getMessage(`popup.item.form.button.save`)}
           </Button>
         }
