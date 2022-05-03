@@ -34,7 +34,7 @@ import RestartAlert from '../../components/RestartAlert';
 import { getMessage } from '../../utils';
 import { isContentTypeEligible, resolveGlobalLikeId } from './utils/functions';
 import { PermanentAlert } from '../../components/Alert/styles';
-import { useDisableI18nModal } from './DisableI18nModal';
+import { useDisableI18nModal } from './components/DisableI18nModal';
 
 const RESTART_NOT_REQUIRED = { required: false }
 const RESTART_REQUIRED = { required: true, reasons: [] }

@@ -4,7 +4,7 @@
  *
  */
 
-import React, { memo, useMemo, useState } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 import { useIntl } from "react-intl";
 import { isEmpty, get } from "lodash";
 
@@ -16,6 +16,9 @@ import { Typography } from '@strapi/design-system/Typography';
 import { Box } from '@strapi/design-system/Box';
 import { Icon } from '@strapi/design-system/Icon';
 import { Button } from '@strapi/design-system/Button';
+import { Select, Option } from '@strapi/design-system/Select';
+// @ts-ignore
+import { Grid, GridItem } from "@strapi/design-system/Grid";
 import { LoadingIndicatorPage } from "@strapi/helper-plugin";
 import EmptyDocumentsIcon from '@strapi/icons/EmptyDocuments';
 import PlusIcon from "@strapi/icons/Plus";
@@ -25,6 +28,7 @@ import List from '../../components/NavigationItemList';
 import NavigationContentHeader from './components/NavigationContentHeader';
 import NavigationHeader from './components/NavigationHeader';
 import NavigationItemPopUp from "./components/NavigationItemPopup";
+import { useI18nCopyNavigationItemsModal } from "./components/I18nCopyNavigationItems";
 import Search from '../../components/Search';
 import useDataManager from "../../hooks/useDataManager";
 import { getTrad } from '../../translations';
@@ -51,9 +55,25 @@ const View = () => {
     handleResetNavigationData,
     handleSubmitNavigation,
     handleLocalizationSelection,
+    handleI18nCopy,
     getContentTypeItems,
     error,
+    availableLocale: allAvailableLocale,
   } = useDataManager();
+  const availableLocale = useMemo(
+    () => allAvailableLocale.filter(locale => locale !== changedActiveNavigation?.localeCode),
+    [changedActiveNavigation, allAvailableLocale]
+  );
+  const { i18nCopyItemsModal, i18nCopySourceLocale, setI18nCopyModalOpened, setI18nCopySourceLocale} = useI18nCopyNavigationItemsModal(
+    useCallback((sourceLocale) => {
+      const source = activeNavigation?.localizations?.find(({ localeCode }) => localeCode === sourceLocale);
+
+      if (source) {
+        handleI18nCopy(source.id, activeNavigation?.id);
+      }
+    }, [ activeNavigation, handleI18nCopy ])
+  );
+  const openI18nCopyModalOpened = useCallback(() => { i18nCopySourceLocale && setI18nCopyModalOpened(true) }, [setI18nCopyModalOpened, i18nCopySourceLocale]);
 
   const [activeNavigationItem, setActiveNavigationItemState] = useState({});
   const { formatMessage } = useIntl();
@@ -102,7 +122,7 @@ const View = () => {
         id: curr.relatedRef.id
       } : undefined, ...pullUsedContentTypeItem(curr.items)].filter(item => item)
       , []);
-  const usedContentTypeItems = pullUsedContentTypeItem((changedActiveNavigation || {}).items);
+  const usedContentTypeItems = pullUsedContentTypeItem(changedActiveNavigation?.items);
   const handleSubmitNavigationItem = (payload) => {
     const changedStructure = {
       ...changedActiveNavigation,
@@ -112,27 +132,27 @@ const View = () => {
     setStructureChanged(true);
   };
 
-  const filteredListFactory = (items, filterFunction) => items.reduce((acc, item) => {
-    const subItems = !isEmpty(item.items) ? filteredListFactory(item.items, filterFunction) : [];
-    if (filterFunction(item))
+  const filteredListFactory = (items, doUse) => items.reduce((acc, item) => {
+    const subItems = !isEmpty(item.items) ? filteredListFactory(item.items, doUse) : [];
+    if (doUse(item))
       return [item, ...subItems, ...acc];
     else
       return [...subItems, ...acc];
   }, []);
   const filteredList = !isSearchEmpty ? filteredListFactory(changedActiveNavigation.items, (item) => item?.title.includes(searchValue)) : [];
 
-  const changeCollapseItemDeep = (item, collapse) => {
-    if (item.collapsed !== collapse) {
+  const changeCollapseItemDeep = (item, isCollapsed) => {
+    if (item.collapsed !== isCollapsed) {
       return {
         ...item,
-        collapsed: collapse,
+        collapsed: isCollapsed,
         updated: true,
-        items: item.items?.map(el => changeCollapseItemDeep(el, collapse))
+        items: item.items?.map(el => changeCollapseItemDeep(el, isCollapsed))
       }
     }
     return {
       ...item,
-      items: item.items?.map(el => changeCollapseItemDeep(el, collapse))
+      items: item.items?.map(el => changeCollapseItemDeep(el, isCollapsed))
     }
   }
 
@@ -229,7 +249,7 @@ const View = () => {
       tradId: 'header.action.newItem',
       margin: '16px',
     },
-  ]
+  ];
 
   return (
     <Main labelledBy="title" aria-busy={isLoadingForSubmit}>
@@ -269,6 +289,29 @@ const View = () => {
                 >
                   {formatMessage(getTrad('empty.cta'))}
                 </Button>
+                {
+                  config.i18nEnabled && availableLocale.length ? (
+                    <Flex direction="column" justifyContent="center">
+                      <Box paddingTop={3} paddingBottom={3}>
+                        <Typography variant="beta" textColor="neutral600">{formatMessage(getTrad('view.i18n.fill.cta'))}</Typography>
+                      </Box>
+                      <Flex direction="row" justifyContent="center" alignItems="center">
+                        <Box paddingLeft={1} paddingRight={1}>
+                          <Select onChange={setI18nCopySourceLocale} value={i18nCopySourceLocale} size="S">
+                            {availableLocale.map(locale => <Option key={locale} value={locale}>
+                              {formatMessage(getTrad('view.i18n.fill.option'), { locale })}
+                            </Option>)}
+                          </Select>
+                        </Box>
+                        <Box paddingLeft={1} paddingRight={1}>
+                          <Button variant="tertiary" onClick={openI18nCopyModalOpened} disabled={!i18nCopySourceLocale} size="S">
+                            {formatMessage(getTrad('view.i18n.fill.cta.button'))}
+                          </Button>
+                        </Box>
+                      </Flex>
+                    </Flex>
+                    ) : null
+                  }
               </Flex>
             )}
             {
@@ -304,6 +347,7 @@ const View = () => {
         onClose={onPopUpClose}
         locale={activeNavigation.localeCode}
       />}
+      {i18nCopyItemsModal}
     </Main>
   );
 };

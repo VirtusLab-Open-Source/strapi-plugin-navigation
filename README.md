@@ -210,6 +210,8 @@ Once feature is enabled a restart is required. On server startup missing navigat
 
 If you want go back to _pre-i18n_ way you can disable it in settings. Already created navigations will not be removed unless you make a choice for plugin to do so(this will require a restart).
 
+If your newly created navigation localization is empty you can copy contents of one version's to the empty one. If related item is localized and locale version exists localization will be used as a related item. Otherwise plugin will fallback to an original item.
+
 ### Rendering
 
 Shape of the rendered navigation will not change. Querying stays almost the same. To query for specific locale version just add `locale` query param. For example:

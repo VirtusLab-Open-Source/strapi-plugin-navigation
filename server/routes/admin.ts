@@ -61,6 +61,11 @@ const routes: StrapiRoutes = {
         policies: [],
       },
     },
+    {
+      method: 'PUT',
+      path: '/i18n/copy/:source/:target',
+      handler: 'admin.fillFromOtherLocale',
+    },
   ]
 }
 

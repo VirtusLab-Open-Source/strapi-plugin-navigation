@@ -5,3 +5,5 @@ export class DefaultLocaleMissingError extends NavigationError {
     super(message);
   }
 }
+
+export class FillNavigationError extends NavigationError {}

@@ -1,42 +1,26 @@
-import { IStrapi, OnlyStrings, StringMap, WhereClause } from "strapi-typed";
-import { assertNotEmpty, ToBeFixed } from "../../types";
+import { OnlyStrings } from "strapi-typed";
+import {
+  assertIsNumber,
+  assertNotEmpty,
+  RelatedRef,
+  RelatedRefBase,
+  ToBeFixed,
+} from "../../types";
 import { I18N_DEFAULT_POPULATE } from "./constant";
-import { DefaultLocaleMissingError } from "./errors";
+import { DefaultLocaleMissingError, FillNavigationError } from "./errors";
+import {
+  AddI18NConfigFieldsInput,
+  AddI18nWhereClause,
+  FillCopyContext,
+  HandleLocaleParamInput,
+  I18nAwareEntityReadHandlerInput,
+  I18NConfigFields,
+  I18nNavigationContentsCopyInput,
+  MinimalEntityWithI18n,
+  ResultNavigationItem,
+  SourceNavigationItem,
+} from "./types";
 import { getI18nStatus } from "./utils";
-
-type AddI18NConfigFieldsInput<T> = {
-  previousConfig: T;
-  strapi: IStrapi;
-  viaSettingsPage?: boolean;
-};
-
-type HandleLocaleParamInput = {
-  locale?: string;
-  strapi: IStrapi;
-};
-
-type I18nAwareEntityReadHandlerInput<T> = {
-  entity: T | undefined | null;
-  entityUid: string;
-  whereClause: WhereClause<OnlyStrings<keyof T>>;
-  localeCode?: string;
-  strapi: IStrapi;
-  populate?: string[];
-};
-
-export type I18NConfigFields = {
-  i18nEnabled: boolean;
-  isI18NPluginEnabled: boolean | undefined;
-  pruneObsoleteI18nNavigations: boolean;
-  defaultLocale?: string | null;
-};
-
-export type AddI18nWhereClause<T> = {
-  previousWhere: T;
-  strapi: IStrapi;
-  query: StringMap<string> & { localeCode?: string };
-  modelUid: string;
-};
 
 export const addI18NConfigFields = async <T>({
   previousConfig,
@@ -98,7 +82,9 @@ export const i18nAwareEntityReadHandler = async <
 
   const rerun = await strapi.query<T>(entityUid).findOne({
     where: whereClause,
-    populate: [...populate, ...I18N_DEFAULT_POPULATE] as Array<OnlyStrings<keyof T>>,
+    populate: [...populate, ...I18N_DEFAULT_POPULATE] as Array<
+      OnlyStrings<keyof T>
+    >,
   });
 
   if (rerun) {
@@ -119,12 +105,7 @@ export const addI18nWhereClause = async <T>({
   strapi,
 }: AddI18nWhereClause<T>): Promise<T & { locale?: string }> => {
   const { enabled } = await getI18nStatus({ strapi });
-  const modelSchema: {
-    attributes: {
-      locale?: StringMap<unknown>;
-    };
-    // TODO: Update after strapi-typed updated with detailed type
-  } = strapi.getModel<ToBeFixed>(modelUid);
+  const modelSchema = strapi.getModel<T & { locale?: string }>(modelUid);
 
   if (enabled && query.localeCode && modelSchema.attributes.locale) {
     return {
@@ -134,4 +115,90 @@ export const addI18nWhereClause = async <T>({
   }
 
   return previousWhere;
+};
+
+export const i18nNavigationContentsCopy = async ({
+  target,
+  source,
+  strapi,
+  service,
+}: I18nNavigationContentsCopyInput): Promise<void> => {
+  const sourceItems = source.items ?? [];
+
+  if (target.items?.length) {
+    throw new FillNavigationError("Current navigation is non-empty");
+  }
+
+  if (!target.localeCode) {
+    throw new FillNavigationError(
+      "Current navigation does not have specified locale"
+    );
+  }
+
+  if (!sourceItems.length) {
+    throw new FillNavigationError("Source navigation is empty");
+  }
+
+  const newItems = await Promise.all(
+    sourceItems.map(
+      processItems({
+        master: target,
+        localeCode: target.localeCode,
+        strapi,
+      })
+    )
+  );
+
+  await service.createBranch(newItems, target, null, { create: true });
+};
+
+const processItems =
+  (context: FillCopyContext) =>
+  async (item: SourceNavigationItem): Promise<ResultNavigationItem> => ({
+    title: item.title,
+    path: item.path,
+    audience: item.audience as ToBeFixed,
+    type: item.type,
+    uiRouterKey: item.uiRouterKey,
+    order: item.order,
+    collapsed: item.collapsed,
+    menuAttached: item.menuAttached,
+    removed: false,
+    updated: true,
+    externalPath: item.externalPath ?? undefined,
+    items: item.items
+      ? await Promise.all(item.items.map(processItems(context)))
+      : [],
+    master: parseInt(context.master.id.toString(), 10),
+    parent: null,
+    related: item.related ? [await processRelated(item.related, context)] : [],
+  });
+
+const processRelated = async (
+  related: RelatedRef,
+  { localeCode, strapi }: FillCopyContext
+): Promise<RelatedRefBase> => {
+  const { __contentType, id } = related;
+
+  assertNotEmpty(
+    __contentType,
+    new FillNavigationError("Related item's content type is missing")
+  );
+  assertIsNumber(
+    id,
+    new FillNavigationError("Related item's id is not a number")
+  );
+
+  const relatedItemWithLocalizations = await strapi
+    .query<MinimalEntityWithI18n>(__contentType)
+    .findOne({ where: { id }, populate: I18N_DEFAULT_POPULATE });
+  const localization = relatedItemWithLocalizations.localizations?.find(
+    ({ locale }) => locale === localeCode
+  );
+
+  return {
+    refId: localization?.id ?? id,
+    ref: __contentType,
+    field: related.field,
+  };
 };

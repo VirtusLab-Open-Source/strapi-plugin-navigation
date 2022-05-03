@@ -6,7 +6,7 @@ export type Navigation = {
   name: string;
   slug: string;
   visible?: boolean;
-  items?: NavigationItemEntity<ToBeFixed>[];
+  items?: NestedStructure<NavigationItemEntity<ToBeFixed>>[];
   createdAt: string;
   updatedAt: string;
   localeCode?: string | null;
@@ -19,24 +19,28 @@ export type NavigationItem = NavigationItemPartial & {
   parent: number | null;
   audience: string[];
   externalPath?: string;
-  path?: string;
   related: RelatedRef[];
   removed: boolean;
   updated: boolean;
   slug?: string
 }
+export type NavigationItemInput = NavigationItemPartial 
+  & Omit<NavigationItem, "related"> 
+  & {
+    related: RelatedRefBase[]
+  }
 
 export type NavigationItemEntity<RelatedType = NavigationItemRelated> = TypeResult<NavigationItemPartial & EntityDatePartial & {
   id: number;
   parent: NavigationItemEntity | null;
   master: Navigation;
   audience: Audience[];
-  path: string | null;
   externalPath: string | null;
   related: RelatedType | null;
 }>
 
 type NavigationItemPartial = {
+  path: string | null;
   title: string;
   type: NavigationItemType;
   collapsed: boolean;
@@ -49,11 +53,13 @@ export type NestedStructure<T> = T & {
   items: NestedStructure<T>[]
 }
 
-export type RelatedRef = {
-  id: number;
+export type RelatedRefBase = {
   refId: number;
   ref: string;
   field: string;
+}
+export type RelatedRef = RelatedRefBase & {
+  id: Id;
   __templateName?: string;
   __contentType?: string;
 }
@@ -86,3 +92,5 @@ type EntityDatePartial = {
   createdAt: DateString;
   updatedAt: DateString;
 }
+
+export type NotVoid<T> = T extends undefined ? never : T;

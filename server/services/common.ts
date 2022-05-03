@@ -128,15 +128,16 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
       .filter((item) => viaSettingsPage || (item && item.available));
   },
 
-  createBranch(
-    items: NestedStructure<NavigationItem>[] = [],
-    masterEntity: Navigation | null = null,
-    parentItem: NavigationItemEntity | null = null,
-    operations: NavigationActions = {}
+  async createBranch(
+    items,
+    masterEntity,
+    parentItem,
+    operations,
   ) {
     const commonService = getPluginService<ICommonService>('common');
     const { itemModel } = extractMeta(strapi.plugins);
-    return Promise.all(
+
+    return await Promise.all<NavigationActions[]>(
       items.map(async (item) => {
         operations.create = true;
         const { parent, master, related, ...params } = item;
@@ -199,38 +200,43 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
     }
   },
 
-  getIdsRelated(
-    relatedItems: RelatedRef[] | null,
-    master: number,
-  ): Promise<(Id | undefined)[]> | void {
+  async getIdsRelated(relatedItems, master): Promise<Id[] | void> {
     if (relatedItems) {
-      return Promise.all(relatedItems.map(async relatedItem => {
-        try {
-          const model = strapi.query<NavigationItemRelated>('plugin::navigation.navigations-items-related');
-          const entity = await model
-            .findOne({
-              where: {
-                related_id: relatedItem.refId,
-                related_type: relatedItem.ref,
-                field: relatedItem.field,
-                master,
+      return (
+        await Promise.all(
+          relatedItems.map(async (relatedItem) => {
+            try {
+              const model = strapi.query<NavigationItemRelated>(
+                "plugin::navigation.navigations-items-related"
+              );
+              const entity = await model.findOne({
+                where: {
+                  related_id: relatedItem.refId,
+                  related_type: relatedItem.ref,
+                  field: relatedItem.field,
+                  master,
+                },
+              });
+              if (!entity) {
+                const newEntity = {
+                  master,
+                  order: 1,
+                  field: relatedItem.field,
+                  related_id: relatedItem.refId,
+                  related_type: relatedItem.ref,
+                };
+                return model.create({ data: newEntity }).then(({ id }) => id);
               }
-            });
-          if (!entity) {
-            const newEntity = {
-              master,
-              order: 1,
-              field: relatedItem.field,
-              related_id: relatedItem.refId,
-              related_type: relatedItem.ref,
-            };
-            return model.create({ data: newEntity }).then(({ id }) => id);
-          }
-          return entity.id;
-        } catch (e) {
-          console.error(e);
-        }
-      }));
+              return entity.id;
+            } catch (e) {
+              console.error(e);
+            }
+          })
+        )
+      ).reduce<Id[]>(
+        (acc, id) => (id ? acc.concat([id]) : acc),
+        []
+      );
     }
   },
 

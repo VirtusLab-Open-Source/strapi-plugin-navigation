@@ -1,3 +1,4 @@
+import { isNumber } from "lodash";
 import { Id } from "strapi-typed";
 import { Navigation, NavigationItem, NavigationItemType, NestedStructure } from "./contentTypes"
 
@@ -69,6 +70,17 @@ export const assertNotEmpty: <T>(
 
   throw customError ?? new Error("Non-empty value expected, empty given");
 };
+
+export const assertIsNumber: (n: unknown, customError?: Error) => asserts n is number = (
+  n: unknown,
+  customError?: Error
+) => {
+  if (isNumber(n)) {
+    return
+  }
+
+  throw customError ?? new Error(`Number is expected. "${typeof n}" given`);
+}
 
 export const assertEntity = <T>(entity: unknown, name = "Entity"): T => {
   if (entity instanceof Object && entity.hasOwnProperty("id")) {

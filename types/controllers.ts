@@ -1,8 +1,14 @@
-import { IAdminService, IClientService, NavigationServiceName } from "./services";
-import { StrapiControllerContext, ToBeFixed } from "./utils";
+import { StrapiRequestContext } from "strapi-typed";
+import { Navigation } from "./contentTypes";
+import { IAdminService, IClientService, NavigationService, NavigationServiceName } from "./services";
+import { AuditLogContext, StrapiControllerContext, ToBeFixed } from "./utils";
+
+type ControllerCommonContext = {
+  auditLog: AuditLogContext;
+};
 
 export interface IAdminController {
-  getService: <T = IAdminService>(name?: NavigationServiceName) => T;
+  getService: <T extends NavigationService = IAdminService>(name?: NavigationServiceName) => T;
 
   config: () => ToBeFixed;
   get: () => ToBeFixed;
@@ -14,10 +20,11 @@ export interface IAdminController {
   settingsConfig: () => ToBeFixed;
   settingsRestart: (ctx: StrapiControllerContext) => ToBeFixed;
   updateConfig: (ctx: StrapiControllerContext) => ToBeFixed;
+  fillFromOtherLocale: (ctx: StrapiRequestContext<never, never, { source: string, target: string }> & ControllerCommonContext) => Promise<Navigation>;
 };
 
 export interface IClientController {
-  getService: <T = IClientService>(name?: NavigationServiceName) => T;
+  getService: <T extends NavigationService = IClientService>(name?: NavigationServiceName) => T;
 
   render: (ctx: StrapiControllerContext) => ToBeFixed;
   renderChild: (ctx: StrapiControllerContext) => ToBeFixed;
