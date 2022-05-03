@@ -69,8 +69,8 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
                   const itemsCountOrBypass = isSingleTypeWithPublishFlow ?
                     await strapi.query<StrapiContentType<ToBeFixed>>(uid).count({
                       where: {
-                        publicationState: 'live',
-                      }
+                        published_at: { $notNull: true },
+                      },
                     }) :
                     true;
                   return returnType(itemsCountOrBypass !== 0);
