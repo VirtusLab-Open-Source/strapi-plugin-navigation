@@ -1,9 +1,10 @@
 import { isNumber } from "lodash";
 import { Id } from "strapi-typed";
+import { RENDER_TYPES } from "../server/utils";
 import { Navigation, NavigationItem, NavigationItemType, NestedStructure } from "./contentTypes"
 
 export type NavigationActionsCategories = 'toCreate' | 'toUpdate' | 'toRemove';
-export type RenderType = "flat" | "tree" | "rfr";
+export type RenderType = RENDER_TYPES.FLAT | RENDER_TYPES.TREE | RENDER_TYPES.RFR;
 export type StrapiRoutesTypes = 'admin' | 'content-api';
 export type ToBeFixed = any;
 export type DateString = string;

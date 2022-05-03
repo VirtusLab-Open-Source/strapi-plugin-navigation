@@ -1,9 +1,9 @@
-import { first, get, isEmpty, isNil, isString, last, toNumber } from "lodash";
+import { first, get, isEmpty, isNil, isString, isArray, last, toNumber } from "lodash";
 import slugify from "slugify";
 import { Id, StrapiContext } from "strapi-typed";
 import { validate } from "uuid";
 import { assertNotEmpty, ContentTypeEntity, IAdminService, IClientService, ICommonService, Navigation, NavigationItem, NavigationItemEntity, NestedStructure, RFRNavItem, ToBeFixed } from "../../types"
-import { composeItemTitle, extractMeta, filterByPath, filterOutUnpublished, getPluginService, templateNameFactory } from "../utils";
+import { composeItemTitle, extractMeta, filterByPath, filterOutUnpublished, getPluginService, RENDER_TYPES, templateNameFactory } from "../utils";
 //@ts-ignore
 import { errors } from '@strapi/utils';
 import { i18nAwareEntityReadHandler } from "../i18n";
@@ -12,9 +12,10 @@ import { NavigationError } from "../../utils/NavigationError";
 const clientService: (context: StrapiContext) => IClientService = ({ strapi }) => ({
   async render({
     idOrSlug,
-    type = 'flat',
+    type = RENDER_TYPES.FLAT,
     menuOnly = false,
     rootPath = null,
+    wrapRelated = false,
     locale,
   }) {
     const clientService = getPluginService<IClientService>('client');
@@ -23,28 +24,29 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
     const criteria = findById ? { id: idOrSlug } : { slug: idOrSlug };
     const itemCriteria = menuOnly ? { menuAttached: true } : {};
     return await clientService.renderType({
-      type, criteria, itemCriteria, filter: null, rootPath, locale,
+      type, criteria, itemCriteria, filter: null, rootPath, wrapRelated, locale,
     });
   },
 
   async renderChildren({
     idOrSlug,
     childUIKey,
-    type = 'flat',
+    type = RENDER_TYPES.FLAT,
     menuOnly = false,
+    wrapRelated = false,
     locale,
   }) {
     const clientService = getPluginService<IClientService>('client');
     const findById = !isNaN(toNumber(idOrSlug)) || validate(idOrSlug as string);
     const criteria = findById ? { id: idOrSlug } : { slug: idOrSlug };
-    const filter = type === 'flat' ? null : childUIKey;
+    const filter = type === RENDER_TYPES.FLAT ? null : childUIKey;
 
     const itemCriteria = {
       ...(menuOnly && { menuAttached: true }),
-      ...(type === 'flat' ? { uiRouterKey: childUIKey } : {}),
+      ...(type === RENDER_TYPES.FLAT ? { uiRouterKey: childUIKey } : {}),
     };
 
-    return clientService.renderType({ type, criteria, itemCriteria, filter, rootPath: null, locale });
+    return clientService.renderType({ type, criteria, itemCriteria, filter, rootPath: null, wrapRelated, locale });
   },
 
   renderRFR(
@@ -210,12 +212,13 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
   },
 
   async renderType({
-    type = 'flat',
+    type = RENDER_TYPES.FLAT,
     criteria = {},
     itemCriteria = {},
     filter = null,
     rootPath = null,
-    locale
+    wrapRelated = false,
+    locale,
   }) {
     const clientService = getPluginService<IClientService>('client');
     const adminService = getPluginService<IAdminService>('admin');
@@ -258,9 +261,14 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
       const items = await commonService.getRelatedItems(entities);
       const { contentTypes, contentTypesNameFields } = await adminService.config(false);
 
+      const wrapContentType = (itemContentType: ToBeFixed) => wrapRelated && itemContentType ? {
+          id: itemContentType.id,
+          attributes: { ...itemContentType }
+        } : itemContentType;
+
       switch (type) {
-        case 'tree':
-        case 'rfr':
+        case RENDER_TYPES.TREE:
+        case RENDER_TYPES.RFR:
           const getTemplateName = await templateNameFactory(items, strapi, contentTypes);
           const itemParser = (item: NavigationItemEntity<ContentTypeEntity[]>, path = '', field: keyof NavigationItemEntity) => {
             const isExternal = item.type === "EXTERNAL";
@@ -269,7 +277,8 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
               : item.path}`;
             const slug = isString(parentPath) ? slugify(
               (first(parentPath) === '/' ? parentPath.substring(1) : parentPath).replace(/\//g, '-')) : undefined;
-            const lastRelated = item.related ? last(item.related) : undefined;
+            const lastRelated = isArray(item.related) ? last(item.related) : item.related;
+            const relatedContentType = wrapContentType(lastRelated);
             return {
               id: item.id,
               title: composeItemTitle(item, contentTypesNameFields, contentTypes),
@@ -281,7 +290,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
               slug: !slug && item.uiRouterKey ? slugify(item.uiRouterKey) : slug,
               external: isExternal,
               related: isExternal || !lastRelated ? undefined : {
-                ...lastRelated,
+                ...relatedContentType,
                 __templateName: getTemplateName((lastRelated.relatedType || lastRelated.__contentType), lastRelated.id),
               },
               audience: !isEmpty(item.audience) ? item.audience!.map(aItem => (aItem).key) : undefined,
@@ -312,7 +321,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
             ? treeStructure.filter((item: NavigationItem) => item.uiRouterKey === filter)
             : treeStructure;
 
-          if (type === "rfr") {
+          if (type === RENDER_TYPES.RFR) {
             return clientService.renderRFR(
               filteredStructure,
               null,
@@ -328,7 +337,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
               ...item,
               audience: item.audience?.map(_ => (_).key),
               title: composeItemTitle(item, contentTypesNameFields, contentTypes) || '',
-              related: item.related,//omit(item.related, 'localizations'),
+              related: wrapContentType(item.related),//omit(item.related, 'localizations'),
               items: null,
             }));
           return isNil(rootPath) ? items : filterByPath(publishedItems, rootPath).items;

@@ -14,3 +14,8 @@ export const DEFAULT_NAVIGATION_ITEM = {
   slug: "main-navigation",
   visible: true,
 } as const;
+export enum RENDER_TYPES {
+  FLAT = 'FLAT',
+  TREE = 'TREE',
+  RFR = 'RFR'
+};

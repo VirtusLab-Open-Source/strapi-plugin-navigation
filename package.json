@@ -22,7 +22,7 @@
     "develop": "nodemon --exec \"npm run build:dev\""
   },
   "dependencies": {
-    "@strapi/utils": "^4.1.8",
+    "@strapi/utils": "^4.1.9",
     "bad-words": "^3.0.3",
     "uuid": "^8.3.0",
     "lodash": "^4.17.11",

@@ -2,7 +2,7 @@ import { IStrapi } from "strapi-typed";
 import { IClientService } from "../../../types";
 
 import setupStrapi from '../../../__mocks__/strapi';
-import { getPluginService } from "../../utils";
+import { getPluginService, RENDER_TYPES } from "../../utils";
 
 declare var strapi: IStrapi
 
@@ -47,7 +47,7 @@ describe('Navigation services', () => {
       const clientService = getPluginService<IClientService>('client');
       const result = await clientService.render({
         idOrSlug: 1,
-        type: 'tree'
+        type: RENDER_TYPES.TREE
       });
 
       expect(result).toBeDefined()
@@ -58,7 +58,7 @@ describe('Navigation services', () => {
       const clientService = getPluginService<IClientService>('client');
       const result = await clientService.render({
         idOrSlug: 1,
-        type: 'rfr'
+        type: RENDER_TYPES.RFR
       });
 
       expect(result).toBeDefined()
@@ -70,7 +70,7 @@ describe('Navigation services', () => {
       const clientService = getPluginService<IClientService>('client');
       const result = await clientService.render({
         idOrSlug: 1,
-        type: 'flat',
+        type: RENDER_TYPES.FLAT,
         menuOnly: true,
       });
 
@@ -82,7 +82,7 @@ describe('Navigation services', () => {
       const clientService = getPluginService<IClientService>('client');
       const result = await clientService.render({
         idOrSlug: 1,
-        type: 'flat',
+        type: RENDER_TYPES.FLAT,
         menuOnly: false,
         rootPath: '/home/side'
       });

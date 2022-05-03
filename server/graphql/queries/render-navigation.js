@@ -20,7 +20,14 @@ module.exports = ({ strapi, nexus }) => {
       obj,
       { navigationIdOrSlug: idOrSlug, type, menuOnly, path: rootPath, locale }
     ) {
-      return getPluginService('client').render({ idOrSlug, type, menuOnly, rootPath, locale })
+      return getPluginService('client').render({ 
+        idOrSlug,
+        type,
+        rootPath, 
+        locale, 
+        menuOnly,
+        wrapRelated: true 
+      })
     },
   };
 };
