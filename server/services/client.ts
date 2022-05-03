@@ -331,16 +331,15 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
           }
           return filteredStructure;
         default:
-          const publishedItems = items
-            .filter(filterOutUnpublished)
-            .map((item: NavigationItemEntity<ContentTypeEntity>) => ({
-              ...item,
-              audience: item.audience?.map(_ => (_).key),
-              title: composeItemTitle(item, contentTypesNameFields, contentTypes) || '',
-              related: wrapContentType(item.related),//omit(item.related, 'localizations'),
-              items: null,
-            }));
-          return isNil(rootPath) ? items : filterByPath(publishedItems, rootPath).items;
+          const publishedItems = items.filter(filterOutUnpublished);
+          const result = isNil(rootPath) ? items : filterByPath(publishedItems, rootPath).items;
+          return result.map((item: NavigationItemEntity<ContentTypeEntity>) => ({
+            ...item,
+            audience: item.audience?.map(_ => (_).key),
+            title: composeItemTitle(item, contentTypesNameFields, contentTypes) || '',
+            related: wrapContentType(item.related),//omit(item.related, 'localizations'),
+            items: null,
+          }));
       }
     }
     throw new errors.NotFoundError();

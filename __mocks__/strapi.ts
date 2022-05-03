@@ -113,29 +113,23 @@ const itemModelMock = {
 const pageModelMock = {
   findOne: async () => ({
     "id": 1,
-    "attributes": {
-      "title": "Page nr 1",
-      "createdAt": "2022-01-19T08:22:31.244Z",
-      "updatedAt": "2022-01-19T08:22:31.244Z",
-      "publishedAt": null
-    }
+    "title": "Page nr 1",
+    "createdAt": "2022-01-19T08:22:31.244Z",
+    "updatedAt": "2022-01-19T08:22:31.244Z",
+    "publishedAt": null
   }),
   findMany: async () => [{
     "id": 1,
-    "attributes": {
-      "title": "Page nr 1",
-      "createdAt": "2022-01-19T08:22:31.244Z",
-      "updatedAt": "2022-01-19T08:22:31.244Z",
-      "publishedAt": null
-    }
+    "title": "Page nr 1",
+    "createdAt": "2022-01-19T08:22:31.244Z",
+    "updatedAt": "2022-01-19T08:22:31.244Z",
+    "publishedAt": null
   }, {
     "id": 2,
-    "attributes": {
-      "title": "Page nr 2",
-      "createdAt": "2022-01-19T08:22:50.821Z",
-      "updatedAt": "2022-01-19T08:22:50.821Z",
-      "publishedAt": null
-    }
+    "title": "Page nr 2",
+    "createdAt": "2022-01-19T08:22:50.821Z",
+    "updatedAt": "2022-01-19T08:22:50.821Z",
+    "publishedAt": null
   }]
 
 };
