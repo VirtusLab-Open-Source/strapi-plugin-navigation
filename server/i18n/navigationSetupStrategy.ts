@@ -36,14 +36,7 @@ export const i18nNavigationSetupStrategy: INavigationSetupStrategy = async ({
 
     if (currentNavigations.length === 0) {
       currentNavigations = [
-        await createNavigation({
-          strapi,
-          payload: {
-            ...DEFAULT_NAVIGATION_ITEM,
-            localeCode: defaultLocale,
-          },
-          populate: DEFAULT_POPULATE,
-        }),
+        await createDefaultI18nNavigation({ strapi, defaultLocale }),
       ];
     }
 
@@ -122,6 +115,11 @@ export const i18nNavigationSetupStrategy: INavigationSetupStrategy = async ({
         },
       });
     }
+
+    const remainingNavigations = await getCurrentNavigations(strapi);
+    if (!remainingNavigations.length) {
+      await createDefaultI18nNavigation({ strapi, defaultLocale });
+    }
   }
 
   return getCurrentNavigations(strapi);
@@ -180,3 +178,15 @@ const deleteNavigations = ({
   strapi.query<Navigation>("plugin::navigation.navigation").deleteMany({
     where,
   });
+
+const createDefaultI18nNavigation = ({ strapi, defaultLocale }: {
+  strapi: IStrapi;
+  defaultLocale: string;
+}): Promise<Navigation> => createNavigation({
+  strapi,
+  payload: {
+    ...DEFAULT_NAVIGATION_ITEM,
+    localeCode: defaultLocale,
+  },
+  populate: DEFAULT_POPULATE,
+});
