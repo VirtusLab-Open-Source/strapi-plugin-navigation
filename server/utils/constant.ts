@@ -1,3 +1,4 @@
+import { RenderTypeOptions } from "../../types";
 import { I18N_DEFAULT_POPULATE } from "../i18n";
 
 export const TEMPLATE_DEFAULT = 'Generic' as const;
@@ -14,8 +15,8 @@ export const DEFAULT_NAVIGATION_ITEM = {
   slug: "main-navigation",
   visible: true,
 } as const;
-export enum RENDER_TYPES {
-  FLAT = 'FLAT',
-  TREE = 'TREE',
-  RFR = 'RFR'
-};
+export const RENDER_TYPES = {
+  FLAT: 'FLAT',
+  TREE: 'TREE',
+  RFR: 'RFR'
+} as RenderTypeOptions;
