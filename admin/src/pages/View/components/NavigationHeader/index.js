@@ -10,6 +10,7 @@ import { MoreButton } from './styles';
 import { Select, Option } from '@strapi/design-system/Select';
 import { Box } from '@strapi/design-system/Box'
 import { Grid, GridItem } from "@strapi/design-system/Grid";
+import { uniqBy } from 'lodash';
 
 const submitIcon = <Check />;
 const pickDefaultLocaleNavigation = ({ activeNavigation, config }) => config.i18nEnabled
@@ -36,7 +37,7 @@ const NavigationHeader = ({
   const allLocaleVersions = useMemo(
     () =>
       activeNavigation?.localizations.length && config.i18nEnabled
-        ? [activeNavigation, ...(activeNavigation.localizations ?? [])].sort((a, b) => a.localeCode.localeCompare(b.localeCode))
+        ? uniqBy([activeNavigation, ...(activeNavigation.localizations ?? [])].sort((a, b) => a.localeCode.localeCompare(b.localeCode)), 'id')
         : [],
     [activeNavigation, config]
   );
