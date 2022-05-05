@@ -331,7 +331,7 @@ Plugin supports both **REST API** and **GraphQL API** exposed by Strapi.
 
 `GET <host>/api/navigation/render/<navigationIdOrSlug>?type=<type>`
 
-Return a rendered navigation structure depends on passed type (`tree`, `rfr` or nothing to render as `flat/raw`).
+Return a rendered navigation structure depends on passed type (`TREE`, `RFR` or nothing to render as `FLAT`).
 
 > The ID of navigation by default is `1`, if you've got defined multiple navigations you must work with their IDs or Slugs to fetch.
 
@@ -364,7 +364,7 @@ Return a rendered navigation structure depends on passed type (`tree`, `rfr` or 
 ]
 ```
 
-**Example URL**: `https://localhost:1337/api/navigation/render/1?type=tree`
+**Example URL**: `https://localhost:1337/api/navigation/render/1?type=TREE`
 
 **Example response body**
 
@@ -400,7 +400,7 @@ Return a rendered navigation structure depends on passed type (`tree`, `rfr` or 
 ]
 ```
 
-**Example URL**: `https://localhost:1337/api/navigation/render/1?type=rfr`
+**Example URL**: `https://localhost:1337/api/navigation/render/1?type=RFR`
 
 **Example response body**
 
@@ -485,7 +485,7 @@ Return a rendered navigation structure depends on passed type (`tree`, `rfr` or 
 
 ### GraphQL API
 
-Same as [**REST API**](#rest-api) returns a rendered navigation structure depends on passed type (`tree`, `rfr` or nothing to render as `flat/raw`).
+Same as [**REST API**](#rest-api) returns a rendered navigation structure depends on passed type (`TREE`, `RFR` or nothing to render as `FLAT`).
 
 **Example request**
 
@@ -500,21 +500,8 @@ query {
     title
     path
     related {
-      __typename
-
-      ... on Page {
-        Title
-      }
-
-      ... on WithFlowType {
-        Name
-      }
-    }
-    items {
       id
-      title
-      path
-      related {
+      attributes {
         __typename
 
         ... on Page {
@@ -523,6 +510,25 @@ query {
 
         ... on WithFlowType {
           Name
+        }
+      }
+    }
+    items {
+      id
+      title
+      path
+      related {
+        id
+        attributes {
+          __typename
+
+          ... on Page {
+            Title
+          }
+
+          ... on WithFlowType {
+            Name
+          }
         }
       }
     }
@@ -541,8 +547,11 @@ query {
         "title": "Test page",
         "path": "/test-path",
         "related": {
-          "__typename": "WithFlowType",
-          "Name": "Test"
+          "id": 3,
+          "attributes": {
+            "__typename": "WithFlowType",
+            "Name": "Test"
+          }
         },
         "items": [
           {
@@ -550,8 +559,11 @@ query {
             "title": "Nested",
             "path": "/test-path/nested-one",
             "related": {
-              "__typename": "Page",
-              "Title": "Eg. Page title"
+              "id": 1,
+              "attributes": {
+                  "__typename": "Page",
+                "Title": "Eg. Page title"
+              }
             }
           }
         ]
@@ -561,8 +573,11 @@ query {
         "title": "Another page",
         "path": "/another",
         "related": {
-          "__typename": "Page",
-          "Title": "dfdfdf"
+          "id": 2,
+          "attributes": {
+            "__typename": "Page",
+            "Title": "dfdfdf"
+          }
         },
         "items": []
       }

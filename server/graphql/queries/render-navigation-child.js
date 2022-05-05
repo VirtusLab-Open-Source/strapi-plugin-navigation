@@ -17,6 +17,7 @@ module.exports = ({ strapi, nexus }) => {
         childUIKey,
         type,
         menuOnly,
+        wrapRelated: true,
       });
     },
   };

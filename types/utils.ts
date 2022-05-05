@@ -3,7 +3,12 @@ import { Id } from "strapi-typed";
 import { Navigation, NavigationItem, NavigationItemType, NestedStructure } from "./contentTypes"
 
 export type NavigationActionsCategories = 'toCreate' | 'toUpdate' | 'toRemove';
-export type RenderType = "flat" | "tree" | "rfr";
+export type RenderTypeOptions = Readonly<{
+  FLAT: 'FLAT'
+  TREE: 'TREE'
+  RFR: 'RFR'
+}>;
+export type RenderType = keyof RenderTypeOptions;
 export type StrapiRoutesTypes = 'admin' | 'content-api';
 export type ToBeFixed = any;
 export type DateString = string;

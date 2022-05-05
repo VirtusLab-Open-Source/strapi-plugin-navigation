@@ -2,7 +2,7 @@ import { IStrapi } from "strapi-typed";
 import { IClientService } from "../../../types";
 
 import setupStrapi from '../../../__mocks__/strapi';
-import { getPluginService } from "../../utils";
+import { getPluginService, RENDER_TYPES } from "../../utils";
 
 declare var strapi: IStrapi
 
@@ -41,24 +41,54 @@ describe('Navigation services', () => {
 
       expect(result).toBeDefined()
       expect(result.length).toBe(2)
+      expect(result).toHaveProperty([0, 'related', 'id'], 1);
+      expect(result).toHaveProperty([0, 'related', 'title'], 'Page nr 1');
+    });
+
+    it('Can render branch in flat format for GraphQL', async () => {
+      const clientService = getPluginService<IClientService>('client');
+      const result = await clientService.render({ idOrSlug: 1, wrapRelated: true });
+
+      expect(result).toBeDefined();
+      expect(result.length).toBe(2);
+      expect(result).toHaveProperty([0, 'related', 'id'], 1);
+      expect(result).toHaveProperty([0, 'related', 'attributes', 'title'], 'Page nr 1');
     });
 
     it('Can render branch in tree format', async () => {
       const clientService = getPluginService<IClientService>('client');
       const result = await clientService.render({
         idOrSlug: 1,
-        type: 'tree'
+        type: RENDER_TYPES.TREE
       });
 
-      expect(result).toBeDefined()
-      expect(result.length).toBeGreaterThan(0)
+      expect(result).toBeDefined();
+      expect(result.length).toBeGreaterThan(0);
+      expect(result[0].items).toBeDefined();
+      expect(result[0].items.length).toBeGreaterThan(0);
+    });
+
+    it('Can render branch in tree format for GraphQL', async () => {
+      const clientService = getPluginService<IClientService>('client');
+      const result = await clientService.render({
+        idOrSlug: 1,
+        type: RENDER_TYPES.TREE,
+        wrapRelated: true,
+      });
+
+      expect(result).toBeDefined();
+      expect(result.length).toBeGreaterThan(0);
+      expect(result).toHaveProperty([0, 'related', 'id'], 1);
+      expect(result).toHaveProperty([0, 'related', 'attributes', 'title'], 'Page nr 1');
+      expect(result).toHaveProperty([0, 'items', 0, 'related', 'id'], 2);
+      expect(result).toHaveProperty([0, 'items', 0, 'related', 'attributes', 'title'], 'Page nr 2');
     });
 
     it('Can render branch in rfr format', async () => {
       const clientService = getPluginService<IClientService>('client');
       const result = await clientService.render({
         idOrSlug: 1,
-        type: 'rfr'
+        type: RENDER_TYPES.RFR
       });
 
       expect(result).toBeDefined()
@@ -66,11 +96,25 @@ describe('Navigation services', () => {
       expect(result.nav).toBeDefined()
     });
 
+    it('Can render branch in rfr format for GraphQL', async () => {
+      const clientService = getPluginService<IClientService>('client');
+      const result = await clientService.render({
+        idOrSlug: 1,
+        type: RENDER_TYPES.RFR,
+        wrapRelated: true,
+      });
+
+      expect(result).toBeDefined();
+      expect(result.pages).toBeDefined();
+      expect(result.nav).toBeDefined();
+      expect(result).toHaveProperty(['pages', 'home', 'related', 'id'], 1);
+    });
+
     it('Can render only menu attached elements', async () => {
       const clientService = getPluginService<IClientService>('client');
       const result = await clientService.render({
         idOrSlug: 1,
-        type: 'flat',
+        type: RENDER_TYPES.FLAT,
         menuOnly: true,
       });
 
@@ -82,7 +126,7 @@ describe('Navigation services', () => {
       const clientService = getPluginService<IClientService>('client');
       const result = await clientService.render({
         idOrSlug: 1,
-        type: 'flat',
+        type: RENDER_TYPES.FLAT,
         menuOnly: false,
         rootPath: '/home/side'
       });
