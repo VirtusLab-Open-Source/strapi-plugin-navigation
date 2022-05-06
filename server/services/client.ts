@@ -299,6 +299,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
                 parentPath,
                 itemParser,
               ),
+              ...item.additionalFields,
             };
           };
 
@@ -353,12 +354,13 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
           }
 
           return result
-            .map((item: NavigationItemEntity<ContentTypeEntity>) => ({
+            .map(({additionalFields, ...item}: NavigationItemEntity<ContentTypeEntity>) => ({
               ...item,
               audience: item.audience?.map(_ => (_).key),
-              title: composeItemTitle(item, contentTypesNameFields, contentTypes) || '',
+              title: composeItemTitle({...item, additionalFields}, contentTypesNameFields, contentTypes) || '',
               related: wrapContentType(item.related),//omit(item.related, 'localizations'),
-              items: null
+              items: null,
+              ...additionalFields,
             }))
             .sort((a, b) => compareArraysOfNumbers(getNestedOrders(a.id), getNestedOrders(b.id)));
       }

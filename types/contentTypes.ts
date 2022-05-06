@@ -1,4 +1,4 @@
-import { Id, TypeResult } from "strapi-typed";
+import { Id, StringMap, TypeResult } from "strapi-typed";
 import { DateString, ToBeFixed } from "./utils";
 
 export type Navigation = {
@@ -37,6 +37,7 @@ export type NavigationItemEntity<RelatedType = NavigationItemRelated> = TypeResu
   audience: Audience[];
   externalPath: string | null;
   related: RelatedType | null;
+  additionalFields: StringMap<string | boolean>;
 }>
 
 type NavigationItemPartial = {

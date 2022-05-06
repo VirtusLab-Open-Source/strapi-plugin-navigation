@@ -60,7 +60,6 @@ const CustomFieldForm: React.FC<CustomFieldFormProps> = ({ isEditForm, values, s
             </GridItem>
             <GridItem key="label" col={12}>
               <GenericInput
-                autoFocused={true}
                 intlLabel={getTradObject(`${tradPrefix}label.label`)}
                 name="label"
                 placeholder={getTradObject(`${tradPrefix}label.placeholder`)}
@@ -78,6 +77,7 @@ const CustomFieldForm: React.FC<CustomFieldFormProps> = ({ isEditForm, values, s
                 options={prepareSelectOptions(customFieldsTypes)}
                 type="select"
                 onChange={({ target: { name, value } }: React.BaseSyntheticEvent) => setFieldValue(name, value)}
+                disabled={isEditForm}
                 value={get(values, "type", "")}
                 error={get(errors, "type")}
               />
