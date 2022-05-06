@@ -10,7 +10,7 @@ export type RawPayload = {
 }
 
 // TODO: This type should be replaced with new version of content type in new strapi-typed
-export type ContentTypeToFix = StrapiContentTypeFullSchema & { available: boolean, isSingle: boolean, plugin: string }
+export type ContentTypeToFix = StrapiContentTypeFullSchema & { available: boolean, isSingle: boolean, plugin: string, label: string }
 
 export type IPreparePayload = (payload: { form: RawPayload, pruneObsoleteI18nNavigations: boolean }) => NavigationPluginConfig;
 export type IOnSave = (form: RawPayload) => void;

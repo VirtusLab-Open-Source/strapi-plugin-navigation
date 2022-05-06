@@ -1,6 +1,6 @@
 import { Id, StrapiContentType, StrapiEvents, StrapiStore, StringMap } from "strapi-typed";
 import { NavigationPluginConfig } from "./config";
-import { Navigation, NavigationItem, NavigationItemEntity, NavigationItemInput, NestedStructure, NotVoid, RelatedRef, RelatedRefBase } from "./contentTypes";
+import { Navigation, NavigationItem, NavigationItemCustomField, NavigationItemEntity, NavigationItemInput, NestedStructure, NotVoid, RelatedRef, RelatedRefBase } from "./contentTypes";
 import { I18nQueryParams } from "./i18n";
 import { AuditLogContext, ContentTypeEntity, NavigationActions, NavigationActionsPerItem, RenderType, RFRNavItem, ToBeFixed } from "./utils";
 
@@ -35,6 +35,7 @@ export interface ICommonService {
   getIdsRelated: (relatedItems: RelatedRefBase[] | RelatedRef[] | null, master: number) => Promise<Id[] | void>,
   getPluginStore: () => Promise<StrapiStore>,
   getRelatedItems: (entityItems: NavigationItemEntity[]) => Promise<NavigationItemEntity<ContentTypeEntity>[]>,
+  pruneCustomFields: (removedFields: NavigationItemCustomField[]) => Promise<void>,
   removeBranch: (items: NestedStructure<NavigationItem>[], operations: NavigationActions) => ToBeFixed,
   removeRelated: (relatedItems: RelatedRef[], master: number) => ToBeFixed
   setDefaultConfig: () => Promise<NavigationPluginConfig>,

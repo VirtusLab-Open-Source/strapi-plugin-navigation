@@ -1,7 +1,7 @@
 // @ts-ignore
 import { errors } from "@strapi/utils"
 import slugify from "@sindresorhus/slugify";
-import { isNil, isObject } from "lodash";
+import { differenceBy, isEmpty, isNil, isObject } from "lodash";
 import { Id, StrapiContext } from "strapi-typed";
 import {
   Audience,
@@ -9,6 +9,7 @@ import {
   IAdminService,
   ICommonService,
   Navigation,
+  NavigationItemCustomField,
   NavigationItemEntity,
   NavigationPluginConfig,
   ToBeFixed
@@ -254,7 +255,11 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
   async updateConfig(newConfig: NavigationPluginConfig): Promise<void> {
     const commonService = getPluginService<ICommonService>('common');
     const pluginStore = await commonService.getPluginStore()
+    const config = await pluginStore.get<string, NavigationPluginConfig>({ key: 'config' });
     await pluginStore.set({ key: 'config', value: newConfig });
+
+    const removedFields = differenceBy(config.additionalFields, newConfig.additionalFields, 'name').filter(i => i !== 'audience') as NavigationItemCustomField[];
+    !isEmpty(removedFields) && await commonService.pruneCustomFields(removedFields);
   },
 
   async fillFromOtherLocale({ target, source, auditLog }) {

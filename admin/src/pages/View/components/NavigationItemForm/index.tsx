@@ -27,13 +27,12 @@ import { getMessage, ResourceState } from '../../../../utils';
 
 const appendLabelPublicationStatusFallback = () => '';
 
-
 const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   config,
   availableLocale,
   isLoading: isPreloading,
   inputsPrefix,
-  data = {},
+  data,
   contentTypes = [],
   contentTypeEntities = [],
   usedContentTypeEntities = [],
@@ -44,7 +43,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   onCancel,
   getContentTypeEntities,
   usedContentTypesData,
-  appendLabelPublicationStatus = appendLabelPublicationStatusFallback, 
+  appendLabelPublicationStatus = appendLabelPublicationStatusFallback,
   locale,
   readNavigationItemFromLocale,
 }) => {
@@ -99,26 +98,27 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
     return null;
   };
 
-const getDefaultTitle = useCallback((related: string, relatedType: string, isSingleSelected: boolean) => {
-  if (isSingleSelected) {
-    return contentTypes.find(_ => _.uid === relatedType)?.label
-  } else {
-    return extractRelatedItemLabel({
-      ...contentTypeEntities.find(_ => _.id === related),
-      __collectionUid: relatedType
-    }, contentTypesNameFields, { contentTypes });
-  }
+  const getDefaultTitle =
+    useCallback((related: string | undefined, relatedType: string | undefined, isSingleSelected: boolean) => {
+      if (isSingleSelected) {
+        return contentTypes.find(_ => _.uid === relatedType)?.label
+      } else {
+        return extractRelatedItemLabel({
+          ...contentTypeEntities.find(_ => _.id === related),
+          __collectionUid: relatedType
+        }, contentTypesNameFields, { contentTypes });
+      }
 
-}, [contentTypeEntities, contentTypesNameFields, contentTypes]);  
+    }, [contentTypeEntities, contentTypesNameFields, contentTypes]);
 
-const sanitizePayload = (payload: RawFormPayload): SanitizedFormPayload => {
-  const { related, relatedType, menuAttached, type, ...purePayload } = payload;
-  const relatedId = related;
+  const sanitizePayload = (payload: RawFormPayload): SanitizedFormPayload => {
+    const { related, relatedType, menuAttached, type, ...purePayload } = payload;
+    const relatedId = related;
     const singleRelatedItem = isSingleSelected ? first(contentTypeEntities) : undefined;
     const relatedCollectionType = relatedType;
     const title = !!payload.title?.trim()
-    ? payload.title
-    : getDefaultTitle(related, relatedType, isSingleSelected)    
+      ? payload.title
+      : getDefaultTitle(related, relatedType, isSingleSelected)
 
     return {
       ...purePayload,
@@ -175,7 +175,7 @@ const sanitizePayload = (payload: RawFormPayload): SanitizedFormPayload => {
     }
   };
 
-const generateUiRouterKey = (title: string, related: string, relatedType: string): string | undefined => {
+const generateUiRouterKey = (title: string, related?: string, relatedType?: string): string | undefined => {
   const { slugify: customSlugifyConfig } = config;
 
     if (title) {
@@ -375,24 +375,24 @@ const generateUiRouterKey = (title: string, related: string, relatedType: string
         }));
       }
     } catch (error) {
-        setFormErrorsState((prevState) => ({
-          ...prevState,
-          [itemLocaleCopyField]: getMessage('popup.item.form.i18n.locale.error.generic'),
-        }));
+      setFormErrorsState((prevState) => ({
+        ...prevState,
+        [itemLocaleCopyField]: getMessage('popup.item.form.i18n.locale.error.generic'),
+      }));
     }
 
     setIsLoading(false);
   }, [setIsLoading, setFormState, setFormErrorsState]);
-  const onChangeLocaleCopy = useCallback(({ target: { value }}: React.BaseSyntheticEvent) => {
+  const onChangeLocaleCopy = useCallback(({ target: { value } }: React.BaseSyntheticEvent) => {
     resetCopyItemFormErrors();
     onChange({ target: { name: itemLocaleCopyField, value } })
   }, [onChange, itemLocaleCopyField]);
   const itemCopyProps = useMemo(() => ({
-    intlLabel:{
+    intlLabel: {
       id: getTradId('popup.item.form.i18n.locale.label'),
       defaultMessage: 'Copy details from'
     },
-    placeholder:{
+    placeholder: {
       id: getTradId('popup.item.form.i18n.locale.placeholder'),
       defaultMessage: 'locale'
     },
@@ -400,6 +400,7 @@ const generateUiRouterKey = (title: string, related: string, relatedType: string
 
   return (
     <>
+      <Formik>
         <Form>
           <ModalBody>
             <Grid gap={5} >
@@ -603,6 +604,7 @@ const generateUiRouterKey = (title: string, related: string, relatedType: string
             }
           </ModalBody>
         </Form>
+      </Formik>
       <NavigationItemPopupFooter handleSubmit={handleSubmit} handleCancel={onCancel} submitDisabled={submitDisabled} />
     </>
   );

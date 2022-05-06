@@ -1,10 +1,6 @@
 import React, { BaseSyntheticEvent } from 'react';
 import { assertBoolean, assertString, NavigationItemCustomField } from '../../../../types';
 //@ts-ignore
-import { Select, Option } from '@strapi/design-system/Select';
-//@ts-ignore
-import { Checkbox } from '@strapi/design-system/Checkbox';
-//@ts-ignore
 import { ToggleInput } from '@strapi/design-system/ToggleInput';
 //@ts-ignore
 import { TextInput } from '@strapi/design-system/TextInput';

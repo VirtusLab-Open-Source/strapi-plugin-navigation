@@ -89,7 +89,7 @@ const SettingsPage = () => {
 
   useEffect(() => {
     const additionalFields = navigationConfigData?.additionalFields
-        ?.filter((field: NavigationItemAdditionalField) => field !== navigationItemAdditionalFields.AUDIENCE);
+      ?.filter((field: NavigationItemAdditionalField) => field !== navigationItemAdditionalFields.AUDIENCE);
     setCustomFields(additionalFields || []);
   }, [navigationConfigData]);
 
@@ -156,8 +156,8 @@ const SettingsPage = () => {
   const handleRestart = async () => {
     lockAppWithAutoreload();
     await restartMutation();
-    setRestartStatus(RESTART_NOT_REQUIRED);
     unlockAppWithAutoreload();
+    setRestartStatus(RESTART_NOT_REQUIRED);
   };
   const handleRestartDiscard = () => setRestartStatus(RESTART_NOT_REQUIRED);
   const handleSetContentTypeExpanded: IHandleSetContentTypeExpanded = key => setContentTypeExpanded(key === contentTypeExpanded ? undefined : key);
@@ -243,7 +243,7 @@ const SettingsPage = () => {
           }}
           onSubmit={onSave}
         >
-          {({ handleSubmit, setFieldValue, values }: ToBeFixed)=> (
+          {({ handleSubmit, setFieldValue, values }: ToBeFixed) => (
             <Form noValidate onSubmit={handleSubmit}>
               <HeaderLayout
                 title={getMessage('pages.settings.header.title')}
@@ -319,7 +319,7 @@ const SettingsPage = () => {
                                   key={key}
                                   id={key}
                                   size="S">
-                                  <AccordionToggle title={displayName} togglePosition="left" startIcon={(isSingle && !available) && (<ExclamationMarkCircle aria-hidden={true} />)} />
+                                  <AccordionToggle title={displayName} togglePosition="left" startIcon={(isSingle && !available) ? (<ExclamationMarkCircle aria-hidden={true} />) : null} />
                                   <AccordionContent>
                                     <Box padding={6}>
                                       <Stack size={4}>
