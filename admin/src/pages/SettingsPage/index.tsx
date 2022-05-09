@@ -69,8 +69,8 @@ const SettingsPage = () => {
   const [customFields, setCustomFields] = useState<NavigationItemCustomField[]>([]);
   const [isRestorePopupOpen, setIsRestorePopupOpen] = useState<boolean>(false);
   const [contentTypeExpanded, setContentTypeExpanded] = useState<string | undefined>(undefined);
-  const { data: navigationConfigData, isLoading: isConfigLoading, err: configErr, submitMutation, restoreMutation, restartMutation } = useNavigationConfig();
-  const { data: allContentTypesData, isLoading: isContentTypesLoading, err: contentTypesErr } = useAllContentTypes();
+  const { data: navigationConfigData, isLoading: isConfigLoading, error: configErr, submitMutation, restoreMutation, restartMutation } = useNavigationConfig();
+  const { data: allContentTypesData, isLoading: isContentTypesLoading, error: contentTypesErr } = useAllContentTypes();
   const isLoading = isConfigLoading || isContentTypesLoading;
   const isError = configErr || contentTypesErr;
   const {

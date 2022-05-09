@@ -5,11 +5,10 @@ import { useNotification } from '@strapi/helper-plugin';
 import { fetchAllContentTypes } from '../utils/api';
 
 const useAllContentTypes = () => {
-  const toggleNotification = useNotification();
-  const { isLoading, data, error} = useQuery('contentTypes', () =>
-    fetchAllContentTypes(toggleNotification)
+  const { isLoading, data, error } = useQuery('contentTypes', () =>
+    fetchAllContentTypes()
   );
-  return { data, isLoading, err: error };
+  return { data, isLoading, error };
 };
 
 export default useAllContentTypes;
