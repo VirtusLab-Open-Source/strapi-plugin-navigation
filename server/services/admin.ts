@@ -1,9 +1,11 @@
+// @ts-ignore
+import { errors } from "@strapi/utils"
 import slugify from "slugify";
 import { isNil, isObject } from "lodash";
 import { Id, StrapiContext } from "strapi-typed";
 import { Audience, AuditLogContext, IAdminService, ICommonService, Navigation, NavigationItemEntity, NavigationPluginConfig, ToBeFixed } from "../../types";
 import { ADDITIONAL_FIELDS, ALLOWED_CONTENT_TYPES, buildNestedStructure, CONTENT_TYPES_NAME_FIELDS_DEFAULTS, DEFAULT_POPULATE, extractMeta, getPluginService, prepareAuditLog, RESTRICTED_CONTENT_TYPES, sendAuditLog } from "../utils";
-import { addI18NConfigFields, getI18nStatus, I18NConfigFields, i18nNavigationContentsCopy } from "../i18n";
+import { addI18NConfigFields, getI18nStatus, I18NConfigFields, i18nNavigationContentsCopy, i18nNavigationItemRead } from "../i18n";
 import { NavigationError } from "../../utils/NavigationError";
 
 type SettingsPageConfig = NavigationPluginConfig & I18NConfigFields
@@ -204,6 +206,25 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
           { actionType: 'UPDATE', oldEntity: targetEntity, newEntity: updated });
         return updated;
       });
+  },
+  async readNavigationItemFromLocale({ source, target, path }) {
+    const sourceNavigation = await this.getById(source);
+    const targetNavigation = await this.getById(target);
+
+    if (!sourceNavigation) {
+      throw new errors.NotFoundError("Unable to find source navigation for specified query");
+    }
+
+    if (!targetNavigation) {
+      throw new errors.NotFoundError("Unable to find target navigation for specified query");
+    }
+
+    return await i18nNavigationItemRead({
+      path,
+      source: sourceNavigation,
+      target: targetNavigation,
+      strapi,
+    });
   },
 });
 

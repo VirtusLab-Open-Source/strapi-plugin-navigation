@@ -1,4 +1,3 @@
-import { isNumber } from "lodash";
 import { Id } from "strapi-typed";
 import { Navigation, NavigationItem, NavigationItemType, NestedStructure } from "./contentTypes"
 
@@ -14,33 +13,35 @@ export type ToBeFixed = any;
 export type DateString = string;
 
 export type NavigationActions = {
-  create?: boolean,
-  update?: boolean,
-  remove?: boolean,
-}
+  create?: boolean;
+  update?: boolean;
+  remove?: boolean;
+};
 
-export type NavigationActionsPerItem = Record<NavigationActionsCategories, NestedStructure<NavigationItem>[]>;
+export type NavigationActionsPerItem = Record<
+  NavigationActionsCategories,
+  NestedStructure<NavigationItem>[]
+>;
 
 export type AuditLogContext = any;
 export type AuditLogParams = {
-  actionType: string,
-  oldEntity: Navigation,
-  newEntity: Navigation,
+  actionType: string;
+  oldEntity: Navigation;
+  newEntity: Navigation;
 };
 
 export type ContentTypeEntity = {
-  id: Id,
+  id: Id;
 } & Record<string, unknown>;
 
 export type NestedPath = {
-  id: Id,
+  id: Id;
   parent?: {
-    id: Id,
-    path: string,
-  },
-  path: string
-}
-
+    id: Id;
+    path: string;
+  };
+  path: string;
+};
 
 export type RFRNavItem = {
   label?: string;
@@ -48,19 +49,19 @@ export type RFRNavItem = {
   page?: string;
   url?: string;
   audience?: string[];
-}
+};
 
 export type StrapiRoute = {
   method: string;
   path: string;
   handler: string;
   config?: ToBeFixed;
-}
+};
 
 export type StrapiRoutes = {
   type: StrapiRoutesTypes;
   routes: StrapiRoute[];
-}
+};
 
 export type StrapiControllerContext = any;
 export type StrapiControllerContextParams = any;
@@ -76,16 +77,19 @@ export const assertNotEmpty: <T>(
   throw customError ?? new Error("Non-empty value expected, empty given");
 };
 
-export const assertIsNumber: (n: unknown, customError?: Error) => asserts n is number = (
+export const isNumber = (x: unknown) =>
+  typeof x === "number" && !Number.isNaN(x);
+
+export const assertIsNumber: (
   n: unknown,
   customError?: Error
-) => {
+) => asserts n is number = (n: unknown, customError?: Error) => {
   if (isNumber(n)) {
-    return
+    return;
   }
 
   throw customError ?? new Error(`Number is expected. "${typeof n}" given`);
-}
+};
 
 export const assertEntity = <T>(entity: unknown, name = "Entity"): T => {
   if (entity instanceof Object && entity.hasOwnProperty("id")) {

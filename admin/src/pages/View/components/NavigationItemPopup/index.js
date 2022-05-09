@@ -4,7 +4,7 @@
  *
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { find } from 'lodash';
 
@@ -18,6 +18,7 @@ import { NavigationItemPopupHeader } from './NavigationItemPopupHeader';
 import { getMessage } from '../../../../utils';
 
 const NavigationItemPopUp = ({
+  availableLocale,
   isOpen,
   isLoading,
   data,
@@ -28,6 +29,7 @@ const NavigationItemPopUp = ({
   getContentTypeItems,
   usedContentTypesData,
   locale,
+  readNavigationItemFromLocale,
 }) => {
   const handleOnSubmit = (payload) => {
     onSubmit(payload);
@@ -74,12 +76,16 @@ const NavigationItemPopUp = ({
       } : undefined,
     };
   };
+  const preparedData = useMemo(prepareFormData.bind(null, data), [data]);
+  const hasViewId = !!data.viewId;
 
   return (
     <ModalLayout labelledBy="condition-modal-breadcrumbs" onClose={onClose} isOpen={isOpen}>
-      <NavigationItemPopupHeader isNewItem={!data.viewId}/>
+      <NavigationItemPopupHeader isNewItem={!hasViewId}/>
       <NavigationItemForm
-        data={prepareFormData(data)}
+        availableLocale={availableLocale}
+        config={config}
+        data={preparedData}
         isLoading={isLoading}
         additionalFields={additionalFields}
         contentTypesNameFields={contentTypesNameFields}
@@ -93,6 +99,7 @@ const NavigationItemPopUp = ({
         onCancel={onClose}
         appendLabelPublicationStatus={appendLabelPublicationStatus}
         locale={locale}
+        readNavigationItemFromLocale={readNavigationItemFromLocale}
       />
     </ModalLayout>
 
@@ -107,7 +114,8 @@ NavigationItemPopUp.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
   getContentTypeItems: PropTypes.func.isRequired,
-  locale: PropTypes.string
+  locale: PropTypes.string,
+  readNavigationItemFromLocale: PropTypes.func.isRequired,
 };
 
 export default NavigationItemPopUp;

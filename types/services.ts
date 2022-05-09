@@ -1,6 +1,6 @@
 import { Id, StrapiContentType, StrapiEvents, StrapiStore, StringMap } from "strapi-typed";
 import { NavigationPluginConfig } from "./config";
-import { Navigation, NavigationItem, NavigationItemEntity, NavigationItemInput, NestedStructure, RelatedRef, RelatedRefBase } from "./contentTypes";
+import { Navigation, NavigationItem, NavigationItemEntity, NavigationItemInput, NestedStructure, NotVoid, RelatedRef, RelatedRefBase } from "./contentTypes";
 import { I18nQueryParams } from "./i18n";
 import { AuditLogContext, ContentTypeEntity, NavigationActions, NavigationActionsPerItem, RenderType, RFRNavItem, ToBeFixed } from "./utils";
 
@@ -17,6 +17,11 @@ export interface IAdminService {
   restoreConfig: () => Promise<void>,
   updateConfig: (newConfig: NavigationPluginConfig) => Promise<void>,
   fillFromOtherLocale(payload: { source: number; target: number; auditLog: AuditLogContext}): Promise<Navigation>;
+  readNavigationItemFromLocale(payload: { source: number; target: number; path: string; }): Promise<
+    Partial<
+      Pick<NotVoid<Navigation['items']>[number], 'path' | 'related' | 'type' | 'uiRouterKey' | 'title' | 'externalPath'>
+    >
+  >;
 }
 
 export interface ICommonService {

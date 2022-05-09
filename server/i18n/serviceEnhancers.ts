@@ -1,3 +1,7 @@
+// @ts-ignore
+import { errors } from "@strapi/utils"
+import { get, toString } from "lodash";
+import { pick } from "lodash/fp";
 import { OnlyStrings } from "strapi-typed";
 import {
   assertIsNumber,
@@ -6,6 +10,8 @@ import {
   RelatedRefBase,
   ToBeFixed,
 } from "../../types";
+import { InvalidParamNavigationError } from "../../utils/InvalidParamNavigationError";
+import { intercalate } from "../utils";
 import { I18N_DEFAULT_POPULATE } from "./constant";
 import { DefaultLocaleMissingError, FillNavigationError } from "./errors";
 import {
@@ -19,6 +25,7 @@ import {
   MinimalEntityWithI18n,
   ResultNavigationItem,
   SourceNavigationItem,
+  I18nNavigationItemReadInput,
 } from "./types";
 import { getI18nStatus } from "./utils";
 
@@ -151,6 +158,52 @@ export const i18nNavigationContentsCopy = async ({
 
   await service.createBranch(newItems, target, null, { create: true });
 };
+
+export const i18nNavigationItemRead = async ({
+  target,
+  source,
+  path,
+  strapi
+}: I18nNavigationItemReadInput) => {
+    const pickFields = pick(['path', 'related', 'type', 'uiRouterKey', 'title', 'externalPath']);
+    const structurePath = path.split('.').map(p => parseInt(p, 10));
+
+    if (!structurePath.some(Number.isNaN) || !structurePath.length) {
+      new InvalidParamNavigationError("Path is invalid");
+    }
+
+    let result = get(source.items, intercalate("items", structurePath.map(toString)))
+
+    if (!result) {
+      throw new errors.NotFoundError("Unable to find navigation item");
+    }
+
+    let { related } = result;
+
+    if (related) {
+      const fullRelated = await strapi.query<MinimalEntityWithI18n>(related.__contentType).findOne({
+        where: {
+          id: related.id,
+        },
+        populate: I18N_DEFAULT_POPULATE,
+      })
+      if (fullRelated.localizations?.length) {
+        const localeVersion = fullRelated.localizations.find(({ locale }) => locale === target.localeCode);
+
+        if (localeVersion) {
+          related = {
+            ...localeVersion,
+            __contentType: related.__contentType
+          }
+        }
+      }
+    }
+
+    return pickFields({
+      ...result,
+      related
+    });
+}
 
 const processItems =
   (context: FillCopyContext) =>

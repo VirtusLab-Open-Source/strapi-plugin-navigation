@@ -145,7 +145,7 @@ const plugins = (strapi: IStrapi): StringMap<StrapiPlugin> => ({
       contentTypes: ['api::pages.pages'],
     })[key],
     get controllers() { return {} },
-    controller() { return {} },
+    controller(): ToBeFixed { return {} },
   }
 });
 

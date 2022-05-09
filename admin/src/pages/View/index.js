@@ -59,6 +59,7 @@ const View = () => {
     getContentTypeItems,
     error,
     availableLocale: allAvailableLocale,
+    readNavigationItemFromLocale,
   } = useDataManager();
   const availableLocale = useMemo(
     () => allAvailableLocale.filter(locale => locale !== changedActiveNavigation?.localeCode),
@@ -93,22 +94,24 @@ const View = () => {
     handleChangeNavigationItemPopupVisibility(visible);
   };
 
-  const addNewNavigationItem = (
-    e,
-    viewId = null,
+  const addNewNavigationItem = useCallback(({
+    event,
+    viewParentId = null,
     isMenuAllowedLevel = true,
     levelPath = '',
     parentAttachedToMenu = true,
-  ) => {
-    e.preventDefault();
-    e.stopPropagation();
+    structureId = "0",
+  }) => {
+    event.preventDefault();
+    event.stopPropagation();
     changeNavigationItemPopupState(true, {
-      viewParentId: viewId,
+      viewParentId,
       isMenuAllowedLevel,
       levelPath,
       parentAttachedToMenu,
+      structureId,
     });
-  };
+  }, [changeNavigationItemPopupState]);
 
   const usedContentTypesData = useMemo(
     () => changedActiveNavigation ? usedContentTypes(changedActiveNavigation.items) : [],
@@ -337,6 +340,7 @@ const View = () => {
         )}
       </ContentLayout>
       {navigationItemPopupOpened && <NavigationItemPopUp
+        availableLocale={availableLocale}
         isLoading={isLoadingForAdditionalDataToBeSet}
         data={activeNavigationItem}
         config={config}
@@ -346,6 +350,7 @@ const View = () => {
         onSubmit={handleSubmitNavigationItem}
         onClose={onPopUpClose}
         locale={activeNavigation.localeCode}
+        readNavigationItemFromLocale={readNavigationItemFromLocale}
       />}
       {i18nCopyItemsModal}
     </Main>

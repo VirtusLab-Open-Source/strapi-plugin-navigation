@@ -189,6 +189,7 @@ export const transformItemToViewPayload = (payload, items = [], config) => {
           }
           return {
             ...item,
+            items: transformItemToViewPayload(payload, item.items, config),
           };
         });
       return reOrderItems(updatedRootLevel);
@@ -242,18 +243,31 @@ export const transformItemToViewPayload = (payload, items = [], config) => {
   return reOrderItems(updatedLevel);
 };
 
-export const prepareItemToViewPayload = (items = [], viewParentId = null, config = {}) =>
+export const prepareItemToViewPayload = ({
+  items = [],
+  viewParentId = null,
+  config = {},
+  structureIdPrefix = ''
+}) =>
   reOrderItems(items.map((item, n) => {
     const viewId = uuid();
+    const structureId = structureIdPrefix ? `${structureIdPrefix}.${n}` : n.toString();
+
     return {
       ...linkRelations({
         viewId,
         viewParentId,
         ...item,
         order: item.order || (n + 1),
+        structureId,
         updated: item.updated || isNil(item.order),
       }, config),
-      items: prepareItemToViewPayload(item.items, viewId, config),
+      items: prepareItemToViewPayload({
+        config,
+        items: item.items,
+        structureIdPrefix: structureId,
+        viewId,
+      }),
     };
   }));
 

@@ -34,6 +34,7 @@ import {
   I18N_COPY_NAVIGATION_SUCCESS,
 } from './actions';
 import { prepareItemToViewPayload } from '../View/utils/parsers';
+import { errorStatusResourceFor, resolvedResourceFor } from "../../utils";
 
 const i18nAwareItems = ({ items, config }) => 
   config.i18nEnabled ? items.filter(({ localeCode }) => localeCode === config.defaultLocale) : items;
@@ -80,7 +81,7 @@ const DataManagerProvider = ({ children }) => {
     return i18nAwareItems({ config, items })
   }, [config, items]);
 
-  const getNavigation = async (id, cfg) => {
+  const getNavigation = async (id, navigationConfig) => {
     try {
       if (activeId || id) {
         dispatch({
@@ -96,7 +97,10 @@ const DataManagerProvider = ({ children }) => {
           type: GET_NAVIGATION_DATA_SUCCEEDED,
           activeItem: {
             ...activeItem,
-            items: prepareItemToViewPayload(activeItem.items, null, cfg),
+            items: prepareItemToViewPayload({
+              config: navigationConfig,
+              items: activeItem.items,
+            }),
           },
         });
       }
@@ -225,7 +229,32 @@ const DataManagerProvider = ({ children }) => {
     });
 
     handleChangeSelection(targetId);
-  }
+  };
+
+  const readNavigationItemFromLocale = async ({ locale, structureId }) => {
+    try {
+      const source = changedActiveItem.localizations?.find((navigation) => navigation.locale === locale);
+
+      if (!source) {
+        return errorStatusResourceFor(['popup.item.form.i18n.locale.error.unavailable']);
+      }
+
+      const url = `/navigation/i18n/item/read/${source.id}/${changedActiveItem.id}?path=${structureId}`;
+
+      return resolvedResourceFor(await request(url, {
+        method: "GET",
+        signal,
+      }));
+    } catch (error) {
+      let messageKey;
+
+      if (error instanceof Error) {
+        messageKey = get(error, 'response.payload.error.details.messageKey');
+      }
+
+      return errorStatusResourceFor([messageKey ?? 'popup.item.form.i18n.locale.error.generic']);
+    }
+  };
 
   const handleChangeNavigationPopupVisibility = (visible) => {
     dispatch({
@@ -272,8 +301,11 @@ const DataManagerProvider = ({ children }) => {
        dispatch({
          type: SUBMIT_NAVIGATION_SUCCEEDED,
          navigation: {
-           ...navigation,
-           items: prepareItemToViewPayload(navigation.items, null, config),
+          ...navigation,
+          items: prepareItemToViewPayload({
+            config,
+            items: navigation.items,
+          }),
          },
        });
        toggleNotification({
@@ -333,6 +365,7 @@ const DataManagerProvider = ({ children }) => {
         isInDevelopmentMode,
         error,
         availableLocale,
+        readNavigationItemFromLocale,
       }}
     >
       {isLoading ? <LoadingIndicatorPage /> : children}
