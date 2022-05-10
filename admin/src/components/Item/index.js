@@ -55,7 +55,7 @@ const Item = (props) => {
   const { contentTypes, contentTypesNameFields } = config;
   const isExternal = type === navigationItemType.EXTERNAL;
   const isWrapper = type === navigationItemType.WRAPPER;
-  const isHandledByPublishFlow = contentTypes.find(_ => _.uid === relatedRef.__collectionUid)?.draftAndPublish;
+  const isHandledByPublishFlow = contentTypes.find(_ => _.uid === relatedRef?.__collectionUid)?.draftAndPublish;
   const isPublished = isHandledByPublishFlow && relatedRef.publishedAt;
   const isNextMenuAllowedLevel = isNumber(allowedLevels) ? level < (allowedLevels - 1) : true;
   const isMenuAllowedLevel = isNumber(allowedLevels) ? level < allowedLevels : true;
