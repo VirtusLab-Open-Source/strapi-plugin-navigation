@@ -3,15 +3,17 @@ const { getPluginService } = require("../../utils");
 
 module.exports = ({ strapi, nexus }) => {
   const { nonNull, list, stringArg, booleanArg } = nexus;
-  const args = addI18NRenderNavigationArgs({
-    previousArgs: {
-      navigationIdOrSlug: nonNull(stringArg()),
-      type: "NavigationRenderType",
-      menuOnly: booleanArg(),
-      path: stringArg(),
-    },
+  const defaultArgs = {
+    navigationIdOrSlug: nonNull(stringArg()),
+    type: "NavigationRenderType",
+    menuOnly: booleanArg(),
+    path: stringArg(),
+  };
+  const hasI18nPlugin = !!strapi.plugin("i18n");
+  const args = hasI18nPlugin ? addI18NRenderNavigationArgs({
+    previousArgs: defaultArgs,
     nexus,
-  });
+  }) : defaultArgs;
 
   return {
     args,
