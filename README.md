@@ -102,6 +102,12 @@ yarn develop --watch-admin
 
 The **UI Navigation** plugin should appear in the **Plugins** section of Strapi sidebar after you run app again.
 
+You can manage your multiple navigation containers by going to the **Navigation** section of the **Content Manager**.
+
+<div style="margin: 20px 0" align="center">
+  <img style="width: 100%; height: auto;" src="public/assets/content-manager.png" alt="Strapi In-App Marketplace" />
+</div>
+
 As a next step you must configure your the plugin by the way you want to. See [**Configuration**](#🔧-configuration) section.
 
 All done. Enjoy 🎉
