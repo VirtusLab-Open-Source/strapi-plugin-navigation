@@ -1,4 +1,4 @@
-import { Audience, ContentTypeEntity, NavigationItemAdditionalField, NavigationItemType, NavigationPluginConfig, PluginConfigNameFields, ToBeFixed } from '../../../../../../types';
+import { Audience, ChangeEffect, ContentTypeEntity, NavigationItemAdditionalField, NavigationItemType, NavigationPluginConfig, PluginConfigNameFields, ToBeFixed, VoidEffect } from '../../../../../../types';
 import { Id } from 'strapi-typed';
 import { ContentTypeToFix } from '../../../SettingsPage/types';
 
@@ -56,8 +56,8 @@ export type NavigationItemFormProps = {
   getContentTypeEntities: (value: GetContentTypeEntitiesPayload, plugin: string) => ContentTypeEntity;
   isLoading: boolean;
   locale: string;
-  onCancel: () => void;
-  onSubmit: (payload: SanitizedFormPayload) => void;
+  onCancel: VoidEffect;
+  onSubmit: ChangeEffect<SanitizedFormPayload>;
   usedContentTypeEntities: ToBeFixed[];
   usedContentTypesData: ToBeFixed;
   config: NavigationPluginConfig;

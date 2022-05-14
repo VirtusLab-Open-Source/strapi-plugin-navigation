@@ -37,7 +37,7 @@ module.exports = ({ nexus, config }) =>
               t.boolean(field.name);
               break;
             default:
-              break;
+              throw new Error(`Type "${field.type}" is unsupported by custom fields`);
           }
         } else {
           t.list.string("audience");

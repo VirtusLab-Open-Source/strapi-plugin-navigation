@@ -298,7 +298,7 @@ export const compareArraysOfNumbers = (arrA: number[], arrB: number[]) => {
   return find(diff, a => a !== 0) || 0;
 }
   
-export const getPluginModels = (): Record<string, StrapiContentTypeFullSchema> => {
+export const getPluginModels = (): Record<'masterModel' | 'itemModel' | 'relatedModel' | 'audienceModel', StrapiContentTypeFullSchema> => {
   const plugin = strapi.plugin('navigation');
   return {
     masterModel: plugin.contentType('navigation'),

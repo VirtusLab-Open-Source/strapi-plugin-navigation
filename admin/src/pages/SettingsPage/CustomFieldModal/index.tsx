@@ -1,52 +1,29 @@
-import React, { useState } from 'react';
-//@ts-ignore
-import { getYupInnerErrors } from '@strapi/helper-plugin';
+import React from 'react';
 //@ts-ignore
 import { Typography } from '@strapi/design-system/Typography';
 //@ts-ignore
-import { ModalLayout, ModalHeader, ModalFooter } from '@strapi/design-system/ModalLayout';
-//@ts-ignore
-import { Button } from '@strapi/design-system/Button';
+import { ModalLayout, ModalHeader } from '@strapi/design-system/ModalLayout';
 
 import CustomFieldForm from './CustomFieldForm';
-import { NavigationItemCustomField } from '../../../../../types';
+import { ChangeEffect, NavigationItemCustomField, VoidEffect } from '../../../../../types';
 import { getMessage } from '../../../utils';
-import { customFieldForm as formDefinition } from '../utils/form';
-import { isEmpty } from 'lodash';
+import { pick } from 'lodash';
 
-interface CustomFieldModalProps {
+interface ICustomFieldModalProps {
   data: NavigationItemCustomField | null;
   isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (form: NavigationItemCustomField) => void;
+  onClose: VoidEffect;
+  onSubmit: ChangeEffect<NavigationItemCustomField>;
   usedCustomFieldNames: string[];
 }
 
-const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
+const CustomFieldModal: React.FC<ICustomFieldModalProps> = ({
   isOpen,
   onClose,
   onSubmit,
   data,
   usedCustomFieldNames,
 }) => {
-  const [form, setForm] = useState<NavigationItemCustomField>({
-    name: data?.name || "",
-    label: data?.label || "",
-    type: data?.type || "string",
-  });
-  const [formErrors, setFormErrors] = useState({});
-
-  const handleSubmit = async () => {
-    try {
-      await formDefinition.schema(usedCustomFieldNames).validate(form, { abortEarly: false })
-      onSubmit(form)
-      setFormErrors({});
-    } catch (err) {
-      const errors = getYupInnerErrors(err);
-      setFormErrors(errors);
-    }
-  }
-
   const isEditMode = !!data;
   return (
     <ModalLayout onClose={onClose} isOpen={isOpen} labelledBy="custom-field-modal">
@@ -57,21 +34,10 @@ const CustomFieldModal: React.FC<CustomFieldModalProps> = ({
       </ModalHeader>
       <CustomFieldForm
         isEditForm={isEditMode}
-        values={form}
-        setFieldValue={(name, value) => setForm({ ...form, [name]: value })}
-        errors={formErrors}
-      />
-      <ModalFooter
-        startActions={
-          <Button onClick={onClose} variant="tertiary">
-            {getMessage('popup.item.form.button.cancel')}
-          </Button>
-        }
-        endActions={
-          <Button onClick={handleSubmit} disabled={!isEmpty(formErrors)}>
-            {getMessage(`popup.item.form.button.save`)}
-          </Button>
-        }
+        customField={pick(data, "name", "label", "type")}
+        onSubmit={onSubmit}
+        onClose={onClose}
+        usedCustomFieldNames={usedCustomFieldNames}
       />
     </ModalLayout>
   );

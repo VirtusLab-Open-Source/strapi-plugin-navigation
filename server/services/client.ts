@@ -291,7 +291,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
                 ...relatedContentType,
                 __templateName: getTemplateName((lastRelated.relatedType || lastRelated.__contentType), lastRelated.id),
               },
-              audience: !isEmpty(item.audience) ? item.audience!.map(aItem => (aItem).key) : undefined,
+              audience: !isEmpty(item.audience) ? item.audience!.map(({ key }) => key) : undefined,
               items: isExternal ? undefined : clientService.renderTree(
                 items,
                 item.id,
