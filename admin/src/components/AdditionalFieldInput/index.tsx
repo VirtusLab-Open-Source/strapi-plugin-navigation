@@ -1,58 +1,68 @@
-import React, { BaseSyntheticEvent } from 'react';
-import { assertBoolean, assertString, NavigationItemCustomField } from '../../../../types';
+import React, { BaseSyntheticEvent, useMemo } from 'react';
+import { assertBoolean, assertString } from '../../../../types';
 //@ts-ignore
 import { ToggleInput } from '@strapi/design-system/ToggleInput';
 //@ts-ignore
 import { TextInput } from '@strapi/design-system/TextInput';
+//@ts-ignore
+import { useNotification } from '@strapi/helper-plugin';
+import { getTrad } from '../../translations';
+import { AdditionalFieldInputProps, Input } from './types';
+import { isNil } from 'lodash';
 
-type AdditionalFieldInputProps = {
-  field: NavigationItemCustomField;
-  inputsPrefix: string;
-  isLoading: boolean;
-  onChange: (name: string, value: string) => void;
-  value: string | boolean | string[] | null;
-}
+const DEFAULT_STRING_VALUE = "";
+const handlerFactory =
+  ({ field, prop, onChange }: Input) =>
+    ({ target }: BaseSyntheticEvent) => {
+      onChange(field.name, target[prop]);
+    };
 
 const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
   field,
-  inputsPrefix,
   isLoading,
   onChange,
   value,
 }) => {
+  const toggleNotification = useNotification();
+  const defaultInputProps = useMemo(() => ({
+    id: field.name,
+    name: field.name,
+    label: field.label,
+    disabled: isLoading,
+  }), [field, isLoading]);
+  const handleBoolean = useMemo(() => handlerFactory({ field, onChange, prop: "checked" }), [onChange, field]);
+  const handleString = useMemo(() => handlerFactory({ field, onChange, prop: "value" }), [onChange, field]);
+
   switch (field.type) {
     case 'boolean':
-      if (value !== null)
+      if (!isNil(value))
         assertBoolean(value);
       return (
         <ToggleInput
-          id={`${inputsPrefix}${field.name}`}
-          name={field.name}
-          label={field.label}
-          checked={value || false}
-          onChange={({target: {checked}}: BaseSyntheticEvent) => onChange(field.name, checked)}
-          disabled={isLoading}
+          {...defaultInputProps}
+          checked={!!value}
+          onChange={handleBoolean}
           onLabel="true"
           offLabel="false"
         />
       )
     case 'string':
-      if (value !== null)
+      if (!isNil(value))
         assertString(value);
       return (
         <TextInput
-          id={`${inputsPrefix}${field.name}`}
-          name={field.name}
-          label={field.label}
-          onChange={({target: {value}}: BaseSyntheticEvent) => onChange(field.name, value)}
-          value={value || ""}
-          disabled={isLoading}
+          {...defaultInputProps}
+          onChange={handleString}
+          value={value || DEFAULT_STRING_VALUE}
         />
       )
     default:
-      return null;
+      toggleNotification({
+        type: 'warning',
+        message: getTrad('notification.error.customField.type'),
+      });
+      throw new Error(`Type "${field.type}" is unsupported by custom fields`);
   }
 }
-
 
 export default AdditionalFieldInput;

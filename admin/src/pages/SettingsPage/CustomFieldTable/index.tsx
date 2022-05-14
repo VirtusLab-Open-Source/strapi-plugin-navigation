@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 //@ts-ignore
 import { useNotification } from "@strapi/helper-plugin";
 //@ts-ignore
@@ -19,15 +19,17 @@ import { NavigationItemCustomField } from '../../../../../types';
 import ConfirmationDialog from '../../../components/ConfirmationDialog';
 import { getTradId } from '../../../translations';
 
-interface CustomFieldTableProps {
+interface ICustomFieldTableProps {
   data: NavigationItemCustomField[];
   onOpenModal: (field: NavigationItemCustomField | null) => void;
   onRemoveCustomField: (field: NavigationItemCustomField) => void;
 }
 
 const refreshIcon = <Refresh />;
+const plusIcon = <Plus />;
 const tradPrefix = "pages.settings.form.customFields.table.";
-const CustomFieldTable: React.FC<CustomFieldTableProps> = ({
+
+const CustomFieldTable: React.FC<ICustomFieldTableProps> = ({
   data,
   onOpenModal,
   onRemoveCustomField,
@@ -54,15 +56,14 @@ const CustomFieldTable: React.FC<CustomFieldTableProps> = ({
       onRemoveCustomField(fieldToRemove);
     }
 
-    setFieldToRemove(null);
-    setIsConfirmationVisible(false);
+    cleanup();
   }
 
-  const handleCancel = () => {
+  const cleanup = useCallback(() => {
     setFieldToRemove(null);
     setIsConfirmationVisible(false);
-  }
-
+  }, [setFieldToRemove, setIsConfirmationVisible]);
+  
   return (
     <>
       <ConfirmationDialog
@@ -73,7 +74,7 @@ const CustomFieldTable: React.FC<CustomFieldTableProps> = ({
         iconConfirm={refreshIcon}
         mainIcon={refreshIcon}
         onConfirm={handleConfirm}
-        onCancel={handleCancel}
+        onCancel={cleanup}
       />
       <Table
         colCount={4}
@@ -81,7 +82,7 @@ const CustomFieldTable: React.FC<CustomFieldTableProps> = ({
         footer={
           <TFooter
             onClick={(e: React.FormEvent) => { e.preventDefault(); onOpenModal(null); }}
-            icon={<Plus />}
+            icon={plusIcon}
           >
             {getMessage(`${tradPrefix}footer`)}
           </TFooter>

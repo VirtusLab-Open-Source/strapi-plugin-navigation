@@ -1,7 +1,5 @@
 //@ts-ignore
 import { useQuery } from 'react-query';
-//@ts-ignore
-import { useNotification } from '@strapi/helper-plugin';
 import { fetchAllContentTypes } from '../utils/api';
 
 const useAllContentTypes = () => {

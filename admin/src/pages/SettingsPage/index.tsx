@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { isEmpty, capitalize, isEqual, orderBy } from 'lodash';
 //@ts-ignore
-import { Formik } from 'formik';
+import { Formik, Form } from 'formik';
 import {
   CheckPermissions,
   LoadingIndicatorPage,
-  Form,
   useOverlayBlocker,
   useAutoReloadOverlayBlocker,
   SettingsPageTitle,
@@ -51,10 +50,10 @@ import { isContentTypeEligible, resolveGlobalLikeId } from './utils/functions';
 import { PermanentAlert } from '../../components/Alert/styles';
 import { useDisableI18nModal } from './components/DisableI18nModal';
 
-import { NavigationItemAdditionalField, NavigationItemCustomField, ToBeFixed } from '../../../../types';
+import { NavigationItemAdditionalField, NavigationItemCustomField } from '../../../../types';
 import CustomFieldModal from './CustomFieldModal';
 import CustomFieldTable from './CustomFieldTable';
-import { ContentTypeToFix, IHandleSetContentTypeExpanded, IOnPopupClose, IOnSave, IPrepareNameFieldFor, IPreparePayload, RestartReasons, RestartStatus } from './types';
+import { ContentTypeToFix, HandleSetContentTypeExpanded, OnPopupClose, OnSave, PrepareNameFieldFor, PreparePayload, RestartReasons, RestartStatus } from './types';
 
 const RESTART_NOT_REQUIRED: RestartStatus = { required: false }
 const RESTART_REQUIRED: RestartStatus = { required: true, reasons: [] }
@@ -93,7 +92,7 @@ const SettingsPage = () => {
     setCustomFields(additionalFields || []);
   }, [navigationConfigData]);
 
-  const preparePayload: IPreparePayload = ({
+  const preparePayload: PreparePayload = ({
     form: {
       selectedContentTypes,
       nameFields,
@@ -116,7 +115,7 @@ const SettingsPage = () => {
     }
   });
 
-  const onSave: IOnSave = async (form) => {
+  const onSave: OnSave = async (form) => {
     lockApp();
     const payload = preparePayload({ form, pruneObsoleteI18nNavigations });
     await submitMutation({ body: payload });
@@ -143,7 +142,7 @@ const SettingsPage = () => {
     unlockApp();
   }
 
-  const onPopupClose: IOnPopupClose = async (isConfirmed) => {
+  const onPopupClose: OnPopupClose = async (isConfirmed) => {
     setIsRestorePopupOpen(false);
     if (isConfirmed) {
       lockApp();
@@ -160,9 +159,9 @@ const SettingsPage = () => {
     setRestartStatus(RESTART_NOT_REQUIRED);
   };
   const handleRestartDiscard = () => setRestartStatus(RESTART_NOT_REQUIRED);
-  const handleSetContentTypeExpanded: IHandleSetContentTypeExpanded = key => setContentTypeExpanded(key === contentTypeExpanded ? undefined : key);
+  const handleSetContentTypeExpanded: HandleSetContentTypeExpanded = key => setContentTypeExpanded(key === contentTypeExpanded ? undefined : key);
 
-  const prepareNameFieldFor: IPrepareNameFieldFor = (uid, current, value) => ({
+  const prepareNameFieldFor: PrepareNameFieldFor = (uid, current, value) => ({
     ...current,
     [uid]: value && !isEmpty(value) ? [...value] : undefined,
   });
@@ -243,7 +242,7 @@ const SettingsPage = () => {
           }}
           onSubmit={onSave}
         >
-          {({ handleSubmit, setFieldValue, values }: ToBeFixed) => (
+          {({ handleSubmit, setFieldValue, values }) => (
             <Form noValidate onSubmit={handleSubmit}>
               <HeaderLayout
                 title={getMessage('pages.settings.header.title')}

@@ -406,7 +406,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
   async pruneCustomFields(removedFields: NavigationItemCustomField[]) {
     const { itemModel } = getPluginModels();
     const databaseModel = strapi.query<NavigationItemEntity>(itemModel.uid);
-    const removedFieldsNames = removedFields.map(i => i.name);
+    const removedFieldsNames = removedFields.map(({ name }) => name);
     const navigationItems = await databaseModel.findMany({
       where: {
         additionalFields: {

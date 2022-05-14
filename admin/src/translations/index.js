@@ -8,6 +8,6 @@ const trads = {
 };
 
 export const getTradId = (msg) => `${pluginId}.${msg}`;
-export const getTrad = (msg) => ({id: getTradId(msg)});
+export const getTrad = (msg, defaultMessage) => ({id: getTradId(msg), defaultMessage: defaultMessage || getTradId(msg)});
 
 export default trads;
