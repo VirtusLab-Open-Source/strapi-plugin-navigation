@@ -11,6 +11,7 @@ import { Select, Option } from '@strapi/design-system/Select';
 import { Box } from '@strapi/design-system/Box'
 import { Grid, GridItem } from "@strapi/design-system/Grid";
 import { uniqBy } from 'lodash';
+import { useNavigationManager } from '../NavigationManager';
 
 const submitIcon = <Check />;
 const pickDefaultLocaleNavigation = ({ activeNavigation, config }) => config.i18nEnabled
@@ -43,15 +44,28 @@ const NavigationHeader = ({
   );
   const hasLocalizations = config.i18nEnabled && allLocaleVersions.length;
   const passedActiveNavigation = pickDefaultLocaleNavigation({ activeNavigation, config });
+  const { closeNavigationManagerModal, openNavigationManagerModal, navigationManagerModal } = useNavigationManager()
 
   return (
     <HeaderLayout
       primaryAction={
         <Stack horizontal size={2}>
-          <Box width="20vw" marginRight="8px">
+          <Box width="27vw" marginRight="8px">
             <Grid gap={4}>
-              {!hasLocalizations ? (<GridItem col={3} />) : null}
-              <GridItem col={6}>
+              {!hasLocalizations ? (<GridItem col={2} />) : null}
+              <GridItem col={3}>
+                <Button
+                  onClick={openNavigationManagerModal}
+                  startIcon={null}
+                  type="button"
+                  variant="secondary"
+                  fullWidth
+                  size="S"
+                >
+                  {formatMessage(getTrad('header.action.manage'))}
+                </Button>
+              </GridItem>
+              <GridItem col={4}>
                 <Select
                   type="select"
                   placeholder="Change navigation"
@@ -65,7 +79,7 @@ const NavigationHeader = ({
                 </Select>
               </GridItem>
             {hasLocalizations
-              ? <GridItem col={3}>
+              ? <GridItem col={2}>
                   <Select
                     type="select"
                     placeholder={formatMessage(getTrad('pages.main.header.localization.select.placeholder'))}
@@ -79,12 +93,14 @@ const NavigationHeader = ({
                 </GridItem>
               : null
             }
-            <GridItem col="3">
+            <GridItem col={3}>
               <Button
                 onClick={handleSave}
                 startIcon={submitIcon}
                 disabled={structureHasErrors || !structureHasChanged}
                 type="submit"
+                fullWidth
+                size="S"
               >
                 {formatMessage(getTrad('submit.cta.save'))}
               </Button>
@@ -96,6 +112,7 @@ const NavigationHeader = ({
               label="More"
               icon={<More />}
             /> */}
+          {navigationManagerModal}
         </Stack>
       }
       title={formatMessage({

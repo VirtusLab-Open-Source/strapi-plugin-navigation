@@ -14,6 +14,7 @@ import { errorHandler } from "../utils";
 import { IAdminController } from "../../types";
 import { Id, StringMap } from "strapi-typed";
 import { InvalidParamNavigationError } from "../../utils/InvalidParamNavigationError";
+import { NavigationError } from "../../utils/NavigationError";
 
 const adminControllers: IAdminController = {
   getService<T extends NavigationService = IAdminService>(
@@ -34,6 +35,26 @@ const adminControllers: IAdminController = {
     const { id } = parseParams<StringMap<string>, { id: Id }>(params);
     const { body = {} } = ctx.request;
     return this.getService().put(id, body, auditLog).catch(errorHandler(ctx));
+  },
+  async delete(ctx) {
+    const { params, auditLog } = ctx;
+    const { id } = parseParams<StringMap<string>, { id: Id }>(params);
+
+    try {
+      assertNotEmpty(id, new InvalidParamNavigationError("Navigation's id is not a id"));
+
+      await this.getService().delete(id, auditLog);
+
+      return {};
+    } catch (error) {
+      console.log(error);
+      
+      if (error instanceof NavigationError) {
+        return errorHandler(ctx)(error)
+      }
+
+      throw error;
+    }
   },
   async config() {
     return this.getService().config();

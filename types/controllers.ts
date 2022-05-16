@@ -14,8 +14,9 @@ export interface IAdminController {
   get: () => ToBeFixed;
   getById: (ctx: StrapiControllerContext) => ToBeFixed;
   getContentTypeItems: (ctx: StrapiControllerContext) => ToBeFixed;
-  post: (ctx: StrapiControllerContext) => ToBeFixed;
-  put: (ctx: StrapiControllerContext) => ToBeFixed;
+  post: (ctx: StrapiControllerContext) => Promise<Navigation>;
+  put: (ctx: StrapiControllerContext) => Promise<Navigation>;
+  delete: (ctx: StrapiRequestContext<never, never, { id: string }> & ControllerCommonContext) => Promise<{}>;
   restoreConfig: (ctx: StrapiControllerContext) => ToBeFixed;
   settingsConfig: () => ToBeFixed;
   settingsRestart: (ctx: StrapiControllerContext) => ToBeFixed;

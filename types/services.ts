@@ -13,6 +13,7 @@ export interface IAdminService {
   getById: (id: Id) => Promise<Navigation>,
   post: (payload: ToBeFixed, auditLog: AuditLogContext) => ToBeFixed,
   put: (id: Id, payload: ToBeFixed, auditLog: AuditLogContext) => ToBeFixed,
+  delete: (id: Id, auditLog: AuditLogContext) => Promise<void>,
   restart: () => Promise<void>,
   restoreConfig: () => Promise<void>,
   updateConfig: (newConfig: NavigationPluginConfig) => Promise<void>,

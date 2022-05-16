@@ -54,7 +54,7 @@ const Item = (props) => {
     items = [],
   } = item;
 
-  const { contentTypes, contentTypesNameFields } = config;
+  const { contentTypes = [], contentTypesNameFields } = config;
   const isExternal = type === navigationItemType.EXTERNAL;
   const isWrapper = type === navigationItemType.WRAPPER;
   const isHandledByPublishFlow = contentTypes.find(_ => _.uid === relatedRef?.__collectionUid)?.draftAndPublish;

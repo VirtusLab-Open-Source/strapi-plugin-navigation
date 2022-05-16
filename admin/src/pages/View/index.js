@@ -38,6 +38,7 @@ import {
   usedContentTypes,
   validateNavigationStructure,
 } from './utils/parsers';
+import { useNavigationManager } from './components/NavigationManager';
 
 const View = () => {
   const {
@@ -249,6 +250,7 @@ const View = () => {
       startIcon: <PlusIcon />,
       disabled: isLoadingForSubmit,
       type: "submit",
+      variant: "primary",
       tradId: 'header.action.newItem',
       margin: '16px',
     },

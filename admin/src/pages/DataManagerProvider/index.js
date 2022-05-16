@@ -337,6 +337,19 @@ const DataManagerProvider = ({ children }) => {
      }
   };
 
+  const handleNavigationsDeletion = async (ids) => 
+    Promise.all(ids.map((id) => handleNavigationDeletion(id)));
+
+  const handleNavigationDeletion = (id) => 
+    request(`/${pluginId}/${id}`, {
+      method: "DELETE",
+      signal,
+    });
+
+  const hardReset = () => {
+    return getDataRef.current();
+  }
+
   return (
     <DataManagerContext.Provider
       value={{
@@ -366,6 +379,8 @@ const DataManagerProvider = ({ children }) => {
         error,
         availableLocale,
         readNavigationItemFromLocale,
+        handleNavigationsDeletion,
+        hardReset,
       }}
     >
       {isLoading ? <LoadingIndicatorPage /> : children}
