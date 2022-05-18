@@ -74,13 +74,27 @@ const NavigationItemForm = ({
     return null;
   };
 
+  const getDefaultTitle = useCallback((related, relatedType, isSingleSelected) => {
+    if (isSingleSelected) {
+      return contentTypes.find(_ => _.uid === relatedType)?.label
+    } else {
+      return extractRelatedItemLabel({
+        ...contentTypeEntities.find(_ => _.id === related),
+        __collectionUid: relatedType
+      }, contentTypesNameFields, { contentTypes });
+    }
+
+  }, [contentTypeEntities, contentTypesNameFields, contentTypes]);
+
   const sanitizePayload = (payload = {}) => {
     const { onItemClick, onItemLevelAddClick, related, relatedType, menuAttached, type, ...purePayload } = payload;
     const relatedId = related;
     const singleRelatedItem = isSingleSelected ? first(contentTypeEntities) : undefined;
     const relatedCollectionType = relatedType;
-    const title = payload.title;
-    
+    const title = !!payload.title?.trim()
+      ? payload.title
+      : getDefaultTitle(related, relatedType, isSingleSelected)
+
     return {
       ...purePayload,
       title,
