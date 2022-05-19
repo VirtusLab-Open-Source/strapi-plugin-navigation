@@ -41,7 +41,7 @@ const NavigationItemForm = ({
   locale,
   readNavigationItemFromLocale,
 }) => {
-  const [isLoading, setIsLoading] = useState(isLoading);
+  const [isLoading, setIsLoading] = useState(isPreloading);
   const [hasBeenInitialized, setInitializedState] = useState(false);
   const [hasChanged, setChangedState] = useState(false);
   const [contentTypeSearchQuery, setContentTypeSearchQuery] = useState(undefined);

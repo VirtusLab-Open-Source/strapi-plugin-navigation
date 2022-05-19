@@ -130,14 +130,14 @@ const Item = (props) => {
     const { isSingle } = contentType;
     return `/content-manager/${ isSingle ? 'singleType' : 'collectionType'}/${entity?.__collectionUid}${!isSingle ? '/' + entity?.id : ''}`
   }
-  const onNewItemClick = useCallback((event) => onItemLevelAdd({
+  const onNewItemClick = useCallback((event) => onItemLevelAdd(
     event,
-    viewParentId: viewId,
-    isMenuAllowedLevel: isNextMenuAllowedLevel,
-    levelPath: absolutePath,
-    parentAttachedToMenu: menuAttached,
-    structureId: `${structureId}.${items.length}`,
-  }), [viewId, isNextMenuAllowedLevel, absolutePath, menuAttached, structureId, items]);
+    viewId,
+    isNextMenuAllowedLevel,
+    absolutePath,
+    menuAttached,
+    `${structureId}.${items.length}`,
+  ), [viewId, isNextMenuAllowedLevel, absolutePath, menuAttached, structureId, items]);
 
   return (
     <Wrapper level={level} isLast={isLast} style={{ opacity: isDragging ? 0.2 : 1 }} ref={refs ? refs.dropRef : null} >

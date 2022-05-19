@@ -94,14 +94,14 @@ const View = () => {
     handleChangeNavigationItemPopupVisibility(visible);
   };
 
-  const addNewNavigationItem = useCallback(({
+  const addNewNavigationItem = useCallback((
     event,
     viewParentId = null,
     isMenuAllowedLevel = true,
     levelPath = '',
     parentAttachedToMenu = true,
     structureId = "0",
-  }) => {
+  ) => {
     event.preventDefault();
     event.stopPropagation();
     changeNavigationItemPopupState(true, {
