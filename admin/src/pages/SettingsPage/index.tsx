@@ -51,8 +51,8 @@ import { PermanentAlert } from '../../components/Alert/styles';
 import { useDisableI18nModal } from './components/DisableI18nModal';
 
 import { NavigationItemAdditionalField, NavigationItemCustomField } from '../../../../types';
-import CustomFieldModal from './CustomFieldModal';
-import CustomFieldTable from './CustomFieldTable';
+import CustomFieldModal from './components/CustomFieldModal';
+import CustomFieldTable from './components/CustomFieldTable';
 import { ContentTypeToFix, HandleSetContentTypeExpanded, OnPopupClose, OnSave, PrepareNameFieldFor, PreparePayload, RestartReasons, RestartStatus } from './types';
 
 const RESTART_NOT_REQUIRED: RestartStatus = { required: false }
