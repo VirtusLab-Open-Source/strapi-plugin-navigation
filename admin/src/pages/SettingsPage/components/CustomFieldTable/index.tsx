@@ -14,10 +14,10 @@ import { Stack } from '@strapi/design-system/Stack';
 //@ts-ignore
 import { IconButton } from '@strapi/design-system/IconButton';
 
-import { getMessage } from '../../../utils';
-import { NavigationItemCustomField } from '../../../../../types';
-import ConfirmationDialog from '../../../components/ConfirmationDialog';
-import { getTradId } from '../../../translations';
+import { getMessage } from '../../../../utils';
+import { NavigationItemCustomField } from '../../../../../../types';
+import ConfirmationDialog from '../../../../components/ConfirmationDialog';
+import { getTradId } from '../../../../translations';
 
 interface ICustomFieldTableProps {
   data: NavigationItemCustomField[];

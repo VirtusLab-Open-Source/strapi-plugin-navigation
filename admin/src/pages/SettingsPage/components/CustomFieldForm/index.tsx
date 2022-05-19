@@ -8,11 +8,11 @@ import { GenericInput } from '@strapi/helper-plugin';
 //@ts-ignore
 import { Grid, GridItem } from '@strapi/design-system/Grid';
 import { useFormik } from 'formik';
-import { ChangeEffect, NavigationItemCustomField, VoidEffect } from '../../../../../types';
-import * as formDefinition from '../utils/form';
-import { getMessage } from '../../../utils';
+import { ChangeEffect, NavigationItemCustomField, VoidEffect } from '../../../../../../types';
+import * as formDefinition from '../../utils/form';
+import { getMessage } from '../../../../utils';
 import { isEmpty } from 'lodash';
-import { getTrad } from '../../../translations';
+import { getTrad } from '../../../../translations';
 const tradPrefix = 'pages.settings.form.customFields.popup.'
 
 // TODO: [ @ltsNotMike ] Introduce select and multi-select custom fields types

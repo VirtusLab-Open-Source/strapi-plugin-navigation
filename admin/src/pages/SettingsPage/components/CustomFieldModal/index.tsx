@@ -4,9 +4,9 @@ import { Typography } from '@strapi/design-system/Typography';
 //@ts-ignore
 import { ModalLayout, ModalHeader } from '@strapi/design-system/ModalLayout';
 
-import CustomFieldForm from './CustomFieldForm';
-import { ChangeEffect, NavigationItemCustomField, VoidEffect } from '../../../../../types';
-import { getMessage } from '../../../utils';
+import CustomFieldForm from '../CustomFieldForm';
+import { ChangeEffect, NavigationItemCustomField, VoidEffect } from '../../../../../../types';
+import { getMessage } from '../../../../utils';
 import { pick } from 'lodash';
 
 interface ICustomFieldModalProps {
