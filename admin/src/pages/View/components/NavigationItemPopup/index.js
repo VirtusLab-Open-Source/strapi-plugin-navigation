@@ -13,9 +13,8 @@ import { ModalLayout } from '@strapi/design-system/ModalLayout';
 
 import NavigationItemForm from '../NavigationItemForm';
 import { extractRelatedItemLabel, isRelationCorrect, isRelationPublished } from '../../utils/parsers';
-import { navigationItemType } from '../../utils/enums';
 import { NavigationItemPopupHeader } from './NavigationItemPopupHeader';
-import { getMessage } from '../../../../utils';
+import { getMessage, navigationItemType } from '../../../../utils';
 
 const NavigationItemPopUp = ({
   availableLocale,

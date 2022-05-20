@@ -43,6 +43,7 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({ isEditForm, customFi
     name: customField.name || formDefinition.defaultValues.name,
     label: customField.label || formDefinition.defaultValues.label,
     type: customField.type || formDefinition.defaultValues.type,
+    required: customField.required || formDefinition.defaultValues.required,
   }), [customField]);
 
   const {
@@ -93,6 +94,13 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({ isEditForm, customFi
               options={typeSelectOptions}
               type="select"
               disabled={isEditForm}
+            />
+          </GridItem>
+          <GridItem key="type" col={12}>
+            <GenericInput
+              {...defaultProps("required")}
+              type="bool"
+              description={getTrad(`${tradPrefix}required.description`)}
             />
           </GridItem>
         </Grid>

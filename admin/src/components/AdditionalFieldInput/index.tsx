@@ -9,6 +9,7 @@ import { useNotification } from '@strapi/helper-plugin';
 import { getTrad } from '../../translations';
 import { AdditionalFieldInputProps, Input } from './types';
 import { isNil } from 'lodash';
+import { useIntl } from 'react-intl';
 
 const DEFAULT_STRING_VALUE = "";
 const handlerFactory =
@@ -22,14 +23,18 @@ const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
   isLoading,
   onChange,
   value,
+  error
 }) => {
   const toggleNotification = useNotification();
+  const { formatMessage } = useIntl();
   const defaultInputProps = useMemo(() => ({
     id: field.name,
     name: field.name,
     label: field.label,
     disabled: isLoading,
-  }), [field, isLoading]);
+    error: error && formatMessage(error),
+  
+  }), [field, isLoading, error]);
   const handleBoolean = useMemo(() => handlerFactory({ field, onChange, prop: "checked" }), [onChange, field]);
   const handleString = useMemo(() => handlerFactory({ field, onChange, prop: "value" }), [onChange, field]);
 

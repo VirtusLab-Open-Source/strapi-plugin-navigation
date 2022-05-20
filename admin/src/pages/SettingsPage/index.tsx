@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { isEmpty, capitalize, isEqual, orderBy } from 'lodash';
-//@ts-ignore
 import { Formik, Form } from 'formik';
 import {
   CheckPermissions,
@@ -42,7 +41,7 @@ import { Check, Refresh, Play, Information, ExclamationMarkCircle } from '@strap
 import permissions from '../../permissions';
 import useNavigationConfig from '../../hooks/useNavigationConfig';
 import useAllContentTypes from '../../hooks/useAllContentTypes';
-import { navigationItemAdditionalFields } from '../View/utils/enums';
+import { navigationItemAdditionalFields } from '../../utils';
 import ConfirmationDialog from '../../components/ConfirmationDialog';
 import RestartAlert from '../../components/RestartAlert';
 import { getMessage } from '../../utils';

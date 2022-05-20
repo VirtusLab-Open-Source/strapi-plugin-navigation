@@ -1,6 +1,6 @@
 import { v4 as uuid, validate as isUuid } from 'uuid'
 import { find, get, isArray, isEmpty, isNil, isNumber, isObject, isString, last, omit, orderBy } from 'lodash';
-import { navigationItemType } from './enums';
+import { navigationItemType } from '../../../utils';
 
 export const transformItemToRESTPayload = (
   item,

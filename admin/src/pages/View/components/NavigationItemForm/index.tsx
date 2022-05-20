@@ -15,7 +15,7 @@ import { GenericInput } from '@strapi/helper-plugin';
 import { Button } from '@strapi/design-system/Button';
 
 import { NavigationItemPopupFooter } from '../NavigationItemPopup/NavigationItemPopupFooter';
-import { navigationItemType } from '../../utils/enums';
+import { getDefaultCustomFields, navigationItemType } from '../../../../utils';
 import { extractRelatedItemLabel } from '../../utils/parsers';
 import * as formDefinition from './utils/form';
 import { checkFormValidity } from '../../utils/form';
@@ -56,7 +56,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   const formik: FormikProps<RawFormPayload> = useFormik<RawFormPayload>({
     initialValues: formDefinition.defaultValues,
     onSubmit: (payload) => onSubmit(sanitizePayload(payload, data)),
-    validate: (values) => checkFormValidity(sanitizePayload(values, {}), formDefinition.schemaFactory(isSingleSelected)),
+    validate: (values) => checkFormValidity(sanitizePayload(values, {}), formDefinition.schemaFactory(isSingleSelected, additionalFields)),
     validateOnChange: false,
   });
 
@@ -81,7 +81,11 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
       related: get(data, "related.value", formDefinition.defaultValues.related),
       relatedType: get(data, "relatedType.value", formDefinition.defaultValues.relatedType),
       audience: get(data, "audience", formDefinition.defaultValues.audience).map((item: Audience | Id) => isObject(item) ? item.id : item),
-      additionalFields: get(data, "additionalFields", formDefinition.defaultValues.additionalFields),
+      additionalFields: getDefaultCustomFields({
+        additionalFields,
+        customFieldsValues: get(data, "additionalFields", []),
+        defaultCustomFieldsValues: formDefinition.defaultValues.additionalFields
+      }),
       menuAttached: get(data, "menuAttached", formDefinition.defaultValues.menuAttached),
       path: get(data, "path", formDefinition.defaultValues.path),
       externalPath: get(data, "externalPath", formDefinition.defaultValues.externalPath),
@@ -548,6 +552,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                       isLoading={isLoading}
                       onChange={onAdditionalFieldChange}
                       value={get(formik.values, `additionalFields.${additionalField.name}`, null)}
+                      error={get(formik.errors, `additionalFields.${additionalField.name}`, null)}
                     />
                   </GridItem>
                 );

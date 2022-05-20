@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from 'react-query';
 import { useNotification } from '@strapi/helper-plugin';
-import { fetchNavigationConfig, restartStrapi, restoreNavigationConfig, updateNavigationConfig } from '../utils/api';
+import { fetchNavigationConfig, restartStrapi, restoreNavigationConfig, updateNavigationConfig } from '../utils';
 import { getTrad } from '../translations';
 
 const useNavigationConfig = () => {

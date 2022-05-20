@@ -1,10 +1,12 @@
+// @ts-ignore
 import { request } from '@strapi/helper-plugin';
+import { NavigationPluginConfig } from '../../../types';
 import pluginId from '../pluginId';
 
 export const fetchNavigationConfig = () =>
   request(`/${pluginId}/settings/config`, { method: 'GET' });
 
-export const updateNavigationConfig = ({ body }) =>
+export const updateNavigationConfig = ({ body }: { body: NavigationPluginConfig }) =>
   request(`/${pluginId}/config`, { method: 'PUT', body }, true);
 
 export const restoreNavigationConfig = () =>

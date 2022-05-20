@@ -2,8 +2,8 @@ import * as yup from "yup";
 import { isNil } from "lodash";
 //@ts-ignore
 import { translatedErrors } from "@strapi/helper-plugin";
-import { navigationItemType } from "../../../utils/enums";
-import { NavigationItemType } from "../../../../../../../types";
+import { navigationItemType } from "../../../../../utils";
+import { NavigationItemAdditionalField, NavigationItemType } from "../../../../../../../types";
 import { RawFormPayload } from "../types";
 
 const externalPathRegexps = [
@@ -13,7 +13,7 @@ const externalPathRegexps = [
   /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/,
 ];
 
-export const schemaFactory = (isSingleSelected: boolean) => {
+export const schemaFactory = (isSingleSelected: boolean, additionalFields: NavigationItemAdditionalField[]) => {
   return yup.object({
     title: yup.string()
       .when('type', {
@@ -55,6 +55,27 @@ export const schemaFactory = (isSingleSelected: boolean) => {
         then: isSingleSelected ? yup.mixed().notRequired() : yup.mixed().required(translatedErrors.required),
         otherwise: yup.mixed().notRequired(),
       }),
+    additionalFields: yup.object({
+      ...additionalFields.reduce((acc, current) => {
+        var value;
+        if (typeof current === 'string')
+          return acc;
+        
+        if (current.type === 'boolean')
+          value = yup.bool();
+        else if (current.type === 'string')
+          value = yup.string();
+        else
+          throw new Error(`Type "${current.type}" is unsupported by custom fields`);
+
+        if (current.required)
+          value = value.required(translatedErrors.required);
+        else
+          value = value.notRequired();
+
+        return { ...acc, [current.name]: value }
+      }, {})
+    })
   });
 };
 
@@ -67,6 +88,9 @@ export const defaultValues: RawFormPayload = {
   title: "",
   externalPath: "",
   path: "",
-  additionalFields: {},
+  additionalFields: {
+    boolean: false,
+    string: "",
+  },
   updated: false,
 }

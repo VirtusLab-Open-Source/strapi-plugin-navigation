@@ -1,6 +1,6 @@
 //@ts-ignore
 import { useQuery } from 'react-query';
-import { fetchAllContentTypes } from '../utils/api';
+import { fetchAllContentTypes } from '../utils';
 
 const useAllContentTypes = () => {
   const { isLoading, data, error } = useQuery('contentTypes', () =>
