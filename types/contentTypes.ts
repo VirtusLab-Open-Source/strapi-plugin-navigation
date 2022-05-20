@@ -101,6 +101,8 @@ export type NavigationItemCustomField = {
   name: string;
   label: string;
   type: NavigationItemCustomFieldType;
+  required: boolean;
 }
 
 export type NavigationItemAdditionalField = NavigationItemCustomField | 'audience';
+export type NavigationItemAdditionalFieldValues = Record<string, string | boolean | string[]>;

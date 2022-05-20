@@ -1,4 +1,5 @@
-import React, { useCallback, useState } from 'react';
+import { sortBy } from 'lodash';
+import React, { useCallback, useMemo, useState } from 'react';
 //@ts-ignore
 import { useNotification } from "@strapi/helper-plugin";
 //@ts-ignore
@@ -6,9 +7,11 @@ import { VisuallyHidden } from '@strapi/design-system/VisuallyHidden';
 //@ts-ignore
 import { Table, Thead, Tr, Th, Tbody, Td, TFooter } from '@strapi/design-system/Table';
 //@ts-ignore
-import { Plus, Trash, Pencil, Refresh } from '@strapi/icons';
+import { Plus, Trash, Pencil, Refresh, Check, Minus } from '@strapi/icons';
 //@ts-ignore
 import { Typography } from '@strapi/design-system/Typography';
+//@ts-ignore
+import { Tooltip } from '@strapi/design-system/Tooltip';
 //@ts-ignore
 import { Stack } from '@strapi/design-system/Stack';
 //@ts-ignore
@@ -37,6 +40,7 @@ const CustomFieldTable: React.FC<ICustomFieldTableProps> = ({
   const [confirmationVisible, setIsConfirmationVisible] = useState<boolean>(false);
   const [fieldToRemove, setFieldToRemove] = useState<NavigationItemCustomField | null>(null);
   const toggleNotification = useNotification();
+  const customFields = useMemo(() => sortBy(data, "name"), [data]);
 
   const handleRemove = (field: NavigationItemCustomField) => {
     setFieldToRemove(field);
@@ -63,7 +67,7 @@ const CustomFieldTable: React.FC<ICustomFieldTableProps> = ({
     setFieldToRemove(null);
     setIsConfirmationVisible(false);
   }, [setFieldToRemove, setIsConfirmationVisible]);
-  
+
   return (
     <>
       <ConfirmationDialog
@@ -100,20 +104,23 @@ const CustomFieldTable: React.FC<ICustomFieldTableProps> = ({
                 {getMessage(`${tradPrefix}header.label`)}
               </Typography>
             </Th>
-            <Th width="20%">
+            <Th width="15%">
               <Typography variant="sigma" textColor="neutral600">
                 {getMessage(`${tradPrefix}header.type`)}
               </Typography>
             </Th>
+            <Th width="5%">
+              <Typography variant="sigma" textColor="neutral600">
+                {getMessage(`${tradPrefix}header.required`)}
+              </Typography>
+            </Th>
             <Th>
-              <VisuallyHidden>
-                {getMessage(`${tradPrefix}header.type`)}
-              </VisuallyHidden>
+              <VisuallyHidden />
             </Th>
           </Tr>
         </Thead>
         <Tbody>
-          {data.map(customField => (
+          {customFields.map(customField => (
             <Tr key={customField.name}>
               <Td>
                 <Typography fontWeight="semiBold" textColor="neutral800">
@@ -131,9 +138,16 @@ const CustomFieldTable: React.FC<ICustomFieldTableProps> = ({
                 </Typography>
               </Td>
               <Td>
+                <Typography textColor="neutral800">
+                  <Tooltip description={getMessage(`${tradPrefix}${customField.required ? "required" : "notRequired"}`)}>
+                    {customField.required ? <Check /> : <Minus />}
+                  </Tooltip>
+                </Typography>
+              </Td>
+              <Td>
                 <Stack horizontal size={1}>
                   <IconButton
-                    onClick={() => handleRemove(customField)}
+                    onClick={() => onOpenModal(customField)}
                     label={getMessage(`${tradPrefix}edit`)}
                     icon={<Pencil />}
                     noBorder

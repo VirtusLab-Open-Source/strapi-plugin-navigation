@@ -1,4 +1,15 @@
-import { Audience, ChangeEffect, ContentTypeEntity, NavigationItemAdditionalField, NavigationItemType, NavigationPluginConfig, PluginConfigNameFields, ToBeFixed, VoidEffect } from '../../../../../../types';
+import {
+  Audience,
+  ChangeEffect,
+  ContentTypeEntity,
+  NavigationItemAdditionalField,
+  NavigationItemAdditionalFieldValues,
+  NavigationItemType,
+  NavigationPluginConfig,
+  PluginConfigNameFields,
+  ToBeFixed,
+  VoidEffect
+} from '../../../../../../types';
 import { Id } from 'strapi-typed';
 import { ContentTypeToFix } from '../../../SettingsPage/types';
 
@@ -76,7 +87,7 @@ export type RawFormPayload = {
   title: string;
   externalPath: string | null;
   path: string | null;
-  additionalFields: Record<string, string | boolean | string[]> // { cf_name: cf_value }
+  additionalFields: NavigationItemAdditionalFieldValues; // { cf_name: cf_value }
   updated: boolean;
 }
 
