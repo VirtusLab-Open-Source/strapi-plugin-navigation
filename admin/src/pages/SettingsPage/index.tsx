@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { isEmpty, capitalize, isEqual, orderBy } from 'lodash';
+import { isEmpty, capitalize, isEqual, orderBy, get } from 'lodash';
 import { Formik, Form } from 'formik';
 import {
   CheckPermissions,
@@ -224,6 +224,12 @@ const SettingsPage = () => {
     setIsCustomFieldModalOpen(false);
   }
 
+  const handleToggleCustomField = (field: NavigationItemCustomField) => {
+    const updatedField = { ...field, enabled: !get(field, 'enabled', false) }
+    const filteredFields = customFields.filter(f => f.name !== field.name);
+    setCustomFields([...filteredFields, updatedField]);
+  }
+
   return (
     <>
       <SettingsPageTitle
@@ -433,6 +439,7 @@ const SettingsPage = () => {
                         data={customFields}
                         onOpenModal={handleOpenCustomFieldModal}
                         onRemoveCustomField={handleRemoveCustomField}
+                        onToggleCustomField={handleToggleCustomField}
                       />
                     </Stack>
                   </Box>

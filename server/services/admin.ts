@@ -1,7 +1,7 @@
 // @ts-ignore
 import { errors } from "@strapi/utils"
 import slugify from "@sindresorhus/slugify";
-import { differenceBy, isEmpty, isNil, isObject } from "lodash";
+import { differenceBy, get, isEmpty, isNil, isObject } from "lodash";
 import { Id, StrapiContext } from "strapi-typed";
 import {
   Audience,
@@ -59,7 +59,9 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
         ...(isObject(contentTypesPopulate) ? contentTypesPopulate : {}),
       },
       allowedLevels,
-      additionalFields,
+      additionalFields: viaSettingsPage
+        ? additionalFields
+        : additionalFields.filter(field => typeof field === 'string' || get(field, 'enabled', false)),
       gql: {
         navigationItemRelated: configContentTypes.map(({ labelSingular }) => labelSingular.replace(/\s+/g, ''))
       },

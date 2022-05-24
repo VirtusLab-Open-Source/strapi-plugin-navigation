@@ -7,7 +7,7 @@ import { VisuallyHidden } from '@strapi/design-system/VisuallyHidden';
 //@ts-ignore
 import { Table, Thead, Tr, Th, Tbody, Td, TFooter } from '@strapi/design-system/Table';
 //@ts-ignore
-import { Plus, Trash, Pencil, Refresh, Check, Minus } from '@strapi/icons';
+import { Plus, Trash, Pencil, Refresh, Check, Minus, EyeStriked, Eye } from '@strapi/icons';
 //@ts-ignore
 import { Typography } from '@strapi/design-system/Typography';
 //@ts-ignore
@@ -18,14 +18,15 @@ import { Stack } from '@strapi/design-system/Stack';
 import { IconButton } from '@strapi/design-system/IconButton';
 
 import { getMessage } from '../../../../utils';
-import { NavigationItemCustomField } from '../../../../../../types';
+import { ChangeEffect, NavigationItemCustomField } from '../../../../../../types';
 import ConfirmationDialog from '../../../../components/ConfirmationDialog';
 import { getTradId } from '../../../../translations';
 
 interface ICustomFieldTableProps {
   data: NavigationItemCustomField[];
   onOpenModal: (field: NavigationItemCustomField | null) => void;
-  onRemoveCustomField: (field: NavigationItemCustomField) => void;
+  onRemoveCustomField: ChangeEffect<NavigationItemCustomField>;
+  onToggleCustomField: ChangeEffect<NavigationItemCustomField>;
 }
 
 const refreshIcon = <Refresh />;
@@ -36,6 +37,7 @@ const CustomFieldTable: React.FC<ICustomFieldTableProps> = ({
   data,
   onOpenModal,
   onRemoveCustomField,
+  onToggleCustomField,
 }) => {
   const [confirmationVisible, setIsConfirmationVisible] = useState<boolean>(false);
   const [fieldToRemove, setFieldToRemove] = useState<NavigationItemCustomField | null>(null);
@@ -153,11 +155,16 @@ const CustomFieldTable: React.FC<ICustomFieldTableProps> = ({
                     noBorder
                   />
                   <IconButton
+                    onClick={() => onToggleCustomField(customField)}
+                    label={getMessage(`${tradPrefix}${customField.enabled ? 'disable' : 'enable'}`)}
+                    icon={customField.enabled ? <Eye /> : <EyeStriked />}
+                    noBorder
+                  />
+                  <IconButton
                     onClick={() => handleRemove(customField)}
                     label={getMessage(`${tradPrefix}remove`)}
                     icon={<Trash />}
                     noBorder
-                    id={`delete-${customField.name}`}
                   />
                 </Stack>
               </Td>
