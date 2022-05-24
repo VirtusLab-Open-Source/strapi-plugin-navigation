@@ -29,15 +29,17 @@ module.exports = ({ nexus, config }) =>
       // Additional Fields
       config.additionalFields.forEach(field => {
         if (field !== 'audience') {
-          switch (field.type) {
-            case 'string':
-              t.string(field.name);
-              break;
-            case 'boolean':
-              t.boolean(field.name);
-              break;
-            default:
-              throw new Error(`Type "${field.type}" is unsupported by custom fields`);
+          if (field.enabled) {
+            switch (field.type) {
+              case 'string':
+                t.string(field.name);
+                break;
+              case 'boolean':
+                t.boolean(field.name);
+                break;
+              default:
+                throw new Error(`Type "${field.type}" is unsupported by custom fields`);
+            }
           }
         } else {
           t.list.string("audience");

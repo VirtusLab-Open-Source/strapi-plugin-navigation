@@ -13,7 +13,22 @@ import {
 } from 'lodash';
 import { Id, IStrapi, Primitive, StrapiContentType, StringMap, StrapiContentTypeFullSchema} from "strapi-typed";
 
-import { AuditLogContext, AuditLogParams, ContentTypeEntity, NavigationActions, NavigationItem, NavigationItemEntity, NavigationService, NavigationServiceName, NestedPath, NestedStructure, PluginConfigNameFields, ToBeFixed } from "../../types";
+import {
+  AuditLogContext,
+  AuditLogParams,
+  ContentTypeEntity,
+  NavigationActions,
+  NavigationItem,
+  NavigationItemAdditionalField,
+  NavigationItemCustomField,
+  NavigationItemEntity,
+  NavigationService,
+  NavigationServiceName,
+  NestedPath,
+  NestedStructure,
+  PluginConfigNameFields,
+  ToBeFixed,
+} from "../../types";
 import { NavigationError } from '../../utils/NavigationError';
 import { TEMPLATE_DEFAULT, ALLOWED_CONTENT_TYPES, RESTRICTED_CONTENT_TYPES } from './constant';
 declare var strapi: IStrapi;
@@ -27,6 +42,8 @@ export const errorHandler = (ctx: ToBeFixed) => (error: NavigationError | string
   }
   throw error;
 };
+
+export const getCustomFields = (additionalFields: NavigationItemAdditionalField[]): NavigationItemCustomField[] => additionalFields.filter(field => typeof field !== 'string') as NavigationItemCustomField[];
 
 export const parseParams = <
   TParams extends StringMap<string> = StringMap<string>,

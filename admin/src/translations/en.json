@@ -158,6 +158,8 @@
   "pages.settings.form.customFields.table.header.required": "Required",
   "pages.settings.form.customFields.table.footer": "Create new custom field",
   "pages.settings.form.customFields.table.edit": "Edit custom field",
+  "pages.settings.form.customFields.table.enable": "Enable custom field",
+  "pages.settings.form.customFields.table.disable": "Disable custom field",
   "pages.settings.form.customFields.table.remove": "Remove custom field",
   "pages.settings.form.customFields.table.required": "required",
   "pages.settings.form.customFields.table.notRequired": "not required",

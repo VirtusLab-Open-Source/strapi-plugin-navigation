@@ -3,7 +3,7 @@ import slugify from "@sindresorhus/slugify";
 import { Id, StrapiContext } from "strapi-typed";
 import { validate } from "uuid";
 import { assertNotEmpty, ContentTypeEntity, IAdminService, IClientService, ICommonService, Navigation, NavigationItem, NavigationItemEntity, NestedStructure, RFRNavItem, ToBeFixed } from "../../types"
-import { composeItemTitle, getPluginModels, filterByPath, filterOutUnpublished, getPluginService, templateNameFactory, RENDER_TYPES, compareArraysOfNumbers } from "../utils";
+import { composeItemTitle, getPluginModels, filterByPath, filterOutUnpublished, getPluginService, templateNameFactory, RENDER_TYPES, compareArraysOfNumbers, getCustomFields } from "../utils";
 //@ts-ignore
 import { errors } from '@strapi/utils';
 import { i18nAwareEntityReadHandler } from "../i18n";
@@ -257,8 +257,10 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
         return [];
       }
       const items = await commonService.getRelatedItems(entities);
-      const { contentTypes, contentTypesNameFields, slugify: customSlugifyConfig } = await adminService.config(false);
-
+      const { contentTypes, contentTypesNameFields, additionalFields, slugify: customSlugifyConfig } = await adminService.config(false);
+      const enabledCustomFieldsNames = getCustomFields(additionalFields)
+        .reduce<string[]>((acc, curr) => curr.enabled ? [...acc, curr.name] : acc, []);
+      
       const wrapContentType = (itemContentType: ToBeFixed) => wrapRelated && itemContentType ? {
         id: itemContentType.id,
         attributes: { ...itemContentType }
@@ -299,7 +301,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
                 parentPath,
                 itemParser,
               ),
-              ...item.additionalFields,
+              ...enabledCustomFieldsNames.reduce((acc, name) => ({...acc, [name]: get(item, `additionalFields.${name}`, undefined)}), {}),
             };
           };
 
@@ -360,7 +362,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
               title: composeItemTitle({...item, additionalFields}, contentTypesNameFields, contentTypes) || '',
               related: wrapContentType(item.related),//omit(item.related, 'localizations'),
               items: null,
-              ...additionalFields,
+              ...enabledCustomFieldsNames.reduce((acc, name) => ({...acc, [name]: get(additionalFields, name, undefined)}), {}),
             }))
             .sort((a, b) => compareArraysOfNumbers(getNestedOrders(a.id), getNestedOrders(b.id)));
       }
