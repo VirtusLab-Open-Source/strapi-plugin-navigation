@@ -24,6 +24,7 @@ import {
   prepareAuditLog,
   RESTRICTED_CONTENT_TYPES,
   sendAuditLog,
+  validateAdditionalFields,
 } from "../utils";
 import { addI18NConfigFields, getI18nStatus, I18NConfigFields, i18nNavigationContentsCopy, i18nNavigationSetupStrategy, i18nNavigationItemRead } from "../i18n";
 import { NavigationError } from "../../utils/NavigationError";
@@ -258,6 +259,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
     const commonService = getPluginService<ICommonService>('common');
     const pluginStore = await commonService.getPluginStore()
     const config = await pluginStore.get<string, NavigationPluginConfig>({ key: 'config' });
+    validateAdditionalFields(newConfig.additionalFields);
     await pluginStore.set({ key: 'config', value: newConfig });
 
     const removedFields = differenceBy(config.additionalFields, newConfig.additionalFields, 'name').filter(i => i !== 'audience') as NavigationItemCustomField[];

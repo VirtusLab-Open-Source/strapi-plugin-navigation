@@ -10,6 +10,7 @@ import {
   PluginConfigPopulate,
   PluginDefaultConfigGetter,
 } from "../../types";
+import { validateAdditionalFields } from "../utils";
 
 export const configSetupStrategy: IConfigSetupStrategy = async ({ strapi }) => {
   const pluginStore = strapi.store({
@@ -45,6 +46,8 @@ export const configSetupStrategy: IConfigSetupStrategy = async ({ strapi }) => {
     pruneObsoleteI18nNavigations: false,
   };
 
+  validateAdditionalFields(config.additionalFields);
+  
   await pluginStore.set({
     key: "config",
     value: config,
