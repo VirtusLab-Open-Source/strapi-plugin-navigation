@@ -1,17 +1,19 @@
 import {
-  last,
-  isObject,
-  isEmpty,
-  flatten,
   find,
-  isString,
-  get,
-  isNil,
-  isArray,
   first,
+  flatten,
+  get,
+  includes,
+  isArray,
+  isEmpty,
+  isNil,
+  isObject,
+  isString,
+  last,
+  uniqBy,
   zipWith,
 } from 'lodash';
-import { Id, IStrapi, Primitive, StrapiContentType, StringMap, StrapiContentTypeFullSchema} from "strapi-typed";
+import { Id, IStrapi, Primitive, StrapiContentType, StringMap, StrapiContentTypeFullSchema } from "strapi-typed";
 
 import {
   AuditLogContext,
@@ -43,12 +45,13 @@ export const errorHandler = (ctx: ToBeFixed) => (error: NavigationError | string
   throw error;
 };
 
-export const getCustomFields = (additionalFields: NavigationItemAdditionalField[]): NavigationItemCustomField[] => additionalFields.filter(field => typeof field !== 'string') as NavigationItemCustomField[];
+export const getCustomFields = (additionalFields: NavigationItemAdditionalField[]): NavigationItemCustomField[] =>
+  additionalFields.filter(field => typeof field !== 'string') as NavigationItemCustomField[];
 
 export const parseParams = <
   TParams extends StringMap<string> = StringMap<string>,
   TResult extends StringMap<Primitive> = StringMap<Primitive>
->(params: TParams): TResult  =>
+>(params: TParams): TResult =>
   Object.keys(params).reduce((prev, curr) => {
     const value = params[curr];
     const parsedValue = isNaN(Number(value)) ? value : parseInt(value, 10);
@@ -315,7 +318,7 @@ export const compareArraysOfNumbers = (arrA: number[], arrB: number[]) => {
   });
   return find(diff, a => a !== 0) || 0;
 }
-  
+
 export const getPluginModels = (): Record<'masterModel' | 'itemModel' | 'relatedModel' | 'audienceModel', StrapiContentTypeFullSchema> => {
   const plugin = strapi.plugin('navigation');
   return {
@@ -323,5 +326,24 @@ export const getPluginModels = (): Record<'masterModel' | 'itemModel' | 'related
     itemModel: plugin.contentType('navigation-item'),
     relatedModel: plugin.contentType('navigations-items-related'),
     audienceModel: plugin.contentType('audience'),
+  }
+};
+
+export const validateAdditionalFields = (additionalFields: NavigationItemAdditionalField[]) => {
+  const forbiddenNames = [
+    'title', 'type', 'path',
+    'externalPath', 'uiRouterKey', 'menuAttached',
+    'order', 'collapsed', 'related',
+    'parent', 'master', 'audience',
+    'additionalFields',
+  ];
+  const customFields = getCustomFields(additionalFields);
+
+  if (customFields.length !== uniqBy(customFields, 'name').length) {
+    throw new Error('All names of custom fields must be unique.');
+  }
+
+  if (!isNil(find(customFields, item => includes(forbiddenNames, item.name)))) {
+    throw new Error(`Name of custom field cannot be one of: ${forbiddenNames.join(', ')}`);
   }
 };
