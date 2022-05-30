@@ -60,10 +60,14 @@ export const schemaFactory = (isSingleSelected: boolean, additionalFields: Navig
         var value;
         if (typeof current === 'string')
           return acc;
-        
+
         if (current.type === 'boolean')
           value = yup.bool();
         else if (current.type === 'string')
+          value = yup.string();
+        else if (current.type === 'select' && current.multi)
+          value = yup.array().of(yup.string());
+        else if (current.type === 'select' && !current.multi)
           value = yup.string();
         else
           throw new Error(`Type "${current.type}" is unsupported by custom fields`);

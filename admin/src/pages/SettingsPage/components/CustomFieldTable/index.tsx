@@ -124,27 +124,27 @@ const CustomFieldTable: React.FC<ICustomFieldTableProps> = ({
         <Tbody>
           {customFields.map(customField => (
             <Tr key={customField.name}>
-              <Td>
+              <Td width='20%'>
                 <Typography fontWeight="semiBold" textColor="neutral800">
                   {customField.name}
                 </Typography>
               </Td>
-              <Td>
+              <Td width="60%">
                 <Typography textColor="neutral800">
                   {customField.label}
                 </Typography>
               </Td>
-              <Td>
+              <Td width="15%">
                 <Typography textColor="neutral800">
                   {customField.type}
                 </Typography>
               </Td>
-              <Td>
-                <Typography textColor="neutral800">
-                  <Tooltip description={getMessage(`${tradPrefix}${customField.required ? "required" : "notRequired"}`)}>
+              <Td width="5%">
+                <Tooltip description={getMessage(`${tradPrefix}${customField.required ? "required" : "notRequired"}`)}>
+                  <Typography textColor="neutral800">
                     {customField.required ? <Check /> : <Minus />}
-                  </Tooltip>
-                </Typography>
+                  </Typography>
+                </Tooltip>
               </Td>
               <Td>
                 <Stack horizontal size={1}>

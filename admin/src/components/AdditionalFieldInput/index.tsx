@@ -5,6 +5,8 @@ import { ToggleInput } from '@strapi/design-system/ToggleInput';
 //@ts-ignore
 import { TextInput } from '@strapi/design-system/TextInput';
 //@ts-ignore
+import { Select, Option } from '@strapi/design-system/Select';
+//@ts-ignore
 import { useNotification } from '@strapi/helper-plugin';
 import { getTrad } from '../../translations';
 import { AdditionalFieldInputProps, Input } from './types';
@@ -33,7 +35,7 @@ const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
     label: field.label,
     disabled: isLoading,
     error: error && formatMessage(error),
-  
+
   }), [field, isLoading, error]);
   const handleBoolean = useMemo(() => handlerFactory({ field, onChange, prop: "checked" }), [onChange, field]);
   const handleString = useMemo(() => handlerFactory({ field, onChange, prop: "value" }), [onChange, field]);
@@ -50,7 +52,7 @@ const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
           onLabel="true"
           offLabel="false"
         />
-      )
+      );
     case 'string':
       if (!isNil(value))
         assertString(value);
@@ -60,13 +62,29 @@ const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
           onChange={handleString}
           value={value || DEFAULT_STRING_VALUE}
         />
-      )
+      );
+    case 'select':
+      return (
+        <Select
+          {...defaultInputProps}
+          onChange={(v: string) => onChange(field.name, v)}
+          value={isNil(value) ? field.multi ? [] : null : value}
+          multi={field.multi}
+          withTags={field.multi}
+        >
+          {field.options.map((option, index) => (
+            <Option key={index} value={option}>
+              {option}
+            </Option>
+          ))}
+        </Select>
+      );
     default:
       toggleNotification({
         type: 'warning',
         message: getTrad('notification.error.customField.type'),
       });
-      throw new Error(`Type "${field.type}" is unsupported by custom fields`);
+      throw new Error(`Type of custom field is unsupported`);
   }
 }
 
