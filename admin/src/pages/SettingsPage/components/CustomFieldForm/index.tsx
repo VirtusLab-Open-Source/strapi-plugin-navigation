@@ -11,11 +11,11 @@ import { useFormik } from 'formik';
 import { ChangeEffect, NavigationItemCustomField, VoidEffect } from '../../../../../../types';
 import * as formDefinition from '../../utils/form';
 import { getMessage } from '../../../../utils';
-import { isEmpty } from 'lodash';
+import { isEmpty, isNil } from 'lodash';
 import { getTrad } from '../../../../translations';
+import TextArrayInput from '../../../../components/TextArrayInput';
 const tradPrefix = 'pages.settings.form.customFields.popup.'
 
-// TODO: [ @ltsNotMike ] Introduce select and multi-select custom fields types
 interface ICustomFieldFormProps {
   customField: Partial<NavigationItemCustomField>;
   isEditForm: boolean;
@@ -24,7 +24,7 @@ interface ICustomFieldFormProps {
   usedCustomFieldNames: string[];
 }
 
-const customFieldsTypes = ["string", "boolean"];
+const customFieldsTypes = ["string", "boolean", "select"];
 const prepareSelectOptions = (options: string[]) => options.map((option, index) => ({
   key: index,
   metadatas: {
@@ -39,15 +39,33 @@ const prepareSelectOptions = (options: string[]) => options.map((option, index) 
 
 const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({ isEditForm, customField, onSubmit, onClose, usedCustomFieldNames }) => {
   const typeSelectOptions = prepareSelectOptions(customFieldsTypes);
-  const initialValues = useMemo(() => ({
-    name: customField.name || formDefinition.defaultValues.name,
-    label: customField.label || formDefinition.defaultValues.label,
-    type: customField.type || formDefinition.defaultValues.type,
-    required: customField.required || formDefinition.defaultValues.required,
-  }), [customField]);
+  const initialValues = useMemo<NavigationItemCustomField>(() => {
+    if (isNil(customField.type)) {
+      return formDefinition.defaultValues;
+    } else if (customField.type === 'select') {
+      return {
+        type: customField.type,
+        name: customField.name || formDefinition.defaultValues.name,
+        label: customField.label || formDefinition.defaultValues.label,
+        required: customField.required || formDefinition.defaultValues.required,
+        options: customField.options || formDefinition.defaultValues.options,
+        multi: customField.multi || formDefinition.defaultValues.multi,
+      }
+    } else {
+      return {
+        type: customField.type,
+        name: customField.name || formDefinition.defaultValues.name,
+        label: customField.label || formDefinition.defaultValues.label,
+        required: customField.required || formDefinition.defaultValues.required,
+        options: [],
+        multi: false,
+      }
+    }
+  }, [customField]);
 
   const {
     handleChange,
+    setFieldValue,
     values,
     errors,
     handleSubmit,
@@ -96,7 +114,25 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({ isEditForm, customFi
               disabled={isEditForm}
             />
           </GridItem>
-          <GridItem key="type" col={12}>
+          {values.type === 'select' && (
+            <>
+              <GridItem key="multi" col={12}>
+                <GenericInput
+                  {...defaultProps("multi")}
+                  type="bool"
+                />
+              </GridItem>
+              <GridItem key="options" col={12}>
+                <TextArrayInput
+                  {...defaultProps("options")}
+                  onChange={v => setFieldValue("options", v)}
+                  label={getMessage(`${tradPrefix}options.label`)}
+                  initialValue={values.options}
+                />
+              </GridItem>
+            </>
+          )}
+          <GridItem key="required" col={12}>
             <GenericInput
               {...defaultProps("required")}
               type="bool"

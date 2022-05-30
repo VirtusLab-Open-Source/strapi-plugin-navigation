@@ -34,7 +34,7 @@ const CustomFieldModal: React.FC<ICustomFieldModalProps> = ({
       </ModalHeader>
       <CustomFieldForm
         isEditForm={isEditMode}
-        customField={pick(data, "name", "label", "type", "required")}
+        customField={pick(data, "name", "label", "type", "required", "options", "multi")}
         onSubmit={onSubmit}
         onClose={onClose}
         usedCustomFieldNames={usedCustomFieldNames}

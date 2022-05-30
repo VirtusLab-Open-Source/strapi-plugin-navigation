@@ -37,6 +37,12 @@ module.exports = ({ nexus, config }) =>
               case 'boolean':
                 t.boolean(field.name);
                 break;
+              case 'select':
+                if (field.multi)
+                  t.list.string(field.name);
+                else
+                  t.string(field.name);
+                break;
               default:
                 throw new Error(`Type "${field.type}" is unsupported by custom fields`);
             }
