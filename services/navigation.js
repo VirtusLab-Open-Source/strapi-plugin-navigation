@@ -646,7 +646,7 @@ module.exports = {
         await Promise.all(
           Object.entries(groupedItems)
             .map(async ([model, related]) => {
-              const relationData = await strapi.query(model).find({ id_in: map(related, 'relatedId') });
+              const relationData = await strapi.query(model).find({ id_in: map(related, 'relatedId'), _limit: -1 });
               return relationData
                 .flatMap(_ =>
                   Object.assign(
