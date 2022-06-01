@@ -10,6 +10,7 @@ import * as yup from "yup";
 import { Effect } from "../../../../../../../types";
 import { getTradId } from "../../../../../translations";
 import { Navigation } from "../types";
+import { get } from "lodash";
 
 interface Props {
   navigation: Partial<Navigation>;
@@ -24,6 +25,10 @@ export const Form = ({
   isLoading,
   validationSchema,
 }: Props) => {
+  const initialValues: Navigation= {
+    id: get(navigation, "id", ""),
+    name: get(navigation, "name", ""),
+  }
   const onChange = useCallback(
     ({ target: { name, value } }: React.ChangeEvent<HTMLInputElement>) => {
       onChangeBase({
@@ -52,7 +57,7 @@ export const Form = ({
   }, [navigation, validationSchema, setError]);
 
   return (
-    <Formik initialValues={navigation} onSubmit={onChangeBase}>
+    <Formik initialValues={initialValues} onSubmit={onChangeBase}>
       <BaseForm>
         <Grid gap={5}>
           <GridItem col={6}>

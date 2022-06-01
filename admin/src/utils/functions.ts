@@ -6,7 +6,7 @@ import pluginId from '../pluginId';
 
 type MessageInput = {
   id: string;
-  defaultMessage: string;
+  defaultMessage?: string;
   props?: Record<string, ToBeFixed>
 } | string
 

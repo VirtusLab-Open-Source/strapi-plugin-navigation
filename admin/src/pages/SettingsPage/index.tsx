@@ -52,7 +52,7 @@ import { useDisableI18nModal } from './components/DisableI18nModal';
 import { NavigationItemAdditionalField, NavigationItemCustomField } from '../../../../types';
 import CustomFieldModal from './components/CustomFieldModal';
 import CustomFieldTable from './components/CustomFieldTable';
-import { ContentTypeToFix, HandleSetContentTypeExpanded, OnPopupClose, OnSave, PrepareNameFieldFor, PreparePayload, RestartReasons, RestartStatus } from './types';
+import { HandleSetContentTypeExpanded, OnPopupClose, OnSave, PrepareNameFieldFor, PreparePayload, RestartReasons, RestartStatus, StrapiContentTypeSchema } from './types';
 
 const RESTART_NOT_REQUIRED: RestartStatus = { required: false }
 const RESTART_REQUIRED: RestartStatus = { required: true, reasons: [] }
@@ -179,9 +179,9 @@ const SettingsPage = () => {
     )
   }
 
-  const configContentTypes: ContentTypeToFix[] = navigationConfigData?.contentTypes || [];
+  const configContentTypes: StrapiContentTypeSchema[] = navigationConfigData?.contentTypes || [];
 
-  const allContentTypes: ContentTypeToFix[] = !isLoading ? Object.values<ContentTypeToFix>(allContentTypesData).filter(({ uid }) => isContentTypeEligible(uid, {
+  const allContentTypes: StrapiContentTypeSchema[] = !isLoading ? Object.values<StrapiContentTypeSchema>(allContentTypesData).filter(({ uid }) => isContentTypeEligible(uid, {
     allowedContentTypes: navigationConfigData?.allowedContentTypes,
     restrictedContentTypes: navigationConfigData?.restrictedContentTypes,
   })).map(ct => {
