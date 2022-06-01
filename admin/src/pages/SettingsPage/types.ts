@@ -8,9 +8,7 @@ export type RawPayload = {
   populate: Record<string, string[]>;
   i18nEnabled: boolean;
 }
-
-// TODO: This type should be replaced with new version of content type in new strapi-typed
-export type ContentTypeToFix = StrapiContentTypeFullSchema & { available: boolean, isSingle: boolean, plugin: string, label: string }
+export type StrapiContentTypeSchema = StrapiContentTypeFullSchema & { available: boolean, isSingle: boolean, plugin: string, label: string  }
 
 export type PreparePayload = (payload: { form: RawPayload, pruneObsoleteI18nNavigations: boolean }) => NavigationPluginConfig;
 export type OnSave = ChangeEffect<RawPayload>;

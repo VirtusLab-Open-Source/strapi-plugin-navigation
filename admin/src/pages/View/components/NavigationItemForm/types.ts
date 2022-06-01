@@ -11,7 +11,7 @@ import {
   VoidEffect
 } from '../../../../../../types';
 import { Id } from 'strapi-typed';
-import { ContentTypeToFix } from '../../../SettingsPage/types';
+import { StrapiContentTypeSchema } from '../../../SettingsPage/types';
 
 export type FormEventTarget<TValue = unknown> = {
   name: string,
@@ -61,7 +61,7 @@ export type NavigationItemFormProps = {
   appendLabelPublicationStatus: (label: string, entity: ContentTypeEntity) => string;
   availableAudience: string[];
   contentTypeEntities: ContentTypeEntity[];
-  contentTypes: ContentTypeToFix[];
+  contentTypes: StrapiContentTypeSchema[];
   contentTypesNameFields: PluginConfigNameFields;
   data: NavigationItemFormData;
   getContentTypeEntities: (value: GetContentTypeEntitiesPayload, plugin: string) => ContentTypeEntity;

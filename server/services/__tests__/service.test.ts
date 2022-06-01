@@ -43,6 +43,7 @@ describe('Navigation services', () => {
       expect(result.length).toBe(2)
       expect(result).toHaveProperty([0, 'related', 'id'], 1);
       expect(result).toHaveProperty([0, 'related', 'title'], 'Page nr 1');
+      expect(result).toHaveProperty([0, 'string_test_field'], 'Custom field value');
     });
 
     it('Can render branch in flat format for GraphQL', async () => {
@@ -53,6 +54,7 @@ describe('Navigation services', () => {
       expect(result.length).toBe(2);
       expect(result).toHaveProperty([0, 'related', 'id'], 1);
       expect(result).toHaveProperty([0, 'related', 'attributes', 'title'], 'Page nr 1');
+      expect(result).toHaveProperty([0, 'string_test_field'], 'Custom field value');
     });
 
     it('Can render branch in tree format', async () => {
@@ -66,6 +68,7 @@ describe('Navigation services', () => {
       expect(result.length).toBeGreaterThan(0);
       expect(result[0].items).toBeDefined();
       expect(result[0].items.length).toBeGreaterThan(0);
+      expect(result).toHaveProperty([0, 'items', 0, 'string_test_field'], 'Custom field value');
     });
 
     it('Can render branch in tree format for GraphQL', async () => {
@@ -82,6 +85,7 @@ describe('Navigation services', () => {
       expect(result).toHaveProperty([0, 'related', 'attributes', 'title'], 'Page nr 1');
       expect(result).toHaveProperty([0, 'items', 0, 'related', 'id'], 2);
       expect(result).toHaveProperty([0, 'items', 0, 'related', 'attributes', 'title'], 'Page nr 2');
+      expect(result).toHaveProperty([0, 'string_test_field'], 'Custom field value');
     });
 
     it('Can render branch in rfr format', async () => {

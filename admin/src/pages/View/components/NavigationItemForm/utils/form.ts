@@ -5,6 +5,7 @@ import { translatedErrors } from "@strapi/helper-plugin";
 import { navigationItemType } from "../../../../../utils";
 import { NavigationItemAdditionalField, NavigationItemType } from "../../../../../../../types";
 import { RawFormPayload } from "../types";
+import pluginId from "../../../../../pluginId";
 
 const externalPathRegexps = [
   /^mailto:[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
