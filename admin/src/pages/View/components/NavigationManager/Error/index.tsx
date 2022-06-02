@@ -4,16 +4,13 @@ import { Button } from "@strapi/design-system/Button";
 import { Grid, GridItem } from "@strapi/design-system/Grid";
 // @ts-ignore
 import { useNotification } from "@strapi/helper-plugin";
-import React, { useCallback, useEffect } from "react";
+import React, { useEffect } from "react";
 import { getMessage } from "../../../../../utils";
-import { CommonProps, ErrorState } from "../types";
+import { CommonProps, ErrorState, FooterActionsFactory } from "../types";
 
 interface Props extends ErrorState, CommonProps {}
 
-export const ErrorView = ({ errors, setState }: Props) => {
-  const goBack = useCallback(() => {
-    setState({ view: "INITIAL" });
-  }, [setState]);
+export const ErrorView = ({ errors }: Props) => {
   const toggleNotification = useNotification();
 
   useEffect(() => {
@@ -28,14 +25,19 @@ export const ErrorView = ({ errors, setState }: Props) => {
 
   return (
     <Grid>
-      <GridItem col={12} paddingBottom={3}>
-        {getMessage("popup.navigation.manage.error.message")}
-      </GridItem>
       <GridItem col={12}>
-        <Button onClick={goBack}>
-          {getMessage("popup.navigation.manage.button.goBack")}
-        </Button>
+        {getMessage("popup.navigation.manage.error.message")}
       </GridItem>
     </Grid>
   );
+};
+
+export const errorFooterActions: FooterActionsFactory = ({ onReset }) => {
+  return {
+    endActions: (
+      <Button onClick={onReset} variant="secondary">
+        {getMessage("popup.navigation.manage.button.goBack")}
+      </Button>
+    ),
+  };
 };

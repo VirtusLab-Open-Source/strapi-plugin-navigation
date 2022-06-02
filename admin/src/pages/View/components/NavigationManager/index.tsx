@@ -17,7 +17,7 @@ import { getMessage } from "../../../../utils";
 import { Create, createFooterActions } from "./Create";
 import { Delete, deleteFooterActions } from "./Delete";
 import { Edit, editFooterActions } from "./Edit";
-import { ErrorView } from "./Error";
+import { errorFooterActions, ErrorView } from "./Error";
 import { List, listFooterActions } from "./List";
 import { FooterActionsFactory, SetState, State } from "./types";
 
@@ -205,8 +205,7 @@ const renderContent = (state: State, setState: SetState) => {
 
 const renderFooterProps: FooterActionsFactory = (props) => {
   switch (props.state.view) {
-    case "LIST":
-    case "ERROR": {
+    case "LIST": {
       return listFooterActions(props);
     }
     case "CREATE": {
@@ -217,6 +216,9 @@ const renderFooterProps: FooterActionsFactory = (props) => {
     }
     case "DELETE": {
       return deleteFooterActions(props);
+    }
+    case "ERROR": {
+      return errorFooterActions(props);
     }
     case "INITIAL": {
       return null;
