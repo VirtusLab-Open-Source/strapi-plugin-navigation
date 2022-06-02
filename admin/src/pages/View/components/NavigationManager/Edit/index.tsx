@@ -30,7 +30,7 @@ export const Edit = ({
         navigation: initialValue,
       });
     },
-    [setState]
+    [setState, initialValue, alreadyUsedNames]
   );
   const navigation: Partial<Navigation> = useMemo(
     () => current ?? initialValue,
@@ -64,7 +64,7 @@ export const editFooterActions: FooterActionsFactory = ({
     ),
     endActions: (
       <Button disabled={state.isLoading} onClick={onSubmit} variant="secondary">
-        {getMessage("popup.navigation.manage.button.edit")}
+        {getMessage("popup.navigation.manage.button.save")}
       </Button>
     ),
   };

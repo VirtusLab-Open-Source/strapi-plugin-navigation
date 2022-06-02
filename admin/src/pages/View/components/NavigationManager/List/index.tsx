@@ -1,6 +1,8 @@
 // @ts-ignore
 import { BaseCheckbox } from "@strapi/design-system/BaseCheckbox";
 // @ts-ignore
+import { Typography } from "@strapi/design-system/Typography";
+// @ts-ignore
 import { Box } from "@strapi/design-system/Box";
 // @ts-ignore
 import { Button } from "@strapi/design-system/Button";
@@ -92,7 +94,7 @@ export const List = ({ navigations, selected, setState }: Props) => {
           ) : null}
         </GridItem>
       </Grid>
-      <Table>
+      <Table rowCount={navigations.concat} colCount={i18nEnabled ? 6 : 5}>
         <Thead>
           <Tr>
             <Th>
@@ -101,12 +103,28 @@ export const List = ({ navigations, selected, setState }: Props) => {
                 value={hasAnySelected}
               />
             </Th>
-            <Th>{getMessage("popup.navigation.manage.table.id")}</Th>
-            <Th>{getMessage("popup.navigation.manage.table.name")}</Th>
+            <Th>
+              <Typography textColor="neutral800">
+                {getMessage("popup.navigation.manage.table.id")}
+              </Typography>
+            </Th>
+            <Th>
+              <Typography textColor="neutral800">
+                {getMessage("popup.navigation.manage.table.name")}
+              </Typography>
+            </Th>
             {i18nEnabled ? (
-              <Th>{getMessage("popup.navigation.manage.table.locale")}</Th>
+              <Th>
+                <Typography textColor="neutral800">
+                  {getMessage("popup.navigation.manage.table.locale")}
+                </Typography>
+              </Th>
             ) : null}
-            <Th>{getMessage("popup.navigation.manage.table.visibility")}</Th>
+            <Th>
+              <Typography textColor="neutral800">
+                {getMessage("popup.navigation.manage.table.visibility")}
+              </Typography>
+            </Th>
             <Th />
           </Tr>
         </Thead>
@@ -122,17 +140,25 @@ export const List = ({ navigations, selected, setState }: Props) => {
                   value={currentlySelectedSet.has(navigation.id)}
                 />
               </Td>
-              <Td>{navigation.id}</Td>
-              <Td>{navigation.name}</Td>
+              <Td>
+                <Typography textColor="neutral800">{navigation.id}</Typography>
+              </Td>
+              <Td>
+                <Typography textColor="neutral800">
+                  {navigation.name}
+                </Typography>
+              </Td>
               {i18nEnabled ? (
                 <Td>
-                  {[navigation.localeCode]
-                    .concat(
-                      navigation.localizations?.map(
-                        ({ localeCode }) => localeCode
-                      ) || []
-                    )
-                    .join(", ")}
+                  <Typography textColor="neutral800">
+                    {[navigation.localeCode]
+                      .concat(
+                        navigation.localizations?.map(
+                          ({ localeCode }) => localeCode
+                        ) || []
+                      )
+                      .join(", ")}
+                  </Typography>
                 </Td>
               ) : null}
               <Td>{navigation.visible ? icons.visible : icons.notVisible}</Td>

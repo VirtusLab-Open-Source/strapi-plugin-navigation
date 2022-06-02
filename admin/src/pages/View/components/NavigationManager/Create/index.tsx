@@ -64,7 +64,7 @@ export const createFooterActions: FooterActionsFactory = ({
     ),
     endActions: (
       <Button disabled={state.isLoading} onClick={onSubmit} variant="primary">
-        {getMessage("popup.navigation.manage.button.create")}
+        {getMessage("popup.navigation.manage.button.save")}
       </Button>
     ),
   };

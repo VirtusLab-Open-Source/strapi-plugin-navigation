@@ -63,6 +63,7 @@
 	"popup.navigation.manage.button.goBack": "Go back",
 	"popup.navigation.manage.button.cancel": "Cancel",
 	"popup.navigation.manage.button.delete": "Delete",
+	"popup.navigation.manage.button.save": "Save",
 	"popup.navigation.manage.button.edit": "Edit",
 	"popup.navigation.manage.button.create": "Create",
 	"popup.navigation.manage.delete.header": "Following navigations will be removed:",

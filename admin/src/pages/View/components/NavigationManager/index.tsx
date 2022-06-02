@@ -1,3 +1,4 @@
+import { sortBy } from "lodash";
 // @ts-ignore
 import { Flex } from "@strapi/design-system/Flex";
 // @ts-ignore
@@ -18,7 +19,7 @@ import { Delete, deleteFooterActions } from "./Delete";
 import { Edit, editFooterActions } from "./Edit";
 import { ErrorView } from "./Error";
 import { List, listFooterActions } from "./List";
-import { FooterActionsFactory, Navigation, SetState, State } from "./types";
+import { FooterActionsFactory, SetState, State } from "./types";
 
 interface Props {
   initialState: State;
@@ -39,13 +40,7 @@ export const NavigationManager = ({
     handleSubmitNavigation,
     hardReset,
   } = useDataManager();
-  const navigations = useMemo(
-    () =>
-      items
-        .map((x: Navigation) => x)
-        .sort((a: Navigation, b: Navigation) => Number(a.id) - Number(b.id)),
-    [items]
-  );
+  const navigations = useMemo(() => sortBy(items, "id"), [items]);
   const onReset = useCallback(() => setState({ view: "INITIAL" }), [setState]);
   const onSubmit = useCallback(async () => {
     const performAction =
@@ -94,23 +89,16 @@ export const NavigationManager = ({
     }
   }, [state.view]);
 
-  const header = useMemo(() => renderHeader(state), [state]);
-  const content = useMemo(
-    () => renderContent(state, setState),
-    [state, setState]
-  );
-  const footerProps = useMemo(
-    () =>
-      renderFooterProps({
-        state,
-        setState,
-        onClose,
-        onSubmit,
-        onReset,
-        navigations,
-      }),
-    [state, setState, onClose, onReset, navigations]
-  );
+  const header = renderHeader(state);
+  const content = renderContent(state, setState);
+  const footerProps = renderFooterProps({
+    state,
+    setState,
+    onClose,
+    onSubmit,
+    onReset,
+    navigations,
+  });
 
   return (
     <ModalLayout
