@@ -9,6 +9,7 @@ import { ModalBody } from '@strapi/design-system/ModalLayout';
 import { Select, Option } from '@strapi/design-system/Select';
 import { Grid, GridItem } from '@strapi/design-system/Grid';
 import { Form, GenericInput } from '@strapi/helper-plugin';
+import { Button } from '@strapi/design-system/Button';
 
 import { NavigationItemPopupFooter } from '../NavigationItemPopup/NavigationItemPopupFooter';
 import { navigationItemAdditionalFields, navigationItemType } from '../../utils/enums';
@@ -16,10 +17,14 @@ import { extractRelatedItemLabel } from '../../utils/parsers';
 import { form as formDefinition } from './utils/form';
 import { checkFormValidity } from '../../utils/form';
 import { getTradId } from '../../../../translations';
-import { getMessage } from '../../../../utils';
+import { getMessage, ResourceState } from '../../../../utils';
+
+const appendLabelPublicationStatusFallback = () => ''
 
 const NavigationItemForm = ({
-  isLoading,
+  config,
+  availableLocale,
+  isLoading: isPreloading,
   inputsPrefix,
   data = {},
   contentTypes = [],
@@ -32,9 +37,11 @@ const NavigationItemForm = ({
   onCancel,
   getContentTypeEntities,
   usedContentTypesData,
-  appendLabelPublicationStatus = () => '',
+  appendLabelPublicationStatus = appendLabelPublicationStatusFallback, 
   locale,
+  readNavigationItemFromLocale,
 }) => {
+  const [isLoading, setIsLoading] = useState(isPreloading);
   const [hasBeenInitialized, setInitializedState] = useState(false);
   const [hasChanged, setChangedState] = useState(false);
   const [contentTypeSearchQuery, setContentTypeSearchQuery] = useState(undefined);
@@ -42,6 +49,17 @@ const NavigationItemForm = ({
   const [form, setFormState] = useState({});
   const [formErrors, setFormErrorsState] = useState({});
   const { relatedType } = form;
+  const isI18nBootstrapAvailable = !!(config.i18nEnabled && availableLocale && availableLocale.length);
+  const availableLocaleOptions = useMemo(() => availableLocale.map((locale) => ({
+    value: locale,
+    label: locale,
+    metadatas: {
+      intlLabel: {
+        id: `i18n.locale.${locale}`,
+        defaultMessage: locale,
+      }
+    },
+  })), [availableLocale]);
 
   const relatedFieldName = `${inputsPrefix}related`;
 
@@ -175,6 +193,7 @@ const NavigationItemForm = ({
     }
   });
 
+  // TODO?: useMemo
   const relatedSelectOptions = contentTypeEntities
     .filter((item) => {
       const usedContentTypeEntitiesOfSameType = usedContentTypeEntities
@@ -273,23 +292,92 @@ const NavigationItemForm = ({
 
   useEffect(() => {
     const value = relatedType;
-    const fetchContentTypeEntities = async () => {
-      if (value) {
-        const item = find(
-          contentTypes,
-          (_) => _.uid === value,
-        );
-        if (item) {
-          await getContentTypeEntities({
-            modelUID: item.uid,
-            query: contentTypeSearchQuery,
-            locale,
-          }, item.plugin);
+    if (value) {
+      const item = find(
+        contentTypes,
+        (_) => _.uid === value,
+      );
+      if (item) {
+        getContentTypeEntities({
+          modelUID: item.uid,
+          query: contentTypeSearchQuery,
+          locale,
+        }, item.plugin);
+      }
+    }
+  }, [relatedType, contentTypeSearchQuery]);
+
+  const resetCopyItemFormErrors = () => {
+    setFormErrorsState((prevState) => ({
+      ...prevState,
+      [itemLocaleCopyField]: null,
+    }));
+  }
+  const itemLocaleCopyField = `${inputsPrefix}i18n.locale`;
+  const itemLocaleCopyValue = form[itemLocaleCopyField];
+  const onCopyFromLocale = useCallback(async (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    setIsLoading(true);
+    resetCopyItemFormErrors();
+
+    try {
+      const result = await readNavigationItemFromLocale({
+        locale: itemLocaleCopyValue,
+        structureId: data.structureId
+      });
+
+      if (result.type === ResourceState.RESOLVED) {
+        const { value: { related, ...rest } } = result;
+
+        setFormState((prevState) => ({
+          ...prevState,
+          ...rest,
+        }));
+
+        if (related) {
+          const relatedType = relatedTypeSelectOptions
+            .find(({ value }) => value === related.__contentType)?.value;
+
+          setFormState((prevState) => ({
+            ...prevState,
+            relatedType,
+            [relatedFieldName]: related.id,
+          }));
         }
       }
-    };
-    fetchContentTypeEntities();
-  }, [relatedType, contentTypeSearchQuery]);
+
+      if (result.type === ResourceState.ERROR) {
+        setFormErrorsState((prevState) => ({
+          ...prevState,
+          [itemLocaleCopyField]: getMessage(result.errors[0]),
+        }));
+      }
+    } catch (error) {
+        setFormErrorsState((prevState) => ({
+          ...prevState,
+          [itemLocaleCopyField]: getMessage('popup.item.form.i18n.locale.error.generic'),
+        }));
+    }
+
+    setIsLoading(false);
+  }, [setIsLoading, setFormState, setFormErrorsState]);
+  const onChangeLocaleCopy = useCallback(({ target: { value }}) => {
+    resetCopyItemFormErrors();
+    onChange({ target: { name: itemLocaleCopyField, value } })
+  }, [onChange, itemLocaleCopyField]);
+  const itemCopyProps = useMemo(() => ({
+    intlLabel:{
+      id: getTradId('popup.item.form.i18n.locale.label'),
+      defaultMessage: 'Copy details from'
+    },
+    placeholder:{
+      id: getTradId('popup.item.form.i18n.locale.placeholder'),
+      defaultMessage: 'locale'
+    },
+  }), [getTradId]);
+
   return (
     <>
       <Formik>
@@ -450,6 +538,33 @@ const NavigationItemForm = ({
                 </GridItem>
               )}
             </Grid>
+            {
+              isI18nBootstrapAvailable ? (
+                <Grid gap={5} paddingTop={5}>
+                  <GridItem col={6} lg={12}>
+                    <GenericInput
+                      {...itemCopyProps}
+                      type="select"
+                      name={itemLocaleCopyField}
+                      error={get(formErrors, itemLocaleCopyField)}
+                      onChange={onChangeLocaleCopy}
+                      options={availableLocaleOptions}
+                      value={itemLocaleCopyValue}
+                      disabled={isLoading}
+                    />
+                  </GridItem>
+                  <GridItem col={6} lg={12} paddingTop={6}>
+                    <Button
+                      variant="tertiary"
+                      onClick={onCopyFromLocale}
+                      disabled={isLoading || !itemLocaleCopyValue}
+                    >
+                      {getMessage('popup.item.form.i18n.locale.button')}
+                    </Button>
+                  </GridItem>
+                </Grid>
+              ) : null
+            }
           </ModalBody>
         </Form>
       </Formik>
@@ -467,6 +582,8 @@ NavigationItemForm.defaultProps = {
 };
 
 NavigationItemForm.propTypes = {
+  config: PropTypes.object.isRequired,
+  availableLocale: PropTypes.arrayOf(PropTypes.string),
   isLoading: PropTypes.bool,
   fieldsToDisable: PropTypes.array,
   formErrors: PropTypes.object.isRequired,
@@ -482,6 +599,7 @@ NavigationItemForm.propTypes = {
   getContentTypeEntities: PropTypes.func.isRequired,
   appendLabelPublicationStatus: PropTypes.func,
   onCancel: PropTypes.func,
+  readNavigationItemFromLocale: PropTypes.func.isRequired,
 };
 
 export default NavigationItemForm;

@@ -297,3 +297,6 @@ export const isContentTypeEligible = (
   const isNoneOfRestricted = RESTRICTED_CONTENT_TYPES.filter(_ => uid.includes(_) || (uid === _)).length === 0;
   return uid && isOneOfAllowedType && isNoneOfRestricted;
 }
+
+export const intercalate = <T, U extends T>(glue: T, arr: U[]) =>
+  arr.slice(1).reduce<Array<T | U>>((acc, element) => acc.concat([glue, element]), arr.slice(0, 1));

@@ -1,12 +1,24 @@
-import { assertIsNumber, IAdminService, ICommonService, NavigationService, NavigationServiceName, ToBeFixed } from "../../types";
+// @ts-ignore
+import { errors } from "@strapi/utils"
+import {
+  assertIsNumber,
+  assertNotEmpty,
+  IAdminService,
+  ICommonService,
+  NavigationService,
+  NavigationServiceName,
+  ToBeFixed,
+} from "../../types";
 import { getPluginService, parseParams } from "../utils";
 import { errorHandler } from "../utils";
 import { IAdminController } from "../../types";
 import { Id, StringMap } from "strapi-typed";
-import { InvalidParamNavigationError } from "../../utils/InvalidParamNavigationError"
+import { InvalidParamNavigationError } from "../../utils/InvalidParamNavigationError";
 
 const adminControllers: IAdminController = {
-  getService<T extends NavigationService = IAdminService>(name: NavigationServiceName = "admin") {
+  getService<T extends NavigationService = IAdminService>(
+    name: NavigationServiceName = "admin"
+  ) {
     return getPluginService<T>(name);
   },
   async get() {
@@ -65,7 +77,10 @@ const adminControllers: IAdminController = {
   async getContentTypeItems(ctx) {
     const { params, query = {} } = ctx;
     const { model } = parseParams<StringMap<string>, { model: string }>(params);
-    return this.getService<ICommonService>("common").getContentTypeItems(model, query);
+    return this.getService<ICommonService>("common").getContentTypeItems(
+      model,
+      query
+    );
   },
 
   fillFromOtherLocale(ctx) {
@@ -75,6 +90,54 @@ const adminControllers: IAdminController = {
       { source: number; target: number }
     >(params);
 
+    try {
+      assertCopyParams(source, target);
+
+      return this.getService().fillFromOtherLocale({ source, target, auditLog });
+    } catch (error) {
+      if (error instanceof Error) {
+        return ctx.badRequest(error.message)
+      }
+
+      throw error
+    }
+  },
+
+  async readNavigationItemFromLocale(ctx) {
+    const { params, query: { path } } = ctx;
+    const { source, target } = parseParams<StringMap<string>, { source: number, target: number }>(
+      params
+    );
+
+    try {
+      assertCopyParams(source, target);
+      assertNotEmpty(
+        path, 
+        new InvalidParamNavigationError("Path is missing")
+      )
+
+      return await this.getService().readNavigationItemFromLocale({
+        path,
+        source,
+        target,
+      });
+    } catch (error: any) {
+      if (error instanceof errors.NotFoundError) {
+        return ctx.notFound((error as Error).message, {
+          messageKey: "popup.item.form.i18n.locale.error.unavailable"
+        });
+      }
+
+      if (error instanceof Error) {
+        return ctx.badRequest(error.message)
+      }
+
+      throw error
+    }
+  },
+};
+
+const assertCopyParams = (source: unknown, target: unknown) => {
     assertIsNumber(
       source,
       new InvalidParamNavigationError("Source's id is not a number")
@@ -83,9 +146,6 @@ const adminControllers: IAdminController = {
       target,
       new InvalidParamNavigationError("Target's id is not a number")
     );
-
-    return this.getService().fillFromOtherLocale({ source, target, auditLog });
-  }
-};
+}
 
 export default adminControllers;

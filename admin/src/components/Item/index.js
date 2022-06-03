@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { useDrag, useDrop } from 'react-dnd';
 import { isEmpty, isNumber } from 'lodash';
@@ -50,6 +50,8 @@ const Item = (props) => {
     externalPath,
     menuAttached,
     collapsed,
+    structureId,
+    items = [],
   } = item;
 
   const { contentTypes, contentTypesNameFields } = config;
@@ -128,6 +130,14 @@ const Item = (props) => {
     const { isSingle } = contentType;
     return `/content-manager/${ isSingle ? 'singleType' : 'collectionType'}/${entity?.__collectionUid}${!isSingle ? '/' + entity?.id : ''}`
   }
+  const onNewItemClick = useCallback((event) => onItemLevelAdd(
+    event,
+    viewId,
+    isNextMenuAllowedLevel,
+    absolutePath,
+    menuAttached,
+    `${structureId}.${items.length}`,
+  ), [viewId, isNextMenuAllowedLevel, absolutePath, menuAttached, structureId, items]);
 
   return (
     <Wrapper level={level} isLast={isLast} style={{ opacity: isDragging ? 0.2 : 1 }} ref={refs ? refs.dropRef : null} >
@@ -159,7 +169,7 @@ const Item = (props) => {
                   <TextButton
                     disabled={removed}
                     startIcon={<Plus />}
-                    onClick={(e) => onItemLevelAdd(e, viewId, isNextMenuAllowedLevel, absolutePath, menuAttached)}
+                    onClick={onNewItemClick}
                   >
                     <Typography variant="pi" fontWeight="bold" textColor={removed ? "neutral600" : "primary600"}>
                       {getMessage("components.navigationItem.action.newItem")}

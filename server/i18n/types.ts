@@ -48,6 +48,13 @@ export type I18nNavigationContentsCopyInput = {
   strapi: IStrapi;
 };
 
+export type I18nNavigationItemReadInput = {
+  path: string;
+  source: Navigation;
+  strapi: IStrapi;
+  target: Navigation;
+};
+
 export type SourceNavigationItem = NestedStructure<
   NotVoid<Navigation["items"]>[0]
 >;

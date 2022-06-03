@@ -66,6 +66,11 @@ const routes: StrapiRoutes = {
       path: '/i18n/copy/:source/:target',
       handler: 'admin.fillFromOtherLocale',
     },
+    {
+      method: 'GET',
+      path: '/i18n/item/read/:source/:target',
+      handler: 'admin.readNavigationItemFromLocale',
+    },
   ]
 }
 
