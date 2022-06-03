@@ -94,7 +94,7 @@ export const List = ({ navigations, selected, setState }: Props) => {
           ) : null}
         </GridItem>
       </Grid>
-      <Table rowCount={navigations.concat} colCount={i18nEnabled ? 6 : 5}>
+      <Table rowCount={navigations.length + 1} colCount={i18nEnabled ? 6 : 5}>
         <Thead>
           <Tr>
             <Th>
@@ -214,7 +214,7 @@ export const listFooterActions: FooterActionsFactory = ({
             current: INITIAL_NAVIGATION,
           })
         }
-        variant="primary"
+        variant="default"
       >
         {getMessage("popup.navigation.manage.button.create")}
       </Button>
