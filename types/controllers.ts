@@ -1,4 +1,4 @@
-import { StrapiController } from "strapi-typed";
+import { StrapiController, StrapiRequestContext } from "strapi-typed";
 import { Navigation, NotVoid } from "./contentTypes";
 import { IAdminService, IClientService, NavigationService, NavigationServiceName } from "./services";
 import { AuditLogContext, StrapiControllerContext, ToBeFixed } from "./utils";
