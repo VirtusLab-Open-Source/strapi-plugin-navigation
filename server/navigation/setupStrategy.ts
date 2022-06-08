@@ -1,4 +1,4 @@
-import { IStrapi } from "strapi-typed";
+import { IStrapi, StrapiPlugin } from "strapi-typed";
 import { IAdminService, INavigationSetupStrategy, Navigation } from "../../types";
 import { i18nNavigationSetupStrategy } from "../i18n";
 import { DEFAULT_NAVIGATION_ITEM, DEFAULT_POPULATE, getPluginService } from "../utils";
@@ -6,7 +6,10 @@ import { DEFAULT_NAVIGATION_ITEM, DEFAULT_POPULATE, getPluginService } from "../
 export const navigationSetupStrategy: INavigationSetupStrategy = async (
   context
 ) => {
-  if (context.strapi.plugin("i18n")) {
+  const i18nPlugin: StrapiPlugin | undefined = context.strapi.plugin("i18n");
+  const defaultLocale: string | null = i18nPlugin ? await i18nPlugin.service("locales").getDefaultLocale() : null;
+
+  if (defaultLocale) {
     return await i18nNavigationSetupStrategy(context);
   } else {
     return await regularNavigationSetupStrategy(context);
