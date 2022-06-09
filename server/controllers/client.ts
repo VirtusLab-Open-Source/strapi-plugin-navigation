@@ -1,5 +1,7 @@
+//@ts-ignore
+import { errors } from '@strapi/utils';
 import { Id, StringMap } from "strapi-typed";
-import { IClientController, IClientService, NavigationService, NavigationServiceName } from "../../types";
+import { IClientController, IClientService, NavigationService, NavigationServiceName, ToBeFixed } from "../../types";
 import { getPluginService, parseParams } from "../utils";
 
 const clientControllers: IClientController = {
@@ -13,13 +15,25 @@ const clientControllers: IClientController = {
     const { idOrSlug } = parseParams<StringMap<string>, { idOrSlug: Id }>(
       params
     );
-    return this.getService().render({
-      idOrSlug,
-      type,
-      menuOnly,
-      rootPath,
-      locale,
-    });
+    try {
+      return await this.getService().render({
+        idOrSlug,
+        type,
+        menuOnly,
+        rootPath,
+        locale,
+      });
+    } catch (error: unknown) {
+      if (error instanceof errors.NotFoundError) {
+        return ctx.notFound((error as ToBeFixed).message);
+      }
+
+      if (error instanceof Error) {
+        return ctx.badRequest(error.message)
+      }
+
+      throw error
+    }
   },
   async renderChild(ctx) {
     const { params, query = {} } = ctx;
@@ -28,13 +42,25 @@ const clientControllers: IClientController = {
       StringMap<string>,
       { idOrSlug: Id; childUIKey: string }
     >(params);
-    return this.getService().renderChildren({
-      idOrSlug,
-      childUIKey,
-      type,
-      menuOnly,
-      locale,
-    });
+    try {
+      return await this.getService().renderChildren({
+        idOrSlug,
+        childUIKey,
+        type,
+        menuOnly,
+        locale,
+      });
+    } catch (error: unknown) {
+      if (error instanceof errors.NotFoundError) {
+        return ctx.notFound((error as ToBeFixed).message);
+      }
+
+      if (error instanceof Error) {
+        return ctx.badRequest(error.message)
+      }
+
+      throw error
+    }
   },
 };
 
