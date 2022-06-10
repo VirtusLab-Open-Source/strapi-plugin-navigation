@@ -11,7 +11,7 @@ import { Select, Option } from '@strapi/design-system/Select';
 import { Box } from '@strapi/design-system/Box'
 import { Grid, GridItem } from "@strapi/design-system/Grid";
 import { uniqBy } from 'lodash';
-import { useNavigationManager } from '../NavigationManager';
+import { useNavigationManager } from '../../../../hooks/useNavigationManager';
 
 const submitIcon = <Check />;
 const pickDefaultLocaleNavigation = ({ activeNavigation, config }) => config.i18nEnabled

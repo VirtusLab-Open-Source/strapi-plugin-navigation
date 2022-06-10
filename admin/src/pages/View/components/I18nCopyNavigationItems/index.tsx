@@ -1,12 +1,12 @@
-import React, { useCallback, useMemo, useState, VFC } from "react";
+import React, { VFC } from "react";
 import ConfirmationDialog from "../../../../components/ConfirmationDialog";
 import { getMessage } from "../../../../utils";
 
-interface ConfirmEffect {
+export interface ConfirmEffect {
   (source: string): void;
 }
 
-interface CancelEffect {
+export interface CancelEffect {
   (): void;
 }
 
@@ -37,44 +37,5 @@ export const I18nCopyNavigationItemsModal: VFC<Props> = ({
     >
       {getMessage("pages.view.actions.i18nCopyItems.confirmation.content")}
     </ConfirmationDialog>
-  );
-};
-
-export const useI18nCopyNavigationItemsModal = (onConfirm: ConfirmEffect) => {
-  const [isOpened, setIsOpened] = useState(false);
-  const [sourceLocale, setSourceLocale] = useState<string | undefined>(
-    undefined
-  );
-  const onCancel = useCallback(() => {
-    setIsOpened(false);
-  }, [setIsOpened]);
-  const onConfirmWithModalClose = useCallback(() => {
-    if (!sourceLocale) {
-      return;
-    }
-
-    onConfirm(sourceLocale);
-    setIsOpened(false);
-  }, [onConfirm, sourceLocale]);
-
-  const modal = useMemo(
-    () =>
-      isOpened ? (
-        <I18nCopyNavigationItemsModal
-          onConfirm={onConfirmWithModalClose}
-          onCancel={onCancel}
-        />
-      ) : null,
-    [isOpened, onConfirmWithModalClose, onCancel]
-  );
-
-  return useMemo(
-    () => ({
-      setI18nCopyModalOpened: setIsOpened,
-      setI18nCopySourceLocale: setSourceLocale,
-      i18nCopyItemsModal: modal,
-      i18nCopySourceLocale: sourceLocale,
-    }),
-    [setSourceLocale, setIsOpened, modal, sourceLocale]
   );
 };
