@@ -76,7 +76,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
                   return returnType(itemsCountOrBypass !== 0);
                 }
                 const isAvailable = await strapi.query<StrapiContentType<ToBeFixed>>(uid).count({});
-                return isAvailable === 1 ?
+                return isAvailable !== 0 ?
                   returnType(true) :
                   (viaSettingsPage ? returnType(false) : undefined);
               }
