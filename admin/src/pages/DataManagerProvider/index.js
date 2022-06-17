@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useReducer, useRef } from "react";
+import React, { memo, useEffect, useMemo, useReducer, useRef } from "react";
 import { useLocation, useRouteMatch } from "react-router-dom";
 import { useIntl } from 'react-intl';
 import PropTypes from "prop-types";
@@ -30,8 +30,14 @@ import {
   SUBMIT_NAVIGATION,
   SUBMIT_NAVIGATION_SUCCEEDED,
   SUBMIT_NAVIGATION_ERROR,
+  I18N_COPY_NAVIGATION,
+  I18N_COPY_NAVIGATION_SUCCESS,
 } from './actions';
 import { prepareItemToViewPayload } from '../View/utils/parsers';
+import { errorStatusResourceFor, resolvedResourceFor } from "../../utils";
+
+const i18nAwareItems = ({ items, config }) => 
+  config.i18nEnabled ? items.filter(({ localeCode }) => localeCode === config.defaultLocale) : items;
 
 const DataManagerProvider = ({ children }) => {
   const [reducerState, dispatch] = useReducer(reducer, initialState, init);
@@ -52,7 +58,8 @@ const DataManagerProvider = ({ children }) => {
     isLoadingForDetailsDataToBeSet,
     isLoadingForAdditionalDataToBeSet,
     isLoadingForSubmit,
-    error
+    error,
+    availableLocale,
   } = reducerState;
   const { pathname } = useLocation();
   const formatMessageRef = useRef();
@@ -70,8 +77,11 @@ const DataManagerProvider = ({ children }) => {
 
   const menuViewMatch = useRouteMatch(`/plugins/${pluginId}/:id`);
   const activeId = get(menuViewMatch, "params.id", null);
+  const passedActiveItems = useMemo(() => {
+    return i18nAwareItems({ config, items })
+  }, [config, items]);
 
-  const getNavigation = async (id, cfg) => {
+  const getNavigation = async (id, navigationConfig) => {
     try {
       if (activeId || id) {
         dispatch({
@@ -87,7 +97,10 @@ const DataManagerProvider = ({ children }) => {
           type: GET_NAVIGATION_DATA_SUCCEEDED,
           activeItem: {
             ...activeItem,
-            items: prepareItemToViewPayload(activeItem.items, null, cfg),
+            items: prepareItemToViewPayload({
+              config: navigationConfig,
+              items: activeItem.items,
+            }),
           },
         });
       }
@@ -128,7 +141,7 @@ const DataManagerProvider = ({ children }) => {
       });
 
       if (id || !isEmpty(items)) {
-        await getNavigation(id || first(items).id, config);
+        await getNavigation(id || first(i18nAwareItems({ items, config })).id, config);
       }
     } catch (err) {
       console.error({ err });
@@ -161,7 +174,7 @@ const DataManagerProvider = ({ children }) => {
     }
   }, [autoReload]);
 
-  const getContentTypeItems = async ({ modelUID, query }) => {
+  const getContentTypeItems = async ({ modelUID, query, locale }) => {
     dispatch({
       type: GET_CONTENT_TYPE_ITEMS,
     });
@@ -170,6 +183,9 @@ const DataManagerProvider = ({ children }) => {
     queryParams.append('_publicationState', 'preview');
     if (query) {
       queryParams.append('_q', query);
+    }
+    if (locale) {
+      queryParams.append('localeCode', locale);
     }
 
     const contentTypeItems = await request(`${url}?${queryParams.toString()}`, {
@@ -190,6 +206,54 @@ const DataManagerProvider = ({ children }) => {
 
   const handleChangeSelection = (id) => {
     getNavigation(id, config);
+  };
+
+  const handleLocalizationSelection = (id) => {
+    getNavigation(id, config);
+  };
+
+  const handleI18nCopy = async (sourceId, targetId) => {
+    dispatch({
+      type: I18N_COPY_NAVIGATION
+    });
+
+    const url = `/navigation/i18n/copy/${sourceId}/${targetId}`;
+
+    await request(url, {
+      method: "PUT",
+      signal,
+    });
+
+    dispatch({
+      type: I18N_COPY_NAVIGATION_SUCCESS,
+    });
+
+    handleChangeSelection(targetId);
+  };
+
+  const readNavigationItemFromLocale = async ({ locale, structureId }) => {
+    try {
+      const source = changedActiveItem.localizations?.find((navigation) => navigation.locale === locale);
+
+      if (!source) {
+        return errorStatusResourceFor(['popup.item.form.i18n.locale.error.unavailable']);
+      }
+
+      const url = `/navigation/i18n/item/read/${source.id}/${changedActiveItem.id}?path=${structureId}`;
+
+      return resolvedResourceFor(await request(url, {
+        method: "GET",
+        signal,
+      }));
+    } catch (error) {
+      let messageKey;
+
+      if (error instanceof Error) {
+        messageKey = get(error, 'response.payload.error.details.messageKey');
+      }
+
+      return errorStatusResourceFor([messageKey ?? 'popup.item.form.i18n.locale.error.generic']);
+    }
   };
 
   const handleChangeNavigationPopupVisibility = (visible) => {
@@ -237,8 +301,11 @@ const DataManagerProvider = ({ children }) => {
        dispatch({
          type: SUBMIT_NAVIGATION_SUCCEEDED,
          navigation: {
-           ...navigation,
-           items: prepareItemToViewPayload(navigation.items, null, config),
+          ...navigation,
+          items: prepareItemToViewPayload({
+            config,
+            items: navigation.items,
+          }),
          },
        });
        toggleNotification({
@@ -270,10 +337,23 @@ const DataManagerProvider = ({ children }) => {
      }
   };
 
+  const handleNavigationsDeletion = async (ids) => 
+    Promise.all(ids.map((id) => handleNavigationDeletion(id)));
+
+  const handleNavigationDeletion = (id) => 
+    request(`/${pluginId}/${id}`, {
+      method: "DELETE",
+      signal,
+    });
+
+  const hardReset = () => {
+    return getDataRef.current();
+  }
+
   return (
     <DataManagerContext.Provider
       value={{
-        items,
+        items: passedActiveItems,
         activeItem,
         initialData,
         changedActiveItem,
@@ -289,12 +369,18 @@ const DataManagerProvider = ({ children }) => {
         handleChangeNavigationPopupVisibility,
         handleChangeNavigationItemPopupVisibility,
         handleChangeSelection,
+        handleLocalizationSelection,
         handleChangeNavigationData,
         handleResetNavigationData,
         handleSubmitNavigation,
+        handleI18nCopy,
         getContentTypeItems,
         isInDevelopmentMode,
         error,
+        availableLocale,
+        readNavigationItemFromLocale,
+        handleNavigationsDeletion,
+        hardReset,
       }}
     >
       {isLoading ? <LoadingIndicatorPage /> : children}

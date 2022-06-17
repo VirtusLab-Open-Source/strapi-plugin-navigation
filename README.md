@@ -44,12 +44,13 @@ Strapi Navigation Plugin provides a website navigation / menu builder feature fo
    - [Settings page](#in-v203-and-newer)
    - [Plugin file](#in-v202-and-older--default-configuration-state-for-v203-and-newer)
 5. [🔧 GraphQL Configuration](#-gql-configuration)
-6. [🕸️ Public API specification](#%EF%B8%8F-public-api-specification)
+6. [🌍 i18n Internationalization](#-i18n-internationalization)
+7. [🕸️ Public API specification](#%EF%B8%8F-public-api-specification)
    - [REST API](#rest-api) 
    - [GraphQL API](#graphql-api)
 8. [💬 FAQ](#-faq)
-9. [🤝 Contributing](#-contributing)
-10. [👨‍💻 Community support](#-community-support)
+10. [🤝 Contributing](#-contributing)
+11. [👨‍💻 Community support](#-community-support)
 
 ## ✨ Features
 
@@ -59,6 +60,7 @@ Strapi Navigation Plugin provides a website navigation / menu builder feature fo
 - **Different types of navigation items:** Create navigation with items linked to internal types, to external links or wrapper elements to keep structure clean 
 - **Multiple navigations:** Create as many Navigation containers as you want, setup them and use in the consumer application
 - **Light / Dark mode compatible:** By design we're supporting Strapi ☀️ Light / 🌙 Dark modes 
+- **Webhooks integration:** Changes to navigation will trigger 'entry.update' or 'entry.create' webhook events. 
 - **Customizable:** Possibility to customize the options like: available Content Types, Maximum level for "attach to menu", Additional fields (audience)
 - **[Audit log](https://github.com/VirtusLab/strapi-molecules/tree/master/packages/strapi-plugin-audit-log):** integration with Strapi Molecules Audit Log plugin that provides changes track record
 
@@ -100,6 +102,12 @@ yarn develop --watch-admin
 
 The **UI Navigation** plugin should appear in the **Plugins** section of Strapi sidebar after you run app again.
 
+You can manage your multiple navigation containers by going to the **Navigation** manage view by clicking "Manage" button.
+
+<div style="margin: 20px 0" align="center">
+  <img style="width: 100%; height: auto;" src="public/assets/manager-view.png" alt="Navigation Manager View" />
+</div>
+
 As a next step you must configure your the plugin by the way you want to. See [**Configuration**](#🔧-configuration) section.
 
 All done. Enjoy 🎉
@@ -110,7 +118,7 @@ Complete installation requirements are exact same as for Strapi itself and can b
 
 **Supported Strapi versions**:
 
-- Strapi v4.1.8 (recently tested)
+- Strapi v4.2.0 (recently tested)
 - Strapi v4.x
 
 > This plugin is designed for **Strapi v4** and is not working with v3.x. To get version for **Strapi v3** install version [v1.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/strapi-v3).
@@ -165,6 +173,7 @@ Config for this plugin is stored as a part of the `config/plugins.js` or `config
 - `contentTypes` - UIDs of related content types
 - `contentTypesNameFields` - Definition of content type title fields like `'api::<collection name>.<content type name>': ['field_name_1', 'field_name_2']`, if not set titles are pulled from fields like `['title', 'subject', 'name']`. **TIP** - Proper content type uid you can find in the URL of Content Manager where you're managing relevant entities like: `admin/content-manager/collectionType/< THE UID HERE >?page=1&pageSize=10&sort=Title:ASC&plugins[i18n][locale]=en`
 - `gql` - If you're using GraphQL that's the right place to put all necessary settings. More **[ here ](#gql-configuration)**
+- `i18nEnabled` - should you want to manage multi-locale content via navigation set this value `Enabled`. More **[ here ](#i18n-internationalization)**
 
 ## 🔧 GQL Configuration
 Using navigation with GraphQL requires both plugins to be installed and working. You can find installation guide for GraphQL plugin **[here](https://docs.strapi.io/developer-docs/latest/plugins/graphql.html#graphql)**.  To properly configure GQL to work with navigation you should provide `gql` prop. This should contain union types that will be used to define GQL response format for your data while fetching:
@@ -194,6 +203,38 @@ gql: {
 },
 ```
 where `Page` and `UploadFile` are your type names for the **Content Types** you're referring by navigation items relations. 
+
+## 🌍 i18n Internationalization
+
+### Settings
+
+This feature is **opt-in**.
+
+In order to use this functionality setting **default locale** is required. (See: Settings -> Internationalization)
+
+Once feature is enabled a restart is required. On server startup missing navigations for other locales will be created. From then you can manage navigation's localizations just like before.
+
+If you want go back to _pre-i18n_ way you can disable it in settings. Already created navigations will not be removed unless you make a choice for plugin to do so(this will require a restart).
+
+If your newly created navigation localization is empty you can copy contents of one version's to the empty one. If related item is localized and locale version exists localization will be used as a related item. Otherwise plugin will fallback to an original item.
+
+### Rendering
+
+Shape of the rendered navigation will not change. Querying stays almost the same. To query for specific locale version just add `locale` query param. For example:
+
+```https://yourdomain.cool/api/navigation/render/1?locale=fr```
+
+or
+
+```https://yourdomain.cool/api/navigation/render/main-navigation?locale=fr```
+
+If `locale` is not specified whatever version used to be at id `1` will be returned.
+
+Of course if you know that `fr` version is present at id `2` you can just query for that.
+
+### GraphQL
+
+If feature is enabled GQL render navigation query is expanded to handle `locale` param(it will work the same as regular requests). Checkout schema provided by GraphQL plugin.
 
 ## 👤 RBAC
 Plugin provides granular permissions based on Strapi RBAC functionality.
@@ -296,7 +337,7 @@ Plugin supports both **REST API** and **GraphQL API** exposed by Strapi.
 
 `GET <host>/api/navigation/render/<navigationIdOrSlug>?type=<type>`
 
-Return a rendered navigation structure depends on passed type (`tree`, `rfr` or nothing to render as `flat/raw`).
+Return a rendered navigation structure depends on passed type (`TREE`, `RFR` or nothing to render as `FLAT`).
 
 > The ID of navigation by default is `1`, if you've got defined multiple navigations you must work with their IDs or Slugs to fetch.
 
@@ -329,7 +370,7 @@ Return a rendered navigation structure depends on passed type (`tree`, `rfr` or 
 ]
 ```
 
-**Example URL**: `https://localhost:1337/api/navigation/render/1?type=tree`
+**Example URL**: `https://localhost:1337/api/navigation/render/1?type=TREE`
 
 **Example response body**
 
@@ -365,7 +406,7 @@ Return a rendered navigation structure depends on passed type (`tree`, `rfr` or 
 ]
 ```
 
-**Example URL**: `https://localhost:1337/api/navigation/render/1?type=rfr`
+**Example URL**: `https://localhost:1337/api/navigation/render/1?type=RFR`
 
 **Example response body**
 
@@ -450,7 +491,7 @@ Return a rendered navigation structure depends on passed type (`tree`, `rfr` or 
 
 ### GraphQL API
 
-Same as [**REST API**](#rest-api) returns a rendered navigation structure depends on passed type (`tree`, `rfr` or nothing to render as `flat/raw`).
+Same as [**REST API**](#rest-api) returns a rendered navigation structure depends on passed type (`TREE`, `RFR` or nothing to render as `FLAT`).
 
 **Example request**
 
@@ -465,21 +506,8 @@ query {
     title
     path
     related {
-      __typename
-
-      ... on Page {
-        Title
-      }
-
-      ... on WithFlowType {
-        Name
-      }
-    }
-    items {
       id
-      title
-      path
-      related {
+      attributes {
         __typename
 
         ... on Page {
@@ -488,6 +516,25 @@ query {
 
         ... on WithFlowType {
           Name
+        }
+      }
+    }
+    items {
+      id
+      title
+      path
+      related {
+        id
+        attributes {
+          __typename
+
+          ... on Page {
+            Title
+          }
+
+          ... on WithFlowType {
+            Name
+          }
         }
       }
     }
@@ -506,8 +553,11 @@ query {
         "title": "Test page",
         "path": "/test-path",
         "related": {
-          "__typename": "WithFlowType",
-          "Name": "Test"
+          "id": 3,
+          "attributes": {
+            "__typename": "WithFlowType",
+            "Name": "Test"
+          }
         },
         "items": [
           {
@@ -515,8 +565,11 @@ query {
             "title": "Nested",
             "path": "/test-path/nested-one",
             "related": {
-              "__typename": "Page",
-              "Title": "Eg. Page title"
+              "id": 1,
+              "attributes": {
+                  "__typename": "Page",
+                "Title": "Eg. Page title"
+              }
             }
           }
         ]
@@ -526,8 +579,11 @@ query {
         "title": "Another page",
         "path": "/another",
         "related": {
-          "__typename": "Page",
-          "Title": "dfdfdf"
+          "id": 2,
+          "attributes": {
+            "__typename": "Page",
+            "Title": "dfdfdf"
+          }
         },
         "items": []
       }
@@ -554,7 +610,7 @@ Live example of plugin usage can be found in the [VirtusLab Strapi Examples](htt
 
 **Q:** I would like to use GraphQL schemas but I'm not getting renderNavigation query or even proper types as Navigation, NavigationItem etc. What should I do?
 
-**A:** There is a one trick you might try. Strapi by default is ordering plugins by the way which takes `strapi-plugin-graphql` to initialize earlier than other plugins so types might not be injected. If you don't have it yet, please create `config/plugins.js` file and put there at lease following lines:
+**A:** **A:** There is a one trick you might try. Strapi by default is ordering plugins by the way which takes `strapi-plugin-graphql` to initialize earlier than other plugins so types might not be injected. If you don't have it yet, please create `config/plugins.js` file and put there following lines (put `graphql` at the end):
 
 ```js
 module.exports = {
@@ -577,6 +633,28 @@ If you already got it, make sure that `navigation` plugin is inserted before `gr
 </div>
 
 Feel free to fork and make a Pull Request to this plugin project. All the input is warmly welcome!
+
+- Clone repository
+
+    ```
+    git clone git@github.com:VirtusLab-Open-Source/strapi-plugin-navigation.git
+    ```
+
+- Create a soft link in your strapi project to plugin build folder
+
+    ```sh
+    ln -s <...>/strapi-plugin-navigation/build <...>/strapi-project/src/plugins/navigation 
+    ```
+
+- Run build command 
+
+    ```ts
+    // Watch for file changes
+    yarn develop
+
+    // or run build without nodemon
+    yarn build:dev
+    ```
 
 ## 👨‍💻 Community support
 

@@ -1,6 +1,7 @@
 const typesFactories = [
+	require('./navigation-item-related'),
+	require('./navigation-item-related-data'),
 	require('./navigation-item'),
-	require('./navigation-related'),
 	require('./navigation-render-type'),
 	require('./navigation'),
 	require('./navigation-details'),

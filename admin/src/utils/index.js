@@ -19,4 +19,20 @@ export const getMessage = (input, defaultMessage = '', inPluginScope = true) => 
 
 export const ItemTypes = {
     NAVIGATION_ITEM: 'navigationItem'
-}
+};
+
+export const ResourceState = {
+    RESOLVED: 'RESOLVED',
+    LOADING: 'LOADING',
+    ERROR: 'ERROR',
+};
+
+export const resolvedResourceFor = (value) => ({
+    type: ResourceState.RESOLVED,
+    value,
+});
+
+export const errorStatusResourceFor = (errors) => ({
+    type: ResourceState.ERROR,
+    errors,
+});

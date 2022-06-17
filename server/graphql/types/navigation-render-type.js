@@ -1,4 +1,6 @@
+const { RENDER_TYPES } = require("../../utils");
+
 module.exports = ({nexus}) => nexus.enumType({
   name: "NavigationRenderType",
-  members: ['FLAT','TREE','RFR'],
+  members: Object.values(RENDER_TYPES),
 });

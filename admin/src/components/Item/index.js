@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { useDrag, useDrop } from 'react-dnd';
 import { isEmpty, isNumber } from 'lodash';
@@ -50,12 +50,14 @@ const Item = (props) => {
     externalPath,
     menuAttached,
     collapsed,
+    structureId,
+    items = [],
   } = item;
 
-  const { contentTypes, contentTypesNameFields } = config;
+  const { contentTypes = [], contentTypesNameFields } = config;
   const isExternal = type === navigationItemType.EXTERNAL;
   const isWrapper = type === navigationItemType.WRAPPER;
-  const isHandledByPublishFlow = relatedRef && typeof relatedRef.publishedAt !== 'undefined';
+  const isHandledByPublishFlow = contentTypes.find(_ => _.uid === relatedRef?.__collectionUid)?.draftAndPublish;
   const isPublished = isHandledByPublishFlow && relatedRef.publishedAt;
   const isNextMenuAllowedLevel = isNumber(allowedLevels) ? level < (allowedLevels - 1) : true;
   const isMenuAllowedLevel = isNumber(allowedLevels) ? level < allowedLevels : true;
@@ -109,7 +111,7 @@ const Item = (props) => {
   const [{ isDragging }, drag, dragPreview] = useDrag({
     type: `${ItemTypes.NAVIGATION_ITEM}_${levelPath}`,
     item: () => {
-      return { ...item, relatedRef };
+      return item;
     },
     collect: monitor => ({
       isDragging: monitor.isDragging(),
@@ -128,6 +130,14 @@ const Item = (props) => {
     const { isSingle } = contentType;
     return `/content-manager/${ isSingle ? 'singleType' : 'collectionType'}/${entity?.__collectionUid}${!isSingle ? '/' + entity?.id : ''}`
   }
+  const onNewItemClick = useCallback((event) => onItemLevelAdd(
+    event,
+    viewId,
+    isNextMenuAllowedLevel,
+    absolutePath,
+    menuAttached,
+    `${structureId}.${items.length}`,
+  ), [viewId, isNextMenuAllowedLevel, absolutePath, menuAttached, structureId, items]);
 
   return (
     <Wrapper level={level} isLast={isLast} style={{ opacity: isDragging ? 0.2 : 1 }} ref={refs ? refs.dropRef : null} >
@@ -139,20 +149,13 @@ const Item = (props) => {
               title={title}
               path={isExternal ? externalPath : absolutePath}
               icon={isExternal ? Earth : isWrapper ? Cog : LinkIcon}
-              onItemRemove={() => onItemRemove({
-                ...item,
-                relatedRef,
-              })}
+              onItemRemove={() => onItemRemove(item)}
               onItemEdit={() => onItemEdit({
                 ...item,
                 isMenuAllowedLevel,
                 isParentAttachedToMenu,
-                relatedRef,
               }, levelPath, isParentAttachedToMenu)}
-              onItemRestore={() => onItemRestore({
-                ...item,
-                relatedRef,
-              })}
+              onItemRestore={() => onItemRestore(item)}
               dragRef={refs.dragRef}
               removed={removed}
             />
@@ -162,11 +165,11 @@ const Item = (props) => {
             <CardBody style={{ padding: '8px' }}>
               <Flex style={{ width: '100%' }} direction="row" alignItems="center" justifyContent="space-between">
                 <Flex>
-                  {!isEmpty(item.items) && <CollapseButton toggle={() => onItemToggleCollapse({...item, relatedRef})} collapsed={collapsed} itemsCount={item.items.length}/>}
+                  {!isEmpty(item.items) && <CollapseButton toggle={() => onItemToggleCollapse(item)} collapsed={collapsed} itemsCount={item.items.length}/>}
                   <TextButton
                     disabled={removed}
                     startIcon={<Plus />}
-                    onClick={(e) => onItemLevelAdd(e, viewId, isNextMenuAllowedLevel, absolutePath, menuAttached)}
+                    onClick={onNewItemClick}
                   >
                     <Typography variant="pi" fontWeight="bold" textColor={removed ? "neutral600" : "primary600"}>
                       {getMessage("components.navigationItem.action.newItem")}
@@ -175,20 +178,20 @@ const Item = (props) => {
                 </Flex>
                 {relatedItemLabel && (
                   <Flex justifyContent='center' alignItems='center'>
-                    {isHandledByPublishFlow && <ItemCardBadge
+                    {isHandledByPublishFlow && (<ItemCardBadge
                       borderColor={`${relatedBadgeColor}200`}
                       backgroundColor={`${relatedBadgeColor}100`}
                       textColor={`${relatedBadgeColor}600`}
                       className="action"
                       small
                     >
-                      {getMessage({ id: `components.navigationItem.badge.${isPublished ? 'published' : 'draft'}` })}
-                    </ItemCardBadge>}
+                      {getMessage({id: `components.navigationItem.badge.${isPublished ? 'published' : 'draft'}`})}
+                    </ItemCardBadge>)}
                     <Typography variant="omega" textColor='neutral600'>{relatedTypeLabel}&nbsp;/&nbsp;</Typography>
                     <Typography variant="omega" textColor='neutral800'>{relatedItemLabel}</Typography>
-                    { contentType?.visible && (<Link
-                        to={generatePreviewUrl(relatedRef)}
-                        endIcon={<ArrowRight />}>&nbsp;</Link>) }
+                      <Link
+                        to={`/content-manager/collectionType/${relatedRef?.__collectionUid}/${relatedRef?.id}`}
+                        endIcon={<ArrowRight />}>&nbsp;</Link>
                   </Flex>)
                 }
               </Flex>
