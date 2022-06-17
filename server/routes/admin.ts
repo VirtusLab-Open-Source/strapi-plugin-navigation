@@ -39,6 +39,11 @@ const routes: StrapiRoutes = {
       handler: 'admin.put',
     },
     {
+      method: 'DELETE',
+      path: '/:id',
+      handler: 'admin.delete',
+    },
+    {
       method: 'GET',
       path: '/content-type-items/:model',
       handler: 'admin.getContentTypeItems',

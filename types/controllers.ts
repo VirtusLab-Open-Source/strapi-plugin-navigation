@@ -11,11 +11,12 @@ export interface IAdminController {
   getService: <T extends NavigationService = IAdminService>(name?: NavigationServiceName) => T;
 
   config: () => ToBeFixed;
-  get: () => ToBeFixed;
-  getById: (ctx: StrapiControllerContext) => ToBeFixed;
+  get: StrapiController<Promise<Array<Navigation>>>;
+  getById: StrapiController<Promise<Navigation>, never, never, { id: string }>;
   getContentTypeItems: (ctx: StrapiControllerContext) => ToBeFixed;
-  post: (ctx: StrapiControllerContext) => ToBeFixed;
-  put: (ctx: StrapiControllerContext) => ToBeFixed;
+  post: StrapiController<Promise<Navigation>, Navigation, never, never, ControllerCommonContext>;
+  put: StrapiController<Promise<Navigation>, Navigation, never, { id: string }, ControllerCommonContext>;
+  delete: StrapiController<Promise<Navigation>, never, never, { id: string }, ControllerCommonContext>;
   restoreConfig: (ctx: StrapiControllerContext) => ToBeFixed;
   settingsConfig: () => ToBeFixed;
   settingsRestart: (ctx: StrapiControllerContext) => ToBeFixed;

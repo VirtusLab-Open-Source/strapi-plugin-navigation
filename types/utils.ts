@@ -28,6 +28,9 @@ export type AuditLogParams = {
   actionType: string;
   oldEntity: Navigation;
   newEntity: Navigation;
+} | {
+  actionType: "DELETE";
+  entity: Navigation;
 };
 
 export type ContentTypeEntity = {

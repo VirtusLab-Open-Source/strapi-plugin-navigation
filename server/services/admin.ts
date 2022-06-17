@@ -5,7 +5,7 @@ import { isNil, isObject } from "lodash";
 import { Id, StrapiContext } from "strapi-typed";
 import { Audience, AuditLogContext, IAdminService, ICommonService, Navigation, NavigationItemEntity, NavigationPluginConfig, ToBeFixed } from "../../types";
 import { ADDITIONAL_FIELDS, ALLOWED_CONTENT_TYPES, buildNestedStructure, CONTENT_TYPES_NAME_FIELDS_DEFAULTS, DEFAULT_POPULATE, extractMeta, getPluginService, prepareAuditLog, RESTRICTED_CONTENT_TYPES, sendAuditLog } from "../utils";
-import { addI18NConfigFields, getI18nStatus, I18NConfigFields, i18nNavigationContentsCopy, i18nNavigationItemRead } from "../i18n";
+import { addI18NConfigFields, getI18nStatus, I18NConfigFields, i18nNavigationContentsCopy, i18nNavigationItemRead, i18nNavigationSetupStrategy } from "../i18n";
 import { NavigationError } from "../../utils/NavigationError";
 
 type SettingsPageConfig = NavigationPluginConfig & I18NConfigFields
@@ -103,6 +103,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
   async post(payload: ToBeFixed, auditLog: AuditLogContext) {
     const commonService = getPluginService<ICommonService>('common');
     const adminService = getPluginService<IAdminService>('admin');
+    const { enabled: i18nEnabled, defaultLocale } = await getI18nStatus({ strapi })
 
     const { masterModel } = extractMeta(strapi.plugins);
     const { name, visible } = payload;
@@ -126,27 +127,52 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
       });
 
     await commonService.emitEvent(masterModel.uid, 'entry.create', existingEntity);
+
+    if (i18nEnabled && defaultLocale) {
+      await i18nNavigationSetupStrategy({ strapi });
+    }
+
     return result
   },
 
   async put(id: Id, payload: ToBeFixed, auditLog: AuditLogContext) {
     const adminService = getPluginService<IAdminService>('admin');
     const commonService = getPluginService<ICommonService>('common');
+    const { enabled: i18nEnabled } = await getI18nStatus({ strapi })
 
     const { masterModel } = extractMeta(strapi.plugins);
     const { name, visible } = payload;
 
     const existingEntity = await adminService.getById(id);
-    const entityNameHasChanged = existingEntity.name !== name || existingEntity.visible !== visible;
-    if (entityNameHasChanged) {
+    const detailsHaveChanged = existingEntity.name !== name || existingEntity.visible !== visible;
+
+    if (detailsHaveChanged) {
+      const newName = detailsHaveChanged ? name : existingEntity.name;
+      const newSlug = detailsHaveChanged ? slugify(name).toLowerCase() : existingEntity.slug;
+
       await strapi.query<Navigation>(masterModel.uid).update({
         where: { id },
         data: {
-          name: entityNameHasChanged ? name : existingEntity.name,
-          slug: entityNameHasChanged ? slugify(name).toLowerCase() : existingEntity.slug,
+          name: newName,
+          slug: newSlug,
           visible,
         },
       });
+
+      if (i18nEnabled && existingEntity.localizations) {
+        await Promise.all(existingEntity.localizations.map((locale) => 
+          strapi.query<Navigation>(masterModel.uid).update({
+            where: {
+              id: locale.id,
+            },
+            data: {
+              name: newName,
+              slug: `${newSlug}-${locale.localeCode}`,
+              visible,
+            },
+          })
+        ));
+      }
     }
     const result = commonService
       .analyzeBranch(payload.items, existingEntity)
@@ -164,6 +190,31 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
     const navigationEntity = await strapi.query<Navigation>(masterModel.uid).findOne({ where: { id } });
     await commonService.emitEvent(masterModel.uid, 'entry.update', navigationEntity);
     return result
+  },
+
+  async delete(id, auditLog) {
+    const { masterModel } = extractMeta(strapi.plugins);
+    const adminService = getPluginService<IAdminService>('admin');
+    const entity = await adminService.getById(id);
+    const { enabled: i18nEnabled } = await getI18nStatus({ strapi })
+
+    await strapi.query<Navigation>(masterModel.uid).delete({
+      where: {
+        id,
+      }
+    });
+
+    if (i18nEnabled && entity.localizations) {
+      await Promise.all(entity.localizations.map((localeVersion) =>
+        strapi.query<Navigation>(masterModel.uid).delete({
+          where: {
+            id: localeVersion.id,
+          }
+        })
+      ));
+    }
+
+    sendAuditLog(auditLog, 'onNavigationDeletion', { entity, actionType: "DELETE" });
   },
 
   async restart(): Promise<void> {

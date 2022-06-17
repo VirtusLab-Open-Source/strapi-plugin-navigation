@@ -28,7 +28,7 @@ import List from '../../components/NavigationItemList';
 import NavigationContentHeader from './components/NavigationContentHeader';
 import NavigationHeader from './components/NavigationHeader';
 import NavigationItemPopUp from "./components/NavigationItemPopup";
-import { useI18nCopyNavigationItemsModal } from "./components/I18nCopyNavigationItems";
+import { useI18nCopyNavigationItemsModal } from '../../hooks/useI18nCopyNavigationItemsModal';
 import Search from '../../components/Search';
 import useDataManager from "../../hooks/useDataManager";
 import { getTrad } from '../../translations';
@@ -249,6 +249,7 @@ const View = () => {
       startIcon: <PlusIcon />,
       disabled: isLoadingForSubmit,
       type: "submit",
+      variant: "primary",
       tradId: 'header.action.newItem',
       margin: '16px',
     },
