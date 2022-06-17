@@ -1,8 +1,6 @@
 // @ts-ignore
 import { BaseCheckbox } from "@strapi/design-system/BaseCheckbox";
 // @ts-ignore
-import { Typography } from "@strapi/design-system/Typography";
-// @ts-ignore
 import { Box } from "@strapi/design-system/Box";
 // @ts-ignore
 import { Button } from "@strapi/design-system/Button";
@@ -15,25 +13,25 @@ import { IconButton } from "@strapi/design-system/IconButton";
 // @ts-ignore
 import { Table, Tbody, Td, Th, Thead, Tr } from "@strapi/design-system/Table";
 // @ts-ignore
-import { Eye, EyeStriked, Pencil, Trash } from "@strapi/icons";
+import { Typography } from "@strapi/design-system/Typography";
+import { prop } from "lodash/fp";
 import React, { useCallback, useMemo } from "react";
 import useDataManager from "../../../../../hooks/useDataManager";
 import { getMessage } from "../../../../../utils";
-import { INITIAL_NAVIGATION } from "../Create";
-import {
-  CommonProps,
-  FooterActionsFactory,
-  ListState,
-  Navigation,
-} from "../types";
+import { Footer, FooterBase } from "../Footer";
+import { INITIAL_NAVIGATION } from "../NewNavigation";
+import { CommonProps, ListState, Navigation } from "../types";
+import * as icons from "./icons";
 
 interface Props extends ListState, CommonProps {}
 
-export const List = ({ navigations, selected, setState }: Props) => {
+export const AllNavigations = ({ navigations, selected, setState }: Props) => {
   const {
     config: { i18nEnabled },
   } = useDataManager();
+
   const hasAnySelected = !!selected.length;
+
   const toggleSelected = useCallback(
     () =>
       setState({
@@ -43,10 +41,12 @@ export const List = ({ navigations, selected, setState }: Props) => {
       }),
     [setState, navigations, hasAnySelected]
   );
+
   const currentlySelectedSet = useMemo(
-    () => new Set(selected.map(({ id }) => id)),
+    () => new Set(selected.map(prop("id"))),
     [selected]
   );
+
   const handleSelect = (navigation: Navigation, isSelected: boolean) => () => {
     setState({
       navigations,
@@ -56,21 +56,26 @@ export const List = ({ navigations, selected, setState }: Props) => {
       view: "LIST",
     });
   };
+
   const edit = (navigation: Navigation) => () => {
     setState({
       view: "EDIT",
       navigation,
-      alreadyUsedNames: navigations
-        .map(({ name }) => name)
-        .filter((name) => name !== navigation.name),
+      alreadyUsedNames: navigations.reduce<string[]>(
+        (acc, { name }) =>
+          name !== navigation.name ? acc.concat([name]) : acc,
+        []
+      ),
     });
   };
+
   const _delete = (navigations: Array<Navigation>) => () => {
     setState({
       view: "DELETE",
       navigations,
     });
   };
+
   const deleteSelected = useCallback(_delete(selected), [_delete]);
 
   return (
@@ -94,7 +99,7 @@ export const List = ({ navigations, selected, setState }: Props) => {
           ) : null}
         </GridItem>
       </Grid>
-      <Table rowCount={navigations.length + 1} colCount={i18nEnabled ? 6 : 5}>
+      <Table rowCount={navigations.length} colCount={i18nEnabled ? 6 : 5}>
         <Thead>
           <Tr>
             <Th>
@@ -153,15 +158,17 @@ export const List = ({ navigations, selected, setState }: Props) => {
                   <Typography textColor="neutral800">
                     {[navigation.localeCode]
                       .concat(
-                        navigation.localizations?.map(
-                          ({ localeCode }) => localeCode
-                        ) || []
+                        navigation.localizations?.map(prop("localeCode")) || []
                       )
                       .join(", ")}
                   </Typography>
                 </Td>
               ) : null}
-              <Td>{navigation.visible ? icons.visible : icons.notVisible}</Td>
+              <Td>
+                {navigation.visible
+                  ? getMessage("popup.navigation.manage.navigation.visible")
+                  : getMessage("popup.navigation.manage.navigation.hidden")}
+              </Td>
               <Td>
                 <Flex direction="row">
                   <Box paddingLeft={1}>
@@ -179,7 +186,7 @@ export const List = ({ navigations, selected, setState }: Props) => {
                         "popup.navigation.manage.button.delete"
                       )}
                       noBorder
-                      icon={icons.delete}
+                      icon={icons.deleteIcon}
                     />
                   </Box>
                 </Flex>
@@ -192,39 +199,29 @@ export const List = ({ navigations, selected, setState }: Props) => {
   );
 };
 
-export const listFooterActions: FooterActionsFactory = ({
+export const AllNavigationsFooter: Footer = ({
   onClose,
   state,
   setState,
   navigations,
-}) => {
-  return {
-    startActions: (
-      <Button onClick={onClose} variant="tertiary" disabled={state.isLoading}>
-        {getMessage("popup.item.form.button.cancel")}
-      </Button>
-    ),
-    endActions: (
-      <Button
-        disabled={state.isLoading}
-        onClick={() =>
-          setState({
-            view: "CREATE",
-            alreadyUsedNames: navigations.map(({ name }) => name),
-            current: INITIAL_NAVIGATION,
-          })
-        }
-        variant="default"
-      >
-        {getMessage("popup.navigation.manage.button.create")}
-      </Button>
-    ),
-  };
-};
-
-const icons = {
-  edit: <Pencil />,
-  delete: <Trash />,
-  visible: <Eye />,
-  notVisible: <EyeStriked />,
-} as const;
+}) => (
+  <FooterBase
+    start={{
+      onClick: onClose,
+      variant: "tertiary",
+      disabled: state.isLoading,
+      children: getMessage("popup.item.form.button.cancel"),
+    }}
+    end={{
+      onClick: () =>
+        setState({
+          view: "CREATE",
+          alreadyUsedNames: navigations.map(({ name }) => name),
+          current: INITIAL_NAVIGATION,
+        }),
+      variant: "default",
+      disabled: state.isLoading,
+      children: getMessage("popup.navigation.manage.button.create"),
+    }}
+  />
+);

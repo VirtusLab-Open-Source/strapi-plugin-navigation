@@ -1,54 +1,58 @@
-import { sortBy } from "lodash";
 // @ts-ignore
 import { Flex } from "@strapi/design-system/Flex";
 // @ts-ignore
 import { Loader } from "@strapi/design-system/Loader";
 import {
   ModalBody,
-  ModalFooter,
   ModalHeader,
   ModalLayout,
   // @ts-ignore
 } from "@strapi/design-system/ModalLayout";
+import { sortBy } from "lodash";
+import { prop } from "lodash/fp";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useIntl } from "react-intl";
+import { VoidEffect } from "../../../../../../types";
 import useDataManager from "../../../../hooks/useDataManager";
 import { getMessage } from "../../../../utils";
-import { Create, createFooterActions } from "./Create";
-import { Delete, deleteFooterActions } from "./Delete";
-import { Edit, editFooterActions } from "./Edit";
-import { errorFooterActions, ErrorView } from "./Error";
-import { List, listFooterActions } from "./List";
-import { FooterActionsFactory, SetState, State } from "./types";
+import { AllNavigations, AllNavigationsFooter } from "./AllNavigations";
+import { DeleteConfirmFooter, DeletionConfirm } from "./DeletionConfirm";
+import { ErrorDetails, ErrorDetailsFooter } from "./ErrorDetails";
+import { Footer } from "./Footer";
+import { NavigationUpdate, NavigationUpdateFooter } from "./NavigationUpdate";
+import { NewNavigation, NewNavigationFooter } from "./NewNavigation";
+import { SetState, State } from "./types";
 
 interface Props {
   initialState: State;
-  onClose?: () => void;
   isOpened?: boolean;
+  onClose?: VoidEffect;
 }
 
 export const NavigationManager = ({
   initialState,
-  onClose,
   isOpened,
+  onClose,
 }: Props) => {
   const { formatMessage } = useIntl();
   const [state, setState] = useState(initialState);
+
   const {
     items = [],
     handleNavigationsDeletion,
     handleSubmitNavigation,
     hardReset,
   } = useDataManager();
+
   const navigations = useMemo(() => sortBy(items, "id"), [items]);
+
   const onReset = useCallback(() => setState({ view: "INITIAL" }), [setState]);
+
   const onSubmit = useCallback(async () => {
     const performAction =
       state.view === "DELETE"
         ? async () => {
-            await handleNavigationsDeletion(
-              state.navigations.map(({ id }) => id)
-            );
+            await handleNavigationsDeletion(state.navigations.map(prop("id")));
             await hardReset();
           }
         : (state.view === "CREATE" || state.view === "EDIT") && state.current
@@ -91,7 +95,7 @@ export const NavigationManager = ({
 
   const header = renderHeader(state);
   const content = renderContent(state, setState);
-  const footerProps = renderFooterProps({
+  const footer = renderFooter({
     state,
     setState,
     onClose,
@@ -108,7 +112,7 @@ export const NavigationManager = ({
     >
       <ModalHeader>{header}</ModalHeader>
       <ModalBody>{content}</ModalBody>
-      <ModalFooter {...footerProps} />
+      {footer}
     </ModalLayout>
   );
 };
@@ -154,44 +158,44 @@ const renderContent = (state: State, setState: SetState) => {
 
   switch (state.view) {
     case "LIST": {
-      return <List {...state} {...commonProps} />;
+      return <AllNavigations {...state} {...commonProps} />;
     }
     case "EDIT": {
-      return <Edit {...state} {...commonProps} />;
+      return <NavigationUpdate {...state} {...commonProps} />;
     }
     case "CREATE": {
-      return <Create {...state} {...commonProps} />;
+      return <NewNavigation {...state} {...commonProps} />;
     }
     case "DELETE": {
-      return <Delete {...state} {...commonProps} />;
+      return <DeletionConfirm {...state} {...commonProps} />;
     }
     case "INITIAL": {
       return <Loader small />;
     }
     case "ERROR": {
-      return <ErrorView {...state} {...commonProps} />;
+      return <ErrorDetails {...state} {...commonProps} />;
     }
     default:
       return handleUnknownState(state);
   }
 };
 
-const renderFooterProps: FooterActionsFactory = (props) => {
+const renderFooter: Footer = (props) => {
   switch (props.state.view) {
     case "LIST": {
-      return listFooterActions(props);
+      return <AllNavigationsFooter {...props} />;
     }
     case "CREATE": {
-      return createFooterActions(props);
+      return <NewNavigationFooter {...props} />;
     }
     case "EDIT": {
-      return editFooterActions(props);
+      return <NavigationUpdateFooter {...props} />;
     }
     case "DELETE": {
-      return deleteFooterActions(props);
+      return <DeleteConfirmFooter {...props} />;
     }
     case "ERROR": {
-      return errorFooterActions(props);
+      return <ErrorDetailsFooter {...props} />;
     }
     case "INITIAL": {
       return null;
@@ -203,5 +207,6 @@ const renderFooterProps: FooterActionsFactory = (props) => {
 
 const handleUnknownState = (state: any) => {
   console.warn(`Unknown state "${state?.view}". (${JSON.stringify(state)})`);
+
   return null;
 };

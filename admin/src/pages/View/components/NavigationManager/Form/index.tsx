@@ -1,19 +1,19 @@
 // @ts-ignore
-import * as yup from "yup";
-// @ts-ignore
 import { Grid, GridItem } from "@strapi/design-system/Grid";
 // @ts-ignore
 import { Form as BaseForm, GenericInput } from "@strapi/helper-plugin";
 // @ts-ignore
 import { Formik } from "formik";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useIntl } from "react-intl";
+import * as yup from "yup";
+import { Effect } from "../../../../../../../types";
 import { getTradId } from "../../../../../translations";
 import { Navigation } from "../types";
-import { useIntl } from "react-intl";
 
 interface Props {
   navigation: Partial<Navigation>;
-  onChange: (n: Navigation) => void;
+  onChange: Effect<Navigation>;
   isLoading?: boolean;
   validationSchema: ReturnType<typeof validationSchemaFactory>;
 }
@@ -33,7 +33,9 @@ export const Form = ({
     },
     [onChangeBase, navigation]
   );
+
   const [error, setError] = useState<yup.ValidationError | null>(null);
+
   const errorProps = useMemo(
     () => ({
       name: error?.path === "name" ? error.message : undefined,

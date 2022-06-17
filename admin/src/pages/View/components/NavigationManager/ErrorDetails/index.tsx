@@ -1,16 +1,15 @@
 // @ts-ignore
-import { Button } from "@strapi/design-system/Button";
-// @ts-ignore
 import { Grid, GridItem } from "@strapi/design-system/Grid";
 // @ts-ignore
 import { useNotification } from "@strapi/helper-plugin";
 import React, { useEffect } from "react";
 import { getMessage } from "../../../../../utils";
-import { CommonProps, ErrorState, FooterActionsFactory } from "../types";
+import { Footer, FooterBase } from "../Footer";
+import { CommonProps, ErrorState } from "../types";
 
 interface Props extends ErrorState, CommonProps {}
 
-export const ErrorView = ({ errors }: Props) => {
+export const ErrorDetails = ({ errors }: Props) => {
   const toggleNotification = useNotification();
 
   useEffect(() => {
@@ -32,12 +31,12 @@ export const ErrorView = ({ errors }: Props) => {
   );
 };
 
-export const errorFooterActions: FooterActionsFactory = ({ onReset }) => {
-  return {
-    endActions: (
-      <Button onClick={onReset} variant="secondary">
-        {getMessage("popup.navigation.manage.button.goBack")}
-      </Button>
-    ),
-  };
-};
+export const ErrorDetailsFooter: Footer = ({ onReset }) => (
+  <FooterBase
+    end={{
+      children: getMessage("popup.navigation.manage.button.goBack"),
+      onClick: onReset,
+      variant: "secondary",
+    }}
+  />
+);

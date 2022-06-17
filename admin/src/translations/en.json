@@ -73,6 +73,8 @@
 	"popup.navigation.manage.header.ERROR": "Error",
 	"popup.navigation.manage.header.EDIT": "Editing \"{name}\"",
 	"popup.navigation.manage.error.message": "An error happened :(",
+	"popup.navigation.manage.navigation.visible": "visible",
+	"popup.navigation.manage.navigation.hidden": "hidden",
 	"notification.navigation.submit": "Navigation changes has been saved",
 	"notification.navigation.error": "Duplicate path: { path } in parent: { parentTitle } for { errorTitles } items",
 	"notification.navigation.item.relation": "Entity relation does not exist!",
