@@ -9,6 +9,7 @@ import {
   isNil,
   isArray,
   first,
+  zipWith,
 } from 'lodash';
 import { Id, IStrapi, Primitive, StrapiContentType, StrapiPlugin, StringMap } from "strapi-typed";
 
@@ -300,3 +301,14 @@ export const isContentTypeEligible = (
 
 export const intercalate = <T, U extends T>(glue: T, arr: U[]) =>
   arr.slice(1).reduce<Array<T | U>>((acc, element) => acc.concat([glue, element]), arr.slice(0, 1));
+
+export const compareArraysOfNumbers = (arrA: number[], arrB: number[]) => {
+  const diff = zipWith(arrA, arrB, (a, b) => {
+    if (isNil(a))
+      return -1;
+    if (isNil(b))
+      return 1;
+    return a - b
+  });
+  return find(diff, a => a !== 0) || 0;
+}

@@ -3,7 +3,7 @@ import slugify from "slugify";
 import { Id, StrapiContext } from "strapi-typed";
 import { validate } from "uuid";
 import { assertNotEmpty, ContentTypeEntity, IAdminService, IClientService, ICommonService, Navigation, NavigationItem, NavigationItemEntity, NestedStructure, RFRNavItem, ToBeFixed } from "../../types"
-import { composeItemTitle, extractMeta, filterByPath, filterOutUnpublished, getPluginService, RENDER_TYPES, templateNameFactory } from "../utils";
+import { compareArraysOfNumbers, composeItemTitle, extractMeta, filterByPath, filterOutUnpublished, getPluginService, RENDER_TYPES, templateNameFactory } from "../utils";
 //@ts-ignore
 import { errors } from '@strapi/utils';
 import { i18nAwareEntityReadHandler } from "../i18n";
@@ -262,9 +262,9 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
       const { contentTypes, contentTypesNameFields } = await adminService.config(false);
 
       const wrapContentType = (itemContentType: ToBeFixed) => wrapRelated && itemContentType ? {
-          id: itemContentType.id,
-          attributes: { ...itemContentType }
-        } : itemContentType;
+        id: itemContentType.id,
+        attributes: { ...itemContentType }
+      } : itemContentType;
 
       switch (type) {
         case RENDER_TYPES.TREE:
@@ -333,13 +333,36 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
         default:
           const publishedItems = items.filter(filterOutUnpublished);
           const result = isNil(rootPath) ? items : filterByPath(publishedItems, rootPath).items;
-          return result.map((item: NavigationItemEntity<ContentTypeEntity>) => ({
-            ...item,
-            audience: item.audience?.map(_ => (_).key),
-            title: composeItemTitle(item, contentTypesNameFields, contentTypes) || '',
-            related: wrapContentType(item.related),//omit(item.related, 'localizations'),
-            items: null,
-          }));
+
+          const defaultCache = new Map<Id, Array<number>>();
+          const getNestedOrders = (id: Id, cache: Map<Id, Array<number>> = defaultCache): Array<number> => {
+            const cached = cache.get(id);
+            if (!isNil(cached))
+              return cached;
+
+            const item = result.find(item => item.id === id);
+            if (isNil(item))
+              throw new Error("Item not found");
+
+            const { order, parent } = item;
+
+            const nestedOrders = parent
+              ? getNestedOrders(parent.id, cache).concat(order)
+              : [order];
+
+            cache.set(id, nestedOrders);
+            return nestedOrders;
+          }
+
+          return result
+            .map((item: NavigationItemEntity<ContentTypeEntity>) => ({
+              ...item,
+              audience: item.audience?.map(_ => (_).key),
+              title: composeItemTitle(item, contentTypesNameFields, contentTypes) || '',
+              related: wrapContentType(item.related),//omit(item.related, 'localizations'),
+              items: null
+            }))
+            .sort((a, b) => compareArraysOfNumbers(getNestedOrders(a.id), getNestedOrders(b.id)));
       }
     }
     throw new errors.NotFoundError();
