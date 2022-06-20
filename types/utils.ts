@@ -1,6 +1,8 @@
 import { Id } from "strapi-typed";
 import { Navigation, NavigationItem, NavigationItemType, NestedStructure } from "./contentTypes"
 
+export type Effect<T> = (value: T) => void
+export type VoidEffect = Effect<void>
 export type NavigationActionsCategories = 'toCreate' | 'toUpdate' | 'toRemove';
 export type RenderTypeOptions = Readonly<{
   FLAT: 'FLAT'

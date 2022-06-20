@@ -6,18 +6,15 @@ import { Flex } from "@strapi/design-system/Flex";
 import { Grid, GridItem } from "@strapi/design-system/Grid";
 // @ts-ignore
 import { Typography } from "@strapi/design-system/Typography";
+import { prop } from "lodash/fp";
 import React from "react";
 import { getMessage } from "../../../../../utils";
-import {
-  CommonProps,
-  DeleteState,
-  FooterActionsFactory,
-  Navigation,
-} from "../types";
+import { Footer, FooterBase } from "../Footer";
+import { CommonProps, DeleteState, Navigation } from "../types";
 
 interface Props extends DeleteState, CommonProps {}
 
-export const Delete = ({ navigations }: Props) => (
+export const DeletionConfirm = ({ navigations }: Props) => (
   <Grid>
     <GridItem col={12} paddingBottom={1}>
       <Flex>
@@ -34,24 +31,22 @@ export const Delete = ({ navigations }: Props) => (
   </Grid>
 );
 
-export const deleteFooterActions: FooterActionsFactory = ({
-  state,
-  onSubmit,
-  onReset,
-}) => {
-  return {
-    startActions: (
-      <Button disabled={state.isLoading} onClick={onReset} variant="tertiary">
-        {getMessage("popup.item.form.button.cancel")}
-      </Button>
-    ),
-    endActions: (
-      <Button disabled={state.isLoading} onClick={onSubmit} variant="danger">
-        {getMessage("popup.navigation.manage.button.delete")}
-      </Button>
-    ),
-  };
-};
+export const DeleteConfirmFooter: Footer = ({ state, onSubmit, onReset }) => (
+  <FooterBase
+    start={{
+      children: getMessage("popup.item.form.button.cancel"),
+      disabled: state.isLoading,
+      onClick: onReset,
+      variant: "tertiary",
+    }}
+    end={{
+      children: getMessage("popup.navigation.manage.button.delete"),
+      disabled: state.isLoading,
+      onClick: onSubmit,
+      variant: "danger",
+    }}
+  />
+);
 
 const renderItems = (navigations: Array<Navigation>) =>
-  navigations.map(({ name }) => `"${name}"`).join(", ");
+  navigations.map(prop("name")).join(", ");

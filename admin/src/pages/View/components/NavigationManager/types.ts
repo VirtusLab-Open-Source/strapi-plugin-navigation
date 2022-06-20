@@ -1,4 +1,4 @@
-import React from "react";
+import { Dispatch, SetStateAction } from "react";
 import { Navigation as FullNavigationEntity } from "../../../../../../types";
 
 export type Navigation = Pick<
@@ -14,7 +14,7 @@ export type State =
   | DeleteState
   | ErrorState;
 
-export type SetState = React.Dispatch<React.SetStateAction<State>>;
+export type SetState = Dispatch<SetStateAction<State>>;
 
 interface CommonState {
   isLoading?: boolean;
@@ -55,18 +55,4 @@ export interface DeleteState extends CommonState {
 export interface ErrorState extends CommonState {
   view: "ERROR";
   errors: Array<Error>;
-}
-
-export interface FooterActionsFactory {
-  (props: {
-    onSubmit: () => void;
-    onClose: (() => void) | undefined;
-    setState: SetState;
-    state: State;
-    onReset: () => void;
-    navigations: Array<Navigation>;
-  }): {
-    startActions?: React.ReactElement;
-    endActions?: React.ReactElement;
-  } | null;
 }

@@ -337,8 +337,8 @@ const DataManagerProvider = ({ children }) => {
      }
   };
 
-  const handleNavigationsDeletion = async (ids) => 
-    Promise.all(ids.map((id) => handleNavigationDeletion(id)));
+  const handleNavigationsDeletion = (ids) => 
+    Promise.all(ids.map(handleNavigationDeletion));
 
   const handleNavigationDeletion = (id) => 
     request(`/${pluginId}/${id}`, {
@@ -346,9 +346,7 @@ const DataManagerProvider = ({ children }) => {
       signal,
     });
 
-  const hardReset = () => {
-    return getDataRef.current();
-  }
+  const hardReset = () => getDataRef.current();
 
   return (
     <DataManagerContext.Provider
