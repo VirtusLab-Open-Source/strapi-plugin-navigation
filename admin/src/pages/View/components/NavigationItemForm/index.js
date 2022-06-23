@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { debounce, find, get, first, isEmpty, isEqual, isNil, isString } from 'lodash';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik'
-import slugify from 'slugify';
+import slugify from '@sindresorhus/slugify';
 
 // Design System
 import { ModalBody } from '@strapi/design-system/ModalLayout';
@@ -158,14 +158,16 @@ const NavigationItemForm = ({
   };
 
   const generateUiRouterKey = (title, related, relatedType) => {
+    const { slugify: customSlugifyConfig } = config;
+
     if (title) {
-      return isString(title) && !isEmpty(title) ? slugify(title).toLowerCase() : undefined;
+      return isString(title) && !isEmpty(title) ? slugify(title, customSlugifyConfig).toLowerCase() : undefined;
     } else if (related) {
       const relationTitle = extractRelatedItemLabel({
         ...contentTypeEntities.find(_ => _.id === related),
         __collectionUid: relatedType
       }, contentTypesNameFields, { contentTypes });
-      return isString(relationTitle) && !isEmpty(relationTitle) ? slugify(relationTitle).toLowerCase() : undefined;
+      return isString(relationTitle) && !isEmpty(relationTitle) ? slugify(relationTitle, customSlugifyConfig).toLowerCase() : undefined;
     }
     return undefined;
   };

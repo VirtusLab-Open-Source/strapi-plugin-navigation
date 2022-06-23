@@ -1,6 +1,6 @@
 // @ts-ignore
 import { errors } from "@strapi/utils"
-import slugify from "slugify";
+import slugify from "@sindresorhus/slugify";
 import { isNil, isObject } from "lodash";
 import { Id, StrapiContext } from "strapi-typed";
 import { Audience, AuditLogContext, IAdminService, ICommonService, Navigation, NavigationItemEntity, NavigationPluginConfig, ToBeFixed } from "../../types";
@@ -21,6 +21,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
     const contentTypesNameFields = config.contentTypesNameFields;
     const contentTypesPopulate = config.contentTypesPopulate;
     const allowedLevels = config.allowedLevels;
+    const slugify = config.slugify;
     const isGQLPluginEnabled = !isNil(strapi.plugin('graphql'));
 
     let extendedResult: Record<string, unknown> = {
@@ -43,6 +44,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
         navigationItemRelated: configContentTypes.map(({ labelSingular }) => labelSingular.replace(/\s+/g, ''))
       },
       isGQLPluginEnabled: viaSettingsPage ? isGQLPluginEnabled : undefined,
+      slugify,
     };
     const i18nConfig = await addI18NConfigFields({ strapi, viaSettingsPage, previousConfig: {} });
 
@@ -104,12 +106,13 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
     const commonService = getPluginService<ICommonService>('common');
     const adminService = getPluginService<IAdminService>('admin');
     const { enabled: i18nEnabled, defaultLocale } = await getI18nStatus({ strapi })
+    const { slugify: customSlugifyConfig } = await adminService.config(false);
 
     const { masterModel } = extractMeta(strapi.plugins);
     const { name, visible } = payload;
     const data = {
       name,
-      slug: slugify(name).toLowerCase(),
+      slug: slugify(name, customSlugifyConfig).toLowerCase(),
       visible,
     }
 
@@ -139,6 +142,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
     const adminService = getPluginService<IAdminService>('admin');
     const commonService = getPluginService<ICommonService>('common');
     const { enabled: i18nEnabled } = await getI18nStatus({ strapi })
+    const { slugify: customSlugifyConfig } = await adminService.config(false);
 
     const { masterModel } = extractMeta(strapi.plugins);
     const { name, visible } = payload;
@@ -148,7 +152,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
 
     if (detailsHaveChanged) {
       const newName = detailsHaveChanged ? name : existingEntity.name;
-      const newSlug = detailsHaveChanged ? slugify(name).toLowerCase() : existingEntity.slug;
+      const newSlug = detailsHaveChanged ? slugify(name, customSlugifyConfig).toLowerCase() : existingEntity.slug;
 
       await strapi.query<Navigation>(masterModel.uid).update({
         where: { id },

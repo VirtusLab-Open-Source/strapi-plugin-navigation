@@ -1,5 +1,5 @@
 import { first, get, isEmpty, isNil, isString, isArray, last, toNumber } from "lodash";
-import slugify from "slugify";
+import slugify from "@sindresorhus/slugify";
 import { Id, StrapiContext } from "strapi-typed";
 import { validate } from "uuid";
 import { assertNotEmpty, ContentTypeEntity, IAdminService, IClientService, ICommonService, Navigation, NavigationItem, NavigationItemEntity, NestedStructure, RFRNavItem, ToBeFixed } from "../../types"
@@ -259,7 +259,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
         return [];
       }
       const items = await commonService.getRelatedItems(entities);
-      const { contentTypes, contentTypesNameFields } = await adminService.config(false);
+      const { contentTypes, contentTypesNameFields, slugify: customSlugifyConfig } = await adminService.config(false);
 
       const wrapContentType = (itemContentType: ToBeFixed) => wrapRelated && itemContentType ? {
         id: itemContentType.id,
@@ -276,7 +276,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
               ? item.path!.substring(1)
               : item.path}`;
             const slug = isString(parentPath) ? slugify(
-              (first(parentPath) === '/' ? parentPath.substring(1) : parentPath).replace(/\//g, '-')) : undefined;
+              (first(parentPath) === '/' ? parentPath.substring(1) : parentPath).replace(/\//g, '-'), customSlugifyConfig) : undefined;
             const lastRelated = isArray(item.related) ? last(item.related) : item.related;
             const relatedContentType = wrapContentType(lastRelated);
             return {
@@ -287,7 +287,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
               path: isExternal ? item.externalPath : parentPath,
               type: item.type,
               uiRouterKey: item.uiRouterKey,
-              slug: !slug && item.uiRouterKey ? slugify(item.uiRouterKey) : slug,
+              slug: !slug && item.uiRouterKey ? slugify(item.uiRouterKey, customSlugifyConfig) : slug,
               external: isExternal,
               related: isExternal || !lastRelated ? undefined : {
                 ...relatedContentType,
