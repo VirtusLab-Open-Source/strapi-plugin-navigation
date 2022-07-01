@@ -162,6 +162,11 @@ Config for this plugin is stored as a part of the `config/plugins.js` or `config
                 },
                 allowedLevels: 2,
                 gql: {...},
+                slugify: {
+                  customReplacements: [
+                    ["🤔", "thinking"],
+                  ],
+                }
             }
         }
     });
@@ -174,6 +179,9 @@ Config for this plugin is stored as a part of the `config/plugins.js` or `config
 - `contentTypesNameFields` - Definition of content type title fields like `'api::<collection name>.<content type name>': ['field_name_1', 'field_name_2']`, if not set titles are pulled from fields like `['title', 'subject', 'name']`. **TIP** - Proper content type uid you can find in the URL of Content Manager where you're managing relevant entities like: `admin/content-manager/collectionType/< THE UID HERE >?page=1&pageSize=10&sort=Title:ASC&plugins[i18n][locale]=en`
 - `gql` - If you're using GraphQL that's the right place to put all necessary settings. More **[ here ](#gql-configuration)**
 - `i18nEnabled` - should you want to manage multi-locale content via navigation set this value `Enabled`. More **[ here ](#i18n-internationalization)**
+- `slugify` - allows to extend configuration of our "slugging" solution of choice. To learn more visit the [documentation](https://github.com/sindresorhus/slugify#api). It can be left unset since it's optional. **This option can only be handled by configuration in config file**.
+
+### Properties
 
 ## 🔧 GQL Configuration
 Using navigation with GraphQL requires both plugins to be installed and working. You can find installation guide for GraphQL plugin **[here](https://docs.strapi.io/developer-docs/latest/plugins/graphql.html#graphql)**.  To properly configure GQL to work with navigation you should provide `gql` prop. This should contain union types that will be used to define GQL response format for your data while fetching:

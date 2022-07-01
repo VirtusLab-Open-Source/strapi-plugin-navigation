@@ -12,8 +12,9 @@ const config: StrapiConfig<NavigationPluginConfig> = {
     i18nEnabled: false,
     pruneObsoleteI18nNavigations: false,
     gql: {
-      navigationItemRelated: []
+      navigationItemRelated: [],
     },
+    slugify: {},
   },
 };
 

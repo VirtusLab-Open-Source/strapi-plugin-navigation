@@ -14,6 +14,7 @@ export type NavigationPluginConfig = {
   gql: PluginConfigGraphQL;
   i18nEnabled: boolean;
   pruneObsoleteI18nNavigations: boolean;
+  slugify: Record<string, unknown>;
 };
 
 export type StrapiConfig<T> = {
@@ -24,4 +25,4 @@ export type PluginConfigKeys = keyof NavigationPluginConfig;
 
 export type PluginDefaultConfigGetter = (
   key: PluginConfigKeys
-) => NavigationPluginConfig[typeof key];
+) => NavigationPluginConfig[PluginConfigKeys];

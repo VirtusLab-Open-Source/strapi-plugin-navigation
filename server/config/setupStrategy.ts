@@ -1,3 +1,4 @@
+import { pick } from "lodash";
 import {
   assertNotEmpty,
   IConfigSetupStrategy,
@@ -36,6 +37,10 @@ export const configSetupStrategy: IConfigSetupStrategy = async ({ strapi }) => {
     allowedLevels: getWithFallback<number>("allowedLevels"),
     gql: getWithFallback<PluginConfigGraphQL>("gql"),
     i18nEnabled: hasI18nPlugin && getWithFallback<boolean>("i18nEnabled"),
+    slugify: pick(
+      getWithFallback<NavigationPluginConfig["slugify"]>("slugify"),
+      validSlugifyFields
+    ),
     pruneObsoleteI18nNavigations: false,
   };
 
@@ -49,9 +54,7 @@ export const configSetupStrategy: IConfigSetupStrategy = async ({ strapi }) => {
 
 const getWithFallbackFactory =
   (config: NavigationPluginConfig, fallback: PluginDefaultConfigGetter) =>
-  <T extends ReturnType<PluginDefaultConfigGetter>>(
-    key: PluginConfigKeys
-  ) => {
+  <T extends ReturnType<PluginDefaultConfigGetter>>(key: PluginConfigKeys) => {
     const value = config?.[key] ?? fallback(key);
 
     assertNotEmpty(
@@ -61,3 +64,11 @@ const getWithFallbackFactory =
 
     return value as T;
   };
+
+const validSlugifyFields: Array<string> = [
+  "separator",
+  "lowercase",
+  "decamelize",
+  "customReplacements",
+  "preserveLeadingUnderscore",
+];
