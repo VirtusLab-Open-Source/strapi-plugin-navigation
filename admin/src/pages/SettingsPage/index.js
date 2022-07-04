@@ -70,7 +70,8 @@ const SettingsPage = () => {
       nameFields,
       audienceFieldChecked,
       allowedLevels,
-      i18nEnabled
+      i18nEnabled,
+      populate,
     },
     pruneObsoleteI18nNavigations
   }) => ({
@@ -260,7 +261,7 @@ const SettingsPage = () => {
                               {orderBy(values.selectedContentTypes).map(uid => {
                                 const { attributes, info: { displayName }, available, isSingle } = allContentTypes.find(item => item.uid == uid);
                                 const stringAttributes = Object.keys(attributes).filter(_ => attributes[_].type === 'string');
-                                const relationAttributes = Object.keys(attributes).filter(_ => attributes[_].type === 'relation');
+                                const relationAttributes = Object.keys(attributes).filter(_ => ['relation', 'media'].includes(attributes[_].type));
                                 const key = `collectionSettings-${uid}`;
                                 return (<Accordion
                                   expanded={contentTypeExpanded === key}
@@ -279,7 +280,7 @@ const SettingsPage = () => {
                                         <Select
                                           name={`collectionSettings-${uid}-entryLabel`}
                                           label={getMessage('pages.settings.form.nameField.label')}
-                                          hint={getMessage(`pages.settings.form.populate.${isEmpty(stringAttributes) ? 'empty' : 'hint'}`)}
+                                          hint={getMessage(`pages.settings.form.nameField.${isEmpty(stringAttributes) ? 'empty' : 'hint'}`)}
                                           placeholder={getMessage('pages.settings.form.nameField.placeholder')}
                                           onClear={() => null}
                                           value={values.nameFields[uid] || []}
