@@ -1,4 +1,4 @@
-import { Id } from "strapi-typed";
+import { Id, PopulateClause } from "strapi-typed";
 import { Navigation, NavigationItem, NavigationItemType, NestedStructure } from "./contentTypes"
 
 export type Effect<T> = (value: T) => void
@@ -13,6 +13,7 @@ export type RenderType = keyof RenderTypeOptions;
 export type StrapiRoutesTypes = 'admin' | 'content-api';
 export type ToBeFixed = any;
 export type DateString = string;
+export type PopulateQueryParam = string | PopulateClause;
 
 export type NavigationActions = {
   create?: boolean;

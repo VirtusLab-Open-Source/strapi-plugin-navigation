@@ -13,6 +13,7 @@ import {
   uniqBy,
   zipWith,
 } from 'lodash';
+import { PopulateClause } from 'strapi-typed';
 import { Id, IStrapi, Primitive, StrapiContentType, StringMap, StrapiContentTypeFullSchema } from "strapi-typed";
 
 import {
@@ -29,6 +30,7 @@ import {
   NestedPath,
   NestedStructure,
   PluginConfigNameFields,
+  PopulateQueryParam,
   ToBeFixed,
 } from "../../types";
 import { NavigationError } from '../../utils/NavigationError';
@@ -347,3 +349,13 @@ export const validateAdditionalFields = (additionalFields: NavigationItemAdditio
     throw new Error(`Name of custom field cannot be one of: ${forbiddenNames.join(', ')}`);
   }
 };
+
+export const parsePopulateQuery = (populate: PopulateQueryParam): PopulateClause => {
+  if (populate === "*") {
+    return true;
+  } else if (typeof populate === "string") {
+    return [populate];
+  } else {
+    return populate;
+  }
+}
