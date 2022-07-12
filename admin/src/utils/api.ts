@@ -1,5 +1,6 @@
 // @ts-ignore
 import { request } from '@strapi/helper-plugin';
+import { prop } from 'lodash/fp';
 import { NavigationPluginConfig } from '../../../types';
 import pluginId from '../pluginId';
 
@@ -12,10 +13,8 @@ export const updateNavigationConfig = ({ body }: { body: NavigationPluginConfig 
 export const restoreNavigationConfig = () =>
   request(`/${pluginId}/config`, { method: 'DELETE' }, true);
 
-export const fetchAllContentTypes = async () => {
-  const { data } = await request('/content-manager/content-types', { method: 'GET' });
-  return data;
-}
+export const fetchAllContentTypes = async () =>
+  request('/content-manager/content-types', { method: 'GET' }).then(prop("data"));
 
 export const restartStrapi = () =>
   request(`/${pluginId}/settings/restart`);

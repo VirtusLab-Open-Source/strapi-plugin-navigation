@@ -1,28 +1,30 @@
 import React, { useState } from 'react';
-import { ChangeEffect, ToBeFixed } from '../../../../types';
+import { Effect } from '../../../../types';
 // @ts-ignore
 import { TextInput } from '@strapi/design-system/TextInput';
+import { isArray } from 'lodash';
 
 interface IProps {
-  onChange: ChangeEffect<string[]>;
+  onChange: Effect<string[]>;
   initialValue?: string[];
   id?: string;
   name?: string;
   label?: string;
   disabled?: boolean;
-  // TODO: [ @ltsNotMike ] Fix this before commit 
-  error?: ToBeFixed;
+  error?: string | string[];
 }
 
-const TextArrayInput: React.FC<IProps> = ({ onChange, initialValue, ...props}) => {
-  const [value, setValue] = useState(!!initialValue ? initialValue.reduce((acc, cur) => acc+cur+"; ", "") : "");
-  const handleOnChange = (e: React.BaseSyntheticEvent) => {
-    const newValue: string = e.target.value;
+const TextArrayInput: React.FC<IProps> = ({ onChange, initialValue, ...props }) => {
+  const [value, setValue] = useState(isArray(initialValue)
+    ? initialValue.reduce((acc, cur) => `${acc}${cur}; `, "")
+    : "");
+  const handleOnChange = ({target: { value }}: React.BaseSyntheticEvent) => {
+    const newValue: string = value;
     const valuesArray = newValue
       .split(';')
       .map(v => v.trim())
       .filter(v => !!v.length);
-    setValue(e.target.value)
+    setValue(value);
     onChange(valuesArray);
   }
   return (

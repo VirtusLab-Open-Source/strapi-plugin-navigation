@@ -149,7 +149,7 @@ const plugins = (strapi: IStrapi): StringMap<StrapiPlugin> => ({
       additionalFields: [{ name: 'string_test_field', label: "Test field", type: 'string', enabled: true }]
     })[key],
     get controllers() { return {} },
-    controller(): ToBeFixed { return {} },
+    controller() { return () => {} },
   }
 });
 

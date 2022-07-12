@@ -8,7 +8,7 @@ import { GenericInput } from '@strapi/helper-plugin';
 //@ts-ignore
 import { Grid, GridItem } from '@strapi/design-system/Grid';
 import { useFormik } from 'formik';
-import { ChangeEffect, NavigationItemCustomField, VoidEffect } from '../../../../../../types';
+import { Effect, NavigationItemCustomField, VoidEffect } from '../../../../../../types';
 import * as formDefinition from '../../utils/form';
 import { getMessage } from '../../../../utils';
 import { isEmpty, isNil } from 'lodash';
@@ -19,7 +19,7 @@ const tradPrefix = 'pages.settings.form.customFields.popup.'
 interface ICustomFieldFormProps {
   customField: Partial<NavigationItemCustomField>;
   isEditForm: boolean;
-  onSubmit: ChangeEffect<NavigationItemCustomField>;
+  onSubmit: Effect<NavigationItemCustomField>;
   onClose: VoidEffect;
   usedCustomFieldNames: string[];
 }

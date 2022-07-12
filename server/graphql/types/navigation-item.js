@@ -44,7 +44,7 @@ module.exports = ({ nexus, config }) =>
                   t.string(field.name);
                 break;
               default:
-                throw new Error(`Type "${field.type}" is unsupported by custom fields`);
+                throw new Error(`Type "${JSON.stringify(field.type)}" is unsupported by custom fields`);
             }
           }
         } else {

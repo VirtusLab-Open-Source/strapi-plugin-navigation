@@ -1,6 +1,6 @@
 import {
   Audience,
-  ChangeEffect,
+  Effect,
   ContentTypeEntity,
   NavigationItemAdditionalField,
   NavigationItemAdditionalFieldValues,
@@ -68,7 +68,7 @@ export type NavigationItemFormProps = {
   isLoading: boolean;
   locale: string;
   onCancel: VoidEffect;
-  onSubmit: ChangeEffect<SanitizedFormPayload>;
+  onSubmit: Effect<SanitizedFormPayload>;
   usedContentTypeEntities: ToBeFixed[];
   usedContentTypesData: ToBeFixed;
   config: NavigationPluginConfig;
