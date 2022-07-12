@@ -5,7 +5,7 @@ import { Typography } from '@strapi/design-system/Typography';
 import { ModalLayout, ModalHeader } from '@strapi/design-system/ModalLayout';
 
 import CustomFieldForm from '../CustomFieldForm';
-import { ChangeEffect, NavigationItemCustomField, VoidEffect } from '../../../../../../types';
+import { Effect, NavigationItemCustomField, VoidEffect } from '../../../../../../types';
 import { getMessage } from '../../../../utils';
 import { pick } from 'lodash';
 
@@ -13,7 +13,7 @@ interface ICustomFieldModalProps {
   data: NavigationItemCustomField | null;
   isOpen: boolean;
   onClose: VoidEffect;
-  onSubmit: ChangeEffect<NavigationItemCustomField>;
+  onSubmit: Effect<NavigationItemCustomField>;
   usedCustomFieldNames: string[];
 }
 

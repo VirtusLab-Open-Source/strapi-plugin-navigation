@@ -35,7 +35,6 @@ const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
     label: field.label,
     disabled: isLoading,
     error: error && formatMessage(error),
-
   }), [field, isLoading, error]);
   const handleBoolean = useMemo(() => handlerFactory({ field, onChange, prop: "checked" }), [onChange, field]);
   const handleString = useMemo(() => handlerFactory({ field, onChange, prop: "value" }), [onChange, field]);
@@ -73,7 +72,7 @@ const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
           withTags={field.multi}
         >
           {field.options.map((option, index) => (
-            <Option key={index} value={option}>
+            <Option key={`${field.name}-option-${index}`} value={option}>
               {option}
             </Option>
           ))}

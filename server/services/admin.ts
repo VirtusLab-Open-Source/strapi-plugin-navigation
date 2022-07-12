@@ -263,7 +263,9 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
     await pluginStore.set({ key: 'config', value: newConfig });
 
     const removedFields = differenceBy(config.additionalFields, newConfig.additionalFields, 'name').filter(i => i !== 'audience') as NavigationItemCustomField[];
-    !isEmpty(removedFields) && await commonService.pruneCustomFields(removedFields);
+    if (!isEmpty(removedFields)) {
+      await commonService.pruneCustomFields(removedFields);
+    }
   },
 
   async fillFromOtherLocale({ target, source, auditLog }) {

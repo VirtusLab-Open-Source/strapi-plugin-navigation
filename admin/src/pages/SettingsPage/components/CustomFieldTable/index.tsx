@@ -18,15 +18,15 @@ import { Stack } from '@strapi/design-system/Stack';
 import { IconButton } from '@strapi/design-system/IconButton';
 
 import { getMessage } from '../../../../utils';
-import { ChangeEffect, NavigationItemCustomField } from '../../../../../../types';
+import { Effect, NavigationItemCustomField } from '../../../../../../types';
 import ConfirmationDialog from '../../../../components/ConfirmationDialog';
 import { getTradId } from '../../../../translations';
 
 interface ICustomFieldTableProps {
   data: NavigationItemCustomField[];
   onOpenModal: (field: NavigationItemCustomField | null) => void;
-  onRemoveCustomField: ChangeEffect<NavigationItemCustomField>;
-  onToggleCustomField: ChangeEffect<NavigationItemCustomField>;
+  onRemoveCustomField: Effect<NavigationItemCustomField>;
+  onToggleCustomField: Effect<NavigationItemCustomField>;
 }
 
 const refreshIcon = <Refresh />;
@@ -44,12 +44,17 @@ const CustomFieldTable: React.FC<ICustomFieldTableProps> = ({
   const toggleNotification = useNotification();
   const customFields = useMemo(() => sortBy(data, "name"), [data]);
 
-  const handleRemove = (field: NavigationItemCustomField) => {
+  const handleRemove = useCallback((field: NavigationItemCustomField) => {
     setFieldToRemove(field);
     setIsConfirmationVisible(true);
-  }
+  }, [setFieldToRemove, setIsConfirmationVisible]);
 
-  const handleConfirm = () => {
+  const cleanup = useCallback(() => {
+    setFieldToRemove(null);
+    setIsConfirmationVisible(false);
+  }, [setFieldToRemove, setIsConfirmationVisible]);
+
+  const handleConfirm = useCallback(() => {
     if (fieldToRemove === null) {
       toggleNotification({
         type: 'warning',
@@ -63,12 +68,8 @@ const CustomFieldTable: React.FC<ICustomFieldTableProps> = ({
     }
 
     cleanup();
-  }
+  }, [cleanup, fieldToRemove, getTradId, onRemoveCustomField, toggleNotification]);
 
-  const cleanup = useCallback(() => {
-    setFieldToRemove(null);
-    setIsConfirmationVisible(false);
-  }, [setFieldToRemove, setIsConfirmationVisible]);
 
   return (
     <>

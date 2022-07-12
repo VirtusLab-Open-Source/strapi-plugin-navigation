@@ -13,17 +13,17 @@ export const ItemTypes = {
 };
 
 export const ResourceState = {
-    RESOLVED: 'RESOLVED',
-    LOADING: 'LOADING',
-    ERROR: 'ERROR',
+  RESOLVED: 'RESOLVED',
+  LOADING: 'LOADING',
+  ERROR: 'ERROR',
 };
 
-export const resolvedResourceFor = (value: unknown) => ({
-    type: ResourceState.RESOLVED,
-    value,
+export const resolvedResourceFor = <T = unknown>(value: T) => ({
+  type: ResourceState.RESOLVED,
+  value,
 });
 
-export const errorStatusResourceFor = (errors: unknown) => ({
-    type: ResourceState.ERROR,
-    errors,
+export const errorStatusResourceFor = (errors: Array<Error>) => ({
+  type: ResourceState.ERROR,
+  errors,
 });

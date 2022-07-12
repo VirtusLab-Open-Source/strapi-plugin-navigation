@@ -45,9 +45,9 @@ export interface ICommonService {
 export interface IClientService {
   render: (input: { idOrSlug: Id, type?: RenderType, menuOnly?: boolean, rootPath?: string, wrapRelated?: boolean } & I18nQueryParams) => Promise<ToBeFixed>,
   renderChildren: (input: { idOrSlug: Id, childUIKey: string, type?: RenderType, menuOnly?: boolean, wrapRelated?: boolean } & I18nQueryParams) => Promise<ToBeFixed>,
-  renderRFR: (items: NestedStructure<NavigationItem>[], parent: Id | null, parentNavItem: RFRNavItem | null, contentTypes: string[]) => ToBeFixed,
+  renderRFR: (input: { items: NestedStructure<NavigationItem>[], parent?: Id | null, parentNavItem?: RFRNavItem | null, contentTypes: string[], enabledCustomFieldsNames: string[]}) => ToBeFixed,
   renderRFRNav: (item: NavigationItem) => RFRNavItem,
-  renderRFRPage: (item: NavigationItem & { related: ToBeFixed }, parent: Id | null) => ToBeFixed,
+  renderRFRPage: (item: NavigationItem & { related: ToBeFixed }, parent: Id | null, enabledCustomFieldsNames: string[]) => ToBeFixed,
   renderTree(items: NavigationItemEntity<ContentTypeEntity>[], id: Id | null, field: keyof NavigationItemEntity, path: string | undefined, itemParser: ToBeFixed): ToBeFixed,
   renderType: (input: { type: RenderType, criteria: ToBeFixed, itemCriteria: ToBeFixed, filter: ToBeFixed, rootPath: string | null, wrapRelated?: boolean } & I18nQueryParams) => ToBeFixed,
 }
