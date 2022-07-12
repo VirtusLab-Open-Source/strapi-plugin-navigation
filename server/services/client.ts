@@ -17,6 +17,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
     rootPath = null,
     wrapRelated = false,
     locale,
+    populate,
   }) {
     const clientService = getPluginService<IClientService>('client');
 
@@ -24,7 +25,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
     const criteria = findById ? { id: idOrSlug } : { slug: idOrSlug };
     const itemCriteria = menuOnly ? { menuAttached: true } : {};
     return await clientService.renderType({
-      type, criteria, itemCriteria, filter: null, rootPath, wrapRelated, locale,
+      type, criteria, itemCriteria, filter: null, rootPath, wrapRelated, locale, populate
     });
   },
 
@@ -177,7 +178,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
       parent,
       audience,
       menuAttached,
-      ...enabledCustomFieldsNames.reduce((acc, field) => ({...acc, [field]: get(item, field) }), {})
+      ...enabledCustomFieldsNames.reduce((acc, field) => ({ ...acc, [field]: get(item, field) }), {})
     };
   },
 
@@ -225,6 +226,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
     rootPath = null,
     wrapRelated = false,
     locale,
+    populate,
   }) {
     const clientService = getPluginService<IClientService>('client');
     const adminService = getPluginService<IAdminService>('admin');
@@ -262,11 +264,11 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
       if (!entities) {
         return [];
       }
-      const items = await commonService.getRelatedItems(entities);
+      const items = await commonService.getRelatedItems(entities, populate);
       const { contentTypes, contentTypesNameFields, additionalFields, slugify: customSlugifyConfig } = await adminService.config(false);
       const enabledCustomFieldsNames = getCustomFields(additionalFields)
         .reduce<string[]>((acc, curr) => curr.enabled ? [...acc, curr.name] : acc, []);
-      
+
       const wrapContentType = (itemContentType: ToBeFixed) => wrapRelated && itemContentType ? {
         id: itemContentType.id,
         attributes: { ...itemContentType }
@@ -307,7 +309,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
                 parentPath,
                 itemParser,
               ),
-              ...enabledCustomFieldsNames.reduce((acc, field) => ({...acc, [field]: get(item, `additionalFields.${field}`)}), {}),
+              ...enabledCustomFieldsNames.reduce((acc, field) => ({ ...acc, [field]: get(item, `additionalFields.${field}`) }), {}),
             };
           };
 
@@ -361,13 +363,13 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
           }
 
           return result
-            .map(({additionalFields, ...item}: NavigationItemEntity<ContentTypeEntity>) => ({
+            .map(({ additionalFields, ...item }: NavigationItemEntity<ContentTypeEntity>) => ({
               ...item,
               audience: item.audience?.map(_ => (_).key),
-              title: composeItemTitle({...item, additionalFields}, contentTypesNameFields, contentTypes) || '',
+              title: composeItemTitle({ ...item, additionalFields }, contentTypesNameFields, contentTypes) || '',
               related: wrapContentType(item.related),//omit(item.related, 'localizations'),
               items: null,
-              ...enabledCustomFieldsNames.reduce((acc, name) => ({...acc, [name]: get(additionalFields, name, undefined)}), {}),
+              ...enabledCustomFieldsNames.reduce((acc, name) => ({ ...acc, [name]: get(additionalFields, name, undefined) }), {}),
             }))
             .sort((a, b) => compareArraysOfNumbers(getNestedOrders(a.id), getNestedOrders(b.id)));
       }

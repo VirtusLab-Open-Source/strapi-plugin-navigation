@@ -54,8 +54,9 @@ import CustomFieldModal from './components/CustomFieldModal';
 import CustomFieldTable from './components/CustomFieldTable';
 import { HandleSetContentTypeExpanded, OnPopupClose, OnSave, PrepareNameFieldFor, PreparePayload, RestartReasons, RestartStatus, StrapiContentTypeSchema } from './types';
 
-const RESTART_NOT_REQUIRED: RestartStatus = { required: false }
-const RESTART_REQUIRED: RestartStatus = { required: true, reasons: [] }
+const RESTART_NOT_REQUIRED: RestartStatus = { required: false };
+const RESTART_REQUIRED: RestartStatus = { required: true, reasons: [] };
+const RELATION_ATTRIBUTE_TYPES = ['relation', 'media', 'component'];
 
 const SettingsPage = () => {
   const { lockApp, unlockApp } = useOverlayBlocker();
@@ -315,7 +316,7 @@ const SettingsPage = () => {
                                 if (!contentType) return;
                                 const { attributes, info: { displayName }, available, isSingle } = contentType;
                                 const stringAttributes = Object.keys(attributes).filter(_ => attributes[_].type === 'string');
-                                const relationAttributes = Object.keys(attributes).filter(_ => ['relation', 'media'].includes(attributes[_].type));
+                                const relationAttributes = Object.keys(attributes).filter(_ => RELATION_ATTRIBUTE_TYPES.includes(attributes[_].type));
                                 const key = `collectionSettings-${uid}`;
                                 return (<Accordion
                                   expanded={contentTypeExpanded === key}

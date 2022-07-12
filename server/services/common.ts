@@ -6,7 +6,7 @@ import { sanitize } from '@strapi/utils';
 import { ContentTypeEntity, ICommonService, Navigation, NavigationActions, NavigationActionsPerItem, NavigationItem, NavigationItemCustomField, NavigationItemEntity, NavigationItemRelated, NavigationPluginConfig, NestedStructure, RelatedRef, ToBeFixed } from "../../types";
 import { configSetupStrategy } from "../config";
 import { addI18nWhereClause } from "../i18n";
-import { checkDuplicatePath, getPluginModels, getPluginService, isContentTypeEligible, KIND_TYPES, singularize } from "../utils";
+import { checkDuplicatePath, getPluginModels, getPluginService, isContentTypeEligible, KIND_TYPES, parsePopulateQuery, singularize } from "../utils";
 
 const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) => ({
   analyzeBranch(
@@ -244,7 +244,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
     return await strapi.store({ type: 'plugin', name: 'navigation' });
   },
 
-  async getRelatedItems(entityItems): Promise<NavigationItemEntity<ContentTypeEntity>[]> {
+  async getRelatedItems(entityItems, populate): Promise<NavigationItemEntity<ContentTypeEntity>[]> {
     const commonService = getPluginService<ICommonService>('common');
     const pluginStore = await commonService.getPluginStore();
     const config: NavigationPluginConfig = await pluginStore.get({ key: 'config' });
@@ -272,7 +272,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
                   where: {
                     id: { $in: map(related, 'related_id') },
                   },
-                  populate: config.contentTypesPopulate[model] || []
+                  populate: isNil(populate) ? config.contentTypesPopulate[model] || [] : parsePopulateQuery(populate)
                 });
               return relationData
                 .flatMap(_ =>
