@@ -1,12 +1,12 @@
-import { find, get, isEmpty, isNil, last, map, upperFirst } from "lodash";
+import { find, get, isEmpty, isNil, last, map, omit, upperFirst } from "lodash";
 import pluralize from "pluralize";
 import { Id, StrapiContentType, StrapiContext, StrapiStore, StringMap } from "strapi-typed";
 //@ts-ignore
 import { sanitize } from '@strapi/utils';
-import { ContentTypeEntity, ICommonService, Navigation, NavigationActions, NavigationActionsPerItem, NavigationItem, NavigationItemEntity, NavigationItemRelated, NavigationPluginConfig, NestedStructure, RelatedRef, ToBeFixed } from "../../types";
+import { ContentTypeEntity, ICommonService, Navigation, NavigationActions, NavigationActionsPerItem, NavigationItem, NavigationItemCustomField, NavigationItemEntity, NavigationItemRelated, NavigationPluginConfig, NestedStructure, RelatedRef, ToBeFixed } from "../../types";
 import { configSetupStrategy } from "../config";
 import { addI18nWhereClause } from "../i18n";
-import { checkDuplicatePath, extractMeta, getPluginService, isContentTypeEligible, KIND_TYPES, singularize } from "../utils";
+import { checkDuplicatePath, getPluginModels, getPluginService, isContentTypeEligible, KIND_TYPES, singularize } from "../utils";
 
 const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) => ({
   analyzeBranch(
@@ -136,8 +136,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
     operations,
   ) {
     const commonService = getPluginService<ICommonService>('common');
-    const { itemModel } = extractMeta(strapi.plugins);
-
+    const { itemModel } = getPluginModels();
     return await Promise.all<NavigationActions[]>(
       items.map(async (item) => {
         operations.create = true;
@@ -258,7 +257,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
         ...(acc[relatedType] || []),
         ...entityItems
           .filter((item => get(item.related, 'related_type') === relatedType))
-          .flatMap((item) => Object.assign(item.related, { navigationItemId: item.id })),
+          .flatMap((item) => Object.assign(item.related || {}, { navigationItemId: item.id })),
       ],
     }), {});
 
@@ -307,7 +306,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
     operations: NavigationActions = {}
   ) {
     const commonService = getPluginService<ICommonService>('common');
-    const { itemModel } = extractMeta(strapi.plugins);
+    const { itemModel } = getPluginModels();
     return Promise.all(
       items
         .filter(item => item.id)
@@ -357,7 +356,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
     operations: NavigationActions
   ) {
     const commonService = getPluginService<ICommonService>('common');
-    const { itemModel } = extractMeta(strapi.plugins);
+    const { itemModel } = getPluginModels();
     const databaseModel = strapi.query<NavigationItemEntity>(itemModel.uid);
     return Promise.all(
       toUpdate.map(async (item) => {
@@ -397,11 +396,36 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
     // For now there is only one event 'navigation.update' so implementing Event hub is not valid.
     const model: ToBeFixed = strapi.getModel(uid);
     const sanitizedEntity = await sanitize.sanitizers.defaultSanitizeOutput(model, entity);
-  
+
     strapi.webhookRunner.eventHub.emit(event, {
       model: model.modelName,
       entry: sanitizedEntity,
     });
+  },
+
+  async pruneCustomFields(removedFields: NavigationItemCustomField[]) {
+    const { itemModel } = getPluginModels();
+    const databaseModel = strapi.query<NavigationItemEntity>(itemModel.uid);
+    const removedFieldsNames = removedFields.map(({ name }) => name);
+    const navigationItems = await databaseModel.findMany({
+      where: {
+        additionalFields: {
+          $contains: [removedFieldsNames]
+        }
+      }
+    });
+    const navigationItemsToUpdate = removedFields.reduce<NavigationItemEntity[]>((acc, curr) => {
+      return acc.map((item) => omit(item, [`additionalFields.${curr.name}`]) as NavigationItemEntity);
+    }, navigationItems);
+
+    await Promise.all(
+      navigationItemsToUpdate.map(async (item) =>
+        await databaseModel.update({
+          where: { id: item.id },
+          data: { additionalFields: item.additionalFields },
+        })
+      )
+    );
   }
 });
 

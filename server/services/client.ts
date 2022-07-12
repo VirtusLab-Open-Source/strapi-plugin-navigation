@@ -2,8 +2,8 @@ import { first, get, isEmpty, isNil, isString, isArray, last, toNumber } from "l
 import slugify from "@sindresorhus/slugify";
 import { Id, StrapiContext } from "strapi-typed";
 import { validate } from "uuid";
-import { assertNotEmpty, ContentTypeEntity, IAdminService, IClientService, ICommonService, Navigation, NavigationItem, NavigationItemEntity, NestedStructure, RFRNavItem, ToBeFixed } from "../../types"
-import { compareArraysOfNumbers, composeItemTitle, extractMeta, filterByPath, filterOutUnpublished, getPluginService, RENDER_TYPES, templateNameFactory } from "../utils";
+import { assertNotEmpty, ContentTypeEntity, IAdminService, IClientService, ICommonService, Navigation, NavigationItem, NavigationItemEntity, RFRNavItem, ToBeFixed } from "../../types"
+import { composeItemTitle, getPluginModels, filterByPath, filterOutUnpublished, getPluginService, templateNameFactory, RENDER_TYPES, compareArraysOfNumbers, getCustomFields } from "../utils";
 //@ts-ignore
 import { errors } from '@strapi/utils';
 import { i18nAwareEntityReadHandler } from "../i18n";
@@ -49,12 +49,13 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
     return clientService.renderType({ type, criteria, itemCriteria, filter, rootPath: null, wrapRelated, locale });
   },
 
-  renderRFR(
-    items: NestedStructure<NavigationItem>[],
-    parent: Id | null = null,
-    parentNavItem: RFRNavItem | null = null,
-    contentTypes = []
-  ) {
+  renderRFR({
+    items,
+    parent = null,
+    parentNavItem = null,
+    contentTypes = [],
+    enabledCustomFieldsNames,
+  }) {
     const clientService = getPluginService<IClientService>('client');
     let pages = {};
     let nav = {};
@@ -66,6 +67,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
       const itemPage = clientService.renderRFRPage(
         itemProps,
         parent,
+        enabledCustomFieldsNames,
       );
 
       if (item.type === "INTERNAL") {
@@ -97,18 +99,20 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
       }
 
       if (!isEmpty(itemChilds)) {
-        const { nav: nestedNavs } = clientService.renderRFR(
-          itemChilds,
-          itemPage.id,
-          itemNav,
+        const { nav: nestedNavs } = clientService.renderRFR({
+          items: itemChilds,
+          parent: itemPage.id,
+          parentNavItem: itemNav,
           contentTypes,
-        );
-        const { pages: nestedPages } = clientService.renderRFR(
-          (itemChilds).filter(child => child.type === "INTERNAL"),
-          itemPage.id,
-          itemNav,
+          enabledCustomFieldsNames,
+        });
+        const { pages: nestedPages } = clientService.renderRFR({
+          items: (itemChilds).filter(child => child.type === "INTERNAL"),
+          parent: itemPage.id,
+          parentNavItem: itemNav,
           contentTypes,
-        );
+          enabledCustomFieldsNames,
+        });
         pages = {
           ...pages,
           ...nestedPages,
@@ -153,8 +157,9 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
   },
 
   renderRFRPage(
-    item: NavigationItem & { related: ToBeFixed },
-    parent: Id | null,
+    item,
+    parent,
+    enabledCustomFieldsNames,
   ) {
     const { uiRouterKey, title, path, slug, related, type, audience, menuAttached } = item;
     const { __contentType, id, __templateName } = related || {};
@@ -172,16 +177,17 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
       parent,
       audience,
       menuAttached,
+      ...enabledCustomFieldsNames.reduce((acc, field) => ({...acc, [field]: get(item, field) }), {})
     };
   },
 
   renderTree(
-    items: NavigationItemEntity<ContentTypeEntity>[] = [],
-    id: Id | null = null,
-    field: keyof NavigationItemEntity = 'parent',
+    items = [],
+    id = null,
+    field = 'parent',
     path = '',
-    itemParser: ToBeFixed = (i: ToBeFixed) => i,
-  ): ToBeFixed {
+    itemParser = (i: ToBeFixed) => i,
+  ) {
     return items
       .filter(
         (item) => {
@@ -228,9 +234,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
       visible: true,
     }
 
-    const { masterModel, itemModel } = extractMeta(
-      strapi.plugins,
-    );
+    const { masterModel, itemModel } = getPluginModels();
 
     const entity = await i18nAwareEntityReadHandler({
       entity: await strapi
@@ -259,8 +263,10 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
         return [];
       }
       const items = await commonService.getRelatedItems(entities);
-      const { contentTypes, contentTypesNameFields, slugify: customSlugifyConfig } = await adminService.config(false);
-
+      const { contentTypes, contentTypesNameFields, additionalFields, slugify: customSlugifyConfig } = await adminService.config(false);
+      const enabledCustomFieldsNames = getCustomFields(additionalFields)
+        .reduce<string[]>((acc, curr) => curr.enabled ? [...acc, curr.name] : acc, []);
+      
       const wrapContentType = (itemContentType: ToBeFixed) => wrapRelated && itemContentType ? {
         id: itemContentType.id,
         attributes: { ...itemContentType }
@@ -293,7 +299,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
                 ...relatedContentType,
                 __templateName: getTemplateName((lastRelated.relatedType || lastRelated.__contentType), lastRelated.id),
               },
-              audience: !isEmpty(item.audience) ? item.audience!.map(aItem => (aItem).key) : undefined,
+              audience: !isEmpty(item.audience) ? item.audience!.map(({ key }) => key) : undefined,
               items: isExternal ? undefined : clientService.renderTree(
                 items,
                 item.id,
@@ -301,6 +307,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
                 parentPath,
                 itemParser,
               ),
+              ...enabledCustomFieldsNames.reduce((acc, field) => ({...acc, [field]: get(item, `additionalFields.${field}`)}), {}),
             };
           };
 
@@ -322,12 +329,11 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
             : treeStructure;
 
           if (type === RENDER_TYPES.RFR) {
-            return clientService.renderRFR(
-              filteredStructure,
-              null,
-              null,
+            return clientService.renderRFR({
+              items: filteredStructure,
               contentTypes,
-            );
+              enabledCustomFieldsNames,
+            });
           }
           return filteredStructure;
         default:
@@ -355,12 +361,13 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
           }
 
           return result
-            .map((item: NavigationItemEntity<ContentTypeEntity>) => ({
+            .map(({additionalFields, ...item}: NavigationItemEntity<ContentTypeEntity>) => ({
               ...item,
               audience: item.audience?.map(_ => (_).key),
-              title: composeItemTitle(item, contentTypesNameFields, contentTypes) || '',
+              title: composeItemTitle({...item, additionalFields}, contentTypesNameFields, contentTypes) || '',
               related: wrapContentType(item.related),//omit(item.related, 'localizations'),
-              items: null
+              items: null,
+              ...enabledCustomFieldsNames.reduce((acc, name) => ({...acc, [name]: get(additionalFields, name, undefined)}), {}),
             }))
             .sort((a, b) => compareArraysOfNumbers(getNestedOrders(a.id), getNestedOrders(b.id)));
       }

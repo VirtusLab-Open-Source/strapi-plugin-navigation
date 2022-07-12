@@ -2,7 +2,7 @@ import { IStrapi } from "strapi-typed";
 import { NavigationItemEntity } from "../../../types";
 
 import setupStrapi from '../../../__mocks__/strapi';
-import { buildNestedPaths, extractMeta, filterByPath } from "../functions";
+import { buildNestedPaths, filterByPath, getPluginModels } from "../functions";
 
 declare var strapi: IStrapi;
 
@@ -13,7 +13,7 @@ describe('Utilities functions', () => {
 
   describe('Path rendering functions', () => {
     it('Can build nested path structure', async () => {
-      const { itemModel } = extractMeta(strapi.plugins);
+      const { itemModel } = getPluginModels();
       const rootPath = '/home/side';
       const entities = await strapi
         .query<NavigationItemEntity>(itemModel.uid)
@@ -29,7 +29,7 @@ describe('Utilities functions', () => {
     });
 
     it('Can filter items by path', async () => {
-      const { itemModel } = extractMeta(strapi.plugins);
+      const { itemModel } = getPluginModels();
       const rootPath = '/home/side';
       const entities = await strapi
         .query<NavigationItemEntity>(itemModel.uid)

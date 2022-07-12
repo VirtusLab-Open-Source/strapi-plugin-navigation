@@ -25,6 +25,6 @@ module.exports = {
         const { allowedContentTypes = [], restrictedContentTypes = []} = config;
         const isOneOfAllowedType = allowedContentTypes.filter(_ => uid.includes(_) || (uid === _)).length > 0;
         const isNoneOfRestricted = restrictedContentTypes.filter(_ => uid.includes(_) || (uid === _)).length === 0;
-        return uid && isOneOfAllowedType && isNoneOfRestricted;
+        return !!uid && isOneOfAllowedType && isNoneOfRestricted;
     },
 }

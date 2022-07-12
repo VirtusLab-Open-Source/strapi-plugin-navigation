@@ -2,6 +2,7 @@ import { pick } from "lodash";
 import {
   assertNotEmpty,
   IConfigSetupStrategy,
+  NavigationItemAdditionalField,
   NavigationPluginConfig,
   PluginConfigGraphQL,
   PluginConfigKeys,
@@ -9,6 +10,7 @@ import {
   PluginConfigPopulate,
   PluginDefaultConfigGetter,
 } from "../../types";
+import { validateAdditionalFields } from "../utils";
 
 export const configSetupStrategy: IConfigSetupStrategy = async ({ strapi }) => {
   const pluginStore = strapi.store({
@@ -26,7 +28,7 @@ export const configSetupStrategy: IConfigSetupStrategy = async ({ strapi }) => {
   const getWithFallback = getWithFallbackFactory(config, getFromPluginDefaults);
 
   config = {
-    additionalFields: getWithFallback<string[]>("additionalFields"),
+    additionalFields: getWithFallback<NavigationItemAdditionalField[]>("additionalFields"),
     contentTypes: getWithFallback<string[]>("contentTypes"),
     contentTypesNameFields: getWithFallback<PluginConfigNameFields>(
       "contentTypesNameFields"
@@ -44,7 +46,9 @@ export const configSetupStrategy: IConfigSetupStrategy = async ({ strapi }) => {
     pruneObsoleteI18nNavigations: false,
   };
 
-  pluginStore.set({
+  validateAdditionalFields(config.additionalFields);
+  
+  await pluginStore.set({
     key: "config",
     value: config,
   });

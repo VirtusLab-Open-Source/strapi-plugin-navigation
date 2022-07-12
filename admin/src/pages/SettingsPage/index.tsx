@@ -1,34 +1,47 @@
-import React, { useMemo, useState } from 'react';
-import { Formik } from 'formik';
-import { isEmpty, capitalize, isEqual, orderBy } from 'lodash';
-
+import React, { useEffect, useState } from 'react';
+import { isEmpty, capitalize, isEqual, orderBy, get } from 'lodash';
+import { Formik, Form } from 'formik';
 import {
   CheckPermissions,
   LoadingIndicatorPage,
-  Form,
   useOverlayBlocker,
   useAutoReloadOverlayBlocker,
   SettingsPageTitle,
+  //@ts-ignore
 } from '@strapi/helper-plugin';
+//@ts-ignore
 import { Main } from '@strapi/design-system/Main';
+//@ts-ignore
 import { ContentLayout, HeaderLayout } from '@strapi/design-system/Layout';
+//@ts-ignore
 import { Accordion, AccordionToggle, AccordionContent, AccordionGroup } from '@strapi/design-system/Accordion';
+//@ts-ignore
 import { Button } from '@strapi/design-system/Button';
+//@ts-ignore
 import { Box } from '@strapi/design-system/Box';
+//@ts-ignore
 import { Divider } from '@strapi/design-system/Divider';
+//@ts-ignore
 import { Stack } from '@strapi/design-system/Stack';
+//@ts-ignore
 import { Typography } from '@strapi/design-system/Typography';
+//@ts-ignore
 import { Grid, GridItem } from '@strapi/design-system/Grid';
+//@ts-ignore
 import { ToggleInput } from '@strapi/design-system/ToggleInput';
+//@ts-ignore
 import { NumberInput } from '@strapi/design-system/NumberInput';
+//@ts-ignore
 import { Select, Option } from '@strapi/design-system/Select';
+//@ts-ignore
 import { Tooltip } from '@strapi/design-system/Tooltip';
+//@ts-ignore
 import { Check, Refresh, Play, Information, ExclamationMarkCircle } from '@strapi/icons';
 
 import permissions from '../../permissions';
 import useNavigationConfig from '../../hooks/useNavigationConfig';
 import useAllContentTypes from '../../hooks/useAllContentTypes';
-import { navigationItemAdditionalFields } from '../View/utils/enums';
+import { navigationItemAdditionalFields } from '../../utils';
 import ConfirmationDialog from '../../components/ConfirmationDialog';
 import RestartAlert from '../../components/RestartAlert';
 import { getMessage } from '../../utils';
@@ -36,37 +49,51 @@ import { isContentTypeEligible, resolveGlobalLikeId } from './utils/functions';
 import { PermanentAlert } from '../../components/Alert/styles';
 import { useDisableI18nModal } from './components/DisableI18nModal';
 
-const RESTART_NOT_REQUIRED = { required: false }
-const RESTART_REQUIRED = { required: true, reasons: [] }
+import { NavigationItemAdditionalField, NavigationItemCustomField } from '../../../../types';
+import CustomFieldModal from './components/CustomFieldModal';
+import CustomFieldTable from './components/CustomFieldTable';
+import { HandleSetContentTypeExpanded, OnPopupClose, OnSave, PrepareNameFieldFor, PreparePayload, RestartReasons, RestartStatus, StrapiContentTypeSchema } from './types';
+
+const RESTART_NOT_REQUIRED: RestartStatus = { required: false }
+const RESTART_REQUIRED: RestartStatus = { required: true, reasons: [] }
 
 const SettingsPage = () => {
   const { lockApp, unlockApp } = useOverlayBlocker();
   const { lockAppWithAutoreload, unlockAppWithAutoreload } = useAutoReloadOverlayBlocker();
-  const [isRestorePopupOpen, setIsRestorePopupOpen] = useState(false);
-  const [restartStatus, setRestartStatus] = useState(RESTART_NOT_REQUIRED);
-  const [contentTypeExpanded, setContentTypeExpanded] = useState(undefined);
-  const [ pruneObsoleteI18nNavigations, setPruneObsoleteI18nNavigations ] = useState(false);
+  const [restartStatus, setRestartStatus] = useState<RestartStatus>(RESTART_NOT_REQUIRED);
+  const [pruneObsoleteI18nNavigations, setPruneObsoleteI18nNavigations] = useState<boolean>(false);
+  const [isCustomFieldModalOpen, setIsCustomFieldModalOpen] = useState<boolean>(false);
+  const [customFieldSelected, setCustomFieldSelected] = useState<NavigationItemCustomField | null>(null);
+  const [customFields, setCustomFields] = useState<NavigationItemCustomField[]>([]);
+  const [isRestorePopupOpen, setIsRestorePopupOpen] = useState<boolean>(false);
+  const [contentTypeExpanded, setContentTypeExpanded] = useState<string | undefined>(undefined);
+  const { data: navigationConfigData, isLoading: isConfigLoading, error: configErr, submitMutation, restoreMutation, restartMutation } = useNavigationConfig();
+  const { data: allContentTypesData, isLoading: isContentTypesLoading, error: contentTypesErr } = useAllContentTypes();
+  const isLoading = isConfigLoading || isContentTypesLoading;
+  const isError = configErr || contentTypesErr;
   const {
     disableI18nModal,
     setDisableI18nModalOpened,
     setI18nModalOnCancel,
-  } = useDisableI18nModal(({ pruneNavigations })=> {
+  } = useDisableI18nModal(({ pruneNavigations }) => {
     setPruneObsoleteI18nNavigations(pruneNavigations)
   });
-  const { data: navigationConfigData, isLoading: isConfigLoading, err: configErr, submitMutation, restoreMutation, restartMutation } = useNavigationConfig();
-  const { data: allContentTypesData, isLoading: isContentTypesLoading, err: contentTypesErr } = useAllContentTypes();
-  const isLoading = isConfigLoading || isContentTypesLoading;
-  const isError = configErr || contentTypesErr;
   const boxDefaultProps = {
-		background: "neutral0",
-		hasRadius: true,
-		shadow: "filterShadow",
-		padding: 6,
-	};
-  
-  const preparePayload = ({
+    background: "neutral0",
+    hasRadius: true,
+    shadow: "filterShadow",
+    padding: 6,
+  };
+
+  useEffect(() => {
+    const additionalFields = navigationConfigData?.additionalFields
+      ?.filter((field: NavigationItemAdditionalField) => field !== navigationItemAdditionalFields.AUDIENCE);
+    setCustomFields(additionalFields || []);
+  }, [navigationConfigData]);
+
+  const preparePayload: PreparePayload = ({
     form: {
-      selectedContentTypes, 
+      selectedContentTypes,
       nameFields,
       audienceFieldChecked,
       allowedLevels,
@@ -81,19 +108,19 @@ const SettingsPage = () => {
     contentTypes: selectedContentTypes,
     contentTypesNameFields: nameFields,
     contentTypesPopulate: populate,
-    additionalFields: audienceFieldChecked ? [navigationItemAdditionalFields.AUDIENCE] : [],
+    additionalFields: audienceFieldChecked ? ['audience', ...customFields] : [...customFields],
     gql: {
-      navigationItemRelated: selectedContentTypes.map(uid => resolveGlobalLikeId(uid)),
+      navigationItemRelated: selectedContentTypes.map((uid: string) => resolveGlobalLikeId(uid)),
     }
   });
 
-  const onSave = async (form) => {
+  const onSave: OnSave = async (form) => {
     lockApp();
     const payload = preparePayload({ form, pruneObsoleteI18nNavigations });
     await submitMutation({ body: payload });
     const isContentTypesChanged = !isEqual(payload.contentTypes, navigationConfigData.contentTypes);
     const isI18nChanged = !isEqual(payload.i18nEnabled, navigationConfigData.i18nEnabled);
-    const restartReasons = []
+    const restartReasons: RestartReasons[] = []
     if (isI18nChanged) {
       restartReasons.push('I18N');
     }
@@ -114,7 +141,7 @@ const SettingsPage = () => {
     unlockApp();
   }
 
-  const onPopupClose = async (isConfirmed) => {
+  const onPopupClose: OnPopupClose = async (isConfirmed) => {
     setIsRestorePopupOpen(false);
     if (isConfirmed) {
       lockApp();
@@ -127,13 +154,13 @@ const SettingsPage = () => {
   const handleRestart = async () => {
     lockAppWithAutoreload();
     await restartMutation();
-    setRestartStatus(RESTART_NOT_REQUIRED);
     unlockAppWithAutoreload();
+    setRestartStatus(RESTART_NOT_REQUIRED);
   };
   const handleRestartDiscard = () => setRestartStatus(RESTART_NOT_REQUIRED);
-	const handleSetContentTypeExpanded = key => setContentTypeExpanded(key === contentTypeExpanded ? undefined : key);
+  const handleSetContentTypeExpanded: HandleSetContentTypeExpanded = key => setContentTypeExpanded(key === contentTypeExpanded ? undefined : key);
 
-  const prepareNameFieldFor = (uid, current, value) => ({
+  const prepareNameFieldFor: PrepareNameFieldFor = (uid, current, value) => ({
     ...current,
     [uid]: value && !isEmpty(value) ? [...value] : undefined,
   });
@@ -152,9 +179,9 @@ const SettingsPage = () => {
     )
   }
 
-  const configContentTypes = navigationConfigData?.contentTypes || [];
+  const configContentTypes: StrapiContentTypeSchema[] = navigationConfigData?.contentTypes || [];
 
-  const allContentTypes = !isLoading && Object.values(allContentTypesData).filter(({ uid }) => isContentTypeEligible(uid, {
+  const allContentTypes: StrapiContentTypeSchema[] = !isLoading ? Object.values<StrapiContentTypeSchema>(allContentTypesData).filter(({ uid }) => isContentTypeEligible(uid, {
     allowedContentTypes: navigationConfigData?.allowedContentTypes,
     restrictedContentTypes: navigationConfigData?.restrictedContentTypes,
   })).map(ct => {
@@ -168,15 +195,40 @@ const SettingsPage = () => {
       };
     }
     return ct;
-  });
+  }) : [];
   const selectedContentTypes = configContentTypes.map(item => item.uid);
-  const audienceFieldChecked = navigationConfigData?.additionalFields.includes(navigationItemAdditionalFields.AUDIENCE);
+  const audienceFieldChecked = navigationConfigData?.additionalFields?.includes(navigationItemAdditionalFields.AUDIENCE);
   const allowedLevels = navigationConfigData?.allowedLevels || 2;
   const nameFields = navigationConfigData?.contentTypesNameFields || {}
   const populate = navigationConfigData?.contentTypesPopulate || {}
   const i18nEnabled = navigationConfigData?.i18nEnabled ?? false
   const isI18NPluginEnabled = navigationConfigData?.isI18NPluginEnabled;
   const defaultLocale = navigationConfigData?.defaultLocale;
+
+  const handleSubmitCustomField = (field: NavigationItemCustomField) => {
+    const filteredFields = customFields.filter(f => f.name !== field.name);
+    setCustomFields([...filteredFields, field]);
+    setCustomFieldSelected(null);
+    setIsCustomFieldModalOpen(false);
+  }
+
+  const handleOpenCustomFieldModal = (field: NavigationItemCustomField | null) => {
+    setCustomFieldSelected(field);
+    setIsCustomFieldModalOpen(true);
+  }
+
+  const handleRemoveCustomField = (field: NavigationItemCustomField) => {
+    const filteredFields = customFields.filter(f => f.name !== field.name);
+    setCustomFields(filteredFields);
+    setCustomFieldSelected(null);
+    setIsCustomFieldModalOpen(false);
+  }
+
+  const handleToggleCustomField = (field: NavigationItemCustomField) => {
+    const updatedField = { ...field, enabled: !get(field, 'enabled', false) }
+    const filteredFields = customFields.filter(f => f.name !== field.name);
+    setCustomFields([...filteredFields, updatedField]);
+  }
 
   return (
     <>
@@ -216,18 +268,18 @@ const SettingsPage = () => {
                       title={getMessage('pages.settings.actions.restart.alert.title')}
                       action={<Box><Button onClick={handleRestart} startIcon={<Play />}>{getMessage('pages.settings.actions.restart')}</Button></Box>}
                       onClose={handleRestartDiscard}>
-                        <>
-                          <Box paddingBottom={1}>
-                            {getMessage('pages.settings.actions.restart.alert.description')}
-                          </Box>
-                          {
-                            restartStatus.reasons.map((reason, i) => <Box 
-                              paddingBottom={1}
-                              key={i}
-                              children={getMessage(`pages.settings.actions.restart.alert.reason.${reason}`)}
-                            />)
-                          }
-                        </>
+                      <>
+                        <Box paddingBottom={1}>
+                          {getMessage('pages.settings.actions.restart.alert.description')}
+                        </Box>
+                        {
+                          restartStatus.reasons?.map((reason, i) => <Box
+                            paddingBottom={1}
+                            key={i}
+                            children={getMessage(`pages.settings.actions.restart.alert.reason.${reason}`)}
+                          />)
+                        }
+                      </>
                     </RestartAlert>)}
                   <Box {...boxDefaultProps} >
                     <Stack size={4}>
@@ -243,7 +295,7 @@ const SettingsPage = () => {
                             hint={getMessage('pages.settings.form.contentTypes.hint')}
                             onClear={() => setFieldValue('selectedContentTypes', [], false)}
                             value={values.selectedContentTypes}
-                            onChange={(value) => setFieldValue('selectedContentTypes', value, false)}
+                            onChange={(value: string[]) => setFieldValue('selectedContentTypes', value, false)}
                             multi
                             withTags
                             disabled={restartStatus.required}
@@ -259,7 +311,9 @@ const SettingsPage = () => {
                                 <Information aria-hidden={true} />
                               </Tooltip>}>
                               {orderBy(values.selectedContentTypes).map(uid => {
-                                const { attributes, info: { displayName }, available, isSingle } = allContentTypes.find(item => item.uid == uid);
+                                const contentType = allContentTypes.find(item => item.uid == uid);
+                                if (!contentType) return;
+                                const { attributes, info: { displayName }, available, isSingle } = contentType;
                                 const stringAttributes = Object.keys(attributes).filter(_ => attributes[_].type === 'string');
                                 const relationAttributes = Object.keys(attributes).filter(_ => ['relation', 'media'].includes(attributes[_].type));
                                 const key = `collectionSettings-${uid}`;
@@ -269,13 +323,13 @@ const SettingsPage = () => {
                                   key={key}
                                   id={key}
                                   size="S">
-                                  <AccordionToggle title={displayName} togglePosition="left" startIcon={(isSingle && !available) && (<ExclamationMarkCircle aria-hidden={true} />)} />
+                                  <AccordionToggle title={displayName} togglePosition="left" startIcon={(isSingle && !available) ? (<ExclamationMarkCircle aria-hidden={true} />) : null} />
                                   <AccordionContent>
                                     <Box padding={6}>
                                       <Stack size={4}>
-                                        { (isSingle && !available) && (
-                                          <PermanentAlert title={getMessage('pages.settings.form.contentTypesSettings.initializationWarning.title')} variant="danger" onClose={(e) => e.preventDefault()}>
-                                            { getMessage('pages.settings.form.contentTypesSettings.initializationWarning.content') }
+                                        {(isSingle && !available) && (
+                                          <PermanentAlert title={getMessage('pages.settings.form.contentTypesSettings.initializationWarning.title')} variant="danger" onClose={(e: React.FormEvent) => e.preventDefault()}>
+                                            {getMessage('pages.settings.form.contentTypesSettings.initializationWarning.content')}
                                           </PermanentAlert>)}
                                         <Select
                                           name={`collectionSettings-${uid}-entryLabel`}
@@ -284,14 +338,14 @@ const SettingsPage = () => {
                                           placeholder={getMessage('pages.settings.form.nameField.placeholder')}
                                           onClear={() => null}
                                           value={values.nameFields[uid] || []}
-                                          onChange={(value) => setFieldValue('nameFields', prepareNameFieldFor(uid, values.nameFields, value))}
+                                          onChange={(value: string[]) => setFieldValue('nameFields', prepareNameFieldFor(uid, values.nameFields, value))}
                                           multi
                                           withTags
                                           disabled={restartStatus.required || isEmpty(stringAttributes)}
                                         >
                                           {stringAttributes.map(key =>
                                             (<Option key={uid + key} value={key}>{capitalize(key.split('_').join(' '))}</Option>))}
-                                        </Select>                                    
+                                        </Select>
                                         <Select
                                           name={`collectionSettings-${uid}-populate`}
                                           label={getMessage('pages.settings.form.populate.label')}
@@ -299,7 +353,7 @@ const SettingsPage = () => {
                                           placeholder={getMessage('pages.settings.form.populate.placeholder')}
                                           onClear={() => null}
                                           value={values.populate[uid] || []}
-                                          onChange={(value) => setFieldValue('populate', prepareNameFieldFor(uid, values.populate, value))}
+                                          onChange={(value: string[]) => setFieldValue('populate', prepareNameFieldFor(uid, values.populate, value))}
                                           multi
                                           withTags
                                           disabled={restartStatus.required || isEmpty(relationAttributes)}
@@ -309,7 +363,6 @@ const SettingsPage = () => {
                                         </Select>
                                       </Stack>
                                     </Box>
-
                                   </AccordionContent>
                                 </Accordion>);
                               })}
@@ -330,7 +383,7 @@ const SettingsPage = () => {
                             label={getMessage('pages.settings.form.allowedLevels.label')}
                             placeholder={getMessage('pages.settings.form.allowedLevels.placeholder')}
                             hint={getMessage('pages.settings.form.allowedLevels.hint')}
-                            onValueChange={(value) => setFieldValue('allowedLevels', value, false)}
+                            onValueChange={(value: number) => setFieldValue('allowedLevels', value, false)}
                             value={values.allowedLevels}
                             disabled={restartStatus.required}
                           />
@@ -341,7 +394,7 @@ const SettingsPage = () => {
                             label={getMessage('pages.settings.form.audience.label')}
                             hint={getMessage('pages.settings.form.audience.hint')}
                             checked={values.audienceFieldChecked}
-                            onChange={({ target: { checked } }) => setFieldValue('audienceFieldChecked', checked, false)}
+                            onChange={() => setFieldValue('audienceFieldChecked', !values.audienceFieldChecked, false)}
                             onLabel="Enabled"
                             offLabel="Disabled"
                             disabled={restartStatus.required}
@@ -357,7 +410,7 @@ const SettingsPage = () => {
                                 : getMessage('pages.settings.form.i18n.hint.missingDefaultLocale')
                               }
                               checked={values.i18nEnabled}
-                              onChange={({ target: { checked } }) => {
+                              onChange={({ target: { checked } }: { target: { checked: boolean } }) => {
                                 setFieldValue('i18nEnabled', checked, false);
                                 if (checked) {
                                   setPruneObsoleteI18nNavigations(false);
@@ -375,6 +428,19 @@ const SettingsPage = () => {
                           </GridItem>
                         )}
                       </Grid>
+                    </Stack>
+                  </Box>
+                  <Box {...boxDefaultProps} >
+                    <Stack size={4}>
+                      <Typography variant="delta" as="h2">
+                        {getMessage('pages.settings.customFields.title')}
+                      </Typography>
+                      <CustomFieldTable
+                        data={customFields}
+                        onOpenModal={handleOpenCustomFieldModal}
+                        onRemoveCustomField={handleRemoveCustomField}
+                        onToggleCustomField={handleToggleCustomField}
+                      />
                     </Stack>
                   </Box>
                   <Box {...boxDefaultProps} >
@@ -414,6 +480,15 @@ const SettingsPage = () => {
           )}
         </Formik>
       </Main>
+      {isCustomFieldModalOpen &&
+        <CustomFieldModal
+          onClose={() => setIsCustomFieldModalOpen(false)}
+          onSubmit={handleSubmitCustomField}
+          isOpen={isCustomFieldModalOpen}
+          data={customFieldSelected}
+          usedCustomFieldNames={customFields.filter(f => f.name !== customFieldSelected?.name).map(f => f.name)}
+        />
+      }
     </>
   );
 }

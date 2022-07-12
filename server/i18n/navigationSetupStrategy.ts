@@ -174,7 +174,7 @@ const deleteNavigations = ({
 }: {
   strapi: IStrapi;
   where: { localeCode?: string | { $in: string[] } | { $not: string } };
-}): Promise<Navigation[]> =>
+}) =>
   strapi.query<Navigation>("plugin::navigation.navigation").deleteMany({
     where,
   });

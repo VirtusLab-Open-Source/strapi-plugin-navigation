@@ -103,3 +103,19 @@ export const assertEntity = <T>(entity: unknown, name = "Entity"): T => {
 
   throw new Error(`${name} instance expected. ${typeof entity} given.`);
 };
+
+export function assertBoolean(value: unknown): asserts value is boolean {
+  if (typeof value === "boolean") {
+    return;
+  }
+
+  throw new Error("Value is not of type boolean");
+} 
+
+export function assertString(value: unknown): asserts value is string {
+  if (typeof value === "string") {
+    return;
+  }
+
+  throw new Error("Value is not of type string");
+}

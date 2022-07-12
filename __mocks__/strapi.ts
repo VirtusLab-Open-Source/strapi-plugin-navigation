@@ -47,6 +47,7 @@ const itemModelMock = {
       navigationItemId: 56,
     },
     parent: null,
+    additionalFields: { string_test_field: 'Custom field value' },
   }),
   findMany: async (params: StrapiDBQueryArgs) => [{
     id: 1,
@@ -72,6 +73,7 @@ const itemModelMock = {
       navigationItemId: 56,
     },
     parent: null,
+    additionalFields: { string_test_field: 'Custom field value' },
   }, {
     id: 2,
     title: "side",
@@ -107,6 +109,7 @@ const itemModelMock = {
       createdAt: "2021-12-31T10:04:54.812Z",
       updatedAt: "2022-01-14T13:36:29.430Z",
     },
+    additionalFields: { string_test_field: 'Custom field value' },
   }].filter(item => params.where ? isMatch(item, params.where) : true),
 };
 
@@ -143,9 +146,10 @@ const plugins = (strapi: IStrapi): StringMap<StrapiPlugin> => ({
     config: (key: string) => ({
       ...defaultConfig.default,
       contentTypes: ['api::pages.pages'],
+      additionalFields: [{ name: 'string_test_field', label: "Test field", type: 'string', enabled: true }]
     })[key],
     get controllers() { return {} },
-    controller() { return () => {}  },
+    controller() { return () => {} },
   }
 });
 
@@ -193,7 +197,8 @@ const strapiFactory = (plugins: (strapi: IStrapi) => StringMap<StrapiPlugin>, co
       return {
         get: ({ key }: { key: string }) => key === 'config' ? {
           ...(defaultConfig.default),
-          contentTypes: ['api::pages.pages']
+          contentTypes: ['api::pages.pages'],
+          additionalFields: [{ name: 'string_test_field', label: "Test field", type: 'string', enabled: true }]
         } : null,
         set: () => null,
       }

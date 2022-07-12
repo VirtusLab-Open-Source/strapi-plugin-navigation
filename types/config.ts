@@ -1,3 +1,5 @@
+import { NavigationItemAdditionalField } from "./contentTypes";
+
 export type PluginConfigNameFields = Record<string, string[]>;
 export type PluginConfigPopulate = Record<string, string[]>;
 
@@ -6,7 +8,7 @@ export type PluginConfigGraphQL = {
 };
 
 export type NavigationPluginConfig = {
-  additionalFields: string[];
+  additionalFields: NavigationItemAdditionalField[];
   contentTypes: string[];
   contentTypesNameFields: PluginConfigNameFields;
   contentTypesPopulate: PluginConfigPopulate;

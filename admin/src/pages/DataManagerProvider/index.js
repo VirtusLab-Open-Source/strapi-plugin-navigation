@@ -10,9 +10,9 @@ import {
   useAppInfos,
 } from "@strapi/helper-plugin";
 import DataManagerContext from "../../contexts/DataManagerContext";
-import getTrad from "../../utils/getTrad";
 import pluginId from "../../pluginId";
 import init from "./init";
+import { getTrad } from "../../translations";
 import reducer, { initialState } from "./reducer";
 import {
   GET_NAVIGATION_DATA,
@@ -108,7 +108,7 @@ const DataManagerProvider = ({ children }) => {
       console.error({ err });
       toggleNotification({
         type: 'warning',
-        message: { id: getTrad('notification.error') },
+        message: getTrad('notification.error'),
       });
     }
   };
@@ -147,7 +147,7 @@ const DataManagerProvider = ({ children }) => {
       console.error({ err });
       toggleNotification({
         type: 'warning',
-        message: { id: getTrad('notification.error') },
+        message: getTrad('notification.error'),
       });
     }
   };
@@ -169,7 +169,7 @@ const DataManagerProvider = ({ children }) => {
     if (!autoReload) {
       toggleNotification({
         type: 'info',
-        message: { id: getTrad('notification.info.autoreaload-disable') },
+        message: { id: 'notification.info.autoreaload-disable' },
       });
     }
   }, [autoReload]);
@@ -310,7 +310,7 @@ const DataManagerProvider = ({ children }) => {
        });
        toggleNotification({
          type: 'success',
-         message: { id: getTrad('notification.navigation.submit') },
+         message: getTrad('notification.navigation.submit'),
        });
      } catch (err) {
        dispatch({
@@ -332,7 +332,7 @@ const DataManagerProvider = ({ children }) => {
        }
        toggleNotification({
          type: 'warning',
-         message: { id: getTrad('notification.error') },
+         message: getTrad('notification.error'),
        });
      }
   };

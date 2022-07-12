@@ -1,6 +1,6 @@
 import { v4 as uuid, validate as isUuid } from 'uuid'
 import { find, get, isArray, isEmpty, isNil, isNumber, isObject, isString, last, omit, orderBy } from 'lodash';
-import { navigationItemType } from './enums';
+import { navigationItemType } from '../../../utils';
 
 export const transformItemToRESTPayload = (
   item,
@@ -25,7 +25,8 @@ export const transformItemToRESTPayload = (
     audience = [],
     items = [],
     collapsed,
-    isSingle
+    isSingle,
+    additionalFields = {},
   } = item;
   const isExternal = type === navigationItemType.EXTERNAL;
   const isWrapper = type === navigationItemType.WRAPPER;
@@ -50,6 +51,7 @@ export const transformItemToRESTPayload = (
     order,
     uiRouterKey,
     collapsed,
+    additionalFields,
     menuAttached: itemAttachedToMenu,
     audience: audience.map((audienceItem) =>
       isObject(audienceItem) ? audienceItem.value : audienceItem,

@@ -1,11 +1,32 @@
 // @ts-ignore
 import { errors } from "@strapi/utils"
 import slugify from "@sindresorhus/slugify";
-import { isNil, isObject } from "lodash";
+import { differenceBy, get, isEmpty, isNil, isObject } from "lodash";
 import { Id, StrapiContext } from "strapi-typed";
-import { Audience, AuditLogContext, IAdminService, ICommonService, Navigation, NavigationItemEntity, NavigationPluginConfig, ToBeFixed } from "../../types";
-import { ADDITIONAL_FIELDS, ALLOWED_CONTENT_TYPES, buildNestedStructure, CONTENT_TYPES_NAME_FIELDS_DEFAULTS, DEFAULT_POPULATE, extractMeta, getPluginService, prepareAuditLog, RESTRICTED_CONTENT_TYPES, sendAuditLog } from "../utils";
-import { addI18NConfigFields, getI18nStatus, I18NConfigFields, i18nNavigationContentsCopy, i18nNavigationItemRead, i18nNavigationSetupStrategy } from "../i18n";
+import {
+  Audience,
+  AuditLogContext,
+  IAdminService,
+  ICommonService,
+  Navigation,
+  NavigationItemCustomField,
+  NavigationItemEntity,
+  NavigationPluginConfig,
+  ToBeFixed
+} from "../../types";
+import {
+  ALLOWED_CONTENT_TYPES,
+  buildNestedStructure,
+  CONTENT_TYPES_NAME_FIELDS_DEFAULTS,
+  DEFAULT_POPULATE,
+  getPluginModels,
+  getPluginService,
+  prepareAuditLog,
+  RESTRICTED_CONTENT_TYPES,
+  sendAuditLog,
+  validateAdditionalFields,
+} from "../utils";
+import { addI18NConfigFields, getI18nStatus, I18NConfigFields, i18nNavigationContentsCopy, i18nNavigationSetupStrategy, i18nNavigationItemRead } from "../i18n";
 import { NavigationError } from "../../utils/NavigationError";
 
 type SettingsPageConfig = NavigationPluginConfig & I18NConfigFields
@@ -13,9 +34,9 @@ type SettingsPageConfig = NavigationPluginConfig & I18NConfigFields
 const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => ({
   async config(viaSettingsPage = false): Promise<SettingsPageConfig> {
     const commonService = getPluginService<ICommonService>('common');
-    const { audienceModel } = extractMeta(strapi.plugins);
+    const { audienceModel } = getPluginModels();
     const pluginStore = await commonService.getPluginStore()
-    const config: NavigationPluginConfig = await pluginStore.get({ key: 'config' });
+    const config = await pluginStore.get<string, NavigationPluginConfig>({ key: 'config' });
 
     const additionalFields = config.additionalFields;
     const contentTypesNameFields = config.contentTypesNameFields;
@@ -39,7 +60,9 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
         ...(isObject(contentTypesPopulate) ? contentTypesPopulate : {}),
       },
       allowedLevels,
-      additionalFields,
+      additionalFields: viaSettingsPage
+        ? additionalFields
+        : additionalFields.filter(field => typeof field === 'string' || get(field, 'enabled', false)),
       gql: {
         navigationItemRelated: configContentTypes.map(({ labelSingular }) => labelSingular.replace(/\s+/g, ''))
       },
@@ -48,7 +71,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
     };
     const i18nConfig = await addI18NConfigFields({ strapi, viaSettingsPage, previousConfig: {} });
 
-    if (additionalFields.includes(ADDITIONAL_FIELDS.AUDIENCE)) {
+    if (additionalFields.includes('audience')) {
       const audienceItems = await strapi
         .query<Audience>(audienceModel.uid)
         .findMany({
@@ -67,7 +90,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
   },
 
   async get(): Promise<Navigation[]> {
-    const { masterModel } = extractMeta(strapi.plugins);
+    const { masterModel } = getPluginModels();
     const entities = await strapi
       .query<Navigation>(masterModel.uid)
       .findMany({
@@ -80,7 +103,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
   async getById(id: Id): Promise<Navigation> {
     const commonService = getPluginService<ICommonService>('common');
 
-    const { masterModel, itemModel } = extractMeta(strapi.plugins);
+    const { masterModel, itemModel } = getPluginModels();
     const entity = await strapi
       .query<Navigation>(masterModel.uid)
       .findOne({ where: { id }, populate: DEFAULT_POPULATE });
@@ -108,7 +131,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
     const { enabled: i18nEnabled, defaultLocale } = await getI18nStatus({ strapi })
     const { slugify: customSlugifyConfig } = await adminService.config(false);
 
-    const { masterModel } = extractMeta(strapi.plugins);
+    const { masterModel } = getPluginModels();
     const { name, visible } = payload;
     const data = {
       name,
@@ -138,13 +161,13 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
     return result
   },
 
-  async put(id: Id, payload: ToBeFixed, auditLog: AuditLogContext) {
+  async put(id: Id, payload: Navigation & { items: ToBeFixed }, auditLog: AuditLogContext) {
     const adminService = getPluginService<IAdminService>('admin');
     const commonService = getPluginService<ICommonService>('common');
     const { enabled: i18nEnabled } = await getI18nStatus({ strapi })
     const { slugify: customSlugifyConfig } = await adminService.config(false);
 
-    const { masterModel } = extractMeta(strapi.plugins);
+    const { masterModel } = getPluginModels();
     const { name, visible } = payload;
 
     const existingEntity = await adminService.getById(id);
@@ -197,7 +220,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
   },
 
   async delete(id, auditLog) {
-    const { masterModel } = extractMeta(strapi.plugins);
+    const { masterModel } = getPluginModels();
     const adminService = getPluginService<IAdminService>('admin');
     const entity = await adminService.getById(id);
     const { enabled: i18nEnabled } = await getI18nStatus({ strapi })
@@ -235,7 +258,14 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
   async updateConfig(newConfig: NavigationPluginConfig): Promise<void> {
     const commonService = getPluginService<ICommonService>('common');
     const pluginStore = await commonService.getPluginStore()
+    const config = await pluginStore.get<string, NavigationPluginConfig>({ key: 'config' });
+    validateAdditionalFields(newConfig.additionalFields);
     await pluginStore.set({ key: 'config', value: newConfig });
+
+    const removedFields = differenceBy(config.additionalFields, newConfig.additionalFields, 'name').filter(i => i !== 'audience') as NavigationItemCustomField[];
+    if (!isEmpty(removedFields)) {
+      await commonService.pruneCustomFields(removedFields);
+    }
   },
 
   async fillFromOtherLocale({ target, source, auditLog }) {

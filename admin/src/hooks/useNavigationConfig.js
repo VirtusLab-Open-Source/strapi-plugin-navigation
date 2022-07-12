@@ -1,12 +1,12 @@
 import { useQuery, useQueryClient } from 'react-query';
 import { useNotification } from '@strapi/helper-plugin';
-import { fetchNavigationConfig, restartStrapi, restoreNavigationConfig, updateNavigationConfig } from '../utils/api';
+import { fetchNavigationConfig, restartStrapi, restoreNavigationConfig, updateNavigationConfig } from '../utils';
 import { getTrad } from '../translations';
 
 const useNavigationConfig = () => {
   const queryClient = useQueryClient();
   const toggleNotification = useNotification();
-  const { isLoading, data, err } = useQuery('navigationConfig', () =>
+  const { isLoading, data, error } = useQuery('navigationConfig', () =>
     fetchNavigationConfig(toggleNotification)
   );
 
@@ -52,7 +52,7 @@ const useNavigationConfig = () => {
     }
   }
 
-  return { data, isLoading, err, submitMutation, restoreMutation, restartMutation };
+  return { data, isLoading, error, submitMutation, restoreMutation, restartMutation };
 };
 
 export default useNavigationConfig;

@@ -94,6 +94,11 @@ export default {
       type: "relation",
       relation: "oneToMany",
       target: "plugin::navigation.audience"
+    },
+    additionalFields: {
+      type: "json",
+      require: false,
+      default: {},
     }
   }
 }

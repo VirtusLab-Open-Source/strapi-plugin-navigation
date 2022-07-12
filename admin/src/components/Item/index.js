@@ -11,14 +11,13 @@ import { TextButton } from '@strapi/design-system/TextButton';
 import { Typography } from '@strapi/design-system/Typography';
 import { ArrowRight, Link as LinkIcon, Earth, Plus, Cog } from '@strapi/icons';
 
-import { navigationItemType } from '../../pages/View/utils/enums';
 import ItemCardHeader from './ItemCardHeader';
 import List from '../NavigationItemList';
 import Wrapper from './Wrapper';
 import { extractRelatedItemLabel } from '../../pages/View/utils/parsers';
 import ItemCardBadge from './ItemCardBadge';
 import { ItemCardRemovedOverlay } from './ItemCardRemovedOverlay';
-import { getMessage, ItemTypes } from '../../utils';
+import { getMessage, ItemTypes, navigationItemType } from '../../utils';
 import CollapseButton from '../CollapseButton';
 
 const Item = (props) => {
