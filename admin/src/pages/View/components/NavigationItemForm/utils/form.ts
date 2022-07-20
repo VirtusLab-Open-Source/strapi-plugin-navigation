@@ -28,7 +28,7 @@ export const schemaFactory = (isSingleSelected: boolean, additionalFields: Navig
     path: yup.string()
       .when('type', {
         is: (val: NavigationItemType) => val !== navigationItemType.EXTERNAL || isNil(val),
-        then: yup.string().required(translatedErrors.required),
+        then: yup.string().matches(/^\S+$/, "Invalid path string").required(translatedErrors.required),
         otherwise: yup.string().notRequired(),
       }),
     externalPath: yup.string()

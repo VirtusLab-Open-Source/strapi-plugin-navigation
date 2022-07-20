@@ -5,15 +5,16 @@ export * from "./setupStrategy";
 const config: StrapiConfig<NavigationPluginConfig> = {
   default: {
     additionalFields: [],
+    allowedLevels: 2,
     contentTypes: [],
     contentTypesNameFields: {},
     contentTypesPopulate: {},
-    allowedLevels: 2,
-    i18nEnabled: false,
-    pruneObsoleteI18nNavigations: false,
     gql: {
       navigationItemRelated: [],
     },
+    i18nEnabled: false,
+    pathDefaultFields: {},
+    pruneObsoleteI18nNavigations: false,
     slugify: {},
   },
 };

@@ -249,7 +249,7 @@ const View = () => {
       startIcon: <PlusIcon />,
       disabled: isLoadingForSubmit,
       type: "submit",
-      variant: "primary",
+      variant: "default",
       tradId: 'header.action.newItem',
       margin: '16px',
     },

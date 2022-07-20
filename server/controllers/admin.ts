@@ -47,7 +47,7 @@ const adminControllers: IAdminController = {
 
       return {};
     } catch (error) {
-      console.log(error);
+      console.error(error);
       
       if (error instanceof NavigationError) {
         return errorHandler(ctx)(error)

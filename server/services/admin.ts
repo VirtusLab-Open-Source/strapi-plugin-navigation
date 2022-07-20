@@ -41,6 +41,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
     const additionalFields = config.additionalFields;
     const contentTypesNameFields = config.contentTypesNameFields;
     const contentTypesPopulate = config.contentTypesPopulate;
+    const pathDefaultFields = config.pathDefaultFields;
     const allowedLevels = config.allowedLevels;
     const slugify = config.slugify;
     const isGQLPluginEnabled = !isNil(strapi.plugin('graphql'));
@@ -56,9 +57,8 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
         default: CONTENT_TYPES_NAME_FIELDS_DEFAULTS,
         ...(isObject(contentTypesNameFields) ? contentTypesNameFields : {}),
       },
-      contentTypesPopulate: {
-        ...(isObject(contentTypesPopulate) ? contentTypesPopulate : {}),
-      },
+      contentTypesPopulate: isObject(contentTypesPopulate) ? contentTypesPopulate : {},
+      pathDefaultFields: isObject(pathDefaultFields) ? pathDefaultFields : {},
       allowedLevels,
       additionalFields: viaSettingsPage
         ? additionalFields
