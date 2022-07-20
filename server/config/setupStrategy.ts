@@ -7,6 +7,7 @@ import {
   PluginConfigGraphQL,
   PluginConfigKeys,
   PluginConfigNameFields,
+  PluginConfigPathDefaultFields,
   PluginConfigPopulate,
   PluginDefaultConfigGetter,
 } from "../../types";
@@ -44,6 +45,7 @@ export const configSetupStrategy: IConfigSetupStrategy = async ({ strapi }) => {
       validSlugifyFields
     ),
     pruneObsoleteI18nNavigations: false,
+    pathDefaultFields: getWithFallback<PluginConfigPathDefaultFields>("pathDefaultFields"),
   };
 
   validateAdditionalFields(config.additionalFields);

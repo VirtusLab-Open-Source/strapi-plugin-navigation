@@ -2,6 +2,7 @@ import { NavigationItemAdditionalField } from "./contentTypes";
 
 export type PluginConfigNameFields = Record<string, string[]>;
 export type PluginConfigPopulate = Record<string, string[]>;
+export type PluginConfigPathDefaultFields = Record<string, string[]>;
 
 export type PluginConfigGraphQL = {
   navigationItemRelated: string[];
@@ -17,6 +18,7 @@ export type NavigationPluginConfig = {
   i18nEnabled: boolean;
   pruneObsoleteI18nNavigations: boolean;
   slugify: Record<string, unknown>;
+  pathDefaultFields: PluginConfigPathDefaultFields;
 };
 
 export type StrapiConfig<T> = {

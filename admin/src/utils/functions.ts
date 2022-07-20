@@ -1,4 +1,4 @@
-import { get } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import { useIntl } from 'react-intl';
 import { NavigationItemAdditionalField, NavigationItemAdditionalFieldValues, ToBeFixed } from '../../../types';
 import { defaultValues as navigationItemFormDefaults } from '../pages/View/components/NavigationItemForm/utils/form';
@@ -8,7 +8,13 @@ type MessageInput = {
   id: string;
   defaultMessage?: string;
   props?: Record<string, ToBeFixed>
-} | string
+} | string;
+
+type PrepareNewValueForRecord = (
+  uid: string,
+  current: Record<string, string[] | undefined>,
+  value: string[]
+) => Record<string, string[] | undefined>;
 
 export const getMessage = (input: MessageInput, defaultMessage: string = '', inPluginScope: boolean = true): string => {
   const { formatMessage } = useIntl();
@@ -41,3 +47,8 @@ export const getDefaultCustomFields = (args: {
     }
   }, {});
 }
+
+export const prepareNewValueForRecord: PrepareNewValueForRecord = (uid, current, value) => ({
+  ...current,
+  [uid]: value && !isEmpty(value) ? [...value] : undefined,
+});

@@ -20,7 +20,7 @@ import { extractRelatedItemLabel } from '../../utils/parsers';
 import * as formDefinition from './utils/form';
 import { checkFormValidity } from '../../utils/form';
 import { getTrad, getTradId } from '../../../../translations';
-import { Audience, NavigationItemAdditionalField, NavigationItemType, ToBeFixed } from '../../../../../../types';
+import { assertString, Audience, NavigationItemAdditionalField, NavigationItemType, ToBeFixed } from '../../../../../../types';
 import { ContentTypeSearchQuery, NavigationItemFormData, NavigationItemFormProps, RawFormPayload, SanitizedFormPayload } from './types';
 import AdditionalFieldInput from '../../../../components/AdditionalFieldInput';
 import { getMessage, ResourceState } from '../../../../utils';
@@ -59,7 +59,9 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
     validate: (values) => checkFormValidity(sanitizePayload(values, {}), formDefinition.schemaFactory(isSingleSelected, additionalFields)),
     validateOnChange: false,
   });
-
+  const initialRelatedTypeSelected = get(data, 'relatedType.value');
+  const relatedTypeSelectValue = formik.values.relatedType;
+  const relatedSelectValue = formik.values.related;
   const isI18nBootstrapAvailable = !!(config.i18nEnabled && availableLocale && availableLocale.length);
   const availableLocaleOptions = useMemo(() => availableLocale.map((locale) => ({
     value: locale,
@@ -139,7 +141,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
       title,
       type,
       menuAttached: isNil(menuAttached) ? false : menuAttached,
-      path: type !== navigationItemType.EXTERNAL ? purePayload.path : undefined,
+      path: type !== navigationItemType.EXTERNAL ? purePayload.path || getDefaultPath() : undefined,
       externalPath: type === navigationItemType.EXTERNAL ? purePayload.externalPath : undefined,
       related: type === navigationItemType.INTERNAL ? relatedId : undefined,
       relatedType: type === navigationItemType.INTERNAL ? relatedCollectionType : undefined,
@@ -162,6 +164,21 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
       setChangedState(true);
     }
   };
+
+  const getDefaultPath: () => string = useCallback(() => {
+    if (formik.values.type !== "INTERNAL") return "";
+    assertString(relatedTypeSelectValue);
+
+    const pathDefaultFields = get(config, ["pathDefaultFields", relatedTypeSelectValue], []);
+    if (isEmpty(formik.values.path) && !isEmpty(pathDefaultFields)) {
+      const selectedEntity = contentTypeEntities.find(i => i.id === relatedSelectValue);
+      const pathDefaultValues = pathDefaultFields
+        .map((field) => get(selectedEntity, field, ""))
+        .filter(value => !isNil(value) && String(value).match(/^\S+$/));
+      return String(first(pathDefaultValues));
+    }
+    return "";
+  }, [relatedTypeSelectValue, formik, config]);
 
   const onAudienceChange = useCallback((value: string) => {
     onChange({ name: "audience", value });
@@ -190,10 +207,6 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
     }
     return undefined;
   };
-
-  const initialRelatedTypeSelected = get(data, 'relatedType.value');
-  const relatedTypeSelectValue = formik.values.relatedType;
-  const relatedSelectValue = formik.values.related;
 
   const isSingleSelected = useMemo(
     () => relatedTypeSelectValue ? contentTypes.find(_ => _.uid === relatedTypeSelectValue)?.isSingle || false : false,

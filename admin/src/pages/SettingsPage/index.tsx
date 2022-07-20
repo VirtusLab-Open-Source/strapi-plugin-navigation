@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { isEmpty, capitalize, isEqual, orderBy, get } from 'lodash';
 import { Formik, Form } from 'formik';
 import {
@@ -41,7 +41,7 @@ import { Check, Refresh, Play, Information, ExclamationMarkCircle } from '@strap
 import permissions from '../../permissions';
 import useNavigationConfig from '../../hooks/useNavigationConfig';
 import useAllContentTypes from '../../hooks/useAllContentTypes';
-import { navigationItemAdditionalFields } from '../../utils';
+import { navigationItemAdditionalFields, prepareNewValueForRecord } from '../../utils';
 import ConfirmationDialog from '../../components/ConfirmationDialog';
 import RestartAlert from '../../components/RestartAlert';
 import { getMessage } from '../../utils';
@@ -52,11 +52,17 @@ import { useDisableI18nModal } from './components/DisableI18nModal';
 import { NavigationItemAdditionalField, NavigationItemCustomField } from '../../../../types';
 import CustomFieldModal from './components/CustomFieldModal';
 import CustomFieldTable from './components/CustomFieldTable';
-import { HandleSetContentTypeExpanded, OnPopupClose, OnSave, PrepareNameFieldFor, PreparePayload, RestartReasons, RestartStatus, StrapiContentTypeSchema } from './types';
+import { HandleSetContentTypeExpanded, OnPopupClose, OnSave, PreparePayload, RawPayload, RestartReasons, RestartStatus, StrapiContentTypeSchema } from './types';
 
-const RESTART_NOT_REQUIRED: RestartStatus = { required: false };
-const RESTART_REQUIRED: RestartStatus = { required: true, reasons: [] };
+const RESTART_NOT_REQUIRED: RestartStatus = { required: false }
+const RESTART_REQUIRED: RestartStatus = { required: true, reasons: [] }
 const RELATION_ATTRIBUTE_TYPES = ['relation', 'media', 'component'];
+const BOX_DEFAULT_PROPS = {
+  background: "neutral0",
+  hasRadius: true,
+  shadow: "filterShadow",
+  padding: 6,
+};
 
 const SettingsPage = () => {
   const { lockApp, unlockApp } = useOverlayBlocker();
@@ -70,8 +76,21 @@ const SettingsPage = () => {
   const [contentTypeExpanded, setContentTypeExpanded] = useState<string | undefined>(undefined);
   const { data: navigationConfigData, isLoading: isConfigLoading, error: configErr, submitMutation, restoreMutation, restartMutation } = useNavigationConfig();
   const { data: allContentTypesData, isLoading: isContentTypesLoading, error: contentTypesErr } = useAllContentTypes();
+  
   const isLoading = isConfigLoading || isContentTypesLoading;
   const isError = configErr || contentTypesErr;
+  const configContentTypes: StrapiContentTypeSchema[] = navigationConfigData?.contentTypes || [];
+
+  const formikInitialValues = useMemo<RawPayload>(() => ({
+    allowedLevels: get(navigationConfigData, "allowedLevels", 2),
+    audienceFieldChecked: get(navigationConfigData, "additionalFields", []).includes(navigationItemAdditionalFields.AUDIENCE),
+    i18nEnabled: get(navigationConfigData, "i18nEnabled", false),
+    nameFields: get(navigationConfigData, "contentTypesNameFields", {}),
+    pathDefaultFields: get(navigationConfigData, "pathDefaultFields", {}),
+    populate: get(navigationConfigData, "contentTypesPopulate", {}),
+    selectedContentTypes: configContentTypes.map(item => item.uid),
+  }), [configContentTypes, navigationConfigData, navigationItemAdditionalFields]);
+
   const {
     disableI18nModal,
     setDisableI18nModalOpened,
@@ -79,12 +98,6 @@ const SettingsPage = () => {
   } = useDisableI18nModal(({ pruneNavigations }) => {
     setPruneObsoleteI18nNavigations(pruneNavigations)
   });
-  const boxDefaultProps = {
-    background: "neutral0",
-    hasRadius: true,
-    shadow: "filterShadow",
-    padding: 6,
-  };
 
   useEffect(() => {
     const additionalFields = navigationConfigData?.additionalFields
@@ -92,28 +105,30 @@ const SettingsPage = () => {
     setCustomFields(additionalFields || []);
   }, [navigationConfigData]);
 
-  const preparePayload: PreparePayload = ({
+  const preparePayload = useCallback<PreparePayload>(({
     form: {
-      selectedContentTypes,
-      nameFields,
-      audienceFieldChecked,
       allowedLevels,
+      audienceFieldChecked,
       i18nEnabled,
+      nameFields,
+      pathDefaultFields,
       populate,
+      selectedContentTypes,
     },
     pruneObsoleteI18nNavigations
   }) => ({
-    i18nEnabled,
+    additionalFields: audienceFieldChecked ? ['audience', ...customFields] : [...customFields],
     allowedLevels,
-    pruneObsoleteI18nNavigations,
     contentTypes: selectedContentTypes,
     contentTypesNameFields: nameFields,
     contentTypesPopulate: populate,
-    additionalFields: audienceFieldChecked ? ['audience', ...customFields] : [...customFields],
+    i18nEnabled,
+    pathDefaultFields,
+    pruneObsoleteI18nNavigations,
     gql: {
       navigationItemRelated: selectedContentTypes.map((uid: string) => resolveGlobalLikeId(uid)),
     }
-  });
+  }), [customFields]);
 
   const onSave: OnSave = async (form) => {
     lockApp();
@@ -161,11 +176,6 @@ const SettingsPage = () => {
   const handleRestartDiscard = () => setRestartStatus(RESTART_NOT_REQUIRED);
   const handleSetContentTypeExpanded: HandleSetContentTypeExpanded = key => setContentTypeExpanded(key === contentTypeExpanded ? undefined : key);
 
-  const prepareNameFieldFor: PrepareNameFieldFor = (uid, current, value) => ({
-    ...current,
-    [uid]: value && !isEmpty(value) ? [...value] : undefined,
-  });
-
   if (isLoading || isError) {
     return (
       <>
@@ -179,8 +189,6 @@ const SettingsPage = () => {
       </>
     )
   }
-
-  const configContentTypes: StrapiContentTypeSchema[] = navigationConfigData?.contentTypes || [];
 
   const allContentTypes: StrapiContentTypeSchema[] = !isLoading ? Object.values<StrapiContentTypeSchema>(allContentTypesData).filter(({ uid }) => isContentTypeEligible(uid, {
     allowedContentTypes: navigationConfigData?.allowedContentTypes,
@@ -197,12 +205,7 @@ const SettingsPage = () => {
     }
     return ct;
   }) : [];
-  const selectedContentTypes = configContentTypes.map(item => item.uid);
-  const audienceFieldChecked = navigationConfigData?.additionalFields?.includes(navigationItemAdditionalFields.AUDIENCE);
-  const allowedLevels = navigationConfigData?.allowedLevels || 2;
-  const nameFields = navigationConfigData?.contentTypesNameFields || {}
-  const populate = navigationConfigData?.contentTypesPopulate || {}
-  const i18nEnabled = navigationConfigData?.i18nEnabled ?? false
+
   const isI18NPluginEnabled = navigationConfigData?.isI18NPluginEnabled;
   const defaultLocale = navigationConfigData?.defaultLocale;
 
@@ -238,14 +241,7 @@ const SettingsPage = () => {
       />
       <Main labelledBy="title">
         <Formik
-          initialValues={{
-            selectedContentTypes,
-            audienceFieldChecked,
-            allowedLevels,
-            nameFields,
-            populate,
-            i18nEnabled,
-          }}
+          initialValues={formikInitialValues}
           onSubmit={onSave}
         >
           {({ handleSubmit, setFieldValue, values }) => (
@@ -282,7 +278,7 @@ const SettingsPage = () => {
                         }
                       </>
                     </RestartAlert>)}
-                  <Box {...boxDefaultProps} >
+                  <Box {...BOX_DEFAULT_PROPS} >
                     <Stack size={4}>
                       <Typography variant="delta" as="h2">
                         {getMessage('pages.settings.general.title')}
@@ -337,9 +333,9 @@ const SettingsPage = () => {
                                           label={getMessage('pages.settings.form.nameField.label')}
                                           hint={getMessage(`pages.settings.form.nameField.${isEmpty(stringAttributes) ? 'empty' : 'hint'}`)}
                                           placeholder={getMessage('pages.settings.form.nameField.placeholder')}
-                                          onClear={() => null}
+                                          onClear={() => setFieldValue('nameFields', prepareNewValueForRecord(uid, values.nameFields, []))}
                                           value={values.nameFields[uid] || []}
-                                          onChange={(value: string[]) => setFieldValue('nameFields', prepareNameFieldFor(uid, values.nameFields, value))}
+                                          onChange={(value: string[]) => setFieldValue('nameFields', prepareNewValueForRecord(uid, values.nameFields, value))}
                                           multi
                                           withTags
                                           disabled={restartStatus.required || isEmpty(stringAttributes)}
@@ -352,14 +348,29 @@ const SettingsPage = () => {
                                           label={getMessage('pages.settings.form.populate.label')}
                                           hint={getMessage(`pages.settings.form.populate.${isEmpty(relationAttributes) ? 'empty' : 'hint'}`)}
                                           placeholder={getMessage('pages.settings.form.populate.placeholder')}
-                                          onClear={() => null}
+                                          onClear={() => setFieldValue('populate', prepareNewValueForRecord(uid, values.populate, []))}
                                           value={values.populate[uid] || []}
-                                          onChange={(value: string[]) => setFieldValue('populate', prepareNameFieldFor(uid, values.populate, value))}
+                                          onChange={(value: string[]) => setFieldValue('populate', prepareNewValueForRecord(uid, values.populate, value))}
                                           multi
                                           withTags
                                           disabled={restartStatus.required || isEmpty(relationAttributes)}
                                         >
                                           {relationAttributes.map(key =>
+                                            (<Option key={uid + key} value={key}>{capitalize(key.split('_').join(' '))}</Option>))}
+                                        </Select>
+                                        <Select
+                                          name={`collectionSettings-${uid}-pathDefaultFields`}
+                                          label={getMessage('pages.settings.form.pathDefaultFields.label')}
+                                          hint={getMessage(`pages.settings.form.pathDefaultFields.${isEmpty(stringAttributes) ? 'empty' : 'hint'}`)}
+                                          placeholder={getMessage('pages.settings.form.pathDefaultFields.placeholder')}
+                                          onClear={() => setFieldValue('pathDefaultFields', prepareNewValueForRecord(uid, values.pathDefaultFields, []))}
+                                          value={values.pathDefaultFields[uid] || []}
+                                          onChange={(value: string[]) => setFieldValue('pathDefaultFields', prepareNewValueForRecord(uid, values.pathDefaultFields, value))}
+                                          multi
+                                          withTags
+                                          disabled={restartStatus.required || isEmpty(stringAttributes)}
+                                        >
+                                          {stringAttributes.map(key =>
                                             (<Option key={uid + key} value={key}>{capitalize(key.split('_').join(' '))}</Option>))}
                                         </Select>
                                       </Stack>
@@ -372,7 +383,7 @@ const SettingsPage = () => {
                       </Grid>
                     </Stack>
                   </Box>
-                  <Box {...boxDefaultProps} >
+                  <Box {...BOX_DEFAULT_PROPS} >
                     <Stack size={4}>
                       <Typography variant="delta" as="h2">
                         {getMessage('pages.settings.additional.title')}
@@ -431,7 +442,7 @@ const SettingsPage = () => {
                       </Grid>
                     </Stack>
                   </Box>
-                  <Box {...boxDefaultProps} >
+                  <Box {...BOX_DEFAULT_PROPS} >
                     <Stack size={4}>
                       <Typography variant="delta" as="h2">
                         {getMessage('pages.settings.customFields.title')}
@@ -444,7 +455,7 @@ const SettingsPage = () => {
                       />
                     </Stack>
                   </Box>
-                  <Box {...boxDefaultProps} >
+                  <Box {...BOX_DEFAULT_PROPS} >
                     <Stack size={4}>
                       <Typography variant="delta" as="h2">
                         {getMessage('pages.settings.restoring.title')}
