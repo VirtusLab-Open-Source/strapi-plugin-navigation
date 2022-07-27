@@ -13,7 +13,7 @@ import {
 } from 'lodash';
 import { Id, IStrapi, Primitive, StrapiContentType, StrapiPlugin, StringMap } from "strapi-typed";
 
-import { AuditLogContext, AuditLogParams, ContentTypeEntity, NavigationActions, NavigationItem, NavigationItemEntity, NavigationService, NavigationServiceName, NestedPath, NestedStructure, PluginConfigNameFields, ToBeFixed } from "../../types";
+import { assertNotEmpty, AuditLogContext, AuditLogParams, ContentTypeEntity, NavigationActions, NavigationItem, NavigationItemEntity, NavigationService, NavigationServiceName, NestedPath, NestedStructure, PluginConfigNameFields, ToBeFixed } from "../../types";
 import { NavigationError } from '../../utils/NavigationError';
 import { TEMPLATE_DEFAULT, ALLOWED_CONTENT_TYPES, RESTRICTED_CONTENT_TYPES } from './constant';
 declare var strapi: IStrapi;
@@ -31,7 +31,7 @@ export const errorHandler = (ctx: ToBeFixed) => (error: NavigationError | string
 export const parseParams = <
   TParams extends StringMap<string> = StringMap<string>,
   TResult extends StringMap<Primitive> = StringMap<Primitive>
->(params: TParams): TResult  =>
+>(params: TParams): TResult =>
   Object.keys(params).reduce((prev, curr) => {
     const value = params[curr];
     const parsedValue = isNaN(Number(value)) ? value : parseInt(value, 10);
@@ -48,26 +48,25 @@ export const templateNameFactory = async (
 ) => {
   const flatRelated = flatten(items.map(i => i.related)).filter(_ => !!_);
   const relatedMap = (flatRelated).reduce((acc: { [key: string]: Id[] }, curr) => {
-    if (curr === null) return acc;
+    if (isNil(curr) || typeof curr.__contentType !== "string") return acc;
+    
     const index = curr.__contentType;
-    if (typeof index !== 'string') return acc;
-    if (!acc[index]) {
-      acc[index] = [];
-    }
-    acc[index].push(curr.id);
-    return acc;
+    if (isNil(acc[index])) acc[index] = [];
+    
+    return {...acc, [index]: [...acc[index], curr.id]};
   }, {});
   const responses = await Promise.all(
     Object.entries(relatedMap)
       .map(
         ([contentType, ids]) => {
-          const contentTypeUid = get(find(contentTypes, cnt => cnt.uid === contentType), 'uid');
-          return strapi.query<ContentTypeEntity>(contentTypeUid)
+          assertNotEmpty(find(contentTypes, cnt => cnt.uid === contentType));
+          return strapi.query<ContentTypeEntity>(contentType)
             .findMany({
               where: { id: { $in: ids } },
               limit: Number.MAX_SAFE_INTEGER,
+              populate: ["template"],
             })
-            .then(res => ({ [contentType]: res }))
+            .then(res => ({ [contentType]: res }));
         }),
   );
   const relatedResponseMap = responses.reduce((acc, curr) => ({ ...acc, ...curr }), {});

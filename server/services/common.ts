@@ -258,7 +258,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
         ...(acc[relatedType] || []),
         ...entityItems
           .filter((item => get(item.related, 'related_type') === relatedType))
-          .flatMap((item) => Object.assign(item.related, { navigationItemId: item.id })),
+          .flatMap((item) => Object.assign(item.related || {}, { navigationItemId: item.id })),
       ],
     }), {});
 
