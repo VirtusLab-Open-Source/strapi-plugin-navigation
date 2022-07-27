@@ -11,7 +11,7 @@ const clientControllers: IClientController = {
 
   async render(ctx) {
     const { params, query = {} } = ctx;
-    const { type, menu: menuOnly, path: rootPath, locale } = query;
+    const { type, menu: menuOnly, path: rootPath, locale, populate } = query;
     const { idOrSlug } = parseParams<StringMap<string>, { idOrSlug: Id }>(
       params
     );
@@ -22,6 +22,7 @@ const clientControllers: IClientController = {
         menuOnly,
         rootPath,
         locale,
+        populate
       });
     } catch (error: unknown) {
       if (error instanceof errors.NotFoundError) {
