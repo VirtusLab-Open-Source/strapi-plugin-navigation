@@ -1,12 +1,15 @@
+import { NavigationItemAdditionalField } from "./contentTypes";
+
 export type PluginConfigNameFields = Record<string, string[]>;
 export type PluginConfigPopulate = Record<string, string[]>;
+export type PluginConfigPathDefaultFields = Record<string, string[]>;
 
 export type PluginConfigGraphQL = {
   navigationItemRelated: string[];
 };
 
 export type NavigationPluginConfig = {
-  additionalFields: string[];
+  additionalFields: NavigationItemAdditionalField[];
   contentTypes: string[];
   contentTypesNameFields: PluginConfigNameFields;
   contentTypesPopulate: PluginConfigPopulate;
@@ -14,6 +17,8 @@ export type NavigationPluginConfig = {
   gql: PluginConfigGraphQL;
   i18nEnabled: boolean;
   pruneObsoleteI18nNavigations: boolean;
+  slugify: Record<string, unknown>;
+  pathDefaultFields: PluginConfigPathDefaultFields;
 };
 
 export type StrapiConfig<T> = {
@@ -24,4 +29,4 @@ export type PluginConfigKeys = keyof NavigationPluginConfig;
 
 export type PluginDefaultConfigGetter = (
   key: PluginConfigKeys
-) => NavigationPluginConfig[typeof key];
+) => NavigationPluginConfig[PluginConfigKeys];

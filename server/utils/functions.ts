@@ -1,19 +1,39 @@
 import {
-  last,
-  isObject,
-  isEmpty,
-  flatten,
   find,
-  isString,
-  get,
-  isNil,
-  isArray,
   first,
+  flatten,
+  get,
+  includes,
+  isArray,
+  isEmpty,
+  isNil,
+  isObject,
+  isString,
+  last,
+  uniqBy,
   zipWith,
 } from 'lodash';
-import { Id, IStrapi, Primitive, StrapiContentType, StrapiPlugin, StringMap } from "strapi-typed";
+import { PopulateClause } from 'strapi-typed';
+import { Id, IStrapi, Primitive, StrapiContentType, StringMap, StrapiContentTypeFullSchema } from "strapi-typed";
 
-import { assertNotEmpty, AuditLogContext, AuditLogParams, ContentTypeEntity, NavigationActions, NavigationItem, NavigationItemEntity, NavigationService, NavigationServiceName, NestedPath, NestedStructure, PluginConfigNameFields, ToBeFixed } from "../../types";
+import {
+  assertNotEmpty,
+  AuditLogContext,
+  AuditLogParams,
+  ContentTypeEntity,
+  NavigationActions,
+  NavigationItem,
+  NavigationItemAdditionalField,
+  NavigationItemCustomField,
+  NavigationItemEntity,
+  NavigationService,
+  NavigationServiceName,
+  NestedPath,
+  NestedStructure,
+  PluginConfigNameFields,
+  PopulateQueryParam,
+  ToBeFixed,
+} from "../../types";
 import { NavigationError } from '../../utils/NavigationError';
 import { TEMPLATE_DEFAULT, ALLOWED_CONTENT_TYPES, RESTRICTED_CONTENT_TYPES } from './constant';
 declare var strapi: IStrapi;
@@ -27,6 +47,9 @@ export const errorHandler = (ctx: ToBeFixed) => (error: NavigationError | string
   }
   throw error;
 };
+
+export const getCustomFields = (additionalFields: NavigationItemAdditionalField[]): NavigationItemCustomField[] =>
+  additionalFields.filter(field => typeof field !== 'string') as NavigationItemCustomField[];
 
 export const parseParams = <
   TParams extends StringMap<string> = StringMap<string>,
@@ -202,20 +225,6 @@ export const singularize = (
   return last(value) === 's' ? value.substr(0, value.length - 1) : value;
 };
 
-export const extractMeta = (
-  plugins: { [uid: string]: StrapiPlugin }
-) => {
-  const { navigation: plugin } = plugins;
-  return {
-    masterModel: plugin.contentType('navigation'),
-    itemModel: plugin.contentType('navigation-item'),
-    relatedModel: plugin.contentType('navigations-items-related'),
-    audienceModel: plugin.contentType('audience'),
-    plugin,
-    pluginName: 'navigation',
-  };
-};
-
 export const buildNestedStructure = (
   entities: NavigationItemEntity<ContentTypeEntity>[],
   id: Id | null = null,
@@ -310,4 +319,43 @@ export const compareArraysOfNumbers = (arrA: number[], arrB: number[]) => {
     return a - b
   });
   return find(diff, a => a !== 0) || 0;
+}
+
+export const getPluginModels = (): Record<'masterModel' | 'itemModel' | 'relatedModel' | 'audienceModel', StrapiContentTypeFullSchema> => {
+  const plugin = strapi.plugin('navigation');
+  return {
+    masterModel: plugin.contentType('navigation'),
+    itemModel: plugin.contentType('navigation-item'),
+    relatedModel: plugin.contentType('navigations-items-related'),
+    audienceModel: plugin.contentType('audience'),
+  }
+};
+
+export const validateAdditionalFields = (additionalFields: NavigationItemAdditionalField[]) => {
+  const forbiddenNames = [
+    'title', 'type', 'path',
+    'externalPath', 'uiRouterKey', 'menuAttached',
+    'order', 'collapsed', 'related',
+    'parent', 'master', 'audience',
+    'additionalFields',
+  ];
+  const customFields = getCustomFields(additionalFields);
+
+  if (customFields.length !== uniqBy(customFields, 'name').length) {
+    throw new Error('All names of custom fields must be unique.');
+  }
+
+  if (!isNil(find(customFields, item => includes(forbiddenNames, item.name)))) {
+    throw new Error(`Name of custom field cannot be one of: ${forbiddenNames.join(', ')}`);
+  }
+};
+
+export const parsePopulateQuery = (populate: PopulateQueryParam): PopulateClause => {
+  if (populate === "*") {
+    return true;
+  } else if (typeof populate === "string") {
+    return [populate];
+  } else {
+    return populate;
+  }
 }

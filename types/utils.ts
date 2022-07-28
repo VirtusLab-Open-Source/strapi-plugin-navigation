@@ -1,4 +1,4 @@
-import { Id } from "strapi-typed";
+import { Id, PopulateClause } from "strapi-typed";
 import { Navigation, NavigationItem, NavigationItemType, NestedStructure } from "./contentTypes"
 
 export type Effect<T> = (value: T) => void
@@ -13,6 +13,7 @@ export type RenderType = keyof RenderTypeOptions;
 export type StrapiRoutesTypes = 'admin' | 'content-api';
 export type ToBeFixed = any;
 export type DateString = string;
+export type PopulateQueryParam = string | PopulateClause;
 
 export type NavigationActions = {
   create?: boolean;
@@ -103,3 +104,19 @@ export const assertEntity = <T>(entity: unknown, name = "Entity"): T => {
 
   throw new Error(`${name} instance expected. ${typeof entity} given.`);
 };
+
+export function assertBoolean(value: unknown): asserts value is boolean {
+  if (typeof value === "boolean") {
+    return;
+  }
+
+  throw new Error("Value is not of type boolean");
+} 
+
+export function assertString(value: unknown): asserts value is string {
+  if (typeof value === "string") {
+    return;
+  }
+
+  throw new Error("Value is not of type string");
+}

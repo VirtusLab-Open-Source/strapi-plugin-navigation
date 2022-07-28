@@ -1,13 +1,17 @@
+import { pick } from "lodash";
 import {
   assertNotEmpty,
   IConfigSetupStrategy,
+  NavigationItemAdditionalField,
   NavigationPluginConfig,
   PluginConfigGraphQL,
   PluginConfigKeys,
   PluginConfigNameFields,
+  PluginConfigPathDefaultFields,
   PluginConfigPopulate,
   PluginDefaultConfigGetter,
 } from "../../types";
+import { validateAdditionalFields } from "../utils";
 
 export const configSetupStrategy: IConfigSetupStrategy = async ({ strapi }) => {
   const pluginStore = strapi.store({
@@ -25,7 +29,7 @@ export const configSetupStrategy: IConfigSetupStrategy = async ({ strapi }) => {
   const getWithFallback = getWithFallbackFactory(config, getFromPluginDefaults);
 
   config = {
-    additionalFields: getWithFallback<string[]>("additionalFields"),
+    additionalFields: getWithFallback<NavigationItemAdditionalField[]>("additionalFields"),
     contentTypes: getWithFallback<string[]>("contentTypes"),
     contentTypesNameFields: getWithFallback<PluginConfigNameFields>(
       "contentTypesNameFields"
@@ -36,10 +40,17 @@ export const configSetupStrategy: IConfigSetupStrategy = async ({ strapi }) => {
     allowedLevels: getWithFallback<number>("allowedLevels"),
     gql: getWithFallback<PluginConfigGraphQL>("gql"),
     i18nEnabled: hasI18nPlugin && getWithFallback<boolean>("i18nEnabled"),
+    slugify: pick(
+      getWithFallback<NavigationPluginConfig["slugify"]>("slugify"),
+      validSlugifyFields
+    ),
     pruneObsoleteI18nNavigations: false,
+    pathDefaultFields: getWithFallback<PluginConfigPathDefaultFields>("pathDefaultFields"),
   };
 
-  pluginStore.set({
+  validateAdditionalFields(config.additionalFields);
+  
+  await pluginStore.set({
     key: "config",
     value: config,
   });
@@ -49,9 +60,7 @@ export const configSetupStrategy: IConfigSetupStrategy = async ({ strapi }) => {
 
 const getWithFallbackFactory =
   (config: NavigationPluginConfig, fallback: PluginDefaultConfigGetter) =>
-  <T extends ReturnType<PluginDefaultConfigGetter>>(
-    key: PluginConfigKeys
-  ) => {
+  <T extends ReturnType<PluginDefaultConfigGetter>>(key: PluginConfigKeys) => {
     const value = config?.[key] ?? fallback(key);
 
     assertNotEmpty(
@@ -61,3 +70,11 @@ const getWithFallbackFactory =
 
     return value as T;
   };
+
+const validSlugifyFields: Array<string> = [
+  "separator",
+  "lowercase",
+  "decamelize",
+  "customReplacements",
+  "preserveLeadingUnderscore",
+];

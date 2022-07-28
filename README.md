@@ -155,25 +155,38 @@ Config for this plugin is stored as a part of the `config/plugins.js` or `config
         navigation: {
             enabled: true,
             config: {
-                additionalFields: ['audience'],
+                additionalFields: ['audience', { name: 'my_custom_field', type: 'boolean', label: 'My custom field' }],
                 contentTypes: ['api::page.page'],
                 contentTypesNameFields: {
                     'api::page.page': ['title']
                 },
                 allowedLevels: 2,
                 gql: {...},
+                slugify: {
+                  customReplacements: [
+                    ["🤔", "thinking"],
+                  ],
+                }
             }
         }
     });
 ```
 
 ### Properties
-- `additionalFields` - Additional fields: 'audience', more in the future
+- `additionalFields` - Additional fields for navigation items. More **[ here ](#additional-fields)**
 - `allowedLevels` - Maximum level for which you're able to mark item as "Menu attached"
 - `contentTypes` - UIDs of related content types
 - `contentTypesNameFields` - Definition of content type title fields like `'api::<collection name>.<content type name>': ['field_name_1', 'field_name_2']`, if not set titles are pulled from fields like `['title', 'subject', 'name']`. **TIP** - Proper content type uid you can find in the URL of Content Manager where you're managing relevant entities like: `admin/content-manager/collectionType/< THE UID HERE >?page=1&pageSize=10&sort=Title:ASC&plugins[i18n][locale]=en`
 - `gql` - If you're using GraphQL that's the right place to put all necessary settings. More **[ here ](#gql-configuration)**
 - `i18nEnabled` - should you want to manage multi-locale content via navigation set this value `Enabled`. More **[ here ](#i18n-internationalization)**
+- `slugify` - allows to extend configuration of our "slugging" solution of choice. To learn more visit the [documentation](https://github.com/sindresorhus/slugify#api). It can be left unset since it's optional. **This option can only be handled by configuration in config file**.
+
+### Properties
+
+### Additional Fields
+It is advised to configure additional fields through the plugin's Settings Page. There you can find the table of custom fields and toggle input for the audience field. When enabled, the audience field can be customized through the content manager. Custom fields can be added, edited, toggled, and removed with the use of the table provided on the Settings Page. When removing custom fields be advised that their values in navigation items will be lost. Disabling the custom fields will not affect the data and can be done with no consequence of loosing information. 
+
+Creating configuration for additional fields with the `config.js` file should be done with caution. Config object contains the `additionalFields` property of type `Array<CustomField | 'audience'>`, where CustomField is of type `{type: 'string' | 'boolean', name: string, label: string}`. When creating custom fields be advised that the `name` property has to be unique. When editing a custom field it is advised not to edit its `name` and `type` properties. After config has been restored the custom fields that are not present in `config.js` file will be deleted and their values in navigation items will be lost.
 
 ## 🔧 GQL Configuration
 Using navigation with GraphQL requires both plugins to be installed and working. You can find installation guide for GraphQL plugin **[here](https://docs.strapi.io/developer-docs/latest/plugins/graphql.html#graphql)**.  To properly configure GQL to work with navigation you should provide `gql` prop. This should contain union types that will be used to define GQL response format for your data while fetching:
@@ -579,11 +592,8 @@ query {
         "title": "Another page",
         "path": "/another",
         "related": {
-          "id": 2,
-          "attributes": {
-            "__typename": "Page",
-            "Title": "dfdfdf"
-          }
+          "__typename": "Page",
+          "Title": "Eg. Page title"
         },
         "items": []
       }

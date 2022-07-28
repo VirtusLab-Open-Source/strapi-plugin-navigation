@@ -1,4 +1,4 @@
-import { Id, TypeResult } from "strapi-typed";
+import { Id, StringMap, TypeResult } from "strapi-typed";
 import { DateString, ToBeFixed } from "./utils";
 
 export type Navigation = {
@@ -37,6 +37,7 @@ export type NavigationItemEntity<RelatedType = NavigationItemRelated> = TypeResu
   audience: Audience[];
   externalPath: string | null;
   related: RelatedType | null;
+  additionalFields: StringMap<string | boolean>;
 }>
 
 type NavigationItemPartial = {
@@ -94,3 +95,26 @@ type EntityDatePartial = {
 }
 
 export type NotVoid<T> = T extends undefined ? never : T;
+
+export type NavigationItemCustomFieldType = 'boolean' | 'string' | 'select';
+type NavigationItemCustomFieldBase = {
+  name: string;
+  label: string;
+  required: boolean;
+  enabled?: boolean;
+}
+type NavigationItemCustomFieldSelect = NavigationItemCustomFieldBase & {
+  type: 'select';
+  multi: boolean;
+  options: string[];
+}
+
+type NavigationItemCustomFieldPrimitive = NavigationItemCustomFieldBase & {
+  type: 'boolean' | 'string';
+  multi: false;
+  options: [];
+}
+export type NavigationItemCustomField = NavigationItemCustomFieldPrimitive | NavigationItemCustomFieldSelect;
+
+export type NavigationItemAdditionalField = NavigationItemCustomField | 'audience';
+export type NavigationItemAdditionalFieldValues = Record<string, string | boolean | string[]>;
