@@ -71,7 +71,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
         enabledCustomFieldsNames,
       );
 
-      if (item.type === "INTERNAL") {
+      if (item.type !== "EXTERNAL") {
         pages = {
           ...pages,
           [itemPage.id]: {
@@ -91,7 +91,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
         };
       } else {
         const navLevel = navItems
-          .filter(navItem => navItem.type === "INTERNAL");
+          .filter(navItem => navItem.type !== "EXTERNAL");
         if (!isEmpty(navLevel))
           nav = {
             ...nav,
@@ -108,7 +108,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
           enabledCustomFieldsNames,
         });
         const { pages: nestedPages } = clientService.renderRFR({
-          items: (itemChilds).filter(child => child.type === "INTERNAL"),
+          items: (itemChilds).filter(child => child.type !== "EXTERNAL"),
           parent: itemPage.id,
           parentNavItem: itemNav,
           contentTypes,
@@ -152,6 +152,12 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
         ...itemCommon,
         page: uiRouterKey,
       };
+    }
+
+    if (type === "WRAPPER") {
+      return {
+        ...itemCommon,
+      }
     }
 
     throw new NavigationError("Unknown item type", item);
