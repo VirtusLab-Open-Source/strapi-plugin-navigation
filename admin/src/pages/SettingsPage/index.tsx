@@ -57,6 +57,7 @@ import { HandleSetContentTypeExpanded, OnPopupClose, OnSave, PreparePayload, Raw
 const RESTART_NOT_REQUIRED: RestartStatus = { required: false }
 const RESTART_REQUIRED: RestartStatus = { required: true, reasons: [] }
 const RELATION_ATTRIBUTE_TYPES = ['relation', 'media', 'component'];
+const STRING_ATTRIBUTE_TYPES = ['string', 'uid'];
 const BOX_DEFAULT_PROPS = {
   background: "neutral0",
   hasRadius: true,
@@ -311,7 +312,7 @@ const SettingsPage = () => {
                                 const contentType = allContentTypes.find(item => item.uid == uid);
                                 if (!contentType) return;
                                 const { attributes, info: { displayName }, available, isSingle } = contentType;
-                                const stringAttributes = Object.keys(attributes).filter(_ => attributes[_].type === 'string');
+                                const stringAttributes = Object.keys(attributes).filter(_ => STRING_ATTRIBUTE_TYPES.includes(attributes[_].type));
                                 const relationAttributes = Object.keys(attributes).filter(_ => RELATION_ATTRIBUTE_TYPES.includes(attributes[_].type));
                                 const key = `collectionSettings-${uid}`;
                                 return (<Accordion
