@@ -1,5 +1,8 @@
+//@ts-ignore
 import styled from "styled-components";
+//@ts-ignore
 import { CardTitle } from '@strapi/design-system/Card';
+import { ToBeFixed } from "../../../../../types";
 
 const CardItemTitle = styled(CardTitle)`
 	width: 100%;
@@ -10,7 +13,7 @@ const CardItemTitle = styled(CardTitle)`
 	align-items: center;
 	
 	> div > * {
-			margin: 0px ${({ theme }) => theme.spaces[1]};
+			margin: 0px ${({ theme }: ToBeFixed) => theme.spaces[1]};
 	}
 `;
 
