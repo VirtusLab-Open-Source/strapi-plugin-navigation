@@ -43,7 +43,6 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
     const contentTypesPopulate = config.contentTypesPopulate;
     const pathDefaultFields = config.pathDefaultFields;
     const allowedLevels = config.allowedLevels;
-    const slugify = config.slugify;
     const isGQLPluginEnabled = !isNil(strapi.plugin('graphql'));
 
     let extendedResult: Record<string, unknown> = {
@@ -129,13 +128,12 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
     const commonService = getPluginService<ICommonService>('common');
     const adminService = getPluginService<IAdminService>('admin');
     const { enabled: i18nEnabled, defaultLocale } = await getI18nStatus({ strapi })
-    const { slugify: customSlugifyConfig } = await adminService.config(false);
 
     const { masterModel } = getPluginModels();
     const { name, visible } = payload;
     const data = {
       name,
-      slug: slugify(name, customSlugifyConfig).toLowerCase(),
+      slug: await this.getSlug(name),
       visible,
     }
 
@@ -165,7 +163,6 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
     const adminService = getPluginService<IAdminService>('admin');
     const commonService = getPluginService<ICommonService>('common');
     const { enabled: i18nEnabled } = await getI18nStatus({ strapi })
-    const { slugify: customSlugifyConfig } = await adminService.config(false);
 
     const { masterModel } = getPluginModels();
     const { name, visible } = payload;
@@ -175,7 +172,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
 
     if (detailsHaveChanged) {
       const newName = detailsHaveChanged ? name : existingEntity.name;
-      const newSlug = detailsHaveChanged ? slugify(name, customSlugifyConfig).toLowerCase() : existingEntity.slug;
+      const newSlug = detailsHaveChanged ? await this.getSlug(name) : existingEntity.slug;
 
       await strapi.query<Navigation>(masterModel.uid).update({
         where: { id },
@@ -310,6 +307,35 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
       target: targetNavigation,
       strapi,
     });
+  },
+
+  async getSlug(query) {
+    let slug = slugify(query);
+
+    if (slug) {
+      const { itemModel } = getPluginModels();
+      const existingItems = await strapi
+        .query<NavigationItemEntity>(itemModel.uid)
+        .count({
+          where: {
+            $or: [
+              {
+                uiRouterKey: {
+                  $startsWith: slug 
+                }
+              },
+              { uiRouterKey: slug }
+            ] 
+          },
+          limit: Number.MAX_SAFE_INTEGER,
+        });
+
+      if (existingItems) {
+        slug = `${slug}-${existingItems}`
+      }
+    }
+
+    return slug.toLowerCase();
   },
 });
 

@@ -75,6 +75,7 @@ export type NavigationItemFormProps = {
   availableLocale: string[];
   readNavigationItemFromLocale: ToBeFixed;
   inputsPrefix: string;
+  slugify: (q: string) => Promise<{slug: string}>
 }
 
 export type ContentTypeSearchQuery = ToBeFixed;
@@ -103,3 +104,7 @@ export type SanitizedFormPayload = {
   singleRelatedItem: ContentTypeEntity | undefined;
   uiRouterKey: string | undefined;
 }
+
+export type Slugify = (q: string) => Promise<{
+  slug: string;
+}>;

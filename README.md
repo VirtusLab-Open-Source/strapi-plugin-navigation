@@ -631,6 +631,33 @@ module.exports = {
 
 If you already got it, make sure that `navigation` plugin is inserted before `graphql`. That should do the job.
 
+### Slug generation
+
+#### Customisation
+
+Slug generation is available as a controller and service. If you have custom requirements outside of what this plugin provides you can add your own logic with [plugins extensions](https://docs.strapi.io/developer-docs/latest/development/plugins-extension.html).
+
+For example:
+
+```ts
+// path: ./src/index.js
+
+module.exports = {
+  // ...
+  bootstrap({ strapi }) {
+    const navigationAdminService = strapi.plugin("navigation").service("admin");
+    const originalGetSlug = navigationAdminService.getSlug;
+    const preprocess = (q) => {
+      return q + "suffix";
+    };
+
+    navigationAdminService.getSlug = (query) => {
+      return originalGetSlug(preprocess(query));
+    };
+  },
+};
+```
+
 ## 🤝 Contributing
 
 <div>

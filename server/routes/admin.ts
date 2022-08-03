@@ -30,6 +30,16 @@ const routes: StrapiRoutes = {
     },
     {
       method: 'GET',
+      path: '/slug',
+      handler: 'admin.getSlug',
+      config: {
+        policies: [
+          'admin::isAuthenticatedAdmin'
+        ]
+      }
+    },
+    {
+      method: 'GET',
       path: '/:id',
       handler: 'admin.getById',
     },

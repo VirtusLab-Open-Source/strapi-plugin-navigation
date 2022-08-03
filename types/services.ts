@@ -23,6 +23,7 @@ export interface IAdminService {
       Pick<NotVoid<Navigation['items']>[number], 'path' | 'related' | 'type' | 'uiRouterKey' | 'title' | 'externalPath'>
     >
   >;
+  getSlug(query: string): Promise<string>;
 }
 
 export interface ICommonService {
