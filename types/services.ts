@@ -23,7 +23,6 @@ export interface IAdminService {
       Pick<NotVoid<Navigation['items']>[number], 'path' | 'related' | 'type' | 'uiRouterKey' | 'title' | 'externalPath'>
     >
   >;
-  getSlug(query: string): Promise<string>;
 }
 
 export interface ICommonService {
@@ -41,6 +40,7 @@ export interface ICommonService {
   removeRelated: (relatedItems: RelatedRef[], master: number) => ToBeFixed
   setDefaultConfig: () => Promise<NavigationPluginConfig>,
   updateBranch: (toUpdate: NestedStructure<NavigationItem>[], masterEntity: Navigation | null, parentItem: NavigationItemEntity | null, operations: NavigationActions) => ToBeFixed,
+  getSlug(query: string): Promise<string>;
 }
 
 export interface IClientService {

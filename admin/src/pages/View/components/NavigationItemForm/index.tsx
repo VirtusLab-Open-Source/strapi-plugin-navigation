@@ -57,25 +57,33 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   const formik: FormikProps<RawFormPayload> = useFormik<RawFormPayload>({
     initialValues: formDefinition.defaultValues,
     onSubmit: async (payload) => {
-      setIsLoading(true);
+      try {
+        setIsLoading(true);
 
-      const result = await onSubmit(await sanitizePayload(slugify, payload, data))
+        const result = await onSubmit(await sanitizePayload(slugify, payload, data))
 
-      setIsLoading(false);
+        setIsLoading(false);
 
-      return result;
+        return result;
+      } catch (error) {
+        setIsLoading(false);
+      }
     },
     validate: async (values) => {
-      setIsLoading(true);
+      try {
+        setIsLoading(true);
 
-      const validationResult = await checkFormValidity(
-        await sanitizePayload(slugify, values, {}),
-        formDefinition.schemaFactory(isSingleSelected, additionalFields)
-      );
+        const validationResult = await checkFormValidity(
+          await sanitizePayload(slugify, values, {}),
+          formDefinition.schemaFactory(isSingleSelected, additionalFields)
+        );
 
-      setIsLoading(false);
+        setIsLoading(false);
 
-      return validationResult;
+        return validationResult;
+      } catch (error) {
+        setIsLoading(false);
+      }
     },
     validateOnChange: false,
   });

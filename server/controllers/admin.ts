@@ -163,7 +163,7 @@ const adminControllers: IAdminController = {
     try {
       assertNotEmpty(q);
 
-      return this.getService().getSlug(q).then((slug) => ({ slug }));
+      return this.getService<ICommonService>("common").getSlug(q).then((slug) => ({ slug }));
     } catch (error) {
       if (error instanceof Error) {
         return ctx.badRequest(error.message)

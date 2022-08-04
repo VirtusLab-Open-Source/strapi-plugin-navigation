@@ -645,13 +645,13 @@ For example:
 module.exports = {
   // ...
   bootstrap({ strapi }) {
-    const navigationAdminService = strapi.plugin("navigation").service("admin");
-    const originalGetSlug = navigationAdminService.getSlug;
+    const navigationCommonService = strapi.plugin("navigation").service("common");
+    const originalGetSlug = navigationCommonService.getSlug;
     const preprocess = (q) => {
       return q + "suffix";
     };
 
-    navigationAdminService.getSlug = (query) => {
+    navigationCommonService.getSlug = (query) => {
       return originalGetSlug(preprocess(query));
     };
   },

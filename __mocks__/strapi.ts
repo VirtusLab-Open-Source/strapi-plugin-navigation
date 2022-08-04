@@ -24,6 +24,7 @@ const masterModelMock = {
 };
 
 const itemModelMock = {
+  count: async () => 0,
   findOne: async () => ({
     id: 1,
     title: "home",
@@ -189,6 +190,7 @@ const strapiFactory = (plugins: (strapi: IStrapi) => StringMap<StrapiPlugin>, co
         return {
           findOne: () => ({}),
           findMany: () => [],
+          count: () => 0,
         }
     }
   },

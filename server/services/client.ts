@@ -296,7 +296,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
             const parentPath = isExternal ? undefined : `${path === '/' ? '' : path}/${first(item.path) === '/'
               ? item.path!.substring(1)
               : item.path}`;
-            const slug = isString(parentPath) ? await adminService.getSlug(
+            const slug = isString(parentPath) ? await commonService.getSlug(
               (first(parentPath) === '/' ? parentPath.substring(1) : parentPath).replace(/\//g, '-')) : undefined;
             const lastRelated = isArray(item.related) ? last(item.related) : item.related;
             const relatedContentType = wrapContentType(lastRelated);
@@ -308,7 +308,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
               path: isExternal ? item.externalPath : parentPath,
               type: item.type,
               uiRouterKey: item.uiRouterKey,
-              slug: !slug && item.uiRouterKey ? adminService.getSlug(item.uiRouterKey) : slug,
+              slug: !slug && item.uiRouterKey ? commonService.getSlug(item.uiRouterKey) : slug,
               external: isExternal,
               related: isExternal || !lastRelated ? undefined : {
                 ...relatedContentType,

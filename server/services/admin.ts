@@ -1,6 +1,5 @@
 // @ts-ignore
 import { errors } from "@strapi/utils"
-import slugify from "@sindresorhus/slugify";
 import { differenceBy, get, isEmpty, isNil, isObject } from "lodash";
 import { Id, StrapiContext } from "strapi-typed";
 import {
@@ -66,7 +65,6 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
         navigationItemRelated: configContentTypes.map(({ labelSingular }) => labelSingular.replace(/\s+/g, ''))
       },
       isGQLPluginEnabled: viaSettingsPage ? isGQLPluginEnabled : undefined,
-      slugify,
     };
     const i18nConfig = await addI18NConfigFields({ strapi, viaSettingsPage, previousConfig: {} });
 
@@ -133,7 +131,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
     const { name, visible } = payload;
     const data = {
       name,
-      slug: await this.getSlug(name),
+      slug: await commonService.getSlug(name),
       visible,
     }
 
@@ -172,7 +170,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
 
     if (detailsHaveChanged) {
       const newName = detailsHaveChanged ? name : existingEntity.name;
-      const newSlug = detailsHaveChanged ? await this.getSlug(name) : existingEntity.slug;
+      const newSlug = detailsHaveChanged ? await commonService.getSlug(name) : existingEntity.slug;
 
       await strapi.query<Navigation>(masterModel.uid).update({
         where: { id },
@@ -307,35 +305,6 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
       target: targetNavigation,
       strapi,
     });
-  },
-
-  async getSlug(query) {
-    let slug = slugify(query);
-
-    if (slug) {
-      const { itemModel } = getPluginModels();
-      const existingItems = await strapi
-        .query<NavigationItemEntity>(itemModel.uid)
-        .count({
-          where: {
-            $or: [
-              {
-                uiRouterKey: {
-                  $startsWith: slug 
-                }
-              },
-              { uiRouterKey: slug }
-            ] 
-          },
-          limit: Number.MAX_SAFE_INTEGER,
-        });
-
-      if (existingItems) {
-        slug = `${slug}-${existingItems}`
-      }
-    }
-
-    return slug.toLowerCase();
   },
 });
 
