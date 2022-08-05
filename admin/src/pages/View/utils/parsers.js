@@ -54,7 +54,9 @@ export const transformItemToRESTPayload = (
     additionalFields,
     menuAttached: itemAttachedToMenu,
     audience: audience.map((audienceItem) =>
-      isObject(audienceItem) ? audienceItem.value : audienceItem,
+      isObject(audienceItem)
+        ? audienceItem.id || audienceItem.value
+        : audienceItem,
     ),
     path: isExternal ? undefined : path,
     externalPath: isExternal ? externalPath : undefined,
