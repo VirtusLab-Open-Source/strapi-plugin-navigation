@@ -20,13 +20,11 @@ import { extractRelatedItemLabel } from '../../utils/parsers';
 import * as formDefinition from './utils/form';
 import { checkFormValidity } from '../../utils/form';
 import { getTrad, getTradId } from '../../../../translations';
-import { assertString, Audience, NavigationItemAdditionalField, NavigationItemType, ToBeFixed } from '../../../../../../types';
+import { assertString, Audience, Effect, NavigationItemAdditionalField, NavigationItemType, ToBeFixed } from '../../../../../../types';
 import { ContentTypeSearchQuery, NavigationItemFormData, NavigationItemFormProps, RawFormPayload, SanitizedFormPayload, Slugify } from './types';
 import AdditionalFieldInput from '../../../../components/AdditionalFieldInput';
 import { getMessage, ResourceState } from '../../../../utils';
 import { Id } from 'strapi-typed';
-
-const appendLabelPublicationStatusFallback = () => '';
 
 const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   config,
@@ -56,35 +54,19 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   const [contentTypeSearchInputValue, setContentTypeSearchInputValue] = useState(undefined);
   const formik: FormikProps<RawFormPayload> = useFormik<RawFormPayload>({
     initialValues: formDefinition.defaultValues,
-    onSubmit: async (payload) => {
-      try {
-        setIsLoading(true);
-
-        const result = await onSubmit(await sanitizePayload(slugify, payload, data))
-
-        setIsLoading(false);
-
-        return result;
-      } catch (error) {
-        setIsLoading(false);
-      }
-    },
-    validate: async (values) => {
-      try {
-        setIsLoading(true);
-
-        const validationResult = await checkFormValidity(
-          await sanitizePayload(slugify, values, {}),
-          formDefinition.schemaFactory(isSingleSelected, additionalFields)
-        );
-
-        setIsLoading(false);
-
-        return validationResult;
-      } catch (error) {
-        setIsLoading(false);
-      }
-    },
+    onSubmit: loadingAware(
+      async (payload) => onSubmit(
+        await sanitizePayload(slugify, payload, data)
+      ),
+      setIsLoading
+    ),
+    validate: loadingAware(
+      async (values) => checkFormValidity(
+        await sanitizePayload(slugify, values, {}),
+        formDefinition.schemaFactory(isSingleSelected, additionalFields)
+      ),
+      setIsLoading
+    ),
     validateOnChange: false,
   });
   const initialRelatedTypeSelected = get(data, 'relatedType.value');
@@ -632,5 +614,20 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
     </>
   );
 };
+
+const appendLabelPublicationStatusFallback = () => "";
+
+const loadingAware =
+  <T, U>(action: (i: T) => U, isLoading: Effect<boolean>) =>
+  async (input: T) => {
+    try {
+      isLoading(true);
+
+      return await action(input);
+    } catch (_) {
+    } finally {
+      isLoading(false);
+    }
+  };
 
 export default NavigationItemForm;
