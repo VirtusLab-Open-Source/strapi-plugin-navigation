@@ -39,7 +39,8 @@ export default {
       type: "relation",
       relation: "oneToMany",
       target: "plugin::navigation.navigation-item",
-      configurable: false
+      configurable: false,
+      mappedBy: "master"
     },
     localizations: {
       type: "relation",
