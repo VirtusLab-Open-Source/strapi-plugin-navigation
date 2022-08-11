@@ -19,6 +19,7 @@ import ItemCardBadge from './ItemCardBadge';
 import { ItemCardRemovedOverlay } from './ItemCardRemovedOverlay';
 import { getMessage, ItemTypes, navigationItemType } from '../../utils';
 import CollapseButton from '../CollapseButton';
+import useDataManager from '../../hooks/useDataManager';
 
 const Item = (props) => {
   const {
@@ -26,7 +27,6 @@ const Item = (props) => {
     isLast = false,
     level = 0,
     levelPath = '',
-    allowedLevels,
     relatedRef,
     isParentAttachedToMenu,
     onItemLevelAdd,
@@ -35,7 +35,6 @@ const Item = (props) => {
     onItemEdit,
     onItemReOrder,
     onItemToggleCollapse,
-    error,
     displayChildren,
     config = {},
   } = props;
@@ -52,8 +51,14 @@ const Item = (props) => {
     structureId,
     items = [],
   } = item;
+  
+  const {
+    contentTypes = [],
+    contentTypesNameFields,
+    allowedLevels,
+    error,
+  } = useDataManager();
 
-  const { contentTypes = [], contentTypesNameFields } = config;
   const isExternal = type === navigationItemType.EXTERNAL;
   const isWrapper = type === navigationItemType.WRAPPER;
   const isHandledByPublishFlow = contentTypes.find(_ => _.uid === relatedRef?.__collectionUid)?.draftAndPublish;

@@ -15,22 +15,27 @@ import NavigationItemForm from '../NavigationItemForm';
 import { extractRelatedItemLabel, isRelationCorrect, isRelationPublished } from '../../utils/parsers';
 import { NavigationItemPopupHeader } from './NavigationItemPopupHeader';
 import { getMessage, navigationItemType } from '../../../../utils';
+import useDataManager from '../../../../hooks/useDataManager';
 
 const NavigationItemPopUp = ({
   availableLocale,
   isOpen,
-  isLoading,
   data,
-  config = {},
   onSubmit,
   onClose,
   usedContentTypeItems,
-  getContentTypeItems,
   usedContentTypesData,
-  locale,
-  readNavigationItemFromLocale,
   slugify,
 }) => {
+  const {
+    isLoadingForAdditionalDataToBeSet: isLoading,
+    config,
+    getContentTypeItems,
+    activeItem,
+    readNavigationItemFromLocale,
+  } = useDataManager();
+  const locale = activeItem.localeCode;
+
   const handleOnSubmit = (payload) => {
     onSubmit(payload);
   };

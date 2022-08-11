@@ -261,12 +261,8 @@ const View = () => {
       <NavigationHeader
         structureHasErrors={structureHasErrors}
         structureHasChanged={structureChanged}
-        availableNavigations={availableNavigations}
-        activeNavigation={activeNavigation}
         handleChangeSelection={handleChangeNavigationSelection}
         handleSave={handleSave}
-        handleLocalizationSelection={handleLocalizationSelection}
-        config={config}
       />
       <ContentLayout>
         {isLoading && <LoadingIndicatorPage />}
@@ -331,11 +327,7 @@ const View = () => {
                 onItemToggleCollapse={handleItemToggleCollapse}
                 displayFlat={!isSearchEmpty}
                 root
-                error={error}
-                allowedLevels={config.allowedLevels}
-                contentTypes={config.contentTypes}
                 isParentAttachedToMenu={true}
-                contentTypesNameFields={config.contentTypesNameFields}
               />
             }
           </>
@@ -343,16 +335,11 @@ const View = () => {
       </ContentLayout>
       {navigationItemPopupOpened && <NavigationItemPopUp
         availableLocale={availableLocale}
-        isLoading={isLoadingForAdditionalDataToBeSet}
         data={activeNavigationItem}
-        config={config}
         usedContentTypesData={usedContentTypesData}
         usedContentTypeItems={usedContentTypeItems}
-        getContentTypeItems={getContentTypeItems}
         onSubmit={handleSubmitNavigationItem}
         onClose={onPopUpClose}
-        locale={activeNavigation.localeCode}
-        readNavigationItemFromLocale={readNavigationItemFromLocale}
         slugify={slugify}
       />}
       {i18nCopyItemsModal}

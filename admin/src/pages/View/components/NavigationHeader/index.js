@@ -12,6 +12,7 @@ import { Box } from '@strapi/design-system/Box'
 import { Grid, GridItem } from "@strapi/design-system/Grid";
 import { uniqBy } from 'lodash';
 import { useNavigationManager } from '../../../../hooks/useNavigationManager';
+import useDataManager from '../../../../hooks/useDataManager';
 
 const submitIcon = <Check />;
 const pickDefaultLocaleNavigation = ({ activeNavigation, config }) => config.i18nEnabled
@@ -25,16 +26,18 @@ const pickDefaultLocaleNavigation = ({ activeNavigation, config }) => config.i18
     : activeNavigation;
 
 const NavigationHeader = ({
-  activeNavigation,
-  availableNavigations,
   structureHasErrors,
   structureHasChanged,
   handleChangeSelection,
-  handleLocalizationSelection,
   handleSave,
-  config,
 }) => {
   const { formatMessage } = useIntl();
+  const {
+    activeItem: activeNavigation,
+    items: availableNavigations,
+    handleLocalizationSelection,
+    config,
+  } = useDataManager();
   const allLocaleVersions = useMemo(
     () =>
       activeNavigation?.localizations.length && config.i18nEnabled
