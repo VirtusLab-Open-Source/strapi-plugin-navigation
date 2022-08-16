@@ -346,6 +346,12 @@ const DataManagerProvider = ({ children }) => {
       signal,
     });
 
+  const slugify = (query) => 
+    request(
+      `/${pluginId}/slug?q=${query}`,
+      { method: "GET", signal }
+    );
+
   const hardReset = () => getDataRef.current();
 
   return (
@@ -379,6 +385,7 @@ const DataManagerProvider = ({ children }) => {
         readNavigationItemFromLocale,
         handleNavigationsDeletion,
         hardReset,
+        slugify,
       }}
     >
       {isLoading ? <LoadingIndicatorPage /> : children}

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState, useCallback, BaseSyntheticEvent } from 'react';
 import { debounce, find, get, first, isEmpty, isEqual, isNil, isString, isObject, sortBy } from 'lodash';
-import slugify from '@sindresorhus/slugify';
+import { prop } from 'lodash/fp';
 import { useFormik, FormikProps } from 'formik';
 
 //@ts-ignore
@@ -20,13 +20,11 @@ import { extractRelatedItemLabel } from '../../utils/parsers';
 import * as formDefinition from './utils/form';
 import { checkFormValidity } from '../../utils/form';
 import { getTrad, getTradId } from '../../../../translations';
-import { assertString, Audience, NavigationItemAdditionalField, NavigationItemType, ToBeFixed } from '../../../../../../types';
-import { ContentTypeSearchQuery, NavigationItemFormData, NavigationItemFormProps, RawFormPayload, SanitizedFormPayload } from './types';
+import { assertString, Audience, Effect, NavigationItemAdditionalField, NavigationItemType, ToBeFixed } from '../../../../../../types';
+import { ContentTypeSearchQuery, NavigationItemFormData, NavigationItemFormProps, RawFormPayload, SanitizedFormPayload, Slugify } from './types';
 import AdditionalFieldInput from '../../../../components/AdditionalFieldInput';
 import { getMessage, ResourceState } from '../../../../utils';
 import { Id } from 'strapi-typed';
-
-const appendLabelPublicationStatusFallback = () => '';
 
 const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   config,
@@ -47,6 +45,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   appendLabelPublicationStatus = appendLabelPublicationStatusFallback,
   locale,
   readNavigationItemFromLocale,
+  slugify,
 }) => {
   const [isLoading, setIsLoading] = useState(isPreloading);
   const [hasBeenInitialized, setInitializedState] = useState(false);
@@ -55,8 +54,19 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   const [contentTypeSearchInputValue, setContentTypeSearchInputValue] = useState(undefined);
   const formik: FormikProps<RawFormPayload> = useFormik<RawFormPayload>({
     initialValues: formDefinition.defaultValues,
-    onSubmit: (payload) => onSubmit(sanitizePayload(payload, data)),
-    validate: (values) => checkFormValidity(sanitizePayload(values, {}), formDefinition.schemaFactory(isSingleSelected, additionalFields)),
+    onSubmit: loadingAware(
+      async (payload) => onSubmit(
+        await sanitizePayload(slugify, payload, data)
+      ),
+      setIsLoading
+    ),
+    validate: loadingAware(
+      async (values) => checkFormValidity(
+        await sanitizePayload(slugify, values, {}),
+        formDefinition.schemaFactory(isSingleSelected, additionalFields)
+      ),
+      setIsLoading
+    ),
     validateOnChange: false,
   });
   const initialRelatedTypeSelected = get(data, 'relatedType.value');
@@ -130,7 +140,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
 
     }, [contentTypeEntities, contentTypesNameFields, contentTypes]);
 
-  const sanitizePayload = (payload: RawFormPayload, data: Partial<NavigationItemFormData>): SanitizedFormPayload => {
+  const sanitizePayload = async (slugify: Slugify, payload: RawFormPayload, data: Partial<NavigationItemFormData>): Promise<SanitizedFormPayload> => {
     const { related, relatedType, menuAttached, type, ...purePayload } = payload;
     const relatedId = related;
     const singleRelatedItem = isSingleSelected ? first(contentTypeEntities) : undefined;
@@ -138,6 +148,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
     const title = !!payload.title?.trim()
       ? payload.title
       : getDefaultTitle(related, relatedType, isSingleSelected)
+    const uiRouterKey = await generateUiRouterKey(slugify, title, relatedId, relatedCollectionType);
 
     return {
       ...data,
@@ -151,7 +162,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
       relatedType: type === navigationItemType.INTERNAL ? relatedCollectionType : undefined,
       isSingle: isSingleSelected,
       singleRelatedItem,
-      uiRouterKey: generateUiRouterKey(title, relatedId, relatedCollectionType),
+      uiRouterKey,
     };
   };
 
@@ -200,17 +211,15 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
     });
   }
 
-  const generateUiRouterKey = (title: string, related?: string, relatedType?: string): string | undefined => {
-    const { slugify: customSlugifyConfig } = config;
-
+  const generateUiRouterKey = async (slugify: Slugify, title: string, related?: string, relatedType?: string): Promise<string | undefined> => {
     if (title) {
-      return isString(title) && !isEmpty(title) ? slugify(title, customSlugifyConfig).toLowerCase() : undefined;
+      return isString(title) && !isEmpty(title) ? await slugify(title).then(prop("slug")) : undefined;
     } else if (related) {
       const relationTitle = extractRelatedItemLabel({
         ...contentTypeEntities.find(_ => _.id === related),
         __collectionUid: relatedType
       }, contentTypesNameFields, { contentTypes });
-      return isString(relationTitle) && !isEmpty(relationTitle) ? slugify(relationTitle, customSlugifyConfig).toLowerCase() : undefined;
+      return isString(relationTitle) && !isEmpty(relationTitle) ? await slugify(relationTitle).then(prop("slug")) : undefined;
     }
     return undefined;
   };
@@ -266,7 +275,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   const pathSourceName = isExternal ? 'externalPath' : 'path';
 
   const submitDisabled =
-    (formik.values.type === navigationItemType.INTERNAL && !isSingleSelected && isNil(formik.values.related));
+    (formik.values.type === navigationItemType.INTERNAL && !isSingleSelected && isNil(formik.values.related)) || isLoading;
 
   const debouncedSearch = useCallback(
     debounce(nextValue => setContentTypeSearchQuery(nextValue), 500),
@@ -612,5 +621,20 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
     </>
   );
 };
+
+const appendLabelPublicationStatusFallback = () => "";
+
+const loadingAware =
+  <T, U>(action: (i: T) => U, isLoading: Effect<boolean>) =>
+  async (input: T) => {
+    try {
+      isLoading(true);
+
+      return await action(input);
+    } catch (_) {
+    } finally {
+      isLoading(false);
+    }
+  };
 
 export default NavigationItemForm;

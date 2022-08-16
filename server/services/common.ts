@@ -7,6 +7,7 @@ import { ContentTypeEntity, ICommonService, Navigation, NavigationActions, Navig
 import { configSetupStrategy } from "../config";
 import { addI18nWhereClause } from "../i18n";
 import { checkDuplicatePath, getPluginModels, getPluginService, isContentTypeEligible, KIND_TYPES, parsePopulateQuery, singularize } from "../utils";
+import slugify from "@sindresorhus/slugify";
 
 const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) => ({
   analyzeBranch(
@@ -426,7 +427,36 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
         })
       )
     );
-  }
+  },
+
+  async getSlug(query) {
+    let slug = slugify(query);
+
+    if (slug) {
+      const { itemModel } = getPluginModels();
+      const existingItems = await strapi
+        .query<NavigationItemEntity>(itemModel.uid)
+        .count({
+          where: {
+            $or: [
+              {
+                uiRouterKey: {
+                  $startsWith: slug 
+                }
+              },
+              { uiRouterKey: slug }
+            ] 
+          },
+          limit: Number.MAX_SAFE_INTEGER,
+        });
+
+      if (existingItems) {
+        slug = `${slug}-${existingItems}`
+      }
+    }
+
+    return slug.toLowerCase();
+  },
 });
 
 export default commonService;

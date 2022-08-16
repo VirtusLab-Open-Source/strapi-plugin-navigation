@@ -1,5 +1,4 @@
 import { first, get, isEmpty, isNil, isString, isArray, last, toNumber } from "lodash";
-import slugify from "@sindresorhus/slugify";
 import { Id, StrapiContext } from "strapi-typed";
 import { validate } from "uuid";
 import { assertNotEmpty, ContentTypeEntity, IAdminService, IClientService, ICommonService, Navigation, NavigationItem, NavigationItemEntity, RFRNavItem, ToBeFixed } from "../../types"
@@ -188,40 +187,48 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
     };
   },
 
-  renderTree(
+  async renderTree(
     items = [],
     id = null,
     field = 'parent',
     path = '',
     itemParser = (i: ToBeFixed) => i,
   ) {
-    return items
-      .filter(
-        (item) => {
-          if (item[field] === null && id === null) {
-            return true;
-          }
-          let data = item[field];
-          if (data && typeof id === 'string') {
-            data = data.toString();
-          }
-          if (!!data && typeof data === 'object' && 'id' in data) {
-            return data.id === id
-          }
+    return (await Promise.all(
+      items
+        .filter(
+          (item) => {
+            if (item[field] === null && id === null) {
+              return true;
+            }
+            let data = item[field];
+            if (data && typeof id === 'string') {
+              data = data.toString();
+            }
+            if (!!data && typeof data === 'object' && 'id' in data) {
+              return data.id === id
+            }
 
-          return (data && data === id);
-        },
+            return (data && data === id);
+          },
+        )
+        .filter(filterOutUnpublished)
+        .map(async (item) => itemParser(
+            {
+              ...item,
+            }, 
+            path,
+            field
+          )
+        )
       )
-      .filter(filterOutUnpublished)
-      .map(item => itemParser({
-        ...item,
-      }, path, field))
-      .sort((x, y) => {
-        if (x.order !== undefined && y.order !== undefined)
-          return x.order - y.order;
-        else
-          return 0;
-      });
+    )
+    .sort((x, y) => {
+      if (x.order !== undefined && y.order !== undefined)
+        return x.order - y.order;
+      else
+        return 0;
+    });
   },
 
   async renderType({
@@ -271,7 +278,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
         return [];
       }
       const items = await commonService.getRelatedItems(entities, populate);
-      const { contentTypes, contentTypesNameFields, additionalFields, slugify: customSlugifyConfig } = await adminService.config(false);
+      const { contentTypes, contentTypesNameFields, additionalFields } = await adminService.config(false);
       const enabledCustomFieldsNames = getCustomFields(additionalFields)
         .reduce<string[]>((acc, curr) => curr.enabled ? [...acc, curr.name] : acc, []);
 
@@ -284,13 +291,13 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
         case RENDER_TYPES.TREE:
         case RENDER_TYPES.RFR:
           const getTemplateName = await templateNameFactory(items, strapi, contentTypes);
-          const itemParser = (item: NavigationItemEntity<ContentTypeEntity[]>, path = '', field: keyof NavigationItemEntity) => {
+          const itemParser = async (item: NavigationItemEntity<ContentTypeEntity[]>, path = '', field: keyof NavigationItemEntity) => {
             const isExternal = item.type === "EXTERNAL";
             const parentPath = isExternal ? undefined : `${path === '/' ? '' : path}/${first(item.path) === '/'
               ? item.path!.substring(1)
               : item.path}`;
-            const slug = isString(parentPath) ? slugify(
-              (first(parentPath) === '/' ? parentPath.substring(1) : parentPath).replace(/\//g, '-'), customSlugifyConfig) : undefined;
+            const slug = isString(parentPath) ? await commonService.getSlug(
+              (first(parentPath) === '/' ? parentPath.substring(1) : parentPath).replace(/\//g, '-')) : undefined;
             const lastRelated = isArray(item.related) ? last(item.related) : item.related;
             const relatedContentType = wrapContentType(lastRelated);
             return {
@@ -301,14 +308,14 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
               path: isExternal ? item.externalPath : parentPath,
               type: item.type,
               uiRouterKey: item.uiRouterKey,
-              slug: !slug && item.uiRouterKey ? slugify(item.uiRouterKey, customSlugifyConfig) : slug,
+              slug: !slug && item.uiRouterKey ? commonService.getSlug(item.uiRouterKey) : slug,
               external: isExternal,
               related: isExternal || !lastRelated ? undefined : {
                 ...relatedContentType,
                 __templateName: getTemplateName((lastRelated.relatedType || lastRelated.__contentType), lastRelated.id),
               },
               audience: !isEmpty(item.audience) ? item.audience!.map(({ key }) => key) : undefined,
-              items: isExternal ? undefined : clientService.renderTree(
+              items: isExternal ? undefined : await clientService.renderTree(
                 items,
                 item.id,
                 field,
@@ -324,7 +331,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
             root: rootElement,
           } = filterByPath(items, rootPath);
 
-          const treeStructure = clientService.renderTree(
+          const treeStructure = await clientService.renderTree(
             isNil(rootPath) ? items : itemsFilteredByPath,
             get(rootElement, 'parent.id'),
             'parent',

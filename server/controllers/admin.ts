@@ -156,6 +156,22 @@ const adminControllers: IAdminController = {
       throw error
     }
   },
+
+  getSlug(ctx) {
+    const { query: { q } } = ctx;
+
+    try {
+      assertNotEmpty(q);
+
+      return this.getService<ICommonService>("common").getSlug(q).then((slug) => ({ slug }));
+    } catch (error) {
+      if (error instanceof Error) {
+        return ctx.badRequest(error.message)
+      }
+
+      throw error
+    }
+  },
 };
 
 const assertCopyParams = (source: unknown, target: unknown) => {
