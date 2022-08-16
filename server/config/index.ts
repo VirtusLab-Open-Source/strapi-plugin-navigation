@@ -15,7 +15,6 @@ const config: StrapiConfig<NavigationPluginConfig> = {
     i18nEnabled: false,
     pathDefaultFields: {},
     pruneObsoleteI18nNavigations: false,
-    slugify: {},
   },
 };
 

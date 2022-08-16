@@ -149,6 +149,9 @@ Config for this plugin is stored as a part of the `config/plugins.js` or `config
 > *Note v2.0.3 and newer only*
 > Changing this file will not automatically change plugin configuration. To synchronize plugin's config with plugins.js file, it is necessary to restore configuration through the settings page 
 
+> *Note for newer than v2.2.0*
+> `slugify` as been removed. **THIS A BREAKING CHANGE**
+
 ```js
     module.exports = ({ env }) => ({
         // ...
@@ -162,11 +165,6 @@ Config for this plugin is stored as a part of the `config/plugins.js` or `config
                 },
                 allowedLevels: 2,
                 gql: {...},
-                slugify: {
-                  customReplacements: [
-                    ["🤔", "thinking"],
-                  ],
-                }
             }
         }
     });
@@ -179,7 +177,6 @@ Config for this plugin is stored as a part of the `config/plugins.js` or `config
 - `contentTypesNameFields` - Definition of content type title fields like `'api::<collection name>.<content type name>': ['field_name_1', 'field_name_2']`, if not set titles are pulled from fields like `['title', 'subject', 'name']`. **TIP** - Proper content type uid you can find in the URL of Content Manager where you're managing relevant entities like: `admin/content-manager/collectionType/< THE UID HERE >?page=1&pageSize=10&sort=Title:ASC&plugins[i18n][locale]=en`
 - `gql` - If you're using GraphQL that's the right place to put all necessary settings. More **[ here ](#gql-configuration)**
 - `i18nEnabled` - should you want to manage multi-locale content via navigation set this value `Enabled`. More **[ here ](#i18n-internationalization)**
-- `slugify` - allows to extend configuration of our "slugging" solution of choice. To learn more visit the [documentation](https://github.com/sindresorhus/slugify#api). It can be left unset since it's optional. **This option can only be handled by configuration in config file**.
 
 ### Properties
 
@@ -630,6 +627,33 @@ module.exports = {
 ```
 
 If you already got it, make sure that `navigation` plugin is inserted before `graphql`. That should do the job.
+
+### Slug generation
+
+#### Customisation
+
+Slug generation is available as a controller and service. If you have custom requirements outside of what this plugin provides you can add your own logic with [plugins extensions](https://docs.strapi.io/developer-docs/latest/development/plugins-extension.html).
+
+For example:
+
+```ts
+// path: ./src/index.js
+
+module.exports = {
+  // ...
+  bootstrap({ strapi }) {
+    const navigationCommonService = strapi.plugin("navigation").service("common");
+    const originalGetSlug = navigationCommonService.getSlug;
+    const preprocess = (q) => {
+      return q + "suffix";
+    };
+
+    navigationCommonService.getSlug = (query) => {
+      return originalGetSlug(preprocess(query));
+    };
+  },
+};
+```
 
 ## 🤝 Contributing
 

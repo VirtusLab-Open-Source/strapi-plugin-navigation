@@ -26,7 +26,8 @@ export interface IAdminController {
     Partial<
       Pick<NotVoid<Navigation['items']>[number], 'path' | 'related' | 'type' | 'uiRouterKey' | 'title' | 'externalPath'>
     >
-  >, never, { path?: string }, { source: string, target: string }, ControllerCommonContext>
+  >, never, { path?: string }, { source: string, target: string }, ControllerCommonContext>;
+  getSlug: StrapiController<Promise<{ slug: string }>, never, { q: string }>;
 };
 
 export interface IClientController {

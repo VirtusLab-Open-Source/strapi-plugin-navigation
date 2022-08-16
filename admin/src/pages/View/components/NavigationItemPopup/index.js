@@ -29,6 +29,7 @@ const NavigationItemPopUp = ({
   usedContentTypesData,
   locale,
   readNavigationItemFromLocale,
+  slugify,
 }) => {
   const handleOnSubmit = (payload) => {
     onSubmit(payload);
@@ -42,7 +43,6 @@ const NavigationItemPopUp = ({
     contentTypeItems,
     contentTypesNameFields = {},
   } = config;
-
 
   const appendLabelPublicationStatus = (label = '', item = {}, isCollection = false) => {
     const appendix = isRelationPublished({
@@ -99,6 +99,7 @@ const NavigationItemPopUp = ({
         appendLabelPublicationStatus={appendLabelPublicationStatus}
         locale={locale}
         readNavigationItemFromLocale={readNavigationItemFromLocale}
+        slugify={slugify}
       />
     </ModalLayout>
 
@@ -115,6 +116,7 @@ NavigationItemPopUp.propTypes = {
   getContentTypeItems: PropTypes.func.isRequired,
   locale: PropTypes.string,
   readNavigationItemFromLocale: PropTypes.func.isRequired,
+  slugify: PropTypes.func.isRequired,
 };
 
 export default NavigationItemPopUp;

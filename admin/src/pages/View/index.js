@@ -60,6 +60,7 @@ const View = () => {
     error,
     availableLocale: allAvailableLocale,
     readNavigationItemFromLocale,
+    slugify,
   } = useDataManager();
   const availableLocale = useMemo(
     () => allAvailableLocale.filter(locale => locale !== changedActiveNavigation?.localeCode),
@@ -352,6 +353,7 @@ const View = () => {
         onClose={onPopUpClose}
         locale={activeNavigation.localeCode}
         readNavigationItemFromLocale={readNavigationItemFromLocale}
+        slugify={slugify}
       />}
       {i18nCopyItemsModal}
     </Main>

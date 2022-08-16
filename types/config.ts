@@ -17,7 +17,6 @@ export type NavigationPluginConfig = {
   gql: PluginConfigGraphQL;
   i18nEnabled: boolean;
   pruneObsoleteI18nNavigations: boolean;
-  slugify: Record<string, unknown>;
   pathDefaultFields: PluginConfigPathDefaultFields;
 };
 
