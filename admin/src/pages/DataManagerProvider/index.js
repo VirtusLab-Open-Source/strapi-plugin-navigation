@@ -2,6 +2,7 @@ import React, { memo, useEffect, useMemo, useReducer, useRef } from "react";
 import { useLocation, useRouteMatch } from "react-router-dom";
 import { useIntl } from 'react-intl';
 import PropTypes from "prop-types";
+import { useQueryClient } from 'react-query';
 import { get, find, first, isEmpty } from "lodash";
 import {
   request,
@@ -35,6 +36,7 @@ import {
 } from './actions';
 import { prepareItemToViewPayload } from '../View/utils/parsers';
 import { errorStatusResourceFor, resolvedResourceFor } from "../../utils";
+import { getNavigationsQuery } from "../../utils/repositories";
 
 const i18nAwareItems = ({ items, config }) => 
   config.i18nEnabled ? items.filter(({ localeCode }) => localeCode === config.defaultLocale) : items;
@@ -44,6 +46,7 @@ const DataManagerProvider = ({ children }) => {
   const toggleNotification = useNotification();
   const { autoReload } = useAppInfos();
   const { formatMessage } = useIntl();
+  const queryClient = useQueryClient();
 
   const {
     items,
@@ -298,6 +301,7 @@ const DataManagerProvider = ({ children }) => {
          signal,
          body: payload,
        });
+       await queryClient.invalidateQueries(getNavigationsQuery);
        dispatch({
          type: SUBMIT_NAVIGATION_SUCCEEDED,
          navigation: {
@@ -337,8 +341,10 @@ const DataManagerProvider = ({ children }) => {
      }
   };
 
-  const handleNavigationsDeletion = (ids) => 
-    Promise.all(ids.map(handleNavigationDeletion));
+  const handleNavigationsDeletion = async (ids) => {
+    await Promise.all(ids.map(handleNavigationDeletion));
+    await queryClient.invalidateQueries(getNavigationsQuery);
+  } 
 
   const handleNavigationDeletion = (id) => 
     request(`/${pluginId}/${id}`, {

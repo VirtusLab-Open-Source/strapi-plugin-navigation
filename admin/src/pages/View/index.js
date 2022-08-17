@@ -38,10 +38,10 @@ import {
   usedContentTypes,
   validateNavigationStructure,
 } from './utils/parsers';
+import { useAvailableNavigations } from '../../hooks/useAvailableNavigations';
 
 const View = () => {
   const {
-    items: availableNavigations,
     activeItem: activeNavigation,
     changedActiveItem: changedActiveNavigation,
     config,
@@ -62,6 +62,9 @@ const View = () => {
     readNavigationItemFromLocale,
     slugify,
   } = useDataManager();
+
+  const { availableNavigations } = useAvailableNavigations();
+  
   const availableLocale = useMemo(
     () => allAvailableLocale.filter(locale => locale !== changedActiveNavigation?.localeCode),
     [changedActiveNavigation, allAvailableLocale]

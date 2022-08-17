@@ -13,6 +13,7 @@ import { prop } from "lodash/fp";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useIntl } from "react-intl";
 import { VoidEffect } from "../../../../../../types";
+import { useAvailableNavigations } from "../../../../hooks/useAvailableNavigations";
 import useDataManager from "../../../../hooks/useDataManager";
 import { getMessage } from "../../../../utils";
 import { AllNavigations, AllNavigationsFooter } from "./AllNavigations";
@@ -38,13 +39,16 @@ export const NavigationManager = ({
   const [state, setState] = useState(initialState);
 
   const {
-    items = [],
     handleNavigationsDeletion,
     handleSubmitNavigation,
     hardReset,
   } = useDataManager();
 
-  const navigations = useMemo(() => sortBy(items, "id"), [items]);
+  const {
+    availableNavigations,
+  } = useAvailableNavigations();
+
+  const navigations = useMemo(() => sortBy(availableNavigations, "id"), [availableNavigations]);
 
   const onReset = useCallback(() => setState({ view: "INITIAL" }), [setState]);
 

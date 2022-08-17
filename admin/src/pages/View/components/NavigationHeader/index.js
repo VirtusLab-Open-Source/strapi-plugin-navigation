@@ -13,6 +13,7 @@ import { Grid, GridItem } from "@strapi/design-system/Grid";
 import { uniqBy } from 'lodash';
 import { useNavigationManager } from '../../../../hooks/useNavigationManager';
 import useDataManager from '../../../../hooks/useDataManager';
+import { useAvailableNavigations } from '../../../../hooks/useAvailableNavigations';
 
 const submitIcon = <Check />;
 const pickDefaultLocaleNavigation = ({ activeNavigation, config }) => config.i18nEnabled
@@ -34,10 +35,16 @@ const NavigationHeader = ({
   const { formatMessage } = useIntl();
   const {
     activeItem: activeNavigation,
-    items: availableNavigations,
     handleLocalizationSelection,
     config,
   } = useDataManager();
+
+  const {
+    isLoading,
+    error,
+    availableNavigations,
+  } = useAvailableNavigations();
+  
   const allLocaleVersions = useMemo(
     () =>
       activeNavigation?.localizations.length && config.i18nEnabled
@@ -77,8 +84,15 @@ const NavigationHeader = ({
                   value={passedActiveNavigation?.id}
                   size="S"
                   style={null}
+                  disabled={isLoading}
                 >
-                  {availableNavigations.map(({ id, name }) => <Option key={id} value={id}>{name}</Option>)}
+                  {
+                    isLoading ?
+                      <Option>Loading...</Option> :
+                      error ?
+                      <Option>Loading...</Option> :
+                      availableNavigations.map(({ id, name }) => <Option key={id} value={id}>{name}</Option>)
+                  }
                 </Select>
               </GridItem>
             {hasLocalizations
