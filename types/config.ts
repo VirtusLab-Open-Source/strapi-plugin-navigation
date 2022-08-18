@@ -18,6 +18,7 @@ export type NavigationPluginConfig = {
   i18nEnabled: boolean;
   pruneObsoleteI18nNavigations: boolean;
   pathDefaultFields: PluginConfigPathDefaultFields;
+  isGQLPluginEnabled?: boolean;
 };
 
 export type StrapiConfig<T> = {

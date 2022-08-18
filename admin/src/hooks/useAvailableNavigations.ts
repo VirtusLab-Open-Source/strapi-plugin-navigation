@@ -1,15 +1,9 @@
 //@ts-ignore
 import { useQuery } from 'react-query';
-import { get } from 'lodash';
+import { get, isNil } from 'lodash';
 import { getNavigationsQuery, getNavigations } from '../utils/repositories';
 import useNavigationConfig from './useNavigationConfig';
-import { Navigation } from '../../../types';
-
-// TODO: Extract to another file and refactor
-type ResponseLoading<T> = { isLoading: boolean} & T;
-type ResponseError<T> = { isLoading: false, errors: Array<Error> } & T;
-type ResponseSuccess<T> = { isLoading: false } & T
-type QueryResponse<T extends object = {}> = ResponseLoading<T> | ResponseError<T> | ResponseSuccess<T>;
+import { assertNotEmpty, Navigation, QueryResponse } from '../../../types';
 
 export const useAvailableNavigations = (): QueryResponse<{ availableNavigations: Navigation[] }> => {
   const {
@@ -18,22 +12,23 @@ export const useAvailableNavigations = (): QueryResponse<{ availableNavigations:
     error: errorNavigations,
   } = useQuery(getNavigationsQuery, getNavigations);
   const {
-    data: config,
+    navigationConfig,
     isLoading: isLoadingConfig,
     error: errorConfig,
   } = useNavigationConfig();
 
-  const errors = [errorConfig, errorNavigations].filter(n => !!n);
+  const error = errorConfig || errorNavigations as Error | null;
   const isLoading = isLoadingConfig || isLoadingNavigations;
-  if (errors.length) {
-    return { errors, isLoading: false, availableNavigations: [] }
+  if (isNil(error)) {
+    assertNotEmpty(error);
+    return { error, isLoading: false, availableNavigations: [] }
   }
 
   if (isLoading) {
-    return { isLoading, availableNavigations: [] };
-  } else if (get(config, "i18nEnabled")) {
-    return { isLoading,  availableNavigations: navigations.filter(({ localeCode }: Navigation) => localeCode === config.defaultLocale) };
+    return { isLoading, availableNavigations: [], error: null};
+  } else if (get(navigationConfig, "i18nEnabled")) {
+    return { isLoading,  availableNavigations: navigations.filter(({ localeCode }: Navigation) => localeCode === navigationConfig.defaultLocale), error: null};
   } else {
-    return { isLoading, availableNavigations: navigations };
+    return { isLoading, availableNavigations: navigations, error: null};
   }
 }

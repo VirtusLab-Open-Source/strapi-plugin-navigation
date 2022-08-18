@@ -44,6 +44,10 @@ const NavigationHeader = ({
     error,
     availableNavigations,
   } = useAvailableNavigations();
+
+  console.log({isLoading,
+    error,
+    availableNavigations,})
   
   const allLocaleVersions = useMemo(
     () =>

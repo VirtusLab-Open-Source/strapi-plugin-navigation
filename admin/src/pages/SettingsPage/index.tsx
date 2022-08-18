@@ -75,22 +75,25 @@ const SettingsPage = () => {
   const [customFields, setCustomFields] = useState<NavigationItemCustomField[]>([]);
   const [isRestorePopupOpen, setIsRestorePopupOpen] = useState<boolean>(false);
   const [contentTypeExpanded, setContentTypeExpanded] = useState<string | undefined>(undefined);
-  const { data: navigationConfigData, isLoading: isConfigLoading, error: configErr, submitMutation, restoreMutation, restartMutation } = useNavigationConfig();
+  const { navigationConfig, isLoading: isConfigLoading, error: configErr, submitConfig, restoreConfig, restartStrapi } = useNavigationConfig();
   const { data: allContentTypesData, isLoading: isContentTypesLoading, error: contentTypesErr } = useAllContentTypes();
   
   const isLoading = isConfigLoading || isContentTypesLoading;
   const isError = configErr || contentTypesErr;
-  const configContentTypes: StrapiContentTypeSchema[] = navigationConfigData?.contentTypes || [];
+
+  // TODO: [@ltsNotMike] Remove ts-ignore
+  // @ts-ignore
+  const configContentTypes: StrapiContentTypeSchema[] = navigationConfig?.contentTypes || [];
 
   const formikInitialValues = useMemo<RawPayload>(() => ({
-    allowedLevels: get(navigationConfigData, "allowedLevels", 2),
-    audienceFieldChecked: get(navigationConfigData, "additionalFields", []).includes(navigationItemAdditionalFields.AUDIENCE),
-    i18nEnabled: get(navigationConfigData, "i18nEnabled", false),
-    nameFields: get(navigationConfigData, "contentTypesNameFields", {}),
-    pathDefaultFields: get(navigationConfigData, "pathDefaultFields", {}),
-    populate: get(navigationConfigData, "contentTypesPopulate", {}),
+    allowedLevels: get(navigationConfig, "allowedLevels", 2),
+    audienceFieldChecked: get(navigationConfig, "additionalFields", [] as NavigationItemAdditionalField[]).includes('audience'),
+    i18nEnabled: get(navigationConfig, "i18nEnabled", false),
+    nameFields: get(navigationConfig, "contentTypesNameFields", {}),
+    pathDefaultFields: get(navigationConfig, "pathDefaultFields", {}),
+    populate: get(navigationConfig, "contentTypesPopulate", {}),
     selectedContentTypes: configContentTypes.map(item => item.uid),
-  }), [configContentTypes, navigationConfigData, navigationItemAdditionalFields]);
+  }), [configContentTypes, navigationConfig, navigationItemAdditionalFields]);
 
   const {
     disableI18nModal,
@@ -101,10 +104,10 @@ const SettingsPage = () => {
   });
 
   useEffect(() => {
-    const additionalFields = navigationConfigData?.additionalFields
-      ?.filter((field: NavigationItemAdditionalField) => field !== navigationItemAdditionalFields.AUDIENCE);
-    setCustomFields(additionalFields || []);
-  }, [navigationConfigData]);
+    const customFields = navigationConfig?.additionalFields
+      ?.filter((field: NavigationItemAdditionalField) => field !== navigationItemAdditionalFields.AUDIENCE) as NavigationItemCustomField[];
+    setCustomFields(customFields || []);
+  }, [navigationConfig]);
 
   const preparePayload = useCallback<PreparePayload>(({
     form: {
@@ -134,14 +137,14 @@ const SettingsPage = () => {
   const onSave: OnSave = async (form) => {
     lockApp();
     const payload = preparePayload({ form, pruneObsoleteI18nNavigations });
-    await submitMutation({ body: payload });
-    const isContentTypesChanged = !isEqual(payload.contentTypes, navigationConfigData.contentTypes);
-    const isI18nChanged = !isEqual(payload.i18nEnabled, navigationConfigData.i18nEnabled);
+    await submitConfig({ ...payload, slugify: navigationConfig.slugify });
+    const isContentTypesChanged = !isEqual(payload.contentTypes, navigationConfig.contentTypes);
+    const isI18nChanged = !isEqual(payload.i18nEnabled, navigationConfig.i18nEnabled);
     const restartReasons: RestartReasons[] = []
     if (isI18nChanged) {
       restartReasons.push('I18N');
     }
-    if (isContentTypesChanged && navigationConfigData.isGQLPluginEnabled) {
+    if (isContentTypesChanged && navigationConfig.isGQLPluginEnabled) {
       restartReasons.push('GRAPH_QL');
     }
     if (pruneObsoleteI18nNavigations) {
@@ -162,7 +165,7 @@ const SettingsPage = () => {
     setIsRestorePopupOpen(false);
     if (isConfirmed) {
       lockApp();
-      await restoreMutation();
+      await restoreConfig();
       unlockApp();
       setRestartStatus(RESTART_REQUIRED);
     }
@@ -170,7 +173,7 @@ const SettingsPage = () => {
 
   const handleRestart = async () => {
     lockAppWithAutoreload();
-    await restartMutation();
+    await restartStrapi();
     unlockAppWithAutoreload();
     setRestartStatus(RESTART_NOT_REQUIRED);
   };
@@ -192,8 +195,10 @@ const SettingsPage = () => {
   }
 
   const allContentTypes: StrapiContentTypeSchema[] = !isLoading ? Object.values<StrapiContentTypeSchema>(allContentTypesData).filter(({ uid }) => isContentTypeEligible(uid, {
-    allowedContentTypes: navigationConfigData?.allowedContentTypes,
-    restrictedContentTypes: navigationConfigData?.restrictedContentTypes,
+    allowedContentTypes: navigationConfig?.contentTypes,
+// TODO: [@ltsNotMike] Remove ts-ignore
+// @ts-ignore
+    restrictedContentTypes: navigationConfig?.restrictedContentTypes,
   })).map(ct => {
     const type = configContentTypes.find(_ => _.uid === ct.uid);
     if (type) {
@@ -207,8 +212,8 @@ const SettingsPage = () => {
     return ct;
   }) : [];
 
-  const isI18NPluginEnabled = navigationConfigData?.isI18NPluginEnabled;
-  const defaultLocale = navigationConfigData?.defaultLocale;
+  const isI18NPluginEnabled = navigationConfig?.isI18NPluginEnabled;
+  const defaultLocale = navigationConfig?.defaultLocale;
 
   const handleSubmitCustomField = (field: NavigationItemCustomField) => {
     const filteredFields = customFields.filter(f => f.name !== field.name);
