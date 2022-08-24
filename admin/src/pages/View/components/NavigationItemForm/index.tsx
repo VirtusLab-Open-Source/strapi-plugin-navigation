@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useCallback, BaseSyntheticEvent } from 'react';
-import { debounce, find, get, first, isEmpty, isEqual, isNil, isString, isObject } from 'lodash';
+import { debounce, find, get, first, isEmpty, isEqual, isNil, isString, isObject, sortBy } from 'lodash';
 import slugify from '@sindresorhus/slugify';
 import { useFormik, FormikProps } from 'formik';
 
@@ -228,7 +228,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   });
 
   // TODO?: useMemo
-  const relatedSelectOptions = contentTypeEntities
+  const relatedSelectOptions = sortBy(contentTypeEntities
     .filter((item) => {
       const usedContentTypeEntitiesOfSameType = usedContentTypeEntities
         .filter(uctItem => relatedTypeSelectValue === uctItem.__collectionUid);
@@ -253,7 +253,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
         value: item.id,
         label: label,
       })
-    });
+    }), item => item.metadatas.intlLabel.id);
 
   const isExternal = formik.values.type === navigationItemType.EXTERNAL;
   const pathSourceName = isExternal ? 'externalPath' : 'path';
@@ -288,7 +288,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   };
 
   const relatedTypeSelectOptions = useMemo(
-    () => contentTypes
+    () => sortBy(contentTypes
       .filter((contentType) => {
         if (contentType.isSingle) {
           if (relatedTypeSelectValue && [relatedTypeSelectValue, initialRelatedTypeSelected].includes(contentType.uid)) {
@@ -308,7 +308,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
         },
         value: get(item, 'uid'),
         label: get(item, 'label', get(item, 'name')),
-      })),
+      })), item => item.metadatas.intlLabel.id),
     [contentTypes, usedContentTypesData, relatedTypeSelectValue],
   );
 

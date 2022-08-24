@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { isEmpty, capitalize, isEqual, orderBy, get } from 'lodash';
+import { isEmpty, capitalize, isEqual, orderBy, get, sortBy } from 'lodash';
 import { Formik, Form } from 'formik';
 import {
   CheckPermissions,
@@ -191,7 +191,7 @@ const SettingsPage = () => {
     )
   }
 
-  const allContentTypes: StrapiContentTypeSchema[] = !isLoading ? Object.values<StrapiContentTypeSchema>(allContentTypesData).filter(({ uid }) => isContentTypeEligible(uid, {
+  const allContentTypes: StrapiContentTypeSchema[] = !isLoading ? sortBy(Object.values<StrapiContentTypeSchema>(allContentTypesData).filter(({ uid }) => isContentTypeEligible(uid, {
     allowedContentTypes: navigationConfigData?.allowedContentTypes,
     restrictedContentTypes: navigationConfigData?.restrictedContentTypes,
   })).map(ct => {
@@ -205,7 +205,7 @@ const SettingsPage = () => {
       };
     }
     return ct;
-  }) : [];
+  }), ct => ct.info.displayName) : [];
 
   const isI18NPluginEnabled = navigationConfigData?.isI18NPluginEnabled;
   const defaultLocale = navigationConfigData?.defaultLocale;
@@ -311,9 +311,10 @@ const SettingsPage = () => {
                               {orderBy(values.selectedContentTypes).map(uid => {
                                 const contentType = allContentTypes.find(item => item.uid == uid);
                                 if (!contentType) return;
-                                const { attributes, info: { displayName }, available, isSingle } = contentType;
-                                const stringAttributes = Object.keys(attributes).filter(_ => STRING_ATTRIBUTE_TYPES.includes(attributes[_].type));
-                                const relationAttributes = Object.keys(attributes).filter(_ => RELATION_ATTRIBUTE_TYPES.includes(attributes[_].type));
+                                const { info: { displayName }, available, isSingle } = contentType;
+                                const attributeKeys = Object.keys(contentType.attributes).sort();
+                                const stringAttributes = attributeKeys.filter(key => STRING_ATTRIBUTE_TYPES.includes(contentType.attributes[key].type));
+                                const relationAttributes = attributeKeys.filter(key => RELATION_ATTRIBUTE_TYPES.includes(contentType.attributes[key].type));
                                 const key = `collectionSettings-${uid}`;
                                 return (<Accordion
                                   expanded={contentTypeExpanded === key}
