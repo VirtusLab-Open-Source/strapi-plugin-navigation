@@ -82,6 +82,7 @@
   "notification.navigation.item.relation.status.published": "published",
   "notification.error": "Error while processing request.",
   "notification.error.customField.type": "Unsupported type of custom field",
+  "notification.error.item.relation": "Relations provided in some items are incorrect",
   "pages.main.search.placeholder": "Type to start searching...",
   "pages.main.header.localization.select.placeholder": "Select locale",
   "pages.settings.general.title": "General settings",
