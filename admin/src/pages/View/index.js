@@ -85,6 +85,7 @@ const View = () => {
   const isSearchEmpty = isEmpty(searchValue);
 
   const structureHasErrors = !validateNavigationStructure((changedActiveNavigation || {}).items);
+  
   useEffect(() => structureHasErrors && toggleNotification({
     type: 'warning',
     message: getTrad('notification.error.item.relation'),
