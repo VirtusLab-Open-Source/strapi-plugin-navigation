@@ -21,7 +21,8 @@ export const schemaFactory = (usedCustomFieldNames: string[]) => {
       is: (val: NavigationItemCustomFieldType) => val === 'select',
       then: array().of(string()),
       otherwise: mixed().notRequired(),
-    })
+    }),
+    enabled: bool().notRequired(),
   });
 };
 
@@ -32,4 +33,5 @@ export const defaultValues: NavigationItemCustomField = {
   required: false,
   multi: false,
   options: [],
+  enabled: true,
 };
