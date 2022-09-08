@@ -29,7 +29,7 @@ export type I18nAwareEntityReadHandlerInput<T> = {
 
 export type I18NConfigFields = {
   i18nEnabled: boolean;
-  isI18NPluginEnabled: boolean | undefined;
+  isI18NPluginEnabled?: boolean;
   pruneObsoleteI18nNavigations: boolean;
   defaultLocale?: string | null;
 };

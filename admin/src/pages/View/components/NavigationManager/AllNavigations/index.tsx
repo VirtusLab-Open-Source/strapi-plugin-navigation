@@ -16,12 +16,12 @@ import { Table, Tbody, Td, Th, Thead, Tr } from "@strapi/design-system/Table";
 import { Typography } from "@strapi/design-system/Typography";
 import { prop } from "lodash/fp";
 import React, { useCallback, useMemo } from "react";
+import { pencilIcon, trashIcon } from "../../../../../components/icons";
 import useDataManager from "../../../../../hooks/useDataManager";
 import { getMessage } from "../../../../../utils";
 import { Footer, FooterBase } from "../Footer";
 import { INITIAL_NAVIGATION } from "../NewNavigation";
 import { CommonProps, ListState, Navigation } from "../types";
-import * as icons from "./icons";
 
 interface Props extends ListState, CommonProps {}
 
@@ -176,7 +176,7 @@ export const AllNavigations = ({ navigations, selected, setState }: Props) => {
                       onClick={edit(navigation)}
                       label={getMessage("popup.navigation.manage.button.edit")}
                       noBorder
-                      icon={icons.edit}
+                      icon={pencilIcon}
                     />
                   </Box>
                   <Box paddingLeft={1}>
@@ -186,7 +186,7 @@ export const AllNavigations = ({ navigations, selected, setState }: Props) => {
                         "popup.navigation.manage.button.delete"
                       )}
                       noBorder
-                      icon={icons.deleteIcon}
+                      icon={trashIcon}
                     />
                   </Box>
                 </Flex>

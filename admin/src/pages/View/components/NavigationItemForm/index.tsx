@@ -15,7 +15,7 @@ import { GenericInput } from '@strapi/helper-plugin';
 import { Button } from '@strapi/design-system/Button';
 
 import { NavigationItemPopupFooter } from '../NavigationItemPopup/NavigationItemPopupFooter';
-import { getDefaultCustomFields, navigationItemType } from '../../../../utils';
+import { ResourceState, getDefaultCustomFields, getMessage, navigationItemType } from '../../../../utils';
 import { extractRelatedItemLabel } from '../../utils/parsers';
 import * as formDefinition from './utils/form';
 import { checkFormValidity } from '../../utils/form';
@@ -23,7 +23,6 @@ import { getTrad, getTradId } from '../../../../translations';
 import { assertString, Audience, Effect, NavigationItemAdditionalField, NavigationItemType, ToBeFixed } from '../../../../../../types';
 import { ContentTypeSearchQuery, NavigationItemFormData, NavigationItemFormProps, RawFormPayload, SanitizedFormPayload, Slugify } from './types';
 import AdditionalFieldInput from '../../../../components/AdditionalFieldInput';
-import { getMessage, ResourceState } from '../../../../utils';
 import { Id } from 'strapi-typed';
 
 const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
@@ -450,7 +449,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
           <Grid gap={5} >
             <GridItem key="title" col={12}>
               <GenericInput
-                autoFocused={true}
+                autoFocused
                 intlLabel={getTrad('popup.item.form.title.label', 'Title')}
                 name="title"
                 placeholder={getTrad("e.g. Blog", 'e.g. Blog')}

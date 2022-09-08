@@ -2,13 +2,13 @@ import {
   assertNotEmpty,
   IConfigSetupStrategy,
   NavigationItemAdditionalField,
-  NavigationPluginConfig,
   PluginConfigGraphQL,
   PluginConfigKeys,
   PluginConfigNameFields,
   PluginConfigPathDefaultFields,
   PluginConfigPopulate,
   PluginDefaultConfigGetter,
+  NavigationRawConfig,
 } from "../../types";
 import { validateAdditionalFields } from "../utils";
 
@@ -21,8 +21,8 @@ export const configSetupStrategy: IConfigSetupStrategy = async ({ strapi }) => {
     "navigation"
   ).config;
   const hasI18nPlugin: boolean = !!strapi.plugin("i18n");
-  // TODO: Mark config from store as Partial<NavigationPluginConfig>
-  let config: NavigationPluginConfig = await pluginStore.get({
+  // TODO: Mark config from store as Partial<NavigationConfig>
+  let config: NavigationRawConfig = await pluginStore.get({
     key: "config",
   });
   const getWithFallback = getWithFallbackFactory(config, getFromPluginDefaults);
@@ -54,7 +54,7 @@ export const configSetupStrategy: IConfigSetupStrategy = async ({ strapi }) => {
 };
 
 const getWithFallbackFactory =
-  (config: NavigationPluginConfig, fallback: PluginDefaultConfigGetter) =>
+  (config: NavigationRawConfig, fallback: PluginDefaultConfigGetter) =>
   <T extends ReturnType<PluginDefaultConfigGetter>>(key: PluginConfigKeys) => {
     const value = config?.[key] ?? fallback(key);
 

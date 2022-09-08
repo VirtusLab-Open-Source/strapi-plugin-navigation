@@ -72,11 +72,6 @@ export type StrapiRoutes = {
 export type StrapiControllerContext = any;
 export type StrapiControllerContextParams = any;
 
-type ResponseLoading<T> = { isLoading: boolean, error: null} & T;
-type ResponseError<T> = { isLoading: false, error: Error } & T;
-type ResponseSuccess<T> = { isLoading: false, error: null} & T
-export type QueryResponse<T extends object = {}> = ResponseLoading<T> | ResponseError<T> | ResponseSuccess<T>;
-
 export const assertNotEmpty: <T>(
   value: T | null | undefined,
   customError?: Error

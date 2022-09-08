@@ -4,8 +4,6 @@ import { getMessage } from "../../../../utils";
 // @ts-ignore
 import { Formik } from "formik";
 // @ts-ignore
-import { Check, Refresh, Play, Information } from "@strapi/icons";
-// @ts-ignore
 import { Form } from "@strapi/helper-plugin";
 // @ts-ignore
 import { Stack } from "@strapi/design-system/Stack";

@@ -113,14 +113,9 @@ const NavigationItemPopUp = ({
 
 NavigationItemPopUp.propTypes = {
   data: PropTypes.object.isRequired,
-  config: PropTypes.object.isRequired,
   isOpen: PropTypes.bool,
-  isLoading: PropTypes.bool,
   onSubmit: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
-  getContentTypeItems: PropTypes.func.isRequired,
-  locale: PropTypes.string,
-  readNavigationItemFromLocale: PropTypes.func.isRequired,
   slugify: PropTypes.func.isRequired,
 };
 

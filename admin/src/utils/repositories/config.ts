@@ -1,13 +1,24 @@
 // @ts-ignore
-import { request } from '@strapi/helper-plugin';
-import { NavigationPluginConfig } from '../../../../types';
-import pluginId from '../../pluginId';
+import { request } from "@strapi/helper-plugin";
+import { NavigationRawConfig } from "../../../../types";
+import pluginId from "../../pluginId";
 
-export const getNavigationConfigQuery = "getNavigationConfigQuery"
+const navigationConfigQuery = "navigationConfigQuery";
 
-export const getNavigationConfig = () =>
-  request(`/${pluginId}/settings/config`);
-export const updateNavigationConfig = (body: NavigationPluginConfig ) =>
-  request(`/${pluginId}/config`, { method: 'PUT', body }, true);
-export const restoreNavigationConfig = () =>
-  request(`/${pluginId}/config`, { method: 'DELETE' }, true);
+export const NavigationConfigRepository = {
+  getIndex() {
+    return navigationConfigQuery;
+  },
+  fetch() {
+    return request(`/${pluginId}/config`);
+  },
+  fetchViaSettings() {
+    return request(`/${pluginId}/settings/config`);
+  },
+  update(body: NavigationRawConfig) {
+    return request(`/${pluginId}/config`, { method: "PUT", body }, true);
+  },
+  restore() {
+    return request(`/${pluginId}/config`, { method: "DELETE" }, true);
+  },
+};

@@ -5,7 +5,7 @@ import {
   NavigationItemAdditionalField,
   NavigationItemAdditionalFieldValues,
   NavigationItemType,
-  NavigationPluginConfig,
+  NavigationConfig,
   PluginConfigNameFields,
   ToBeFixed,
   VoidEffect
@@ -71,7 +71,7 @@ export type NavigationItemFormProps = {
   onSubmit: Effect<SanitizedFormPayload>;
   usedContentTypeEntities: ToBeFixed[];
   usedContentTypesData: ToBeFixed;
-  config: NavigationPluginConfig;
+  config: NavigationConfig;
   availableLocale: string[];
   readNavigationItemFromLocale: ToBeFixed;
   inputsPrefix: string;

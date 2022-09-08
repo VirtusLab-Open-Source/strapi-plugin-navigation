@@ -3,7 +3,7 @@ import { useLocation, useRouteMatch } from "react-router-dom";
 import { useIntl } from 'react-intl';
 import PropTypes from "prop-types";
 import { useQueryClient } from 'react-query';
-import { get, find, first, isEmpty } from "lodash";
+import { get, find, first, isEmpty, flatten } from "lodash";
 import {
   request,
   LoadingIndicatorPage,
@@ -197,10 +197,9 @@ const DataManagerProvider = ({ children }) => {
     });
 
     const fetchedContentType = find(config.contentTypes, ct => ct.uid === modelUID);
-    const isArray = Array.isArray(contentTypeItems);
     dispatch({
       type: GET_CONTENT_TYPE_ITEMS_SUCCEEDED,
-      contentTypeItems: (isArray ? contentTypeItems : [contentTypeItems]).map(item => ({
+      contentTypeItems: (flatten([contentTypeItems])).map(item => ({
         ...item,
         __collectionUid: get(fetchedContentType, 'collectionUid', modelUID),
       })),
