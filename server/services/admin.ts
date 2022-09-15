@@ -12,7 +12,8 @@ import {
   NavigationItemCustomField,
   NavigationItemEntity,
   NavigationConfig,
-  ToBeFixed
+  ToBeFixed,
+  NavigationEntity
 } from "../../types";
 import {
   ALLOWED_CONTENT_TYPES,
@@ -85,10 +86,10 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
     };
   },
 
-  async get(): Promise<Navigation[]> {
+  async get(): Promise<NavigationEntity[]> {
     const { masterModel } = getPluginModels();
     const entities = await strapi
-      .query<Navigation>(masterModel.uid)
+      .query<NavigationEntity>(masterModel.uid)
       .findMany({
         limit: Number.MAX_SAFE_INTEGER,
         populate: DEFAULT_POPULATE,
@@ -98,11 +99,11 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
 
   async getById(id: Id): Promise<Navigation> {
     const commonService = getPluginService<ICommonService>('common');
-
+    
     const { masterModel, itemModel } = getPluginModels();
     const entity = await strapi
-      .query<Navigation>(masterModel.uid)
-      .findOne({ where: { id }, populate: DEFAULT_POPULATE });
+    .query<NavigationEntity>(masterModel.uid)
+    .findOne({ where: { id }, populate: DEFAULT_POPULATE });
 
     const entityItems = await strapi
       .query<NavigationItemEntity>(itemModel.uid)

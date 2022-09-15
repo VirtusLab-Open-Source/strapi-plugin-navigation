@@ -58,14 +58,17 @@ export const ActiveNavigationProvider: React.FC<{ children: JSX.Element }> = ({ 
       return navigations;
     }
 
-    return resolvedResourceFor({
+    const newActiveNavigation = {
       ...navigation.value,
       items: prepareItemToViewPayload({
         config: navigationConfig.value,
         items: navigation.value.items,
       }),
-    });
-  }, [navigation.state, activeId, navigationConfig.state]);
+    }
+
+    setChangedActiveNavigation(newActiveNavigation);
+    return resolvedResourceFor(newActiveNavigation);
+  }, [navigation, activeId, navigationConfig.state]);
 
   const handleChangeSelection = useCallback((id: Id) => {
     navigationItemPopUp.setNavigationItemPopupState(false);

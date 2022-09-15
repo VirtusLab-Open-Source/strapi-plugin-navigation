@@ -54,6 +54,7 @@ List.propTypes = {
   onItemRestore: PropTypes.func.isRequired,
   onItemReOrder: PropTypes.func.isRequired,
   onItemToggleCollapse: PropTypes.func.isRequired,
+  root: PropTypes.bool,
 };
 
 export default List;

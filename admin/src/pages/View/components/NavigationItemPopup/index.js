@@ -24,13 +24,14 @@ const NavigationItemPopUp = ({
   onSubmit,
   onClose,
   usedContentTypeItems,
+  contentTypeItems,
+  getContentTypeItems,
   usedContentTypesData,
   slugify,
+  config,
 }) => {
   const {
     isLoadingForAdditionalDataToBeSet: isLoading,
-    config,
-    getContentTypeItems,
     activeItem,
     readNavigationItemFromLocale,
   } = useDataManager();
@@ -45,10 +46,9 @@ const NavigationItemPopUp = ({
     availableAudience = [],
     additionalFields,
     contentTypes,
-    contentTypeItems,
     contentTypesNameFields = {},
   } = config;
-
+  
   const appendLabelPublicationStatus = (label = '', item = {}, isCollection = false) => {
     const appendix = isRelationPublished({
       relatedRef: item,

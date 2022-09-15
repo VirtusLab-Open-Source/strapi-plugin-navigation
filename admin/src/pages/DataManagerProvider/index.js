@@ -36,7 +36,7 @@ import {
 } from './actions';
 import { prepareItemToViewPayload } from '../View/utils/parsers';
 import { errorStatusResourceFor, resolvedResourceFor } from "../../utils";
-import { getNavigationsQuery } from "../../utils/repositories";
+import { getNavigationsQuery, NavigationsRepository } from "../../utils/repositories";
 
 const i18nAwareItems = ({ items, config }) => 
   config.i18nEnabled ? items.filter(({ localeCode }) => localeCode === config.defaultLocale) : items;
@@ -177,39 +177,6 @@ const DataManagerProvider = ({ children }) => {
     }
   }, [autoReload]);
 
-  const getContentTypeItems = async ({ modelUID, query, locale }) => {
-    dispatch({
-      type: GET_CONTENT_TYPE_ITEMS,
-    });
-    const url =`/navigation/content-type-items/${modelUID}`;
-    const queryParams = new URLSearchParams();
-    queryParams.append('_publicationState', 'preview');
-    if (query) {
-      queryParams.append('_q', query);
-    }
-    if (locale) {
-      queryParams.append('localeCode', locale);
-    }
-
-    const contentTypeItems = await request(`${url}?${queryParams.toString()}`, {
-      method: "GET",
-      signal,
-    });
-
-    const fetchedContentType = find(config.contentTypes, ct => ct.uid === modelUID);
-    dispatch({
-      type: GET_CONTENT_TYPE_ITEMS_SUCCEEDED,
-      contentTypeItems: (flatten([contentTypeItems])).map(item => ({
-        ...item,
-        __collectionUid: get(fetchedContentType, 'collectionUid', modelUID),
-      })),
-    });
-  };
-
-  const handleChangeSelection = (id) => {
-    getNavigation(id, config);
-  };
-
   const handleLocalizationSelection = (id) => {
     getNavigation(id, config);
   };
@@ -258,41 +225,11 @@ const DataManagerProvider = ({ children }) => {
     }
   };
 
-  const handleChangeNavigationPopupVisibility = (visible) => {
-    dispatch({
-      type: CHANGE_NAVIGATION_POPUP_VISIBILITY,
-      navigationPopupOpened: visible,
-    });
-  };
-
-  const handleChangeNavigationItemPopupVisibility = (visible) => {
-    dispatch({
-      type: CHANGE_NAVIGATION_ITEM_POPUP_VISIBILITY,
-      navigationItemPopupOpened: visible,
-    });
-  };
-
-  const handleChangeNavigationData = (payload, forceClosePopups) => {
-    dispatch({
-      type: CHANGE_NAVIGATION_DATA,
-      changedActiveItem: payload,
-      forceClosePopups,
-    });
-  };
-
-  const handleResetNavigationData = () => {
-    dispatch({
-      type: RESET_NAVIGATION_DATA,
-      activeItem,
-    });
-  };
-
   const handleSubmitNavigation = async (formatMessage, payload = {}) => {
      try {
        dispatch({
          type: SUBMIT_NAVIGATION,
        });
-
        const nagivationId = payload.id ? `/${payload.id}` : "";
        const method = payload.id ? "PUT" : "POST";
        const navigation = await request(`/${pluginId}${nagivationId}`, {
@@ -300,7 +237,7 @@ const DataManagerProvider = ({ children }) => {
          signal,
          body: payload,
        });
-       await queryClient.invalidateQueries(getNavigationsQuery);
+       await queryClient.invalidateQueries([NavigationsRepository.getIndex()]);
        dispatch({
          type: SUBMIT_NAVIGATION_SUCCEEDED,
          navigation: {
@@ -342,7 +279,7 @@ const DataManagerProvider = ({ children }) => {
 
   const handleNavigationsDeletion = async (ids) => {
     await Promise.all(ids.map(handleNavigationDeletion));
-    await queryClient.invalidateQueries(getNavigationsQuery);
+    await queryClient.invalidateQueries(NavigationsRepository.getIndex());
   } 
 
   const handleNavigationDeletion = (id) => 
@@ -375,15 +312,9 @@ const DataManagerProvider = ({ children }) => {
           isLoadingForDetailsDataToBeSet,
         isLoadingForAdditionalDataToBeSet,
         isLoadingForSubmit,
-        handleChangeNavigationPopupVisibility,
-        handleChangeNavigationItemPopupVisibility,
-        handleChangeSelection,
         handleLocalizationSelection,
-        handleChangeNavigationData,
-        handleResetNavigationData,
         handleSubmitNavigation,
         handleI18nCopy,
-        getContentTypeItems,
         isInDevelopmentMode,
         error,
         availableLocale,

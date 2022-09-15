@@ -1,4 +1,5 @@
-// @ts-ignore
+// @ts-nocheck
+// TODO: [@ltsNotMike] remove no-check
 import { errors } from "@strapi/utils"
 import { get, toString } from "lodash";
 import { pick } from "lodash/fp";

@@ -3,8 +3,6 @@ import { useIntl } from 'react-intl';
 import { HeaderLayout } from '@strapi/design-system/Layout';
 import { Stack } from '@strapi/design-system/Stack';
 import { Button } from '@strapi/design-system/Button';
-import Check from '@strapi/icons/Check';
-import More from '@strapi/icons/More';
 import { getTrad } from '../../../../translations';
 import { MoreButton } from './styles';
 import { Select, Option } from '@strapi/design-system/Select';
@@ -14,41 +12,34 @@ import { uniqBy } from 'lodash';
 import { useNavigationManager } from '../../../../hooks/useNavigationManager';
 import useDataManager from '../../../../hooks/useDataManager';
 import { useAvailableNavigations } from '../../../../hooks/useAvailableNavigations';
+import { ResourceState } from '../../../../utils';
+import { checkIcon } from '../../../../components/icons';
 
-const submitIcon = <Check />;
 const pickDefaultLocaleNavigation = ({ activeNavigation, config }) => config.i18nEnabled
-    ? activeNavigation
-      ? activeNavigation.localeCode === config.defaultLocale
-        ? activeNavigation
-        : activeNavigation?.localizations.find(
-            ({ localeCode }) => localeCode === config.defaultLocale
-          )
-      : null
-    : activeNavigation;
+  ? activeNavigation
+    ? activeNavigation.localeCode === config.defaultLocale
+      ? activeNavigation
+      : activeNavigation?.localizations.find(
+        ({ localeCode }) => localeCode === config.defaultLocale
+      )
+    : null
+  : activeNavigation;
 
 const NavigationHeader = ({
   structureHasErrors,
   structureHasChanged,
   handleChangeSelection,
   handleSave,
+  config,
 }) => {
   const { formatMessage } = useIntl();
   const {
     activeItem: activeNavigation,
     handleLocalizationSelection,
-    config,
   } = useDataManager();
 
-  const {
-    isLoading,
-    error,
-    availableNavigations,
-  } = useAvailableNavigations();
+  const availableNavigations = useAvailableNavigations();
 
-  console.log({isLoading,
-    error,
-    availableNavigations,})
-  
   const allLocaleVersions = useMemo(
     () =>
       activeNavigation?.localizations.length && config.i18nEnabled
@@ -63,7 +54,7 @@ const NavigationHeader = ({
   return (
     <HeaderLayout
       primaryAction={
-        <Stack horizontal size={2}>
+        <Stack horizontal spacing={2}>
           <Box width="27vw" marginRight="8px">
             <Grid gap={4}>
               {!hasLocalizations ? (<GridItem col={2} />) : null}
@@ -87,20 +78,15 @@ const NavigationHeader = ({
                   onChange={handleChangeSelection}
                   value={passedActiveNavigation?.id}
                   size="S"
-                  style={null}
-                  disabled={isLoading}
+                  disabled={availableNavigations.state !== ResourceState.RESOLVED}
                 >
                   {
-                    isLoading ?
-                      <Option>Loading...</Option> :
-                      error ?
-                      <Option>Loading...</Option> :
-                      availableNavigations.map(({ id, name }) => <Option key={id} value={id}>{name}</Option>)
+                    availableNavigations.state === ResourceState.RESOLVED && availableNavigations.value.map(({ id, name }) => <Option key={id} value={id}>{name}</Option>)
                   }
                 </Select>
               </GridItem>
-            {hasLocalizations
-              ? <GridItem col={2}>
+              {hasLocalizations
+                ? <GridItem col={2}>
                   <Select
                     type="select"
                     placeholder={formatMessage(getTrad('pages.main.header.localization.select.placeholder'))}
@@ -110,30 +96,30 @@ const NavigationHeader = ({
                     size="S"
                   >
                     {allLocaleVersions.map(({ id, localeCode }) => <Option key={id} value={id}>{localeCode}</Option>)}
-                  </Select> 
+                  </Select>
                 </GridItem>
-              : null
-            }
-            <GridItem col={3}>
-              <Button
-                onClick={handleSave}
-                startIcon={submitIcon}
-                disabled={structureHasErrors || !structureHasChanged}
-                type="submit"
-                fullWidth
-                size="S"
-              >
-                {formatMessage(getTrad('submit.cta.save'))}
-              </Button>
-            </GridItem>
+                : null
+              }
+              <GridItem col={3}>
+                <Button
+                  onClick={handleSave}
+                  startIcon={checkIcon}
+                  disabled={structureHasErrors || !structureHasChanged}
+                  type="submit"
+                  fullWidth
+                  size="S"
+                >
+                  {formatMessage(getTrad('submit.cta.save'))}
+                </Button>
+              </GridItem>
             </Grid>
           </Box>
           {/* <MoreButton
               id="more"
               label="More"
-              icon={<More />}
+              icon={moreIcon}
             /> */}
-          {navigationManagerModal}
+          {/* {navigationManagerModal} */}
         </Stack>
       }
       title={formatMessage({

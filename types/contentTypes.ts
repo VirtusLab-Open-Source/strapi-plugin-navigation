@@ -1,16 +1,19 @@
 import { Id, StringMap, TypeResult } from "strapi-typed";
 import { DateString, ToBeFixed } from "./utils";
 
-export type Navigation = {
-  id: Id;
+type NavigationBase = {
+  id: Id,
   name: string;
   slug: string;
   visible?: boolean;
-  items?: NestedStructure<NavigationItemEntity<ToBeFixed>>[];
-  createdAt: string;
-  updatedAt: string;
   localeCode?: string | null;
-  localizations?: Navigation[] | null
+  localizations?: Navigation[] | null;
+}
+
+export type NavigationEntity = EntityDatePartial & NavigationBase;
+
+export type Navigation = NavigationBase &  {
+  items?: NestedStructure<NavigationItemEntity<ToBeFixed>>[];
 }
 
 export type NavigationItem = NavigationItemPartial & {
@@ -24,8 +27,9 @@ export type NavigationItem = NavigationItemPartial & {
   updated: boolean;
   slug?: string
 }
-export type NavigationItemInput = NavigationItemPartial 
-  & Omit<NavigationItem, "related"> 
+
+export type NavigationItemInput = NavigationItemPartial
+  & Omit<NavigationItem, "related">
   & {
     related: RelatedRefBase[]
   }
@@ -37,16 +41,18 @@ export type NavigationItemEntity<RelatedType = NavigationItemRelated> = TypeResu
   audience: Audience[];
   externalPath: string | null;
   related: RelatedType | null;
-  additionalFields: StringMap<string | boolean>;
 }>
 
 type NavigationItemPartial = {
+  additionalFields: StringMap<string | boolean>;
+  collapsed: boolean;
+  externalPath: string | null;
+  id: Id;
+  menuAttached: boolean;
+  order: number;
   path: string | null;
   title: string;
   type: NavigationItemType;
-  collapsed: boolean;
-  menuAttached: boolean;
-  order: number;
   uiRouterKey: string;
 }
 
@@ -86,6 +92,16 @@ export type NavigationItemRelated = {
   refId?: Id;
   ref?: string;
 };
+
+export type NavigationItemViewPartial = {
+  viewId?: string;
+  viewParentId: string | null;
+  related: number | null;
+  structureId: string;
+  updated: boolean;
+  relatedType: string;
+  isMenuAllowedLevel: boolean;
+}
 
 export type NavigationItemType = "INTERNAL" | "EXTERNAL" | "WRAPPER";
 
