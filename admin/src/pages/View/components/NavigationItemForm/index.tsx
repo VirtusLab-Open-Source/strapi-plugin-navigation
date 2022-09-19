@@ -478,7 +478,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                 error={formik.errors.menuAttached}
                 onChange={({ target: { name, value } }: BaseSyntheticEvent) => onChange({ name, value })}
                 value={formik.values.menuAttached}
-                disabled={!(data.isMenuAllowedLevel && data.parentAttachedToMenu)}
+                disabled={config.cascadeMenuAttached ? !(data.isMenuAllowedLevel && data.parentAttachedToMenu) : false}
               />
             </GridItem>
             <GridItem key="path" col={12}>
