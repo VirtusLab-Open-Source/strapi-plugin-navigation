@@ -85,6 +85,7 @@ const SettingsPage = () => {
   const formikInitialValues = useMemo<RawPayload>(() => ({
     allowedLevels: get(navigationConfigData, "allowedLevels", 2),
     audienceFieldChecked: get(navigationConfigData, "additionalFields", []).includes(navigationItemAdditionalFields.AUDIENCE),
+    cascadeMenuAttachedChecked: get(navigationConfigData, "cascadeMenuAttached", true),
     i18nEnabled: get(navigationConfigData, "i18nEnabled", false),
     nameFields: get(navigationConfigData, "contentTypesNameFields", {}),
     pathDefaultFields: get(navigationConfigData, "pathDefaultFields", {}),
@@ -110,6 +111,7 @@ const SettingsPage = () => {
     form: {
       allowedLevels,
       audienceFieldChecked,
+      cascadeMenuAttachedChecked,
       i18nEnabled,
       nameFields,
       pathDefaultFields,
@@ -120,6 +122,7 @@ const SettingsPage = () => {
   }) => ({
     additionalFields: audienceFieldChecked ? ['audience', ...customFields] : [...customFields],
     allowedLevels,
+    cascadeMenuAttached: cascadeMenuAttachedChecked,
     contentTypes: selectedContentTypes,
     contentTypesNameFields: nameFields,
     contentTypesPopulate: populate,

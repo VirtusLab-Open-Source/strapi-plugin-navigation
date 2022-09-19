@@ -3,6 +3,7 @@ import { Effect, NavigationPluginConfig } from "../../../../types";
 export type RawPayload = {
   allowedLevels: number;
   audienceFieldChecked: boolean;
+  cascadeMenuAttachedChecked: boolean;
   i18nEnabled: boolean;
   nameFields: Record<string, string[]>;
   pathDefaultFields: Record<string, string[]>;
