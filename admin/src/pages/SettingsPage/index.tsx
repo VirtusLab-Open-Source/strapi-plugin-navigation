@@ -394,16 +394,18 @@ const SettingsPage = () => {
                         {getMessage('pages.settings.additional.title')}
                       </Typography>
                       <Grid gap={4}>
-                        <GridItem col={3} s={6} xs={12}>
-                          <NumberInput
-                            name="allowedLevels"
-                            label={getMessage('pages.settings.form.allowedLevels.label')}
-                            placeholder={getMessage('pages.settings.form.allowedLevels.placeholder')}
-                            hint={getMessage('pages.settings.form.allowedLevels.hint')}
-                            onValueChange={(value: number) => setFieldValue('allowedLevels', value, false)}
-                            value={values.allowedLevels}
-                            disabled={restartStatus.required}
-                          />
+                        <GridItem col={4} s={6} xs={12}>
+                          <Box style={{ maxWidth: 257 }}>
+                            <NumberInput
+                              name="allowedLevels"
+                              label={getMessage('pages.settings.form.allowedLevels.label')}
+                              placeholder={getMessage('pages.settings.form.allowedLevels.placeholder')}
+                              hint={getMessage('pages.settings.form.allowedLevels.hint')}
+                              onValueChange={(value: number) => setFieldValue('allowedLevels', value, false)}
+                              value={values.allowedLevels}
+                              disabled={restartStatus.required}
+                            />
+                          </Box>
                         </GridItem>
                         <GridItem col={4} s={12} xs={12}>
                           <ToggleInput
@@ -417,6 +419,8 @@ const SettingsPage = () => {
                             disabled={restartStatus.required}
                           />
                         </GridItem>
+                      </Grid>
+                      <Grid gap={4}>
                         {isI18NPluginEnabled && (
                           <GridItem col={4} s={12} xs={12}>
                             <ToggleInput
@@ -444,6 +448,21 @@ const SettingsPage = () => {
                             />
                           </GridItem>
                         )}
+                        <GridItem col={4} s={12} xs={12}>
+                          <ToggleInput
+                            name="cascadeMenuAttachedChecked"
+                            label={"Cascade menu attached"}
+                            hint={"Some Hint"}
+                            checked={values.cascadeMenuAttachedChecked}
+                            onChange={({ target: { checked } }: { target: { checked: boolean } }) => {
+                              setFieldValue('cascadeMenuAttachedChecked', checked, true);
+                            }}
+                            onLabel="Enabled"
+                            offLabel="Disabled"
+                            disabled={restartStatus.required}
+                          />
+                        </GridItem>
+
                       </Grid>
                     </Stack>
                   </Box>
