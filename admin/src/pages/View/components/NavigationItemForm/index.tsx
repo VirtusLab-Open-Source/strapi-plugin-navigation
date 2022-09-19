@@ -103,7 +103,11 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
 
   const generatePreviewPath = () => {
     if (!isExternal) {
-      const value = `${data.levelPath !== '/' ? `${data.levelPath}` : ''}/${formik.values.path !== '/' ? formik.values.path || '' : ''}`;
+      const itemPath = isEmpty(formik.values.path) || formik.values.path === '/'
+        ? getDefaultPath()
+        : formik.values.path || "";
+      
+      const value = `${data.levelPath !== '/' ? `${data.levelPath}` : ''}/${itemPath}`;
       return {
         id: getTradId('popup.item.form.type.external.description'),
         defaultMessage: '',
@@ -171,11 +175,14 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
 
     const pathDefaultFields = get(config, ["pathDefaultFields", relatedTypeSelectValue], []);
     if (isEmpty(formik.values.path) && !isEmpty(pathDefaultFields)) {
-      const selectedEntity = contentTypeEntities.find(i => i.id === relatedSelectValue);
+      const selectedEntity = isSingleSelected
+        ? first(contentTypeEntities)
+        : contentTypeEntities.find(i => i.id === relatedSelectValue);
+      
       const pathDefaultValues = pathDefaultFields
         .map((field) => get(selectedEntity, field, ""))
         .filter(value => !isNil(value) && String(value).match(/^\S+$/));
-      return String(first(pathDefaultValues));
+      return String(first(pathDefaultValues) || "");
     }
     return "";
   }, [relatedTypeSelectValue, formik, config]);
