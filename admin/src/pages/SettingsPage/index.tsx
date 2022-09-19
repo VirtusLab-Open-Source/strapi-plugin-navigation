@@ -451,8 +451,8 @@ const SettingsPage = () => {
                         <GridItem col={4} s={12} xs={12}>
                           <ToggleInput
                             name="cascadeMenuAttachedChecked"
-                            label={"Cascade menu attached"}
-                            hint={"Some Hint"}
+                            label={getMessage('pages.settings.form.cascadeMenuAttached.label')}
+                            hint={getMessage('pages.settings.form.cascadeMenuAttached.hint')}
                             checked={values.cascadeMenuAttachedChecked}
                             onChange={({ target: { checked } }: { target: { checked: boolean } }) => {
                               setFieldValue('cascadeMenuAttachedChecked', checked, true);

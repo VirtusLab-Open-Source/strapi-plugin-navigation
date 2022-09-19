@@ -123,6 +123,8 @@
   "pages.settings.notification.submit.error": "Config update has failed",
   "pages.settings.notification.restore.error": "Config restore has failed",
   "pages.settings.notification.restart.error": "Failed to restart your application. Try to do it manually.",
+  "pages.settings.form.cascadeMenuAttached.label": "Cascade menu attached",
+  "pages.settings.form.cascadeMenuAttached.hint": "Disable if you don't want \"Menu attached\" to cascade on child items",
   "pages.settings.form.contentTypes.label": "Enable navigation for",
   "pages.settings.form.i18n.label": "i18n",
   "pages.settings.form.i18n.hint": "Enable internationalisation",
