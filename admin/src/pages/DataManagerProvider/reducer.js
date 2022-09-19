@@ -35,6 +35,7 @@ const initialState = {
   isLoadingForSubmit: false,
   error: undefined,
   i18nEnabled: false,
+  cascadeMenuAttached: true,
   availableLocale: [],
 };
 
