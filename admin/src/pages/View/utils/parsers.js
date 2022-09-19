@@ -39,7 +39,7 @@ export const transformItemToRESTPayload = (
     find(contentTypes,
       ct => ct.uid === relatedType) :
     undefined;
-  const itemAttachedToMenu = menuAttached && parentAttachedToMenu;
+  const itemAttachedToMenu = config.cascadeMenuAttached ? menuAttached && parentAttachedToMenu : menuAttached;
   return {
     id,
     parent,
