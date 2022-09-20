@@ -39,7 +39,7 @@ export default {
         defaultMessage: 'Navigation',
       },
       Component: async () => {
-        const component = await import(/* webpackChunkName: "my-plugin" */ './pages/App');
+        const component = await import(/* webpackChunkName: "navigation-main-app" */ './pages/App');
 
         return component;
       },

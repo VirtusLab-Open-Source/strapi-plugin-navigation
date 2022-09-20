@@ -50,6 +50,7 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({ isEditForm, customFi
         required: customField.required || formDefinition.defaultValues.required,
         options: customField.options || formDefinition.defaultValues.options,
         multi: customField.multi || formDefinition.defaultValues.multi,
+        enabled: customField.enabled,
       }
     } else {
       return {
@@ -59,6 +60,7 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({ isEditForm, customFi
         required: customField.required || formDefinition.defaultValues.required,
         options: [],
         multi: false,
+        enabled: customField.enabled,
       }
     }
   }, [customField]);

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, useCallback, BaseSyntheticEvent } from 'react';
-import { debounce, find, get, first, isEmpty, isEqual, isNil, isString, isObject } from 'lodash';
+import { debounce, find, get, first, isEmpty, isEqual, isNil, isString, isObject, sortBy } from 'lodash';
 import slugify from '@sindresorhus/slugify';
 import { useFormik, FormikProps } from 'formik';
 
@@ -103,7 +103,11 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
 
   const generatePreviewPath = () => {
     if (!isExternal) {
-      const value = `${data.levelPath !== '/' ? `${data.levelPath}` : ''}/${formik.values.path !== '/' ? formik.values.path || '' : ''}`;
+      const itemPath = isEmpty(formik.values.path) || formik.values.path === '/'
+        ? getDefaultPath()
+        : formik.values.path || "";
+      
+      const value = `${data.levelPath !== '/' ? `${data.levelPath}` : ''}/${itemPath}`;
       return {
         id: getTradId('popup.item.form.type.external.description'),
         defaultMessage: '',
@@ -171,11 +175,14 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
 
     const pathDefaultFields = get(config, ["pathDefaultFields", relatedTypeSelectValue], []);
     if (isEmpty(formik.values.path) && !isEmpty(pathDefaultFields)) {
-      const selectedEntity = contentTypeEntities.find(i => i.id === relatedSelectValue);
+      const selectedEntity = isSingleSelected
+        ? first(contentTypeEntities)
+        : contentTypeEntities.find(i => i.id === relatedSelectValue);
+      
       const pathDefaultValues = pathDefaultFields
         .map((field) => get(selectedEntity, field, ""))
         .filter(value => !isNil(value) && String(value).match(/^\S+$/));
-      return String(first(pathDefaultValues));
+      return String(first(pathDefaultValues) || "");
     }
     return "";
   }, [relatedTypeSelectValue, formik, config]);
@@ -228,7 +235,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   });
 
   // TODO?: useMemo
-  const relatedSelectOptions = contentTypeEntities
+  const relatedSelectOptions = sortBy(contentTypeEntities
     .filter((item) => {
       const usedContentTypeEntitiesOfSameType = usedContentTypeEntities
         .filter(uctItem => relatedTypeSelectValue === uctItem.__collectionUid);
@@ -253,7 +260,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
         value: item.id,
         label: label,
       })
-    });
+    }), item => item.metadatas.intlLabel.id);
 
   const isExternal = formik.values.type === navigationItemType.EXTERNAL;
   const pathSourceName = isExternal ? 'externalPath' : 'path';
@@ -288,7 +295,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   };
 
   const relatedTypeSelectOptions = useMemo(
-    () => contentTypes
+    () => sortBy(contentTypes
       .filter((contentType) => {
         if (contentType.isSingle) {
           if (relatedTypeSelectValue && [relatedTypeSelectValue, initialRelatedTypeSelected].includes(contentType.uid)) {
@@ -308,7 +315,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
         },
         value: get(item, 'uid'),
         label: get(item, 'label', get(item, 'name')),
-      })),
+      })), item => item.metadatas.intlLabel.id),
     [contentTypes, usedContentTypesData, relatedTypeSelectValue],
   );
 

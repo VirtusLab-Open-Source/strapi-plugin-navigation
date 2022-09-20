@@ -4,7 +4,7 @@
  *
  */
 
-import React, { memo, useCallback, useMemo, useState } from 'react';
+import React, { memo, useCallback, useMemo, useState, useEffect } from 'react';
 import { useIntl } from "react-intl";
 import { isEmpty, get } from "lodash";
 
@@ -19,7 +19,7 @@ import { Button } from '@strapi/design-system/Button';
 import { Select, Option } from '@strapi/design-system/Select';
 // @ts-ignore
 import { Grid, GridItem } from "@strapi/design-system/Grid";
-import { LoadingIndicatorPage } from "@strapi/helper-plugin";
+import { LoadingIndicatorPage, useNotification } from "@strapi/helper-plugin";
 import EmptyDocumentsIcon from '@strapi/icons/EmptyDocuments';
 import PlusIcon from "@strapi/icons/Plus";
 
@@ -40,6 +40,7 @@ import {
 } from './utils/parsers';
 
 const View = () => {
+  const toggleNotification = useNotification();
   const {
     items: availableNavigations,
     activeItem: activeNavigation,
@@ -65,14 +66,14 @@ const View = () => {
     () => allAvailableLocale.filter(locale => locale !== changedActiveNavigation?.localeCode),
     [changedActiveNavigation, allAvailableLocale]
   );
-  const { i18nCopyItemsModal, i18nCopySourceLocale, setI18nCopyModalOpened, setI18nCopySourceLocale} = useI18nCopyNavigationItemsModal(
+  const { i18nCopyItemsModal, i18nCopySourceLocale, setI18nCopyModalOpened, setI18nCopySourceLocale } = useI18nCopyNavigationItemsModal(
     useCallback((sourceLocale) => {
       const source = activeNavigation?.localizations?.find(({ localeCode }) => localeCode === sourceLocale);
 
       if (source) {
         handleI18nCopy(source.id, activeNavigation?.id);
       }
-    }, [ activeNavigation, handleI18nCopy ])
+    }, [activeNavigation, handleI18nCopy])
   );
   const openI18nCopyModalOpened = useCallback(() => { i18nCopySourceLocale && setI18nCopyModalOpened(true) }, [setI18nCopyModalOpened, i18nCopySourceLocale]);
 
@@ -84,6 +85,12 @@ const View = () => {
   const isSearchEmpty = isEmpty(searchValue);
 
   const structureHasErrors = !validateNavigationStructure((changedActiveNavigation || {}).items);
+  
+  useEffect(() => structureHasErrors && toggleNotification({
+    type: 'warning',
+    message: getTrad('notification.error.item.relation'),
+  }), [structureHasErrors]);
+
   const navigationSelectValue = get(activeNavigation, "id", null);
   const handleSave = () => isLoadingForSubmit || structureHasErrors
     ? null
@@ -314,8 +321,8 @@ const View = () => {
                         </Box>
                       </Flex>
                     </Flex>
-                    ) : null
-                  }
+                  ) : null
+                }
               </Flex>
             )}
             {

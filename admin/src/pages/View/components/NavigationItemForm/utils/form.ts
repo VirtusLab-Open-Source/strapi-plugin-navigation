@@ -47,13 +47,13 @@ export const schemaFactory = (isSingleSelected: boolean, additionalFields: Navig
     relatedType: yup.mixed()
       .when('type', {
         is: (val: NavigationItemType) => val === navigationItemType.INTERNAL || isNil(val),
-        then: isSingleSelected ? yup.mixed().notRequired() : yup.mixed().required(translatedErrors.required),
+        then: yup.string().required(translatedErrors.required).min(1, translatedErrors.required),
         otherwise: yup.mixed().notRequired(),
       }),
     related: yup.mixed()
       .when('type', {
         is: (val: NavigationItemType) => val === navigationItemType.INTERNAL || isNil(val),
-        then: isSingleSelected ? yup.mixed().notRequired() : yup.mixed().required(translatedErrors.required),
+        then: isSingleSelected ? yup.mixed().notRequired() : yup.string().required(translatedErrors.required).min(1, translatedErrors.required),
         otherwise: yup.mixed().notRequired(),
       }),
     additionalFields: yup.object({
