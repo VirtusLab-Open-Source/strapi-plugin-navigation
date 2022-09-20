@@ -409,6 +409,22 @@ const SettingsPage = () => {
                         </GridItem>
                         <GridItem col={4} s={12} xs={12}>
                           <ToggleInput
+                            name="cascadeMenuAttachedChecked"
+                            label={getMessage('pages.settings.form.cascadeMenuAttached.label')}
+                            hint={getMessage('pages.settings.form.cascadeMenuAttached.hint')}
+                            checked={values.cascadeMenuAttachedChecked}
+                            onChange={({ target: { checked } }: { target: { checked: boolean } }) => {
+                              setFieldValue('cascadeMenuAttachedChecked', checked, true);
+                            }}
+                            onLabel="Enabled"
+                            offLabel="Disabled"
+                            disabled={restartStatus.required}
+                          />
+                        </GridItem>
+                      </Grid>
+                      <Grid gap={4}>
+                        <GridItem col={4} s={12} xs={12}>
+                          <ToggleInput
                             name="audienceFieldChecked"
                             label={getMessage('pages.settings.form.audience.label')}
                             hint={getMessage('pages.settings.form.audience.hint')}
@@ -419,8 +435,6 @@ const SettingsPage = () => {
                             disabled={restartStatus.required}
                           />
                         </GridItem>
-                      </Grid>
-                      <Grid gap={4}>
                         {isI18NPluginEnabled && (
                           <GridItem col={4} s={12} xs={12}>
                             <ToggleInput
@@ -448,20 +462,6 @@ const SettingsPage = () => {
                             />
                           </GridItem>
                         )}
-                        <GridItem col={4} s={12} xs={12}>
-                          <ToggleInput
-                            name="cascadeMenuAttachedChecked"
-                            label={getMessage('pages.settings.form.cascadeMenuAttached.label')}
-                            hint={getMessage('pages.settings.form.cascadeMenuAttached.hint')}
-                            checked={values.cascadeMenuAttachedChecked}
-                            onChange={({ target: { checked } }: { target: { checked: boolean } }) => {
-                              setFieldValue('cascadeMenuAttachedChecked', checked, true);
-                            }}
-                            onLabel="Enabled"
-                            offLabel="Disabled"
-                            disabled={restartStatus.required}
-                          />
-                        </GridItem>
                       </Grid>
                     </Stack>
                   </Box>
