@@ -462,7 +462,6 @@ const SettingsPage = () => {
                             disabled={restartStatus.required}
                           />
                         </GridItem>
-
                       </Grid>
                     </Stack>
                   </Box>
