@@ -19,6 +19,7 @@ export type NavigationPluginConfig = {
   pruneObsoleteI18nNavigations: boolean;
   slugify: Record<string, unknown>;
   pathDefaultFields: PluginConfigPathDefaultFields;
+  cascadeMenuAttached: boolean;
 };
 
 export type StrapiConfig<T> = {

@@ -39,6 +39,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
     const config = await pluginStore.get<string, NavigationPluginConfig>({ key: 'config' });
 
     const additionalFields = config.additionalFields;
+    const cascadeMenuAttached = config.cascadeMenuAttached;
     const contentTypesNameFields = config.contentTypesNameFields;
     const contentTypesPopulate = config.contentTypesPopulate;
     const pathDefaultFields = config.pathDefaultFields;
@@ -68,6 +69,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
       },
       isGQLPluginEnabled: viaSettingsPage ? isGQLPluginEnabled : undefined,
       slugify,
+      cascadeMenuAttached,
     };
     const i18nConfig = await addI18NConfigFields({ strapi, viaSettingsPage, previousConfig: {} });
 

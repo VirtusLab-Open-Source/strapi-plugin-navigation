@@ -46,6 +46,7 @@ export const configSetupStrategy: IConfigSetupStrategy = async ({ strapi }) => {
     ),
     pruneObsoleteI18nNavigations: false,
     pathDefaultFields: getWithFallback<PluginConfigPathDefaultFields>("pathDefaultFields"),
+    cascadeMenuAttached: getWithFallback<boolean>("cascadeMenuAttached"),
   };
 
   validateAdditionalFields(config.additionalFields);
