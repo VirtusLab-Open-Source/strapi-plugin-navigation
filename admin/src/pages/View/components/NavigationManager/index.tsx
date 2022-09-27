@@ -15,6 +15,7 @@ import { useIntl } from "react-intl";
 import { VoidEffect } from "../../../../../../types";
 import { useAvailableNavigations } from "../../../../hooks/useAvailableNavigations";
 import useDataManager from "../../../../hooks/useDataManager";
+import { useHardReset } from "../../../../hooks/useHardReset";
 import { getMessage, ResourceState } from "../../../../utils";
 import { AllNavigations, AllNavigationsFooter } from "./AllNavigations";
 import { DeleteConfirmFooter, DeletionConfirm } from "./DeletionConfirm";
@@ -37,8 +38,8 @@ export const NavigationManager = ({
 }: Props) => {
   const { formatMessage } = useIntl();
   const [state, setState] = useState(initialState);
-
-  const { handleNavigationsDeletion, handleSubmitNavigation, hardReset } = useDataManager();
+  const { hardReset } = useHardReset();
+  const { handleNavigationsDeletion, handleSubmitNavigation } = useDataManager();
 
   const availableNavigations = useAvailableNavigations();
   const navigations = useMemo(() => {

@@ -17,12 +17,13 @@ import { Box } from '@strapi/design-system/Box';
 import { Tooltip } from '@strapi/design-system/Tooltip';
 
 import { getMessage, prepareNewValueForRecord } from '../../../../utils';
-import { HandleSetContentTypeExpanded, RestartStatus, StrapiContentTypeSchema } from '../../types';
+import { HandleSetContentTypeExpanded, RestartStatus } from '../../types';
 import { PermanentAlert } from '../../../../components/Alert/styles';
 import { exclamationMarkCircleIcon, informationIcon } from '../../../../components/icons/';
+import { StrapiContentTypeFullSchema } from 'strapi-typed';
 
 interface IProps {
-  allEligibleContentTypes: StrapiContentTypeSchema[];
+  allEligibleContentTypes: (StrapiContentTypeFullSchema & { isSingle?: boolean, available?: boolean })[];
   setFieldValue: (field: string, value: any, shouldValidate?: boolean | undefined) => void;
   selectedContentTypes: string[];
   restartStatus: RestartStatus;

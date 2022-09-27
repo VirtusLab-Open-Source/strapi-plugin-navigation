@@ -7,8 +7,6 @@ import React, { memo, useCallback, useMemo, useState } from 'react';
 
 // @ts-ignore
 import { Main } from '@strapi/design-system/Main';
-
-// Components 
 import NavigationItemPopUp from "./components/NavigationItemPopup";
 import { useI18nCopyNavigationItemsModal } from '../../hooks/useI18nCopyNavigationItemsModal';
 import useDataManager from "../../hooks/useDataManager";
@@ -19,10 +17,10 @@ import {
 import useConfig from '../../hooks/useConfig';
 import LoadingView from '../../components/LoadingView';
 import ErrorView from '../../components/ErrorView';
-import { ResourceState } from '../../utils';
+import { getMessage, ResourceState } from '../../utils';
 import { useActiveNavigation } from '../../hooks/useActiveNavigation';
 import { useNavigationItemPopup } from '../../hooks/useNavigationItemPopup';
-import { assertNotEmpty, Navigation, NavigationItem, NestedStructure } from '../../../../types';
+import { Navigation, NavigationItem, NestedStructure } from '../../../../types';
 import MainViewContent from './components/MainViewContent';
 import { Id } from 'strapi-typed';
 import { useContentTypeItems } from '../../hooks/useContentTypeItems';
@@ -31,23 +29,21 @@ type UsedContentTypeItem = { id: Id, __collectionUid: string, };
 type PullUsedContentTypeItem = (items?: NestedStructure<{ relatedRef?: { id: Id, __collectionUid: string } }>[]) => UsedContentTypeItem[];
 
 const View: React.FC = () => {
-  // State hooks 
   const navigationConfig = useConfig();
   const activeNavigation = useActiveNavigation();
-  const navigationItemPopup = useNavigationItemPopup();
+  const { openPopup, closePopup, isPopupOpen } = useNavigationItemPopup();
   const contentTypeItems = useContentTypeItems();
   const {
-    isLoading,
     isLoadingForSubmit,
     handleI18nCopy,
     error,
     availableLocale: allAvailableLocale,
     slugify,
   } = useDataManager();
-  const [activeNavigationItem, setActiveNavigationItemState] = useState<NavigationItem | {}>({});
+
+  const [activeNavigationItem, setActiveNavigationItem] = useState<NavigationItem | {}>({});
   const [structureChanged, setStructureChanged] = useState(false);
 
-  // Memo hooks
   const availableLocale = useMemo(() =>
     activeNavigation.state === ResourceState.RESOLVED
       ? allAvailableLocale.filter((locale: string) => locale !== activeNavigation.value.changedActiveNavigation?.localeCode)
@@ -75,36 +71,30 @@ const View: React.FC = () => {
   );
 
   const changeNavigationItemPopupState = useCallback((visible: boolean, editedItem: NavigationItem | {} = {}) => {
-    setActiveNavigationItemState(editedItem);
-    navigationItemPopup.setNavigationItemPopupState(visible);
-  }, [setActiveNavigationItemState, navigationItemPopup.setNavigationItemPopupState]);
+    setActiveNavigationItem(editedItem);
+    visible ? openPopup() : closePopup();
+  }, [setActiveNavigationItem, openPopup, closePopup]);
 
   if (
-    isLoading ||
     navigationConfig.state === ResourceState.LOADING ||
     activeNavigation.state === ResourceState.LOADING ||
     contentTypeItems.state === ResourceState.LOADING
   ) {
     return <LoadingView />;
   }
-  if (error) {
-    return <ErrorView error={error} />
-  }
-  if (navigationConfig.state === ResourceState.ERROR) {
-    return <ErrorView error={navigationConfig.error} />
-  }
-  if (activeNavigation.state === ResourceState.ERROR) {
-    // TODO: [@ltsNotMike] Find out why ts doesn't recognize activeNavigation.error as Error
-    return <ErrorView error={activeNavigation.error as Error | null} />
-  }
-  if (contentTypeItems.state === ResourceState.ERROR) {
-    // TODO: [@ltsNotMike] Find out why ts doesn't recognize activeNavigation.error as Error
-    return <ErrorView error={contentTypeItems.error} />
-  }
-  if (activeNavigation.value.changedActiveNavigation === null) {
-    return <LoadingView />;
+  if (
+    error ||
+    navigationConfig.state == ResourceState.ERROR ||
+    activeNavigation.state === ResourceState.ERROR ||
+    contentTypeItems.state === ResourceState.ERROR
+  ) {
+    return <ErrorView error={getMessage('notification.error')} />;
   }
 
+  const { value: { changedActiveNavigation } } = activeNavigation;
+  if (changedActiveNavigation === null) {
+    return <LoadingView />;
+  }
 
   const pullUsedContentTypeItem: PullUsedContentTypeItem = (items = []): UsedContentTypeItem[] =>
     items.reduce((prev, curr) =>
@@ -115,11 +105,11 @@ const View: React.FC = () => {
       , [] as UsedContentTypeItem[]);
 
   const handleSubmitNavigationItem = (payload: NavigationItem) => {
-    assertNotEmpty(activeNavigation.value.changedActiveNavigation);
     const changedStructure: Navigation = {
-      ...activeNavigation.value.changedActiveNavigation,
-      items: transformItemToViewPayload(payload, activeNavigation.value.changedActiveNavigation?.items, navigationConfig.value),
+      ...changedActiveNavigation,
+      items: transformItemToViewPayload(payload, changedActiveNavigation?.items, navigationConfig.value, contentTypeItems.value.contentTypeItems),
     };
+
     activeNavigation.value.handleChangeNavigationData(changedStructure, true);
     setStructureChanged(true);
   };
@@ -130,22 +120,24 @@ const View: React.FC = () => {
     changeNavigationItemPopupState(false);
   };
 
-  const usedContentTypeItems = pullUsedContentTypeItem(activeNavigation.value.changedActiveNavigation?.items);
+  const usedContentTypeItems = pullUsedContentTypeItem(changedActiveNavigation?.items);
   return (
     <Main labelledBy="title" aria-busy={isLoadingForSubmit}>
-      {/** @ts-ignore */}
       <MainViewContent
         availableLocale={availableLocale}
         config={navigationConfig.value}
         isLoadingForSubmit={false}
-        setActiveNavigationItemState={setActiveNavigationItemState}
+        setActiveNavigationItemState={setActiveNavigationItem}
         setStructureChanged={setStructureChanged}
         structureChanged={structureChanged}
         handleSubmitNavigationItem={handleSubmitNavigationItem}
         {...activeNavigation.value}
+        changedActiveNavigation={changedActiveNavigation}
+        changeNavigationItemPopupState={changeNavigationItemPopupState}
       />
-      {navigationItemPopup.isNavigationItemPopupOpened && <NavigationItemPopUp
+      {isPopupOpen && <NavigationItemPopUp
         {...contentTypeItems.value}
+        activeItem={activeNavigation.value.activeNavigation}
         availableLocale={availableLocale}
         data={activeNavigationItem}
         usedContentTypesData={usedContentTypesData}

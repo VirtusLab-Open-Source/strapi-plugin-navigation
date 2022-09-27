@@ -123,7 +123,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   };
 
   const getDefaultTitle =
-    useCallback((related: string | undefined, relatedType: string | undefined, isSingleSelected: boolean) => {
+    useCallback((related: string | number | undefined, relatedType: string | undefined, isSingleSelected: boolean) => {
       if (isSingleSelected) {
         return contentTypes.find(_ => _.uid === relatedType)?.label
       } else {
@@ -137,12 +137,12 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
 
   const sanitizePayload = async (slugify: Slugify, payload: RawFormPayload, data: Partial<NavigationItemFormData>): Promise<SanitizedFormPayload> => {
     const { related, relatedType, menuAttached, type, ...purePayload } = payload;
-    const relatedId = related;
+    const relatedId = isObject(related) ? related.value : related;
     const singleRelatedItem = isSingleSelected ? first(contentTypeEntities) : undefined;
     const relatedCollectionType = relatedType;
     const title = !!payload.title?.trim()
       ? payload.title
-      : getDefaultTitle(related, relatedType, isSingleSelected)
+      : getDefaultTitle(relatedId, relatedType, isSingleSelected)
     const uiRouterKey = await generateUiRouterKey(slugify, title, relatedId, relatedCollectionType);
 
     return {
@@ -203,7 +203,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
     });
   }
 
-  const generateUiRouterKey = async (slugify: Slugify, title: string, related?: string, relatedType?: string): Promise<string | undefined> => {
+  const generateUiRouterKey = async (slugify: Slugify, title: string, related?: string | number, relatedType?: string): Promise<string | undefined> => {
     if (title) {
       return isString(title) && !isEmpty(title) ? await slugify(title).then(prop("slug")) : undefined;
     } else if (related) {
@@ -618,15 +618,15 @@ const appendLabelPublicationStatusFallback = () => "";
 
 const loadingAware =
   <T, U>(action: (i: T) => U, isLoading: Effect<boolean>) =>
-  async (input: T) => {
-    try {
-      isLoading(true);
+    async (input: T) => {
+      try {
+        isLoading(true);
 
-      return await action(input);
-    } catch (_) {
-    } finally {
-      isLoading(false);
-    }
-  };
+        return await action(input);
+      } catch (_) {
+      } finally {
+        isLoading(false);
+      }
+    };
 
 export default NavigationItemForm;

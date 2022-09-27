@@ -46,7 +46,7 @@ export const useContentTypeItems = (): ResourceState<IUseContentTypeItems, Error
       ...item,
       __collectionUid: get(fetchedContentType, 'collectionUid', modelUID),
     })));
-  }, []);
+  }, [config, abortController]);
 
   if (config.state !== ResourceState.RESOLVED) {
     return config;

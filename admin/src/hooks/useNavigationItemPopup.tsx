@@ -1,23 +1,26 @@
+import { always } from "lodash/fp";
 import React, { createContext, useContext, useMemo, useState } from "react";
-import { Effect } from "../../../types";
+import { VoidEffect } from "../../../types";
 
 interface INavigationItemPopupContext {
-  isNavigationItemPopupOpened: boolean;
-  setNavigationItemPopupState: Effect<boolean>;
+  isPopupOpen: boolean;
+  openPopup: VoidEffect,
+  closePopup: VoidEffect,
 }
 
 const NavigationItemPopupContext = createContext<INavigationItemPopupContext>({
-  setNavigationItemPopupState: () => null,
-  isNavigationItemPopupOpened: false,
+  openPopup: always(null),
+  closePopup: always(null),
+  isPopupOpen: false,
 });
 
-// TODO: [@ltsNotMike] Change name to something connected to isActivePopup
-export const NavigationItemPopupProvider: React.FC<{ children: JSX.Element }> = ({ children }) => {
+export const NavigationItemPopupProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [isOpened, setIsOpened] = useState(false);
 
   const contextValue = useMemo<INavigationItemPopupContext>(() => ({
-    isNavigationItemPopupOpened: isOpened,
-    setNavigationItemPopupState: setIsOpened,
+    isPopupOpen: isOpened,
+    openPopup: () => setIsOpened(true),
+    closePopup: () => setIsOpened(false),
   }), [isOpened]);
 
   return (

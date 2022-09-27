@@ -5,7 +5,7 @@ import {
   CheckPermissions,
   useOverlayBlocker,
   useAutoReloadOverlayBlocker,
-// @ts-ignore
+  // @ts-ignore
 } from '@strapi/helper-plugin';
 // @ts-ignore
 import { Main } from '@strapi/design-system/Main';
@@ -35,12 +35,12 @@ import { Tooltip } from '@strapi/design-system/Tooltip';
 import RestartAlert from '../../../../components/RestartAlert';
 import CustomFieldTable from '../../components/CustomFieldTable';
 import CustomFieldModal from '../../components/CustomFieldModal';
-import { getMessage } from '../../../../utils';
+import { getMessage, isContentTypeEligible } from '../../../../utils';
 import permissions from '../../../../permissions';
 import { Effect, NavigationItemAdditionalField, NavigationItemCustomField, NavigationSettingsConfig, VoidEffect, NavigationRawConfig } from '../../../../../../types';
 import { OnSave, PreparePayload, RawPayload, RestartReasons, RestartStatus } from '../../types';
 import { useDisableI18nModal } from '../DisableI18nModal';
-import { isContentTypeEligible, resolveGlobalLikeId } from '../../utils/functions';
+import { resolveGlobalLikeId } from '../../utils/functions';
 import { StrapiContentTypeFullSchema } from 'strapi-typed';
 import ContentTypesSettings from '../ContentTypesSettings';
 import RestoreConfigSettings from '../RestoreConfigSettings';
@@ -127,13 +127,8 @@ const MainSettingsView: React.FC<IProps> = ({
     populate: get(config, "contentTypesPopulate", {}),
     selectedContentTypes: config.contentTypes.map(item => item.uid),
   }), [config]);
-  // TODO: [@ltsNotMike] f1 This place needs some more complicated fix
-  // 1. There shouldn't be isContentTypeEligable function since its already done on server side
-  // 2. Why do we only add available and isSingle to the types found in config?
-  // 3. Couldn't we just use allContentTypes since we pass all of them?
-  // 4. This questions might be wrongly asked here but that's why this place needs more thought put into it.
-  // @ts-ignore
-  const allEligibleContentTypes: StrapiContentTypeSchema[] = Object
+
+  const allEligibleContentTypes: (StrapiContentTypeFullSchema & { isSingle?: boolean, available?: boolean })[] = Object
     .values<StrapiContentTypeFullSchema>(allContentTypes)
     .filter(({ uid }) => isContentTypeEligible(uid, config))
     .map(ct => {

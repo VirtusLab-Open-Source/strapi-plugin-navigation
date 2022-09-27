@@ -17,7 +17,7 @@ import { Typography } from "@strapi/design-system/Typography";
 import { prop } from "lodash/fp";
 import React, { useCallback, useMemo } from "react";
 import { pencilIcon, trashIcon } from "../../../../../components/icons";
-import useDataManager from "../../../../../hooks/useDataManager";
+import useConfig from "../../../../../hooks/useConfig";
 import { getMessage } from "../../../../../utils";
 import { Footer, FooterBase } from "../Footer";
 import { INITIAL_NAVIGATION } from "../NewNavigation";
@@ -26,10 +26,9 @@ import { CommonProps, ListState, Navigation } from "../types";
 interface Props extends ListState, CommonProps {}
 
 export const AllNavigations = ({ navigations, selected, setState }: Props) => {
-  const {
-    config: { i18nEnabled },
-  } = useDataManager();
-
+  const config = useConfig();
+  const i18nEnabled = useMemo(() => config.state === "RESOLVED" ? config.value.i18nEnabled : false, [config]);
+  
   const hasAnySelected = !!selected.length;
 
   const toggleSelected = useCallback(

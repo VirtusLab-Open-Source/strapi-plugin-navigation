@@ -25,43 +25,32 @@ import Search from '../../../../components/Search';
 import NavigationContentHeader from '../../components/NavigationContentHeader';
 import { plusIcon } from '../../../../components/icons';
 import { getMessage } from '../../../../utils';
-import { useNavigationItemPopup } from '../../../../hooks/useNavigationItemPopup';
 import { transformToRESTPayload, validateNavigationStructure } from '../../utils/parsers';
 import useDataManager from '../../../../hooks/useDataManager';
 import { useIntl } from 'react-intl';
 import NavigationHeader from '../NavigationHeader';
 import { useI18nCopyNavigationItemsModal } from '../../../../hooks/useI18nCopyNavigationItemsModal';
+import { getTrad } from '../../../../translations';
 
 interface IProps {
-  // TODO: [@ltsNotMike] Sort this props after all are added;
   activeNavigation: Navigation;
   availableLocale: string[];
   changedActiveNavigation: Navigation;
   config: NavigationConfig;
   handleChangeNavigationData: (payload: Navigation, forceClosePopups?: boolean) => void;
   handleChangeSelection: Effect<Id>;
+  handleSubmitNavigationItem: Effect<NavigationItem>;
   isLoadingForSubmit: boolean;
   setActiveNavigationItemState: Effect<Partial<NestedStructure<NavigationItemEntity<ToBeFixed>>>>;
   setStructureChanged: Effect<boolean>;
   structureChanged: boolean;
-  handleSubmitNavigationItem: Effect<NavigationItem>;
+  changeNavigationItemPopupState: (visible: boolean, editedItem: Partial<NavigationItemViewPartial & NavigationItem>) => void;
 }
 
-type ChangeNavigationItemPopupState = (
-  visible: boolean,
-  editedItem: {
-    viewParentId: string | null;
-    isMenuAllowedLevel: boolean;
-    levelPath: string;
-    parentAttachedToMenu: boolean;
-    structureId: string;
-  }
-) => void
-
-type ChangeCollapseItemDeep = (
+type ChangeItemCollapseStateInDepth = (
   item: NestedStructure<NavigationItemEntity<ToBeFixed>>,
   isCollapsed: boolean,
-) => NestedStructure<NavigationItemEntity<ToBeFixed>> & Partial<{ collapsed: boolean, updated: boolean }>
+) => NestedStructure<NavigationItemEntity<ToBeFixed>> & { collapsed?: boolean, updated?: boolean }
 
 
 const filteredListFactory = (
@@ -75,37 +64,31 @@ const filteredListFactory = (
     return [...subItems, ...acc];
 }, [] as NestedStructure<NavigationItemEntity<ToBeFixed>>[]);
 
-const changeCollapseItemDeep: ChangeCollapseItemDeep = (item, isCollapsed) => {
-  if (item.collapsed !== isCollapsed) {
-    return {
-      ...item,
-      collapsed: isCollapsed,
-      updated: true,
-      items: item.items?.map(el => changeCollapseItemDeep(el, isCollapsed))
-    }
-  }
-  return {
+const changeItemCollapseStateInDepth: ChangeItemCollapseStateInDepth = (item, isCollapsed) => {
+  const baseChange = {
     ...item,
-    items: item.items?.map(el => changeCollapseItemDeep(el, isCollapsed))
-  }
+    items: item.items?.map(el => changeItemCollapseStateInDepth(el, isCollapsed)),
+  };
+  return item.collapsed !== isCollapsed
+    ? { ...baseChange, collapsed: isCollapsed, updated: true }
+    : baseChange;
 }
 
 const MainViewContent: React.FC<IProps> = ({
-  availableLocale,
   activeNavigation,
+  availableLocale,
   changedActiveNavigation,
   config,
-  isLoadingForSubmit, // TODO: [@ltsNotMike] We don't have that state in here
   handleChangeNavigationData,
-  setStructureChanged,
-  structureChanged,
-  setActiveNavigationItemState,
   handleChangeSelection,
   handleSubmitNavigationItem,
+  isLoadingForSubmit,
+  setStructureChanged,
+  structureChanged,
+  changeNavigationItemPopupState,
 }) => {
   const [searchValue, setSearchValue] = useState('');
   const { handleSubmitNavigation, handleI18nCopy } = useDataManager();
-  const { setNavigationItemPopupState } = useNavigationItemPopup();
   const { formatMessage } = useIntl();
   const { i18nCopySourceLocale, setI18nCopyModalOpened, setI18nCopySourceLocale } = useI18nCopyNavigationItemsModal(
     useCallback((sourceLocale) => {
@@ -116,13 +99,6 @@ const MainViewContent: React.FC<IProps> = ({
       }
     }, [activeNavigation, handleI18nCopy])
   );
-
-  const changeNavigationItemPopupState: ChangeNavigationItemPopupState = (visible, editedItem) => {
-    // TODO: [@ltsNotMike] Fix typing
-    // @ts-ignore
-    setActiveNavigationItemState(editedItem);
-    setNavigationItemPopupState(visible);
-  };
 
   const structureHasErrors = useMemo(() =>
     !validateNavigationStructure((changedActiveNavigation || {}).items),
@@ -151,7 +127,7 @@ const MainViewContent: React.FC<IProps> = ({
   const handleCollapseAll = useCallback(() => {
     handleChangeNavigationData({
       ...changedActiveNavigation,
-      items: changedActiveNavigation.items?.map(item => changeCollapseItemDeep(item, true))
+      items: changedActiveNavigation.items?.map(item => changeItemCollapseStateInDepth(item, true))
     }, true);
     setStructureChanged(true);
   }, [changedActiveNavigation, handleChangeNavigationData, setStructureChanged]);
@@ -159,7 +135,7 @@ const MainViewContent: React.FC<IProps> = ({
   const handleExpandAll = useCallback(() => {
     handleChangeNavigationData({
       ...changedActiveNavigation,
-      items: changedActiveNavigation.items?.map(item => changeCollapseItemDeep(item, false))
+      items: changedActiveNavigation.items?.map(item => changeItemCollapseStateInDepth(item, false))
     }, true);
     setStructureChanged(true);
   }, [changedActiveNavigation, handleChangeNavigationData, setStructureChanged]);
@@ -187,7 +163,7 @@ const MainViewContent: React.FC<IProps> = ({
       ...item,
       removed: false,
     });
-  }, [handleSubmitNavigationItem]); 
+  }, [handleSubmitNavigationItem]);
 
   const handleItemReOrder = useCallback((item: NavigationItem, newOrder: number) => {
     handleSubmitNavigationItem({
@@ -230,34 +206,43 @@ const MainViewContent: React.FC<IProps> = ({
     [searchValue, changedActiveNavigation]
   );
 
-  const endActions = useMemo(() => [
-    {
-      onClick: handleExpandAll,
-      disabled: isLoadingForSubmit,
-      type: "submit",
-      variant: 'tertiary',
-      tradId: 'header.action.expandAll',
-      margin: '8px',
-    },
-    {
-      onClick: handleCollapseAll,
-      disabled: isLoadingForSubmit,
-      type: "submit",
-      variant: 'tertiary',
-      tradId: 'header.action.collapseAll',
-      margin: '8px',
-    },
-    {
-      onClick: addNewNavigationItem,
-      startIcon: plusIcon,
-      disabled: isLoadingForSubmit,
-      type: "submit",
-      variant: "default",
-      tradId: 'header.action.newItem',
-      margin: '16px',
-    },
-  ], [isLoadingForSubmit, handleExpandAll, handleCollapseAll, addNewNavigationItem]);
+  const endActions = useMemo(() => {
+    const actions = [
+      {
+        onClick: handleExpandAll,
+        disabled: isLoadingForSubmit,
+        type: "submit",
+        variant: 'tertiary',
+        tradId: 'header.action.expandAll',
+        margin: '8px',
+      },
+      {
+        onClick: handleCollapseAll,
+        disabled: isLoadingForSubmit,
+        type: "submit",
+        variant: 'tertiary',
+        tradId: 'header.action.collapseAll',
+        margin: '8px',
+      },
+      {
+        onClick: addNewNavigationItem,
+        startIcon: plusIcon,
+        disabled: isLoadingForSubmit,
+        type: "submit",
+        variant: "default",
+        tradId: 'header.action.newItem',
+        margin: '16px',
+      },
+    ];
 
+    return actions.map(({ tradId, margin, ...item }, i) =>
+      <Box marginLeft={margin} key={i}>
+        <Button {...item}> {formatMessage(getTrad(tradId))} </Button>
+      </Box>
+    )
+  }, [isLoadingForSubmit, handleExpandAll, handleCollapseAll, addNewNavigationItem]);
+
+  const startActions = useMemo(() => <Search value={searchValue} setValue={setSearchValue} />, [searchValue]);
   return (
     <>
       <NavigationHeader
@@ -266,17 +251,14 @@ const MainViewContent: React.FC<IProps> = ({
         handleChangeSelection={handleChangeNavigationSelection}
         handleSave={handleSave}
         config={config}
+        activeNavigation={activeNavigation}
       />
       <ContentLayout>
         {changedActiveNavigation && (
           <>
             <NavigationContentHeader
-              startActions={<Search value={searchValue} setValue={setSearchValue} />}
-              endActions={endActions.map(({ tradId, margin, ...item }, i) =>
-                <Box marginLeft={margin} key={i}>
-                  <Button {...item}> {getMessage(tradId)} </Button>
-                </Box>
-              )}
+              startActions={startActions}
+              endActions={endActions}
             />
             {isEmpty(changedActiveNavigation.items || []) && (
               <Flex direction="column" minHeight="400px" justifyContent="center">

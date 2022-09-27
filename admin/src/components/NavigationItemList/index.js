@@ -20,14 +20,13 @@ const List = ({
 }) => (
   <Wrapper level={level}>
     {items.map((item, n) => {
-      const { relatedRef, ...itemProps } = item
       return (
         <Item
           config={config}
           displayChildren={displayFlat}
           isLast={n === items.length - 1}
           isParentAttachedToMenu={isParentAttachedToMenu}
-          item={itemProps}
+          item={item}
           key={`list-item-${item.viewId || n}`}
           level={level}
           levelPath={levelPath}
@@ -37,7 +36,6 @@ const List = ({
           onItemReOrder={onItemReOrder}
           onItemRestore={onItemRestore}
           onItemToggleCollapse={onItemToggleCollapse}
-          relatedRef={relatedRef}
         />
       );
     })}

@@ -5,19 +5,19 @@ import { Typography } from '@strapi/design-system/Typography';
 import styled from 'styled-components'
 // @ts-ignore
 import { Flex } from '@strapi/design-system/Flex';
+import { getMessage } from '../../utils';
 
 const Wrapper = styled(Flex)`
   height: 100vh;
 `;
 
 interface IProps {
-  error: Error | null;
+  error: Error | string | null;
 }
 
-//TODO: [@ltsNotMike] Add translations to this view
-const ErrorView: React.FC<IProps> = () => (
+const ErrorView: React.FC<IProps> = (error) => (
   <Wrapper justifyContent="space-around">
-    <Typography variant="beta">Error occured while rendering view.</Typography>
+    <Typography variant="beta">{error || getMessage('notification.error')}</Typography>
   </Wrapper>
 );
 

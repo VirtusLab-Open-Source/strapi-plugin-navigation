@@ -18,6 +18,7 @@ import { getMessage, navigationItemType } from '../../../../utils';
 import useDataManager from '../../../../hooks/useDataManager';
 
 const NavigationItemPopUp = ({
+  activeItem,
   availableLocale,
   isOpen,
   data,
@@ -32,7 +33,6 @@ const NavigationItemPopUp = ({
 }) => {
   const {
     isLoadingForAdditionalDataToBeSet: isLoading,
-    activeItem,
     readNavigationItemFromLocale,
   } = useDataManager();
   const locale = activeItem.localeCode;

@@ -20,12 +20,4 @@ module.exports = {
     }
     return `${parse(scope)}${parse(contentTypeName)}`;
   },
-
-  // TODO: [@ltsNotMike] this function is already implemented on server side ./server/utils/functions.ts:302
-  isContentTypeEligible(uid = '', config) {
-    const { allowedContentTypes = [], restrictedContentTypes = [] } = config;
-    const isOneOfAllowedType = allowedContentTypes.filter(_ => uid.includes(_) || (uid === _)).length > 0;
-    const isNoneOfRestricted = restrictedContentTypes.filter(_ => uid.includes(_) || (uid === _)).length === 0;
-    return !!uid && isOneOfAllowedType && isNoneOfRestricted;
-  },
 }

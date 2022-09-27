@@ -31,12 +31,9 @@ const NavigationHeader = ({
   handleChangeSelection,
   handleSave,
   config,
+  activeNavigation,
 }) => {
   const { formatMessage } = useIntl();
-  const {
-    activeItem: activeNavigation,
-    handleLocalizationSelection,
-  } = useDataManager();
 
   const availableNavigations = useAvailableNavigations();
 
@@ -91,7 +88,7 @@ const NavigationHeader = ({
                     type="select"
                     placeholder={formatMessage(getTrad('pages.main.header.localization.select.placeholder'))}
                     name="navigationLocalizationSelect"
-                    onChange={handleLocalizationSelection}
+                    onChange={handleChangeSelection}
                     value={activeNavigation?.id}
                     size="S"
                   >
@@ -119,7 +116,7 @@ const NavigationHeader = ({
               label="More"
               icon={moreIcon}
             /> */}
-          {/* {navigationManagerModal} */}
+          {navigationManagerModal}
         </Stack>
       }
       title={formatMessage({

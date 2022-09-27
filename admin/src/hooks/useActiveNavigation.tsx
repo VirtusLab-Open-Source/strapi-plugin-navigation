@@ -6,7 +6,7 @@ import pluginId from "../pluginId";
 import { first, get, isNil } from 'lodash';
 import { useQuery } from "react-query";
 import { NavigationsRepository } from "../utils/repositories";
-import { mapUseQueryResourceToState, resolvedResourceFor, ResourceState } from "../utils";
+import { errorStatusResourceFor, mapUseQueryResourceToState, resolvedResourceFor, ResourceState } from "../utils";
 import useConfig from "./useConfig";
 import { prepareItemToViewPayload } from '../utils/functions';
 import { useAvailableNavigations } from "./useAvailableNavigations";
@@ -27,7 +27,7 @@ export const ActiveNavigationProvider: React.FC<{ children: JSX.Element }> = ({ 
   const menuViewMatch = useRouteMatch(`/plugins/${pluginId}/:id`);
   const routeMatchId = get(menuViewMatch, "params.id", null);
   const [activeId, setActiveId] = useState<Id>(routeMatchId);
-  const navigationItemPopUp = useNavigationItemPopup(); 
+  const { closePopup } = useNavigationItemPopup();
   const navigationConfig = useConfig();
   const navigations = useAvailableNavigations();
   const navigationIdToFetch =
@@ -36,12 +36,12 @@ export const ActiveNavigationProvider: React.FC<{ children: JSX.Element }> = ({ 
       : navigations.state === ResourceState.RESOLVED
         ? get(first(navigations.value), "id", null)
         : null;
-  
+
   const navigation = mapUseQueryResourceToState(
-    useQuery<Navigation, Error, Navigation, [string, Id]>(
-      [NavigationsRepository.getIndex(), navigationIdToFetch || 1],
+    useQuery<Navigation | null, Error, Navigation, [string, Id | null]>(
+      [NavigationsRepository.getIndex(), navigationIdToFetch],
       NavigationsRepository.fetchOne,
-      {enabled: !isNil(navigationIdToFetch)}
+      { enabled: !isNil(navigationIdToFetch) }
     )
   );
   const [changedActiveNavigation, setChangedActiveNavigation] = useState<Navigation | null>(null);
@@ -53,9 +53,11 @@ export const ActiveNavigationProvider: React.FC<{ children: JSX.Element }> = ({ 
     if (navigation.state !== ResourceState.RESOLVED) {
       return navigation;
     }
-
     if (activeId === null && navigations.state !== ResourceState.RESOLVED) {
       return navigations;
+    }
+    if (navigation.value === null) {
+      return errorStatusResourceFor(Error("Navigation could not be loaded"));
     }
 
     const newActiveNavigation = {
@@ -68,35 +70,35 @@ export const ActiveNavigationProvider: React.FC<{ children: JSX.Element }> = ({ 
 
     setChangedActiveNavigation(newActiveNavigation);
     return resolvedResourceFor(newActiveNavigation);
-  }, [navigation, activeId, navigationConfig.state]);
+  }, [navigation, navigations, activeId, navigationConfig.state]);
 
   const handleChangeSelection = useCallback((id: Id) => {
-    navigationItemPopUp.setNavigationItemPopupState(false);
+    closePopup();
     setActiveId(id);
-  }, [activeId]);
+  }, [activeId, closePopup]);
 
   const handleChangeNavigationData = useCallback((payload: Navigation, forceClosePopups?: boolean) => {
     if (forceClosePopups) {
-      navigationItemPopUp.setNavigationItemPopupState(false);
+      closePopup();
     }
     setChangedActiveNavigation(payload);
-  }, [setChangedActiveNavigation]);
+  }, [setChangedActiveNavigation, closePopup]);
 
   const handleResetNavigationData = useCallback((forceClosePopups?: boolean) => {
     if (forceClosePopups) {
-      navigationItemPopUp.setNavigationItemPopupState(false);
+      closePopup();
     }
     setChangedActiveNavigation(activeNavigation.state === ResourceState.RESOLVED ? activeNavigation.value : null);
   }, [setChangedActiveNavigation, activeNavigation.state]);
 
-  const contextResource = activeNavigation.state === ResourceState.RESOLVED ?
+  const contextResource = useMemo(() => activeNavigation.state === ResourceState.RESOLVED ?
     resolvedResourceFor({
       activeNavigation: activeNavigation.value,
       changedActiveNavigation: isNil(changedActiveNavigation) ? activeNavigation.value : changedActiveNavigation,
       handleChangeSelection,
       handleResetNavigationData,
       handleChangeNavigationData,
-    }) : activeNavigation;
+    }) : activeNavigation, [activeNavigation, changedActiveNavigation, handleChangeSelection, handleResetNavigationData, handleChangeNavigationData]);
 
   return (
     <ActiveNavigationContext.Provider value={contextResource}>

@@ -23,9 +23,10 @@ export type NavigationItem = NavigationItemPartial & {
   audience: string[];
   externalPath?: string;
   related: RelatedRef[];
-  removed: boolean;
-  updated: boolean;
+  removed?: boolean;
+  updated?: boolean;
   slug?: string
+  isSingle?: boolean;
 }
 
 export type NavigationItemInput = NavigationItemPartial
@@ -44,10 +45,10 @@ export type NavigationItemEntity<RelatedType = NavigationItemRelated> = TypeResu
 }>
 
 type NavigationItemPartial = {
-  additionalFields: StringMap<string | boolean>;
+  additionalFields?: StringMap<string | boolean>;
   collapsed: boolean;
-  externalPath: string | null;
-  id: Id;
+  externalPath?: string | null;
+  id?: Id;
   menuAttached: boolean;
   order: number;
   path: string | null;
@@ -96,11 +97,15 @@ export type NavigationItemRelated = {
 export type NavigationItemViewPartial = {
   viewId?: string;
   viewParentId: string | null;
+  levelPath?: string;
+  parentAttachedToMenu?: boolean;
   related: number | null;
   structureId: string;
   updated: boolean;
   relatedType: string;
   isMenuAllowedLevel: boolean;
+  parent?: number;
+  relatedRef: RelatedRef;
 }
 
 export type NavigationItemType = "INTERNAL" | "EXTERNAL" | "WRAPPER";

@@ -24,11 +24,10 @@ import { arrowRightIcon, plusIcon } from '../icons';
 
 const Item = (props) => {
   const {
-    item,
+    item: { relatedRef, ...item},
     isLast = false,
     level = 0,
     levelPath = '',
-    relatedRef,
     isParentAttachedToMenu,
     onItemLevelAdd,
     onItemRemove,
@@ -52,7 +51,7 @@ const Item = (props) => {
     structureId,
     items = [],
   } = item;
-
+  
   const {
     contentTypes,
     contentTypesNameFields,
