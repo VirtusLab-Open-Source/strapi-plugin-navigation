@@ -49,5 +49,5 @@ export interface IClientService {
   renderRFRNav: (item: NavigationItem) => RFRNavItem,
   renderRFRPage: (item: NavigationItem & { related: ToBeFixed }, parent: Id | null, enabledCustomFieldsNames: string[]) => ToBeFixed,
   renderTree(items: NavigationItemEntity<ContentTypeEntity>[], id: Id | null, field: keyof NavigationItemEntity, path: string | undefined, itemParser: ToBeFixed): ToBeFixed,
-  renderType: (input: { type: RenderType, criteria: ToBeFixed, itemCriteria: ToBeFixed, filter: ToBeFixed, rootPath: string | null, wrapRelated?: boolean, populate?: PopulateQueryParam } & I18nQueryParams) => ToBeFixed,
+  renderType: (input: { type: RenderType, criteria: ToBeFixed, itemCriteria: ToBeFixed, filter: ToBeFixed, rootPath: string | null, wrapRelated?: boolean, populate?: PopulateQueryParam, menuOnly?: boolean } & I18nQueryParams) => ToBeFixed,
 }
