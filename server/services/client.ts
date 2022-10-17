@@ -25,7 +25,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
     const criteria = findById ? { id: idOrSlug } : { slug: idOrSlug };
     const itemCriteria = menuOnly ? { menuAttached: true } : {};
     return await clientService.renderType({
-      type, criteria, itemCriteria, filter: null, rootPath, wrapRelated, locale, populate
+      type, criteria, itemCriteria, filter: null, rootPath, wrapRelated, locale, populate, menuOnly,
     });
   },
 
@@ -233,6 +233,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
     wrapRelated = false,
     locale,
     populate,
+    menuOnly,
   }) {
     const clientService = getPluginService<IClientService>('client');
     const adminService = getPluginService<IAdminService>('admin');
