@@ -362,7 +362,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
             const { order, parent } = item;
 
             const nestedOrders = parent
-              ? getNestedOrders(parent.id, cache).concat(order)
+              ? !menuOnly ? getNestedOrders(parent.id, cache).concat(order) : [order]
               : [order];
 
             cache.set(id, nestedOrders);
