@@ -83,6 +83,7 @@ const View = () => {
   const [searchValue, setSearchValue] = useState('');
   const [structureChanged, setStructureChanged] = useState(false);
   const isSearchEmpty = isEmpty(searchValue);
+  const normalisedSearchValue = (searchValue || '').toLowerCase();
 
   const structureHasErrors = !validateNavigationStructure((changedActiveNavigation || {}).items);
   
