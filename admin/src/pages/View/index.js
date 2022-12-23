@@ -149,7 +149,7 @@ const View = () => {
     else
       return [...subItems, ...acc];
   }, []);
-  const filteredList = !isSearchEmpty ? filteredListFactory(changedActiveNavigation.items, (item) => (item?.title || '').toLowerCase().includes(searchValue.toLowerCase())) : [];
+  const filteredList = !isSearchEmpty ? filteredListFactory(changedActiveNavigation.items, (item) => (item?.title || '').toLowerCase().includes(normalisedSearchValue)) : [];
 
   const changeCollapseItemDeep = (item, isCollapsed) => {
     if (item.collapsed !== isCollapsed) {
