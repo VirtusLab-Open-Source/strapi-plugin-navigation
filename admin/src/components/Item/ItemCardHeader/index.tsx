@@ -27,6 +27,7 @@ interface IProps {
 }
 
 const wrapperStyle = { zIndex: 2 };
+const pathWrapperStyle = { maxWidth: "425px" };
 
 const ItemCardHeader: React.FC<IProps> = ({ title, path, icon, removed, onItemRemove, onItemEdit, onItemRestore, dragRef }) => (
   <Wrapper>
@@ -35,10 +36,12 @@ const ItemCardHeader: React.FC<IProps> = ({ title, path, icon, removed, onItemRe
       <Typography variant="omega" fontWeight="bold">
         {title}
       </Typography>
-      <Typography variant="omega" fontWeight="bold" textColor='neutral500'>
+      <Typography variant="omega" fontWeight="bold" textColor='neutral500' ellipsis style={pathWrapperStyle}>
         {path}
       </Typography>
-      <Icon as={icon} />
+      <Flex>
+        <Icon as={icon} />
+      </Flex>
     </Flex>
     <Flex alignItems="center" style={wrapperStyle}>
       {removed &&
