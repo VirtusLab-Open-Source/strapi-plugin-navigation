@@ -149,6 +149,9 @@ Config for this plugin is stored as a part of the `config/plugins.js` or `config
 > *Note v2.0.3 and newer only*
 > Changing this file will not automatically change plugin configuration. To synchronize plugin's config with plugins.js file, it is necessary to restore configuration through the settings page 
 
+> *Note for newer than v2.2.0*
+> `slugify` as been removed. **THIS A BREAKING CHANGE**
+
 ```js
     module.exports = ({ env }) => ({
         // ...
@@ -162,11 +165,6 @@ Config for this plugin is stored as a part of the `config/plugins.js` or `config
                 },
                 allowedLevels: 2,
                 gql: {...},
-                slugify: {
-                  customReplacements: [
-                    ["🤔", "thinking"],
-                  ],
-                }
             }
         }
     });
@@ -631,6 +629,33 @@ module.exports = {
 ```
 
 If you already got it, make sure that `navigation` plugin is inserted before `graphql`. That should do the job.
+
+### Slug generation
+
+#### Customisation
+
+Slug generation is available as a controller and service. If you have custom requirements outside of what this plugin provides you can add your own logic with [plugins extensions](https://docs.strapi.io/developer-docs/latest/development/plugins-extension.html).
+
+For example:
+
+```ts
+// path: ./src/index.js
+
+module.exports = {
+  // ...
+  bootstrap({ strapi }) {
+    const navigationCommonService = strapi.plugin("navigation").service("common");
+    const originalGetSlug = navigationCommonService.getSlug;
+    const preprocess = (q) => {
+      return q + "suffix";
+    };
+
+    navigationCommonService.getSlug = (query) => {
+      return originalGetSlug(preprocess(query));
+    };
+  },
+};
+```
 
 ## 🤝 Contributing
 

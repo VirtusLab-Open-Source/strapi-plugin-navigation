@@ -819,17 +819,17 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@strapi/plugin-graphql@^4.1.8":
-  version "4.2.3"
-  resolved "https://registry.yarnpkg.com/@strapi/plugin-graphql/-/plugin-graphql-4.2.3.tgz#02b412de14956320abc660e94ac810cfe0fc9745"
-  integrity sha512-D8qXhjbHR7mmelQEOhG91p+0wAeuMXexm+Li9q1eKVd2rkNEjU9UNZrJgwSKB8awQQJnooe5hOEpyN90tn+VyQ==
+"@strapi/plugin-graphql@^4.3.2":
+  version "4.3.2"
+  resolved "https://registry.yarnpkg.com/@strapi/plugin-graphql/-/plugin-graphql-4.3.2.tgz#b0becc325bfba55abe0222c639d046fde0bd3376"
+  integrity sha512-K26XtM4a/NWfL+x8qWfMdIejv8me1IOeUoJzrdemuvBjQqJ6V6kD5jDjlSUCAMppETyGW1zGoO02oB6H2JU4wQ==
   dependencies:
     "@apollo/federation" "^0.28.0"
     "@graphql-tools/schema" "8.1.2"
     "@graphql-tools/utils" "^8.0.2"
-    "@strapi/utils" "4.2.3"
+    "@strapi/utils" "4.3.2"
     apollo-server-core "3.1.2"
-    apollo-server-koa "3.1.2"
+    apollo-server-koa "3.10.0"
     glob "^7.1.7"
     graphql "^15.5.1"
     graphql-depth-limit "^1.1.0"
@@ -844,10 +844,10 @@
     pluralize "^8.0.0"
     subscriptions-transport-ws "0.9.19"
 
-"@strapi/utils@4.2.3", "@strapi/utils@^4.1.8":
-  version "4.2.3"
-  resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.2.3.tgz#4970361779581e5e01b7b824f8ee4c189bc87857"
-  integrity sha512-ICkOI+JqSYyocwazZlaUz6oHgacyx3H5V9edeAdhISXjfZRX6GjtUDElTfQdGj9xsUUYSApFvY0DaiLTc0Utpg==
+"@strapi/utils@4.3.2", "@strapi/utils@^4.3.2":
+  version "4.3.2"
+  resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.3.2.tgz#df4ae10bff89d3fd13495a3bde10da16f6fd4597"
+  integrity sha512-7MsXcGFSbKsKUFiegzy1kL6PHTAWyJ0kxfT4xAywkXMN7GOkA3x9ld0Ds4+a3MBohA2ZOiVj7Nil3IF7tQwdpQ==
   dependencies:
     "@sindresorhus/slugify" "1.1.0"
     date-fns "2.28.0"
@@ -1341,7 +1341,7 @@ apollo-server-core@3.1.2:
     sha.js "^2.4.11"
     uuid "^8.0.0"
 
-apollo-server-core@^3.1.2:
+apollo-server-core@^3.10.0:
   version "3.10.0"
   resolved "https://registry.yarnpkg.com/apollo-server-core/-/apollo-server-core-3.10.0.tgz#6680b4eb4699829ed50d8a592721ee5e5e11e041"
   integrity sha512-ln5drIk3oW/ycYhcYL9TvM7vRf7OZwJrgHWlnjnMakozBQIBSumdMi4pN001DhU9mVBWTfnmBv3CdcxJdGXIvA==
@@ -1381,10 +1381,10 @@ apollo-server-errors@^3.0.1, apollo-server-errors@^3.3.1:
   resolved "https://registry.yarnpkg.com/apollo-server-errors/-/apollo-server-errors-3.3.1.tgz#ba5c00cdaa33d4cbd09779f8cb6f47475d1cd655"
   integrity sha512-xnZJ5QWs6FixHICXHxUfm+ZWqqxrNuPlQ+kj5m6RtEgIpekOPssH/SD9gf2B4HuWV0QozorrygwZnux8POvyPA==
 
-apollo-server-koa@3.1.2:
-  version "3.1.2"
-  resolved "https://registry.yarnpkg.com/apollo-server-koa/-/apollo-server-koa-3.1.2.tgz#dac33a32e07e744da48c74be26a59503b302b099"
-  integrity sha512-mR7qm0xYm5jCBelKeodcBqNqGnFnPPRDCGXyOSOshv8vYLkg58IctjVGFgad9m8Az6ZOqrYYO1clF/sXHo0gJQ==
+apollo-server-koa@3.10.0:
+  version "3.10.0"
+  resolved "https://registry.yarnpkg.com/apollo-server-koa/-/apollo-server-koa-3.10.0.tgz#6f5cf0d23ca9dc6d6c020322ded5ea213747889d"
+  integrity sha512-OHaQRz0vvsALT2q+j4uWnCLRrUl1sM0H6JZvB2PfQwANsjTdwm2Eo6FO5etVByvrU4K1iXD6wBWid0Fjk0/OMQ==
   dependencies:
     "@koa/cors" "^3.1.0"
     "@types/accepts" "^1.3.5"
@@ -1393,8 +1393,8 @@ apollo-server-koa@3.1.2:
     "@types/koa-compose" "^3.2.5"
     "@types/koa__cors" "^3.0.1"
     accepts "^1.3.7"
-    apollo-server-core "^3.1.2"
-    apollo-server-types "^3.1.1"
+    apollo-server-core "^3.10.0"
+    apollo-server-types "^3.6.2"
     koa-bodyparser "^4.3.0"
     koa-compose "^4.1.0"
 
@@ -4262,13 +4262,13 @@ statuses@2.0.1:
   resolved "https://registry.yarnpkg.com/statuses/-/statuses-1.5.0.tgz#161c7dac177659fd9811f43771fa99381478628c"
   integrity sha512-OpZ3zP+jT1PI7I8nemJX4AKmAX070ZkYPVWV/AaKTJl+tXCTGyVdC1a4SL8RUQYEwk/f34ZX8UTykN68FwrqAA==
 
-strapi-typed@1.0.10:
-  version "1.0.10"
-  resolved "https://registry.yarnpkg.com/strapi-typed/-/strapi-typed-1.0.10.tgz#a191ab4f810feae194b0281b5863e9f7898007f2"
-  integrity sha512-7+0c0+m88BosysEPgv6/jtxpqqqpd3oNN3ck1VC4qm5qAI3EeevihWYHSFYWtH4MqsVZGeGDGcdvcE2UxP+7rw==
+strapi-typed@1.0.13:
+  version "1.0.13"
+  resolved "https://registry.yarnpkg.com/strapi-typed/-/strapi-typed-1.0.13.tgz#7acf145d33e46d2b89e6ad405595591fc7ea82fe"
+  integrity sha512-xBdtGELa43mDK2u8ZXnzwjS5KDD2HKsn5/czJ603OcnOUDpVCHvwq5Wxv1a2eK/jqYX3zUv551u2ULbilOFPwg==
   dependencies:
-    "@strapi/plugin-graphql" "^4.1.8"
-    "@strapi/utils" "^4.1.8"
+    "@strapi/plugin-graphql" "^4.3.2"
+    "@strapi/utils" "^4.3.2"
 
 stream-events@^1.0.5:
   version "1.0.5"

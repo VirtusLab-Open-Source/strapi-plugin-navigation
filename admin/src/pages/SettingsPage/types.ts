@@ -12,7 +12,7 @@ export type RawPayload = {
 }
 export type StrapiContentTypeSchema = StrapiContentTypeFullSchema & { available: boolean, isSingle: boolean, plugin: string, label: string  }
 
-export type PreparePayload = (payload: { form: RawPayload, pruneObsoleteI18nNavigations: boolean }) => Omit<NavigationPluginConfig, "slugify">;
+export type PreparePayload = (payload: { form: RawPayload, pruneObsoleteI18nNavigations: boolean }) => NavigationPluginConfig;
 export type OnSave = Effect<RawPayload>;
 export type OnPopupClose = Effect<boolean>;
 export type HandleSetContentTypeExpanded = Effect<string | undefined>;

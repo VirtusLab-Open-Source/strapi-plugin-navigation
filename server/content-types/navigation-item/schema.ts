@@ -88,7 +88,8 @@ export default {
       type: "relation",
       relation: "manyToOne",
       target: "plugin::navigation.navigation",
-      configurable: false
+      configurable: false,
+      inversedBy: "items",
     },
     audience: {
       type: "relation",

@@ -1,4 +1,3 @@
-import { pick } from "lodash";
 import {
   assertNotEmpty,
   IConfigSetupStrategy,
@@ -40,10 +39,6 @@ export const configSetupStrategy: IConfigSetupStrategy = async ({ strapi }) => {
     allowedLevels: getWithFallback<number>("allowedLevels"),
     gql: getWithFallback<PluginConfigGraphQL>("gql"),
     i18nEnabled: hasI18nPlugin && getWithFallback<boolean>("i18nEnabled"),
-    slugify: pick(
-      getWithFallback<NavigationPluginConfig["slugify"]>("slugify"),
-      validSlugifyFields
-    ),
     pruneObsoleteI18nNavigations: false,
     pathDefaultFields: getWithFallback<PluginConfigPathDefaultFields>("pathDefaultFields"),
     cascadeMenuAttached: getWithFallback<boolean>("cascadeMenuAttached"),
@@ -71,11 +66,3 @@ const getWithFallbackFactory =
 
     return value as T;
   };
-
-const validSlugifyFields: Array<string> = [
-  "separator",
-  "lowercase",
-  "decamelize",
-  "customReplacements",
-  "preserveLeadingUnderscore",
-];
