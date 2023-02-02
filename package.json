@@ -1,6 +1,6 @@
 {
   "name": "strapi-plugin-navigation",
-  "version": "2.3.0-beta.0",
+  "version": "2.2.3",
   "description": "Strapi - Navigation plugin",
   "strapi": {
     "name": "navigation",
@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@sindresorhus/slugify": "1.1.0",
-    "@strapi/utils": "^4.5.4",
+    "@strapi/utils": "^4.5.5",
     "lodash": "^4.17.11",
     "pluralize": "^8.0.0",
     "react": "^16.9.0",
