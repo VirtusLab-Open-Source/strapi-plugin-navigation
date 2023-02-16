@@ -5,8 +5,8 @@ import Item from "../Item";
 import Wrapper from "./Wrapper";
 
 const List = ({
-  allowedLevels,
-  error,
+  config,
+  displayFlat,
   isParentAttachedToMenu = false,
   items,
   level = 0,
@@ -14,38 +14,28 @@ const List = ({
   onItemEdit,
   onItemLevelAdd,
   onItemRemove,
-  onItemRestore,
   onItemReOrder,
+  onItemRestore,
   onItemToggleCollapse,
-  displayFlat,
-  contentTypes,
-  contentTypesNameFields,
 }) => (
   <Wrapper level={level}>
     {items.map((item, n) => {
-      const { relatedRef, ...itemProps } = item
       return (
         <Item
-          key={`list-item-${item.viewId || n}`}
-          item={itemProps}
+          config={config}
+          displayChildren={displayFlat}
           isLast={n === items.length - 1}
-          relatedRef={relatedRef}
+          isParentAttachedToMenu={isParentAttachedToMenu}
+          item={item}
+          key={`list-item-${item.viewId || n}`}
           level={level}
           levelPath={levelPath}
-          isParentAttachedToMenu={isParentAttachedToMenu}
-          allowedLevels={allowedLevels}
-          onItemRestore={onItemRestore}
+          onItemEdit={onItemEdit}
           onItemLevelAdd={onItemLevelAdd}
           onItemRemove={onItemRemove}
-          onItemEdit={onItemEdit}
           onItemReOrder={onItemReOrder}
+          onItemRestore={onItemRestore}
           onItemToggleCollapse={onItemToggleCollapse}
-          error={error}
-          displayChildren={displayFlat}
-          config={{
-            contentTypes,
-            contentTypesNameFields
-          }}
         />
       );
     })}
@@ -53,7 +43,6 @@ const List = ({
 );
 
 List.propTypes = {
-  allowedLevels: PropTypes.number,
   isParentAttachedToMenu: PropTypes.bool,
   items: PropTypes.array,
   level: PropTypes.number,
@@ -63,8 +52,7 @@ List.propTypes = {
   onItemRestore: PropTypes.func.isRequired,
   onItemReOrder: PropTypes.func.isRequired,
   onItemToggleCollapse: PropTypes.func.isRequired,
-  contentTypes: PropTypes.array.isRequired,
-  contentTypesNameFields: PropTypes.object.isRequired
+  root: PropTypes.bool,
 };
 
 export default List;

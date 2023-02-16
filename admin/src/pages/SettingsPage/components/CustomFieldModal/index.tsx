@@ -1,4 +1,5 @@
 import React from 'react';
+import { pick } from 'lodash';
 //@ts-ignore
 import { Typography } from '@strapi/design-system/Typography';
 //@ts-ignore
@@ -7,7 +8,6 @@ import { ModalLayout, ModalHeader } from '@strapi/design-system/ModalLayout';
 import CustomFieldForm from '../CustomFieldForm';
 import { Effect, NavigationItemCustomField, VoidEffect } from '../../../../../../types';
 import { getMessage } from '../../../../utils';
-import { pick } from 'lodash';
 
 interface ICustomFieldModalProps {
   data: NavigationItemCustomField | null;
@@ -24,6 +24,8 @@ const CustomFieldModal: React.FC<ICustomFieldModalProps> = ({
   data,
   usedCustomFieldNames,
 }) => {
+  if (!isOpen) return null;
+
   const isEditMode = !!data;
   return (
     <ModalLayout onClose={onClose} isOpen={isOpen} labelledBy="custom-field-modal">

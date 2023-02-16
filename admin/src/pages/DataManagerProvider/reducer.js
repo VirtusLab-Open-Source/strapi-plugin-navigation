@@ -41,77 +41,12 @@ const initialState = {
 
 const reducer = (state, action) => produce(state, draftState => {
   switch (action.type) {
-    case GET_CONFIG: {
-      draftState.isLoadingForDetailsDataToBeSet = true;
-      draftState.config = {};
-      break;
-    }
-    case GET_CONFIG_SUCCEEDED: {
-      draftState.isLoadingForDetailsDataToBeSet = false;
-      draftState.config = action.config;
-      break;
-    }
-    case GET_LIST_DATA: {
-      draftState.items = [];
-      draftState.isLoadingForDataToBeSet = true;
-      draftState.availableLocale = [];
-      break;
-    }
-    case GET_LIST_DATA_SUCCEEDED: {
-      draftState.items = action.items;
-      draftState.isLoading = false;
-      draftState.isLoadingForDataToBeSet = false;
-      draftState.availableLocale = [...action.items.reduce((set, item) => set.add(item.localeCode), new Set()).values()];
-      break;
-    }
-    case GET_NAVIGATION_DATA: {
-      draftState.activeItem = undefined;
-      draftState.changedActiveItem = undefined;
-      draftState.isLoadingForDetailsDataToBeSet = true;
-      break;
-    }
-    case GET_NAVIGATION_DATA_SUCCEEDED: {
-      const activeItem = action.activeItem || {};
-      draftState.activeItem = activeItem;
-      draftState.changedActiveItem = activeItem;
-      draftState.isLoadingForDetailsDataToBeSet = false;
-      break;
-    }
-    case CHANGE_NAVIGATION_DATA: {
-      draftState.changedActiveItem = action.changedActiveItem;
-      draftState.navigationPopupOpened = action.forceClosePopups ? false : state.navigationPopupOpened;
-      draftState.navigationItemPopupOpened = action.forceClosePopups ? false : state.navigationItemPopupOpened;
-      break;
-    }
-    case RESET_NAVIGATION_DATA : {
-      draftState.changedActiveItem = action.activeItem || {};
-      break;
-    }
-    case GET_CONTENT_TYPE_ITEMS: {
-      draftState.isLoadingForAdditionalDataToBeSet = true;
-      break;
-    }
-    case GET_CONTENT_TYPE_ITEMS_SUCCEEDED: {
-      draftState.isLoadingForAdditionalDataToBeSet = false;
-      draftState.config.contentTypeItems = action.contentTypeItems;
-      break;
-    }
-    case CHANGE_NAVIGATION_POPUP_VISIBILITY: {
-      draftState.navigationPopupOpened = action.navigationPopupOpened;
-      break;
-    }
-    case CHANGE_NAVIGATION_ITEM_POPUP_VISIBILITY: {
-      draftState.navigationItemPopupOpened = action.navigationItemPopupOpened;
-      break;
-    }
     case SUBMIT_NAVIGATION: {
       draftState.isLoadingForSubmit = true;
       draftState.error = undefined;
       break;
     }
     case SUBMIT_NAVIGATION_SUCCEEDED: {
-      draftState.activeItem = action.navigation || {};
-      draftState.changedActiveItem = action.navigation || {};
       draftState.isLoadingForSubmit = false;
       break;
     }

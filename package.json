@@ -41,6 +41,8 @@
     "@types/jest": "^27.4.1",
     "@types/lodash": "^4.14.181",
     "@types/pluralize": "^0.0.29",
+    "@types/react-query": "^1.2.9",
+    "@types/react-router-dom": "^5.3.3",
     "@types/uuid": "^8.3.4",
     "codecov": "^3.7.2",
     "formik": "^2.2.9",

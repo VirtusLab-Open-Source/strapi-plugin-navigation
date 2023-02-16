@@ -11,10 +11,10 @@ import { Dialog, DialogBody, DialogFooter } from '@strapi/design-system/Dialog';
 import { Flex } from '@strapi/design-system/Flex';
 import { Stack } from '@strapi/design-system/Stack';
 import { Typography } from '@strapi/design-system/Typography';
-import { ExclamationMarkCircle, Check } from '@strapi/icons';
 import { getMessage } from '../../utils';
+import { checkIcon, exclamationMarkCircleIcon } from '../icons';
 
-const DEFAULT_ICON = <ExclamationMarkCircle />
+const DEFAULT_ICON = exclamationMarkCircleIcon;
 
 const ConfirmationDialog = ({
 	isVisible = false,
@@ -38,7 +38,7 @@ const ConfirmationDialog = ({
 		</DialogBody>
 		<DialogFooter startAction={<Button onClick={onCancel} variant="tertiary" disabled={isActionAsync}>
 			{labelCancel || getMessage('components.confirmation.dialog.button.cancel', 'Cancel')}
-		</Button>} endAction={<Button onClick={onConfirm} variant="danger-light" startIcon={iconConfirm || <Check />} disabled={isActionAsync}>
+		</Button>} endAction={<Button onClick={onConfirm} variant="danger-light" startIcon={iconConfirm || checkIcon} disabled={isActionAsync}>
 			{labelConfirm || getMessage('components.confirmation.dialog.button.confirm', 'Confirm')}
 		</Button>} />
 	</Dialog>
