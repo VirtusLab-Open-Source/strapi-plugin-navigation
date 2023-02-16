@@ -15,7 +15,7 @@ import { GenericInput } from '@strapi/helper-plugin';
 import { Button } from '@strapi/design-system/Button';
 
 import { NavigationItemPopupFooter } from '../NavigationItemPopup/NavigationItemPopupFooter';
-import { getDefaultCustomFields, navigationItemType } from '../../../../utils';
+import { ResourceState, getDefaultCustomFields, getMessage, navigationItemType } from '../../../../utils';
 import { extractRelatedItemLabel } from '../../utils/parsers';
 import * as formDefinition from './utils/form';
 import { checkFormValidity } from '../../utils/form';
@@ -23,7 +23,6 @@ import { getTrad, getTradId } from '../../../../translations';
 import { assertString, Audience, Effect, NavigationItemAdditionalField, NavigationItemType, ToBeFixed } from '../../../../../../types';
 import { ContentTypeSearchQuery, NavigationItemFormData, NavigationItemFormProps, RawFormPayload, SanitizedFormPayload, Slugify } from './types';
 import AdditionalFieldInput from '../../../../components/AdditionalFieldInput';
-import { getMessage, ResourceState } from '../../../../utils';
 import { Id } from 'strapi-typed';
 
 const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
@@ -128,7 +127,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   };
 
   const getDefaultTitle =
-    useCallback((related: string | undefined, relatedType: string | undefined, isSingleSelected: boolean) => {
+    useCallback((related: string | number | undefined, relatedType: string | undefined, isSingleSelected: boolean) => {
       if (isSingleSelected) {
         return contentTypes.find(_ => _.uid === relatedType)?.label
       } else {
@@ -142,12 +141,12 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
 
   const sanitizePayload = async (slugify: Slugify, payload: RawFormPayload, data: Partial<NavigationItemFormData>): Promise<SanitizedFormPayload> => {
     const { related, relatedType, menuAttached, type, ...purePayload } = payload;
-    const relatedId = related;
+    const relatedId = isObject(related) ? related.value : related;
     const singleRelatedItem = isSingleSelected ? first(contentTypeEntities) : undefined;
     const relatedCollectionType = relatedType;
     const title = !!payload.title?.trim()
       ? payload.title
-      : getDefaultTitle(related, relatedType, isSingleSelected)
+      : getDefaultTitle(relatedId, relatedType, isSingleSelected)
     const uiRouterKey = await generateUiRouterKey(slugify, title, relatedId, relatedCollectionType);
 
     return {
@@ -211,7 +210,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
     });
   }
 
-  const generateUiRouterKey = async (slugify: Slugify, title: string, related?: string, relatedType?: string): Promise<string | undefined> => {
+  const generateUiRouterKey = async (slugify: Slugify, title: string, related?: string | number, relatedType?: string): Promise<string | undefined> => {
     if (title) {
       return isString(title) && !isEmpty(title) ? await slugify(title).then(prop("slug")) : undefined;
     } else if (related) {
@@ -457,7 +456,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
           <Grid gap={5} >
             <GridItem key="title" col={12}>
               <GenericInput
-                autoFocused={true}
+                autoFocused
                 intlLabel={getTrad('popup.item.form.title.label', 'Title')}
                 name="title"
                 placeholder={getTrad("e.g. Blog", 'e.g. Blog')}

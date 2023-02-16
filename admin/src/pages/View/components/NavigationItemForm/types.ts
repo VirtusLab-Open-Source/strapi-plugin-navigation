@@ -5,7 +5,7 @@ import {
   NavigationItemAdditionalField,
   NavigationItemAdditionalFieldValues,
   NavigationItemType,
-  NavigationPluginConfig,
+  NavigationConfig,
   PluginConfigNameFields,
   ToBeFixed,
   VoidEffect
@@ -71,7 +71,7 @@ export type NavigationItemFormProps = {
   onSubmit: Effect<SanitizedFormPayload>;
   usedContentTypeEntities: ToBeFixed[];
   usedContentTypesData: ToBeFixed;
-  config: NavigationPluginConfig;
+  config: NavigationConfig;
   availableLocale: string[];
   readNavigationItemFromLocale: ToBeFixed;
   inputsPrefix: string;
@@ -81,7 +81,7 @@ export type NavigationItemFormProps = {
 export type ContentTypeSearchQuery = ToBeFixed;
 export type RawFormPayload = {
   type: NavigationItemType;
-  related?: string;
+  related?: string | number | { key: number, label: string, value: number};
   relatedType?: string;
   audience: Id[];
   menuAttached: boolean;

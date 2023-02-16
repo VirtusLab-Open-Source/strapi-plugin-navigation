@@ -1,9 +1,9 @@
 import { StrapiContext } from "strapi-typed";
-import { NavigationPluginConfig } from "./config";
+import { NavigationRawConfig } from "./config";
 import { Navigation } from "./contentTypes";
 
 export interface IConfigSetupStrategy {
-  (context: StrapiContext): Promise<NavigationPluginConfig>;
+  (context: StrapiContext): Promise<NavigationRawConfig>;
 }
 
 export interface INavigationSetupStrategy {

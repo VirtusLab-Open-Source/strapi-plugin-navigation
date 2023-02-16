@@ -5,13 +5,15 @@ import { Id, StrapiContext } from "strapi-typed";
 import {
   Audience,
   AuditLogContext,
+  ExtendedNavigationConfig,
   IAdminService,
   ICommonService,
   Navigation,
   NavigationItemCustomField,
   NavigationItemEntity,
-  NavigationPluginConfig,
-  ToBeFixed
+  NavigationConfig,
+  ToBeFixed,
+  NavigationEntity
 } from "../../types";
 import {
   ALLOWED_CONTENT_TYPES,
@@ -25,17 +27,15 @@ import {
   sendAuditLog,
   validateAdditionalFields,
 } from "../utils";
-import { addI18NConfigFields, getI18nStatus, I18NConfigFields, i18nNavigationContentsCopy, i18nNavigationSetupStrategy, i18nNavigationItemRead } from "../i18n";
+import { addI18NConfigFields, getI18nStatus, i18nNavigationContentsCopy, i18nNavigationSetupStrategy, i18nNavigationItemRead } from "../i18n";
 import { NavigationError } from "../../utils/NavigationError";
 
-type SettingsPageConfig = NavigationPluginConfig & I18NConfigFields
-
 const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => ({
-  async config(viaSettingsPage = false): Promise<SettingsPageConfig> {
+  async config(viaSettingsPage = false) {
     const commonService = getPluginService<ICommonService>('common');
     const { audienceModel } = getPluginModels();
     const pluginStore = await commonService.getPluginStore()
-    const config = await pluginStore.get<string, NavigationPluginConfig>({ key: 'config' });
+    const config = await pluginStore.get<string, NavigationConfig>({ key: 'config' });
 
     const additionalFields = config.additionalFields;
     const cascadeMenuAttached = config.cascadeMenuAttached;
@@ -45,7 +45,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
     const allowedLevels = config.allowedLevels;
     const isGQLPluginEnabled = !isNil(strapi.plugin('graphql'));
 
-    let extendedResult: Record<string, unknown> = {
+    let extendedResult: ExtendedNavigationConfig = {
       allowedContentTypes: ALLOWED_CONTENT_TYPES,
       restrictedContentTypes: RESTRICTED_CONTENT_TYPES,
     };
@@ -88,10 +88,10 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
     };
   },
 
-  async get(): Promise<Navigation[]> {
+  async get(): Promise<NavigationEntity[]> {
     const { masterModel } = getPluginModels();
     const entities = await strapi
-      .query<Navigation>(masterModel.uid)
+      .query<NavigationEntity>(masterModel.uid)
       .findMany({
         limit: Number.MAX_SAFE_INTEGER,
         populate: DEFAULT_POPULATE,
@@ -101,11 +101,11 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
 
   async getById(id: Id): Promise<Navigation> {
     const commonService = getPluginService<ICommonService>('common');
-
+    
     const { masterModel, itemModel } = getPluginModels();
     const entity = await strapi
-      .query<Navigation>(masterModel.uid)
-      .findOne({ where: { id }, populate: DEFAULT_POPULATE });
+    .query<NavigationEntity>(masterModel.uid)
+    .findOne({ where: { id }, populate: DEFAULT_POPULATE });
 
     const entityItems = await strapi
       .query<NavigationItemEntity>(itemModel.uid)
@@ -252,10 +252,10 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
     await commonService.setDefaultConfig();
   },
 
-  async updateConfig(newConfig: NavigationPluginConfig): Promise<void> {
+  async updateConfig(newConfig: NavigationConfig): Promise<void> {
     const commonService = getPluginService<ICommonService>('common');
     const pluginStore = await commonService.getPluginStore()
-    const config = await pluginStore.get<string, NavigationPluginConfig>({ key: 'config' });
+    const config = await pluginStore.get<string, NavigationConfig>({ key: 'config' });
     validateAdditionalFields(newConfig.additionalFields);
     await pluginStore.set({ key: 'config', value: newConfig });
 

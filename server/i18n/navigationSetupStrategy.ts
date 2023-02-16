@@ -5,7 +5,7 @@ import {
   I18nLocale,
   INavigationSetupStrategy,
   Navigation,
-  NavigationPluginConfig,
+  NavigationConfig,
 } from "../../types";
 import {
   DEFAULT_NAVIGATION_ITEM, DEFAULT_POPULATE,
@@ -19,7 +19,7 @@ export const i18nNavigationSetupStrategy: INavigationSetupStrategy = async ({
     type: "plugin",
     name: "navigation",
   });
-  const config: NavigationPluginConfig = await pluginStore.get({
+  const config: NavigationConfig = await pluginStore.get({
     key: "config",
   });
   let currentNavigations = await getCurrentNavigations(strapi);
