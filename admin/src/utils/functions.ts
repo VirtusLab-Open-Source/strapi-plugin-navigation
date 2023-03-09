@@ -16,6 +16,13 @@ type PrepareNewValueForRecord = (
   value: string[]
 ) => Record<string, string[] | undefined>;
 
+export const getTradId = (id: string, inPluginScope: boolean = true): string => `${inPluginScope ? pluginId : 'app.components'}.${id}`;
+
+export const getTrad = (id: string, defaultMessage: string = '', inPluginScope: boolean = true) => ({
+  id: getTradId(id, inPluginScope),
+  defaultMessage,
+});
+
 export const getMessage = (input: MessageInput, defaultMessage: string = '', inPluginScope: boolean = true): string => {
   const { formatMessage } = useIntl();
   let formattedId = '';
@@ -24,8 +31,11 @@ export const getMessage = (input: MessageInput, defaultMessage: string = '', inP
   } else {
     formattedId = input.id.toString() || formattedId;
   }
+
+  if (!formattedId) return '';
+
   return formatMessage({
-    id: `${inPluginScope ? pluginId : 'app.components'}.${formattedId}`,
+    id: getTradId(formattedId, inPluginScope),
     defaultMessage,
   }, typeof input === 'string' ? undefined : input?.props)
 };

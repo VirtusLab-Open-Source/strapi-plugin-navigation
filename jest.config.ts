@@ -1,8 +1,7 @@
-import type { Config } from '@jest/types';
+import { JestConfigWithTsJest } from 'ts-jest';
 import { defaults as tsjPreset } from 'ts-jest/presets'
 
-const config: Config.InitialOptions = {
-  name: 'Unit test',
+const config: JestConfigWithTsJest = {
   testMatch: ['**/__tests__/?(*.)+(spec|test).ts'],
   transform: {
     ...tsjPreset.transform,

@@ -1,25 +1,30 @@
 import React, { useMemo } from 'react';
-import { useIntl } from 'react-intl';
+// @ts-ignore
 import { HeaderLayout } from '@strapi/design-system/Layout';
+// @ts-ignore
 import { Stack } from '@strapi/design-system/Stack';
+// @ts-ignore
 import { Button } from '@strapi/design-system/Button';
+// @ts-ignore
 import Check from '@strapi/icons/Check';
-import More from '@strapi/icons/More';
-import { getTrad } from '../../../../translations';
-import { MoreButton } from './styles';
+// @ts-ignore
 import { Select, Option } from '@strapi/design-system/Select';
+// @ts-ignore
 import { Box } from '@strapi/design-system/Box'
+// @ts-ignore
 import { Grid, GridItem } from "@strapi/design-system/Grid";
 import { uniqBy } from 'lodash';
 import { useNavigationManager } from '../../../../hooks/useNavigationManager';
+import { getMessage } from '../../../../utils';
+import { ToBeFixed } from '../../../../../../types';
 
 const submitIcon = <Check />;
-const pickDefaultLocaleNavigation = ({ activeNavigation, config }) => config.i18nEnabled
+const pickDefaultLocaleNavigation = ({ activeNavigation, config }: ToBeFixed) => config.i18nEnabled
     ? activeNavigation
       ? activeNavigation.localeCode === config.defaultLocale
         ? activeNavigation
         : activeNavigation?.localizations.find(
-            ({ localeCode }) => localeCode === config.defaultLocale
+            ({ localeCode }: { localeCode: string }) => localeCode === config.defaultLocale
           )
       : null
     : activeNavigation;
@@ -33,8 +38,7 @@ const NavigationHeader = ({
   handleLocalizationSelection,
   handleSave,
   config,
-}) => {
-  const { formatMessage } = useIntl();
+}: ToBeFixed) => {
   const allLocaleVersions = useMemo(
     () =>
       activeNavigation?.localizations.length && config.i18nEnabled
@@ -44,7 +48,7 @@ const NavigationHeader = ({
   );
   const hasLocalizations = config.i18nEnabled && allLocaleVersions.length;
   const passedActiveNavigation = pickDefaultLocaleNavigation({ activeNavigation, config });
-  const { closeNavigationManagerModal, openNavigationManagerModal, navigationManagerModal } = useNavigationManager()
+  const { openNavigationManagerModal, navigationManagerModal } = useNavigationManager()
 
   return (
     <HeaderLayout
@@ -62,7 +66,7 @@ const NavigationHeader = ({
                   fullWidth
                   size="S"
                 >
-                  {formatMessage(getTrad('header.action.manage'))}
+                  {getMessage('header.action.manage')}
                 </Button>
               </GridItem>
               <GridItem col={4}>
@@ -75,14 +79,14 @@ const NavigationHeader = ({
                   size="S"
                   style={null}
                 >
-                  {availableNavigations.map(({ id, name }) => <Option key={id} value={id}>{name}</Option>)}
+                  {availableNavigations.map(({ id, name }: ToBeFixed) => <Option key={id} value={id}>{name}</Option>)}
                 </Select>
               </GridItem>
             {hasLocalizations
               ? <GridItem col={2}>
                   <Select
                     type="select"
-                    placeholder={formatMessage(getTrad('pages.main.header.localization.select.placeholder'))}
+                    placeholder={getMessage('pages.main.header.localization.select.placeholder')}
                     name="navigationLocalizationSelect"
                     onChange={handleLocalizationSelection}
                     value={activeNavigation?.id}
@@ -102,7 +106,7 @@ const NavigationHeader = ({
                 fullWidth
                 size="S"
               >
-                {formatMessage(getTrad('submit.cta.save'))}
+                {getMessage('submit.cta.save')}
               </Button>
             </GridItem>
             </Grid>
@@ -115,14 +119,8 @@ const NavigationHeader = ({
           {navigationManagerModal}
         </Stack>
       }
-      title={formatMessage({
-        id: getTrad('header.title'),
-        defaultMessage: 'UI Navigation',
-      })}
-      subtitle={formatMessage({
-        id: getTrad('header.description'),
-        defaultMessage: 'Define your portal navigation',
-      })}
+      title={getMessage('header.title', 'UI Navigation')}
+      subtitle={getMessage('header.description', 'Define your portal navigation')}
     />
   );
 };

@@ -11,7 +11,6 @@ import {
 import { sortBy } from "lodash";
 import { prop } from "lodash/fp";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useIntl } from "react-intl";
 import { VoidEffect } from "../../../../../../types";
 import useDataManager from "../../../../hooks/useDataManager";
 import { getMessage } from "../../../../utils";
@@ -34,7 +33,6 @@ export const NavigationManager = ({
   isOpened,
   onClose,
 }: Props) => {
-  const { formatMessage } = useIntl();
   const [state, setState] = useState(initialState);
 
   const {
@@ -57,7 +55,7 @@ export const NavigationManager = ({
           }
         : (state.view === "CREATE" || state.view === "EDIT") && state.current
         ? async () => {
-            await handleSubmitNavigation(formatMessage, state.current);
+            await handleSubmitNavigation(state.current);
             await hardReset();
           }
         : () => {};

@@ -259,7 +259,7 @@ export const buildNestedPaths = <T extends Pick<NavigationItemEntity, 'parent' |
   parentPath: string | null = null
 ): NestedPath[] => {
   return items
-    .filter(entity => {
+    .filter((entity: T) => {
       let data: NavigationItemEntity | string | null = entity.parent;
       if (data == null && id === null) {
         return true;
@@ -269,7 +269,7 @@ export const buildNestedPaths = <T extends Pick<NavigationItemEntity, 'parent' |
       }
       return (data && data === id) || (isObject(entity.parent) && ((entity.parent).id === id));
     })
-    .reduce((acc: NestedPath[], entity) => {
+    .reduce((acc: NestedPath[], entity: T) => {
       const path = `${parentPath || ''}/${entity.path}`
       return [
         {
@@ -279,7 +279,7 @@ export const buildNestedPaths = <T extends Pick<NavigationItemEntity, 'parent' |
             path: parentPath,
           } : undefined,
           path,
-        },
+        } as NestedPath,
         ...buildNestedPaths(items, entity.id, path),
         ...acc,
       ];

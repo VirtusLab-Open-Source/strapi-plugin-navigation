@@ -8,9 +8,9 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useIntl } from "react-intl";
 import * as yup from "yup";
 import { Effect } from "../../../../../../../types";
-import { getTradId } from "../../../../../translations";
 import { Navigation } from "../types";
 import { get } from "lodash";
+import { getMessage, getTradId } from "../../../../../utils";
 
 interface Props {
   navigation: Partial<Navigation>;
@@ -64,10 +64,7 @@ export const Form = ({
             <GenericInput
               {...formProps.name}
               name="name"
-              description={{
-                id: getTradId("popup.item.form.title.placeholder"),
-                defaultMessage: "e.g. Blog",
-              }}
+              description={getMessage("popup.item.form.title.placeholder", "e.g. Blog")}
               type="text"
               error={errorProps.name}
               onChange={onChange}

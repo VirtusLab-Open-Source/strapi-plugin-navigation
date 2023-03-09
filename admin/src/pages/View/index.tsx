@@ -5,22 +5,32 @@
  */
 
 import React, { memo, useCallback, useMemo, useState, useEffect } from 'react';
-import { useIntl } from "react-intl";
-import { isEmpty, get } from "lodash";
+import { isEmpty } from "lodash";
 
 // Design System
+// @ts-ignore
 import { Main } from '@strapi/design-system/Main';
+// @ts-ignore
 import { Flex } from '@strapi/design-system/Flex';
+// @ts-ignore
 import { ContentLayout } from '@strapi/design-system/Layout';
+// @ts-ignore
 import { Typography } from '@strapi/design-system/Typography';
+// @ts-ignore
 import { Box } from '@strapi/design-system/Box';
+// @ts-ignore
 import { Icon } from '@strapi/design-system/Icon';
+// @ts-ignore
 import { Button } from '@strapi/design-system/Button';
+// @ts-ignore
 import { Select, Option } from '@strapi/design-system/Select';
 // @ts-ignore
 import { Grid, GridItem } from "@strapi/design-system/Grid";
+// @ts-ignore
 import { LoadingIndicatorPage, useNotification } from "@strapi/helper-plugin";
+// @ts-ignore
 import EmptyDocumentsIcon from '@strapi/icons/EmptyDocuments';
+// @ts-ignore
 import PlusIcon from "@strapi/icons/Plus";
 
 // Components 
@@ -31,13 +41,14 @@ import NavigationItemPopUp from "./components/NavigationItemPopup";
 import { useI18nCopyNavigationItemsModal } from '../../hooks/useI18nCopyNavigationItemsModal';
 import Search from '../../components/Search';
 import useDataManager from "../../hooks/useDataManager";
-import { getTrad } from '../../translations';
 import {
   transformItemToViewPayload,
   transformToRESTPayload,
   usedContentTypes,
   validateNavigationStructure,
 } from './utils/parsers';
+import { getMessage } from '../../utils';
+import { I18nLocale, Navigation, ToBeFixed } from '../../../../types';
 
 const View = () => {
   const toggleNotification = useNotification();
@@ -53,7 +64,6 @@ const View = () => {
     handleChangeNavigationItemPopupVisibility,
     handleChangeSelection,
     handleChangeNavigationData,
-    handleResetNavigationData,
     handleSubmitNavigation,
     handleLocalizationSelection,
     handleI18nCopy,
@@ -64,12 +74,12 @@ const View = () => {
     slugify,
   } = useDataManager();
   const availableLocale = useMemo(
-    () => allAvailableLocale.filter(locale => locale !== changedActiveNavigation?.localeCode),
+    () => allAvailableLocale.filter((locale: I18nLocale) => locale !== changedActiveNavigation?.localeCode),
     [changedActiveNavigation, allAvailableLocale]
   );
   const { i18nCopyItemsModal, i18nCopySourceLocale, setI18nCopyModalOpened, setI18nCopySourceLocale } = useI18nCopyNavigationItemsModal(
     useCallback((sourceLocale) => {
-      const source = activeNavigation?.localizations?.find(({ localeCode }) => localeCode === sourceLocale);
+      const source = activeNavigation?.localizations?.find(({ localeCode }: { localeCode: string}) => localeCode === sourceLocale);
 
       if (source) {
         handleI18nCopy(source.id, activeNavigation?.id);
@@ -79,7 +89,6 @@ const View = () => {
   const openI18nCopyModalOpened = useCallback(() => { i18nCopySourceLocale && setI18nCopyModalOpened(true) }, [setI18nCopyModalOpened, i18nCopySourceLocale]);
 
   const [activeNavigationItem, setActiveNavigationItemState] = useState({});
-  const { formatMessage } = useIntl();
 
   const [searchValue, setSearchValue] = useState('');
   const [structureChanged, setStructureChanged] = useState(false);
@@ -90,21 +99,20 @@ const View = () => {
   
   useEffect(() => structureHasErrors && toggleNotification({
     type: 'warning',
-    message: getTrad('notification.error.item.relation'),
+    message: getMessage('notification.error.item.relation'),
   }), [structureHasErrors]);
 
-  const navigationSelectValue = get(activeNavigation, "id", null);
   const handleSave = () => isLoadingForSubmit || structureHasErrors
     ? null
-    : handleSubmitNavigation(formatMessage, transformToRESTPayload(changedActiveNavigation, config));
+    : handleSubmitNavigation(transformToRESTPayload(changedActiveNavigation, config));
 
-  const changeNavigationItemPopupState = (visible, editedItem = {}) => {
+  const changeNavigationItemPopupState = (visible: boolean, editedItem: ToBeFixed = {}) => {
     setActiveNavigationItemState(editedItem);
     handleChangeNavigationItemPopupVisibility(visible);
   };
 
   const addNewNavigationItem = useCallback((
-    event,
+    event: ToBeFixed,
     viewParentId = null,
     isMenuAllowedLevel = true,
     levelPath = '',
@@ -127,15 +135,15 @@ const View = () => {
     [changedActiveNavigation],
   );
 
-  const pullUsedContentTypeItem = (items = []) =>
-    items.reduce((prev, curr) =>
+  const pullUsedContentTypeItem = (items: ToBeFixed = []) =>
+    items.reduce((prev: ToBeFixed, curr: ToBeFixed) =>
       [...prev, curr.relatedRef ? {
         __collectionUid: curr.relatedRef.__collectionUid,
         id: curr.relatedRef.id
       } : undefined, ...pullUsedContentTypeItem(curr.items)].filter(item => item)
       , []);
   const usedContentTypeItems = pullUsedContentTypeItem(changedActiveNavigation?.items);
-  const handleSubmitNavigationItem = (payload) => {
+  const handleSubmitNavigationItem = (payload: Navigation) => {
     const changedStructure = {
       ...changedActiveNavigation,
       items: transformItemToViewPayload(payload, changedActiveNavigation.items, config),
@@ -144,34 +152,34 @@ const View = () => {
     setStructureChanged(true);
   };
 
-  const filteredListFactory = (items, doUse) => items.reduce((acc, item) => {
+  const filteredListFactory = (items: ToBeFixed, doUse: Function) => items.reduce((acc: ToBeFixed, item: ToBeFixed) => {
     const subItems = !isEmpty(item.items) ? filteredListFactory(item.items, doUse) : [];
     if (doUse(item))
       return [item, ...subItems, ...acc];
     else
       return [...subItems, ...acc];
   }, []);
-  const filteredList = !isSearchEmpty ? filteredListFactory(changedActiveNavigation.items, (item) => (item?.title || '').toLowerCase().includes(normalisedSearchValue)) : [];
+  const filteredList = !isSearchEmpty ? filteredListFactory(changedActiveNavigation.items, (item: ToBeFixed) => (item?.title || '').toLowerCase().includes(normalisedSearchValue)) : [];
 
-  const changeCollapseItemDeep = (item, isCollapsed) => {
+  const changeCollapseItemDeep = (item: ToBeFixed, isCollapsed: boolean) => {
     if (item.collapsed !== isCollapsed) {
       return {
         ...item,
         collapsed: isCollapsed,
         updated: true,
-        items: item.items?.map(el => changeCollapseItemDeep(el, isCollapsed))
+        items: item.items?.map((el: ToBeFixed) => changeCollapseItemDeep(el, isCollapsed))
       }
     }
     return {
       ...item,
-      items: item.items?.map(el => changeCollapseItemDeep(el, isCollapsed))
+      items: item.items?.map((el: ToBeFixed) => changeCollapseItemDeep(el, isCollapsed))
     }
   }
 
   const handleCollapseAll = () => {
     handleChangeNavigationData({
       ...changedActiveNavigation,
-      items: changedActiveNavigation.items.map(item => changeCollapseItemDeep(item, true))
+      items: changedActiveNavigation.items.map((item: ToBeFixed) => changeCollapseItemDeep(item, true))
     }, true);
     setStructureChanged(true);
   }
@@ -179,33 +187,33 @@ const View = () => {
   const handleExpandAll = () => {
     handleChangeNavigationData({
       ...changedActiveNavigation,
-      items: changedActiveNavigation.items.map(item => changeCollapseItemDeep(item, false))
+      items: changedActiveNavigation.items.map((item: ToBeFixed) => changeCollapseItemDeep(item, false))
     }, true);
     setStructureChanged(true);
   }
 
-  const handleItemReOrder = (item, newOrder) => {
+  const handleItemReOrder = (item: ToBeFixed, newOrder: number) => {
     handleSubmitNavigationItem({
       ...item,
       order: newOrder,
     })
   }
 
-  const handleItemRemove = (item) => {
+  const handleItemRemove = (item: ToBeFixed) => {
     handleSubmitNavigationItem({
       ...item,
       removed: true,
     });
   }
 
-  const handleItemRestore = (item) => {
+  const handleItemRestore = (item: ToBeFixed) => {
     handleSubmitNavigationItem({
       ...item,
       removed: false,
     });
   };
 
-  const handleItemToggleCollapse = (item) => {
+  const handleItemToggleCollapse = (item: ToBeFixed) => {
     handleSubmitNavigationItem({
       ...item,
       collapsed: !item.collapsed,
@@ -214,7 +222,7 @@ const View = () => {
   }
 
   const handleItemEdit = (
-    item,
+    item: ToBeFixed,
     levelPath = '',
     parentAttachedToMenu = true,
   ) => {
@@ -225,13 +233,13 @@ const View = () => {
     });
   };
 
-  const onPopUpClose = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const onPopUpClose = (e: ToBeFixed) => {
+    e?.preventDefault();
+    e?.stopPropagation();
     changeNavigationItemPopupState(false);
   };
 
-  const handleChangeNavigationSelection = (...args) => {
+  const handleChangeNavigationSelection = (...args: ToBeFixed) => {
     handleChangeSelection(...args);
     setSearchValue('');
   }
@@ -284,7 +292,7 @@ const View = () => {
               startActions={<Search value={searchValue} setValue={setSearchValue} />}
               endActions={endActions.map(({ tradId, margin, ...item }, i) =>
                 <Box marginLeft={margin} key={i}>
-                  <Button {...item}> {formatMessage(getTrad(tradId))} </Button>
+                  <Button {...item}> {getMessage(tradId)} </Button>
                 </Box>
               )}
             />
@@ -292,33 +300,36 @@ const View = () => {
               <Flex direction="column" minHeight="400px" justifyContent="center">
                 <Icon as={EmptyDocumentsIcon} width="160px" height="88px" color="" />
                 <Box padding={4}>
-                  <Typography variant="beta" textColor="neutral600">{formatMessage(getTrad('empty'))}</Typography>
+                  <Typography variant="beta" textColor="neutral600">{getMessage('empty')}</Typography>
                 </Box>
                 <Button
                   variant='secondary'
                   startIcon={<PlusIcon />}
-                  label={formatMessage(getTrad('empty.cta'))}
+                  label={getMessage('empty.cta')}
                   onClick={addNewNavigationItem}
                 >
-                  {formatMessage(getTrad('empty.cta'))}
+                  {getMessage('empty.cta')}
                 </Button>
                 {
                   config.i18nEnabled && availableLocale.length ? (
                     <Flex direction="column" justifyContent="center">
                       <Box paddingTop={3} paddingBottom={3}>
-                        <Typography variant="beta" textColor="neutral600">{formatMessage(getTrad('view.i18n.fill.cta'))}</Typography>
+                        <Typography variant="beta" textColor="neutral600">{getMessage('view.i18n.fill.cta')}</Typography>
                       </Box>
                       <Flex direction="row" justifyContent="center" alignItems="center">
                         <Box paddingLeft={1} paddingRight={1}>
                           <Select onChange={setI18nCopySourceLocale} value={i18nCopySourceLocale} size="S">
-                            {availableLocale.map(locale => <Option key={locale} value={locale}>
-                              {formatMessage(getTrad('view.i18n.fill.option'), { locale })}
+                            {availableLocale.map((locale: I18nLocale) => <Option key={locale} value={locale}>
+                              {getMessage({
+                                id: 'view.i18n.fill.option',
+                                props: { locale }
+                              })}
                             </Option>)}
                           </Select>
                         </Box>
                         <Box paddingLeft={1} paddingRight={1}>
                           <Button variant="tertiary" onClick={openI18nCopyModalOpened} disabled={!i18nCopySourceLocale} size="S">
-                            {formatMessage(getTrad('view.i18n.fill.cta.button'))}
+                            {getMessage('view.i18n.fill.cta.button')}
                           </Button>
                         </Box>
                       </Flex>
@@ -338,7 +349,6 @@ const View = () => {
                 onItemReOrder={handleItemReOrder}
                 onItemToggleCollapse={handleItemToggleCollapse}
                 displayFlat={!isSearchEmpty}
-                root
                 error={error}
                 allowedLevels={config.allowedLevels}
                 contentTypes={config.contentTypes}

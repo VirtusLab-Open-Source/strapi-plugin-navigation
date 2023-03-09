@@ -20,7 +20,6 @@ import { IconButton } from '@strapi/design-system/IconButton';
 import { getMessage } from '../../../../utils';
 import { Effect, NavigationItemCustomField } from '../../../../../../types';
 import ConfirmationDialog from '../../../../components/ConfirmationDialog';
-import { getTradId } from '../../../../translations';
 
 interface ICustomFieldTableProps {
   data: NavigationItemCustomField[];
@@ -58,17 +57,14 @@ const CustomFieldTable: React.FC<ICustomFieldTableProps> = ({
     if (fieldToRemove === null) {
       toggleNotification({
         type: 'warning',
-        message: {
-          id: getTradId(`${tradPrefix}confirmation.error`),
-          default: 'Something went wrong',
-        }
+        message: getMessage(`${tradPrefix}confirmation.error`, 'Something went wrong')
       });
     } else {
       onRemoveCustomField(fieldToRemove);
     }
 
     cleanup();
-  }, [cleanup, fieldToRemove, getTradId, onRemoveCustomField, toggleNotification]);
+  }, [cleanup, fieldToRemove, getMessage, onRemoveCustomField, toggleNotification]);
 
 
   return (

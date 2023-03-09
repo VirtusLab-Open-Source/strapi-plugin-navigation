@@ -1,6 +1,6 @@
 import { find, get, isEmpty, isNil, last, map, omit, upperFirst } from "lodash";
 import pluralize from "pluralize";
-import { Id, StrapiContentType, StrapiContext, StrapiStore, StringMap } from "strapi-typed";
+import { Id, StrapiContentType, StrapiContext, StrapiRoute, StrapiStore, StringMap } from "strapi-typed";
 //@ts-ignore
 import { sanitize } from '@strapi/utils';
 import { ContentTypeEntity, ICommonService, Navigation, NavigationActions, NavigationActionsPerItem, NavigationItem, NavigationItemCustomField, NavigationItemEntity, NavigationItemRelated, NavigationPluginConfig, NestedStructure, RelatedRef, ToBeFixed } from "../../types";
@@ -98,7 +98,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
         const { name, description } = info;
         const { hidden, templateName, draftAndPublish } = options;
         const findRouteConfig = find(get(strapi.api, `[${modelName}].config.routes`, []),
-          route => route.handler.includes('.find'));
+          (route: StrapiRoute) => route.handler.includes('.find'));
         const findRoutePath = findRouteConfig && findRouteConfig.path.split('/')[1];
         const apiPath = findRoutePath && (findRoutePath !== apiName) ? findRoutePath : apiName || modelName;
         const isSingle = kind === KIND_TYPES.SINGLE;

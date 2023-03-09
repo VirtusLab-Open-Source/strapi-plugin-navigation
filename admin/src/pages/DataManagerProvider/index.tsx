@@ -1,18 +1,14 @@
 import React, { memo, useEffect, useMemo, useReducer, useRef } from "react";
+
+//@ts-ignore
 import { useLocation, useRouteMatch } from "react-router-dom";
-import { useIntl } from 'react-intl';
 import PropTypes from "prop-types";
 import { get, find, first, isEmpty } from "lodash";
-import {
-  request,
-  LoadingIndicatorPage,
-  useNotification,
-  useAppInfos,
-} from "@strapi/helper-plugin";
+//@ts-ignore
+import { request, LoadingIndicatorPage, useNotification, useAppInfos } from "@strapi/helper-plugin";
 import DataManagerContext from "../../contexts/DataManagerContext";
 import pluginId from "../../pluginId";
 import init from "./init";
-import { getTrad } from "../../translations";
 import reducer, { initialState } from "./reducer";
 import {
   GET_NAVIGATION_DATA,
@@ -34,16 +30,17 @@ import {
   I18N_COPY_NAVIGATION_SUCCESS,
 } from './actions';
 import { prepareItemToViewPayload } from '../View/utils/parsers';
-import { errorStatusResourceFor, resolvedResourceFor } from "../../utils";
+import { errorStatusResourceFor, getMessage, resolvedResourceFor } from "../../utils";
+import { ToBeFixed } from "../../../../types";
+import { Id } from "strapi-typed";
 
-const i18nAwareItems = ({ items, config }) => 
-  config.i18nEnabled ? items.filter(({ localeCode }) => localeCode === config.defaultLocale) : items;
+const i18nAwareItems = ({ items, config }: ToBeFixed) => 
+  config.i18nEnabled ? items.filter(({ localeCode }: { localeCode: string }) => localeCode === config.defaultLocale) : items;
 
-const DataManagerProvider = ({ children }) => {
-  const [reducerState, dispatch] = useReducer(reducer, initialState, init);
+const DataManagerProvider = ({ children }: { children: ToBeFixed }) => {
+  const [reducerState, dispatch]: ToBeFixed = useReducer(reducer, initialState, init);
   const toggleNotification = useNotification();
   const { autoReload } = useAppInfos();
-  const { formatMessage } = useIntl();
 
   const {
     items,
@@ -60,20 +57,18 @@ const DataManagerProvider = ({ children }) => {
     isLoadingForSubmit,
     error,
     availableLocale,
-  } = reducerState;
+  }: ToBeFixed = reducerState;
   const { pathname } = useLocation();
-  const formatMessageRef = useRef();
-  formatMessageRef.current = formatMessage;
 
-  const getLayoutSettingRef = useRef();
-  getLayoutSettingRef.current = (settingName) =>
+  const getLayoutSettingRef = useRef<ToBeFixed>();
+  getLayoutSettingRef.current = (settingName: string) =>
     get({}, ["settings", settingName], "");
 
   const isInDevelopmentMode = autoReload;
 
   const abortController = new AbortController();
   const { signal } = abortController;
-  const getDataRef = useRef();
+  const getDataRef: ToBeFixed = useRef();
 
   const menuViewMatch = useRouteMatch(`/plugins/${pluginId}/:id`);
   const activeId = get(menuViewMatch, "params.id", null);
@@ -81,7 +76,7 @@ const DataManagerProvider = ({ children }) => {
     return i18nAwareItems({ config, items })
   }, [config, items]);
 
-  const getNavigation = async (id, navigationConfig) => {
+  const getNavigation = async (id?: Id, navigationConfig?: ToBeFixed) => {
     try {
       if (activeId || id) {
         dispatch({
@@ -108,12 +103,12 @@ const DataManagerProvider = ({ children }) => {
       console.error({ err });
       toggleNotification({
         type: 'warning',
-        message: getTrad('notification.error'),
+        message: getMessage('notification.error'),
       });
     }
   };
 
-  getDataRef.current = async (id) => {
+  getDataRef.current = async (id: Id) => {
     try {
       dispatch({
         type: GET_CONFIG,
@@ -141,13 +136,13 @@ const DataManagerProvider = ({ children }) => {
       });
 
       if (id || !isEmpty(items)) {
-        await getNavigation(id || first(i18nAwareItems({ items, config })).id, config);
+        await getNavigation(id || first<ToBeFixed>(i18nAwareItems({ items, config })).id, config);
       }
     } catch (err) {
       console.error({ err });
       toggleNotification({
         type: 'warning',
-        message: getTrad('notification.error'),
+        message: getMessage('notification.error'),
       });
     }
   };
@@ -174,7 +169,7 @@ const DataManagerProvider = ({ children }) => {
     }
   }, [autoReload]);
 
-  const getContentTypeItems = async ({ modelUID, query, locale }) => {
+  const getContentTypeItems = async ({ modelUID, query, locale }: ToBeFixed) => {
     dispatch({
       type: GET_CONTENT_TYPE_ITEMS,
     });
@@ -204,15 +199,15 @@ const DataManagerProvider = ({ children }) => {
     });
   };
 
-  const handleChangeSelection = (id) => {
+  const handleChangeSelection = (id: Id) => {
     getNavigation(id, config);
   };
 
-  const handleLocalizationSelection = (id) => {
+  const handleLocalizationSelection = (id: Id) => {
     getNavigation(id, config);
   };
 
-  const handleI18nCopy = async (sourceId, targetId) => {
+  const handleI18nCopy = async (sourceId: Id, targetId: Id) => {
     dispatch({
       type: I18N_COPY_NAVIGATION
     });
@@ -231,12 +226,12 @@ const DataManagerProvider = ({ children }) => {
     handleChangeSelection(targetId);
   };
 
-  const readNavigationItemFromLocale = async ({ locale, structureId }) => {
+  const readNavigationItemFromLocale = async ({ locale, structureId }: { locale: string; structureId: Id }) => {
     try {
-      const source = changedActiveItem.localizations?.find((navigation) => navigation.locale === locale);
+      const source = changedActiveItem.localizations?.find((navigation: ToBeFixed) => navigation.locale === locale);
 
       if (!source) {
-        return errorStatusResourceFor(['popup.item.form.i18n.locale.error.unavailable']);
+        return errorStatusResourceFor(['popup.item.form.i18n.locale.error.unavailable'] as ToBeFixed);
       }
 
       const url = `/navigation/i18n/item/read/${source.id}/${changedActiveItem.id}?path=${structureId}`;
@@ -252,25 +247,25 @@ const DataManagerProvider = ({ children }) => {
         messageKey = get(error, 'response.payload.error.details.messageKey');
       }
 
-      return errorStatusResourceFor([messageKey ?? 'popup.item.form.i18n.locale.error.generic']);
+      return errorStatusResourceFor([messageKey ?? 'popup.item.form.i18n.locale.error.generic'] as ToBeFixed);
     }
   };
 
-  const handleChangeNavigationPopupVisibility = (visible) => {
+  const handleChangeNavigationPopupVisibility = (visible: boolean) => {
     dispatch({
       type: CHANGE_NAVIGATION_POPUP_VISIBILITY,
       navigationPopupOpened: visible,
     });
   };
 
-  const handleChangeNavigationItemPopupVisibility = (visible) => {
+  const handleChangeNavigationItemPopupVisibility = (visible: boolean) => {
     dispatch({
       type: CHANGE_NAVIGATION_ITEM_POPUP_VISIBILITY,
       navigationItemPopupOpened: visible,
     });
   };
 
-  const handleChangeNavigationData = (payload, forceClosePopups) => {
+  const handleChangeNavigationData = (payload: ToBeFixed, forceClosePopups: boolean) => {
     dispatch({
       type: CHANGE_NAVIGATION_DATA,
       changedActiveItem: payload,
@@ -285,7 +280,7 @@ const DataManagerProvider = ({ children }) => {
     });
   };
 
-  const handleSubmitNavigation = async (formatMessage, payload = {}) => {
+  const handleSubmitNavigation = async (payload: ToBeFixed = {}) => {
      try {
        dispatch({
          type: SUBMIT_NAVIGATION,
@@ -310,9 +305,9 @@ const DataManagerProvider = ({ children }) => {
        });
        toggleNotification({
          type: 'success',
-         message: getTrad('notification.navigation.submit'),
+         message: getMessage('notification.navigation.submit'),
        });
-     } catch (err) {
+     } catch (err: ToBeFixed) {
        dispatch({
          type: SUBMIT_NAVIGATION_ERROR,
          error: err.response.payload.data
@@ -322,31 +317,29 @@ const DataManagerProvider = ({ children }) => {
        if (err.response.payload.data && err.response.payload.data.errorTitles) {
          return toggleNotification({
            type: 'warning',
-           message: {
-             id: formatMessage(
-               getTrad('notification.navigation.error'),
-               { ...err.response.payload.data, errorTitles: err.response.payload.data.errorTitles.join(' and ') },
-             )
-           },
+           message: getMessage({
+            id: 'notification.navigation.error',
+            props: { ...err.response.payload.data, errorTitles: err.response.payload.data.errorTitles.join(' and ') }
+           }),
          });
        }
        toggleNotification({
          type: 'warning',
-         message: getTrad('notification.error'),
+         message: getMessage('notification.error'),
        });
      }
   };
 
-  const handleNavigationsDeletion = (ids) => 
+  const handleNavigationsDeletion = (ids: Id[]) => 
     Promise.all(ids.map(handleNavigationDeletion));
 
-  const handleNavigationDeletion = (id) => 
+  const handleNavigationDeletion = (id: Id) => 
     request(`/${pluginId}/${id}`, {
       method: "DELETE",
       signal,
     });
 
-  const slugify = (query) => 
+  const slugify = (query: string) => 
     request(
       `/${pluginId}/slug?q=${query}`,
       { method: "GET", signal }

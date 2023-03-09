@@ -12,7 +12,6 @@ import { Effect, NavigationItemCustomField, VoidEffect } from '../../../../../..
 import * as formDefinition from '../../utils/form';
 import { getMessage } from '../../../../utils';
 import { isEmpty, isNil } from 'lodash';
-import { getTrad } from '../../../../translations';
 import TextArrayInput from '../../../../components/TextArrayInput';
 const tradPrefix = 'pages.settings.form.customFields.popup.'
 
@@ -79,7 +78,7 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({ isEditForm, customFi
     validateOnChange: false,
   });
   const defaultProps = useCallback((fieldName: keyof NavigationItemCustomField) => ({
-    intlLabel: getTrad(`${tradPrefix}${fieldName}.label`),
+    intlLabel: getMessage(`${tradPrefix}${fieldName}.label`),
     onChange: handleChange,
     name: fieldName,
     value: values[fieldName],
@@ -94,8 +93,8 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({ isEditForm, customFi
             <GenericInput
               {...defaultProps("name")}
               autoFocused={true}
-              placeholder={getTrad(`${tradPrefix}name.placeholder`)}
-              description={getTrad(`${tradPrefix}name.description`)}
+              placeholder={getMessage(`${tradPrefix}name.placeholder`)}
+              description={getMessage(`${tradPrefix}name.description`)}
               type="text"
               disabled={isEditForm}
             />
@@ -103,8 +102,8 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({ isEditForm, customFi
           <GridItem key="label" col={12}>
             <GenericInput
               {...defaultProps("label")}
-              placeholder={getTrad(`${tradPrefix}label.placeholder`)}
-              description={getTrad(`${tradPrefix}label.description`)}
+              placeholder={getMessage(`${tradPrefix}label.placeholder`)}
+              description={getMessage(`${tradPrefix}label.description`)}
               type="text"
             />
           </GridItem>
@@ -138,7 +137,7 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({ isEditForm, customFi
             <GenericInput
               {...defaultProps("required")}
               type="bool"
-              description={getTrad(`${tradPrefix}required.description`)}
+              description={getMessage(`${tradPrefix}required.description`)}
             />
           </GridItem>
         </Grid>

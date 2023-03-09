@@ -3,12 +3,11 @@ import { useIntl } from 'react-intl';
 import { IconButton } from '@strapi/design-system/IconButton';
 import { Searchbar } from '@strapi/design-system/Searchbar';
 import SearchIcon from "@strapi/icons/Search";
-import { getTradId } from '../../translations';
+import { getMessage } from '../../utils';
 
 const Search = ({ value, setValue }) => {
 	const [isOpen, setIsOpen] = useState(!!value);
 	const wrapperRef = useRef(null);
-	const { formatMessage } = useIntl();
 
 	useEffect(() => {
 		if (isOpen) {
@@ -28,10 +27,7 @@ const Search = ({ value, setValue }) => {
 					size="S"
 					onChange={(e) => setValue(e.target.value)}
 					clearLabel="Clearing the search"
-					placeholder={formatMessage({
-						id: getTradId('pages.main.search.placeholder'),
-						defaultMessage: 'Type to start searching...',
-					})}
+					placeholder={getMessage('pages.main.search.placeholder', 'Type to start searching...')}
 				>
 					Search for navigation items
 				</Searchbar>

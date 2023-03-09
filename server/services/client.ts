@@ -333,7 +333,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
 
           const treeStructure = await clientService.renderTree(
             isNil(rootPath) ? items : itemsFilteredByPath,
-            get(rootElement, 'parent.id'),
+            get(rootElement, 'parent.id', null),
             'parent',
             get(rootElement, 'parent.path'),
             itemParser,

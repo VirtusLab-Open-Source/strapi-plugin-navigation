@@ -15,11 +15,10 @@ import { GenericInput } from '@strapi/helper-plugin';
 import { Button } from '@strapi/design-system/Button';
 
 import { NavigationItemPopupFooter } from '../NavigationItemPopup/NavigationItemPopupFooter';
-import { getDefaultCustomFields, navigationItemType } from '../../../../utils';
+import { getDefaultCustomFields, getTrad, getTradId, navigationItemType } from '../../../../utils';
 import { extractRelatedItemLabel } from '../../utils/parsers';
 import * as formDefinition from './utils/form';
 import { checkFormValidity } from '../../utils/form';
-import { getTrad, getTradId } from '../../../../translations';
 import { assertString, Audience, Effect, NavigationItemAdditionalField, NavigationItemType, ToBeFixed } from '../../../../../../types';
 import { ContentTypeSearchQuery, NavigationItemFormData, NavigationItemFormProps, RawFormPayload, SanitizedFormPayload, Slugify } from './types';
 import AdditionalFieldInput from '../../../../components/AdditionalFieldInput';
@@ -78,8 +77,8 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
     label: locale,
     metadatas: {
       intlLabel: {
-        id: `i18n.locale.${locale}`,
-        defaultMessage: locale,
+        id: getTradId(`i18n.locale.${locale}`),
+        defaultMessage: locale
       }
     },
   })), [availableLocale]);
@@ -95,7 +94,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
       audience: get(data, "audience", formDefinition.defaultValues.audience).map((item: Audience | Id) => isObject(item) ? item.id : item),
       additionalFields: getDefaultCustomFields({
         additionalFields,
-        customFieldsValues: get(data, "additionalFields", []),
+        customFieldsValues: get(data, "additionalFields", {}),
         defaultCustomFieldsValues: formDefinition.defaultValues.additionalFields
       }),
       menuAttached: get(data, "menuAttached", formDefinition.defaultValues.menuAttached),
@@ -118,11 +117,10 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
         : formik.values.path || "";
       
       const value = `${data.levelPath !== '/' ? `${data.levelPath}` : ''}/${itemPath}`;
-      return {
-        id: getTradId('popup.item.form.type.external.description'),
-        defaultMessage: '',
-        values: { value }
-      }
+      return getMessage({
+        id: 'popup.item.form.type.external.description',
+        props: { value }
+      }, '')
     }
     return null;
   };
@@ -235,10 +233,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
       key,
       value: navigationItemType[key],
       metadatas: {
-        intlLabel: {
-          id: getTradId(`popup.item.form.type.${value}.label`),
-          defaultMessage: getTradId(`popup.item.form.type.${value}.label`),
-        }
+        intlLabel: getTrad(`popup.item.form.type.${value}.label`, `popup.item.form.type.${value}.label`),
       }
     }
   });
@@ -420,13 +415,13 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   }, [onChange, itemLocaleCopyField]);
 
   const itemCopyProps = useMemo(() => ({
-    intlLabel: {
-      id: getTradId('popup.item.form.i18n.locale.label'),
+    intlLabel: { 
+      id: getTradId('popup.item.form.i18n.locale.label'), 
       defaultMessage: 'Copy details from'
     },
-    placeholder: {
-      id: getTradId('popup.item.form.i18n.locale.placeholder'),
-      defaultMessage: 'locale'
+    placeholder: { 
+      id: getTradId('popup.item.form.i18n.locale.placeholder'), 
+      defaultMessage: 'locale' 
     },
   }), [getTradId]);
 
@@ -460,8 +455,8 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                 autoFocused={true}
                 intlLabel={getTrad('popup.item.form.title.label', 'Title')}
                 name="title"
-                placeholder={getTrad("e.g. Blog", 'e.g. Blog')}
-                description={getTrad('popup.item.form.title.placeholder', 'e.g. Blog')}
+                placeholder={getTrad('popup.item.form.title.placeholder', 'e.g. Blog')}
+                description={getMessage('popup.item.form.title.placeholder', 'e.g. Blog')}
                 type="text"
                 error={formik.errors.title}
                 onChange={({ target: { name, value } }: BaseSyntheticEvent) => onChange({ name, value })}
@@ -517,7 +512,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                     disabled={isLoading || isEmpty(relatedTypeSelectOptions)}
                     description={
                       !isLoading && isEmpty(relatedTypeSelectOptions)
-                        ? getTrad('popup.item.form.relatedType.empty', 'There are no more content types')
+                        ? getMessage('popup.item.form.relatedType.empty', 'There are no more content types')
                         : undefined
                     }
                   />
@@ -538,11 +533,10 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                       disabled={isLoading || thereAreNoMoreContentTypes}
                       description={
                         !isLoading && thereAreNoMoreContentTypes
-                          ? {
-                            id: getTradId('popup.item.form.related.empty'),
-                            defaultMessage: 'There are no more entities',
-                            values: { contentTypeName: relatedTypeSelectValue },
-                          }
+                          ? getMessage({
+                            id: 'popup.item.form.related.empty',
+                            props: { contentTypeName: relatedTypeSelectValue },
+                          }, 'There are no more entities')
                           : undefined
                       }
                     />
@@ -556,8 +550,8 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                   <GridItem key="audience" col={6} lg={12}>
                     <Select
                       id="audience"
-                      placeholder={getMessage('popup.item.form.audience.placeholder')}
-                      label={getMessage('popup.item.form.audience.label')}
+                      placeholder={getTrad('popup.item.form.audience.placeholder')}
+                      label={getTrad('popup.item.form.audience.label')}
                       onChange={onAudienceChange}
                       value={formik.values.audience}
                       hint={

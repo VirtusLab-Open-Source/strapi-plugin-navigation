@@ -1,5 +1,5 @@
 import React, { BaseSyntheticEvent, useMemo } from 'react';
-import { assertBoolean, assertString } from '../../../../types';
+import { ToBeFixed, assertBoolean, assertString } from '../../../../types';
 //@ts-ignore
 import { ToggleInput } from '@strapi/design-system/ToggleInput';
 //@ts-ignore
@@ -8,10 +8,9 @@ import { TextInput } from '@strapi/design-system/TextInput';
 import { Select, Option } from '@strapi/design-system/Select';
 //@ts-ignore
 import { useNotification } from '@strapi/helper-plugin';
-import { getTrad } from '../../translations';
 import { AdditionalFieldInputProps, Input } from './types';
 import { isNil } from 'lodash';
-import { useIntl } from 'react-intl';
+import { getMessage } from '../../utils';
 
 const DEFAULT_STRING_VALUE = "";
 const handlerFactory =
@@ -28,13 +27,12 @@ const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
   error
 }) => {
   const toggleNotification = useNotification();
-  const { formatMessage } = useIntl();
   const defaultInputProps = useMemo(() => ({
     id: field.name,
     name: field.name,
     label: field.label,
     disabled: isLoading,
-    error: error && formatMessage(error),
+    error: error && getMessage(error as ToBeFixed),
   }), [field, isLoading, error]);
   const handleBoolean = useMemo(() => handlerFactory({ field, onChange, prop: "checked" }), [onChange, field]);
   const handleString = useMemo(() => handlerFactory({ field, onChange, prop: "value" }), [onChange, field]);
@@ -81,7 +79,7 @@ const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
     default:
       toggleNotification({
         type: 'warning',
-        message: getTrad('notification.error.customField.type'),
+        message: getMessage('notification.error.customField.type'),
       });
       throw new Error(`Type of custom field is unsupported`);
   }
