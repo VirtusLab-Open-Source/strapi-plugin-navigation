@@ -1,5 +1,5 @@
 import { IStrapi } from "strapi-typed";
-import { NavigationPluginConfig } from "../../types";
+import { NavigationConfig } from "../../types";
 
 type GetI18nStatusInput = {
   strapi: IStrapi;
@@ -21,7 +21,7 @@ export const getI18nStatus = async ({
     name: "navigation",
   });
 
-  const config: NavigationPluginConfig = await pluginStore.get({
+  const config: NavigationConfig = await pluginStore.get({
     key: "config",
   });
   const localeService = i18nPlugin ? i18nPlugin.service("locales") : null;

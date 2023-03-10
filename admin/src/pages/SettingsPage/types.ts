@@ -1,5 +1,5 @@
 import { StrapiContentTypeFullSchema } from "strapi-typed";
-import { Effect, NavigationPluginConfig } from "../../../../types";
+import { Effect, NavigationItemCustomField, NavigationRawConfig } from "../../../../types";
 export type RawPayload = {
   allowedLevels: number;
   audienceFieldChecked: boolean;
@@ -12,7 +12,7 @@ export type RawPayload = {
 }
 export type StrapiContentTypeSchema = StrapiContentTypeFullSchema & { available: boolean, isSingle: boolean, plugin: string, label: string  }
 
-export type PreparePayload = (payload: { form: RawPayload, pruneObsoleteI18nNavigations: boolean }) => NavigationPluginConfig;
+export type PreparePayload = (payload: { form: RawPayload, pruneObsoleteI18nNavigations: boolean, customFields: NavigationItemCustomField[]}) => NavigationRawConfig;
 export type OnSave = Effect<RawPayload>;
 export type OnPopupClose = Effect<boolean>;
 export type HandleSetContentTypeExpanded = Effect<string | undefined>;

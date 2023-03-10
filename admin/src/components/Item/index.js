@@ -9,7 +9,7 @@ import { Flex } from '@strapi/design-system/Flex';
 import { Link } from '@strapi/design-system/Link';
 import { TextButton } from '@strapi/design-system/TextButton';
 import { Typography } from '@strapi/design-system/Typography';
-import { ArrowRight, Link as LinkIcon, Earth, Plus, Cog } from '@strapi/icons';
+import { Link as LinkIcon, Earth, Cog } from '@strapi/icons';
 
 import ItemCardHeader from './ItemCardHeader';
 import List from '../NavigationItemList';
@@ -19,15 +19,15 @@ import ItemCardBadge from './ItemCardBadge';
 import { ItemCardRemovedOverlay } from './ItemCardRemovedOverlay';
 import { getMessage, ItemTypes, navigationItemType } from '../../utils';
 import CollapseButton from '../CollapseButton';
+import useDataManager from '../../hooks/useDataManager';
+import { arrowRightIcon, plusIcon } from '../icons';
 
 const Item = (props) => {
   const {
-    item,
+    item: { relatedRef, ...item},
     isLast = false,
     level = 0,
     levelPath = '',
-    allowedLevels,
-    relatedRef,
     isParentAttachedToMenu,
     onItemLevelAdd,
     onItemRemove,
@@ -35,9 +35,8 @@ const Item = (props) => {
     onItemEdit,
     onItemReOrder,
     onItemToggleCollapse,
-    error,
     displayChildren,
-    config = {},
+    config,
   } = props;
 
   const {
@@ -52,8 +51,13 @@ const Item = (props) => {
     structureId,
     items = [],
   } = item;
+  
+  const {
+    contentTypes,
+    contentTypesNameFields,
+    allowedLevels,
+  } = config;
 
-  const { contentTypes = [], contentTypesNameFields } = config;
   const isExternal = type === navigationItemType.EXTERNAL;
   const isWrapper = type === navigationItemType.WRAPPER;
   const isHandledByPublishFlow = contentTypes.find(_ => _.uid === relatedRef?.__collectionUid)?.draftAndPublish;
@@ -70,7 +74,6 @@ const Item = (props) => {
   const dragRef = useRef(null);
   const dropRef = useRef(null);
   const previewRef = useRef(null);
-
   const [, drop] = useDrop({
     accept: `${ItemTypes.NAVIGATION_ITEM}_${levelPath}`,
     hover(hoveringItem, monitor) {
@@ -127,7 +130,7 @@ const Item = (props) => {
   const contentType = contentTypes.find(_ => _.uid === contentTypeUid) || {};
   const generatePreviewUrl = entity => {
     const { isSingle } = contentType;
-    return `/content-manager/${ isSingle ? 'singleType' : 'collectionType'}/${entity?.__collectionUid}${!isSingle ? '/' + entity?.id : ''}`
+    return `/content-manager/${isSingle ? 'singleType' : 'collectionType'}/${entity?.__collectionUid}${!isSingle ? '/' + entity?.id : ''}`
   }
   const onNewItemClick = useCallback((event) => onItemLevelAdd(
     event,
@@ -164,10 +167,10 @@ const Item = (props) => {
             <CardBody style={{ padding: '8px' }}>
               <Flex style={{ width: '100%' }} direction="row" alignItems="center" justifyContent="space-between">
                 <Flex>
-                  {!isEmpty(item.items) && <CollapseButton toggle={() => onItemToggleCollapse(item)} collapsed={collapsed} itemsCount={item.items.length}/>}
+                  {!isEmpty(item.items) && <CollapseButton toggle={() => onItemToggleCollapse(item)} collapsed={collapsed} itemsCount={item.items.length} />}
                   <TextButton
                     disabled={removed}
-                    startIcon={<Plus />}
+                    startIcon={plusIcon}
                     onClick={onNewItemClick}
                   >
                     <Typography variant="pi" fontWeight="bold" textColor={removed ? "neutral600" : "primary600"}>
@@ -184,13 +187,13 @@ const Item = (props) => {
                       className="action"
                       small
                     >
-                      {getMessage({id: `components.navigationItem.badge.${isPublished ? 'published' : 'draft'}`})}
+                      {getMessage({ id: `components.navigationItem.badge.${isPublished ? 'published' : 'draft'}` })}
                     </ItemCardBadge>)}
                     <Typography variant="omega" textColor='neutral600'>{relatedTypeLabel}&nbsp;/&nbsp;</Typography>
                     <Typography variant="omega" textColor='neutral800'>{relatedItemLabel}</Typography>
-                      <Link
-                        to={`/content-manager/collectionType/${relatedRef?.__collectionUid}/${relatedRef?.id}`}
-                        endIcon={<ArrowRight />}>&nbsp;</Link>
+                    <Link
+                      to={`/content-manager/collectionType/${relatedRef?.__collectionUid}/${relatedRef?.id}`}
+                      endIcon={arrowRightIcon}>&nbsp;</Link>
                   </Flex>)
                 }
               </Flex>
@@ -198,13 +201,13 @@ const Item = (props) => {
         </div>
       </Card>
       {hasChildren && !removed && !collapsed && <List
+        config={config}
         onItemLevelAdd={onItemLevelAdd}
         onItemRemove={onItemRemove}
         onItemEdit={onItemEdit}
         onItemRestore={onItemRestore}
         onItemReOrder={onItemReOrder}
         onItemToggleCollapse={onItemToggleCollapse}
-        error={error}
         allowedLevels={allowedLevels}
         isParentAttachedToMenu={menuAttached}
         items={item.items}

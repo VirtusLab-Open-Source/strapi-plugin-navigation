@@ -3,7 +3,7 @@ import pluralize from "pluralize";
 import { Id, StrapiContentType, StrapiContext, StrapiStore, StringMap } from "strapi-typed";
 //@ts-ignore
 import { sanitize } from '@strapi/utils';
-import { ContentTypeEntity, ICommonService, Navigation, NavigationActions, NavigationActionsPerItem, NavigationItem, NavigationItemCustomField, NavigationItemEntity, NavigationItemRelated, NavigationPluginConfig, NestedStructure, RelatedRef, ToBeFixed } from "../../types";
+import { ContentTypeEntity, ICommonService, Navigation, NavigationActions, NavigationActionsPerItem, NavigationItem, NavigationItemCustomField, NavigationItemEntity, NavigationItemRelated, NavigationConfig, NestedStructure, RelatedRef, ToBeFixed, NavigationRawConfig } from "../../types";
 import { configSetupStrategy } from "../config";
 import { addI18nWhereClause } from "../i18n";
 import { checkDuplicatePath, getPluginModels, getPluginService, isContentTypeEligible, KIND_TYPES, parsePopulateQuery, singularize } from "../utils";
@@ -45,7 +45,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
   async configContentTypes(viaSettingsPage: boolean = false): Promise<StrapiContentType<ToBeFixed>[]> {
     const commonService = getPluginService<ICommonService>('common');
     const pluginStore = await commonService.getPluginStore()
-    const config: NavigationPluginConfig = await pluginStore.get({ key: 'config' });
+    const config: NavigationRawConfig = await pluginStore.get({ key: 'config' });
     const eligibleContentTypes =
       await Promise.all(
         config.contentTypes
@@ -183,7 +183,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
   async getContentTypeItems(uid: string, query: StringMap<string>): Promise<ContentTypeEntity[]> {
     const commonService = getPluginService<ICommonService>('common');
     const pluginStore = await commonService.getPluginStore();
-    const config: NavigationPluginConfig = await pluginStore.get({ key: 'config' });
+    const config: NavigationConfig = await pluginStore.get({ key: 'config' });
     const where = await addI18nWhereClause({
       strapi,
       previousWhere: {},
@@ -248,7 +248,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
   async getRelatedItems(entityItems, populate): Promise<NavigationItemEntity<ContentTypeEntity>[]> {
     const commonService = getPluginService<ICommonService>('common');
     const pluginStore = await commonService.getPluginStore();
-    const config: NavigationPluginConfig = await pluginStore.get({ key: 'config' });
+    const config: NavigationConfig = await pluginStore.get({ key: 'config' });
     const relatedTypes: Set<string> = new Set(entityItems.flatMap((item) => get(item.related, 'related_type', '')));
     const groupedItems = Array.from(relatedTypes).filter((relatedType) => relatedType).reduce((
       acc: { [uid: string]: NavigationItemRelated[] },
@@ -346,7 +346,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
     }));
   },
 
-  setDefaultConfig(): Promise<NavigationPluginConfig> {
+  setDefaultConfig() {
     return configSetupStrategy({ strapi });
   },
 
