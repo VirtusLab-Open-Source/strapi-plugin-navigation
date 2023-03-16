@@ -163,6 +163,9 @@ Config for this plugin is stored as a part of the `config/plugins.js` or `config
                 contentTypesNameFields: {
                     'api::page.page': ['title']
                 },
+                pathDefaultFields: {
+                    'api::page.page': ['slug']
+                },
                 allowedLevels: 2,
                 gql: {...},
             }
@@ -175,6 +178,7 @@ Config for this plugin is stored as a part of the `config/plugins.js` or `config
 - `allowedLevels` - Maximum level for which you're able to mark item as "Menu attached"
 - `contentTypes` - UIDs of related content types
 - `contentTypesNameFields` - Definition of content type title fields like `'api::<collection name>.<content type name>': ['field_name_1', 'field_name_2']`, if not set titles are pulled from fields like `['title', 'subject', 'name']`. **TIP** - Proper content type uid you can find in the URL of Content Manager where you're managing relevant entities like: `admin/content-manager/collectionType/< THE UID HERE >?page=1&pageSize=10&sort=Title:ASC&plugins[i18n][locale]=en`
+- `pathDefaultFields` - The attribute to copy the default path from per content type. Syntax: `'api::<collection name>.<content type name>': ['url_slug', 'path']`
 - `gql` - If you're using GraphQL that's the right place to put all necessary settings. More **[ here ](#gql-configuration)**
 - `i18nEnabled` - should you want to manage multi-locale content via navigation set this value `Enabled`. More **[ here ](#i18n-internationalization)**
 - `cascadeMenuAttached` - If you don't want "Menu attached" to cascade on child items set this value `Disabled`.
