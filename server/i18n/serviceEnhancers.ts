@@ -105,7 +105,7 @@ export const i18nAwareEntityReadHandler = async <
   }
 };
 
-export const addI18nWhereClause = async <T extends {}>({
+export const addI18nWhereClause = async <T>({
   modelUid,
   previousWhere,
   query,
@@ -172,7 +172,7 @@ export const i18nNavigationItemRead = async ({
       new InvalidParamNavigationError("Path is invalid");
     }
 
-    let result = get(source.items, intercalate<string, string>("items", structurePath.map(toString)))
+    let result = get(source.items, intercalate("items", structurePath.map(toString)))
 
     if (!result) {
       throw new errors.NotFoundError("Unable to find navigation item");

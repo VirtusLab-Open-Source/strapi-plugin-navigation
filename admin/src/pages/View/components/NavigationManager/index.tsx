@@ -13,10 +13,8 @@ import { prop } from "lodash/fp";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useIntl } from "react-intl";
 import { VoidEffect } from "../../../../../../types";
-import { useAvailableNavigations } from "../../../../hooks/useAvailableNavigations";
 import useDataManager from "../../../../hooks/useDataManager";
-import { useHardReset } from "../../../../hooks/useHardReset";
-import { getMessage, ResourceState } from "../../../../utils";
+import { getMessage } from "../../../../utils";
 import { AllNavigations, AllNavigationsFooter } from "./AllNavigations";
 import { DeleteConfirmFooter, DeletionConfirm } from "./DeletionConfirm";
 import { ErrorDetails, ErrorDetailsFooter } from "./ErrorDetails";
@@ -38,22 +36,15 @@ export const NavigationManager = ({
 }: Props) => {
   const { formatMessage } = useIntl();
   const [state, setState] = useState(initialState);
-  const { hardReset } = useHardReset();
-  const { handleNavigationsDeletion, handleSubmitNavigation } = useDataManager();
 
-  const availableNavigations = useAvailableNavigations();
-  const navigations = useMemo(() => {
-    if (availableNavigations.state !== ResourceState.RESOLVED) return [];
-    return sortBy(availableNavigations.value, "id");
-  }, [availableNavigations.state]);
+  const {
+    items = [],
+    handleNavigationsDeletion,
+    handleSubmitNavigation,
+    hardReset,
+  } = useDataManager();
 
-  if (availableNavigations.state === ResourceState.LOADING && !state.isLoading) {
-    setState({ ...state, isLoading: true });
-  }
-
-  if (availableNavigations.state === ResourceState.ERROR && state.view !== "ERROR") {
-    setState({ ...state, view: "ERROR", errors: availableNavigations.error ? [availableNavigations.error] : [] });
-  }
+  const navigations = useMemo(() => sortBy(items, "id"), [items]);
 
   const onReset = useCallback(() => setState({ view: "INITIAL" }), [setState]);
 

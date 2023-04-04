@@ -83,8 +83,8 @@ export const transformToRESTPayload = (payload, config = {}) => {
   };
 };
 
-export const linkRelations = (item, config, contentTypeItems) => {
-  const { contentTypes = [] } = config;
+const linkRelations = (item, config) => {
+  const { contentTypeItems = [], contentTypes = [] } = config;
   const { type, related, relatedType, relatedRef, isSingle } = item;
   let relation = {
     related: undefined,
@@ -181,7 +181,7 @@ const reOrderItems = (items = []) =>
       };
     });
 
-export const transformItemToViewPayload = (payload, items = [], config, contentTypeItems) => {
+export const transformItemToViewPayload = (payload, items = [], config) => {
   if (!payload.viewParentId) {
     if (payload.viewId) {
       const updatedRootLevel = items
@@ -189,11 +189,11 @@ export const transformItemToViewPayload = (payload, items = [], config, contentT
           if (item.viewId === payload.viewId) {
             return linkRelations({
               ...payload,
-            }, config, contentTypeItems);
+            }, config);
           }
           return {
             ...item,
-            items: transformItemToViewPayload(payload, item.items, config, contentTypeItems),
+            items: transformItemToViewPayload(payload, item.items, config),
           };
         });
       return reOrderItems(updatedRootLevel);
@@ -204,7 +204,7 @@ export const transformItemToViewPayload = (payload, items = [], config, contentT
         ...payload,
         order: items.length + 1,
         viewId: uuid(),
-      }, config, contentTypeItems),
+      }, config),
     ];
   }
 
@@ -221,14 +221,14 @@ export const transformItemToViewPayload = (payload, items = [], config, contentT
                 ...payload,
                 order: branchItems.length + 1,
                 viewId: uuid(),
-              }, config, contentTypeItems),
+              }, config),
             ],
           };
         }
         const updatedBranchItems = branchItems
           .map((iItem) => {
             if (iItem.viewId === payload.viewId) {
-              return linkRelations(payload, config, contentTypeItems);
+              return linkRelations(payload, config);
             }
             return {
               ...iItem,
@@ -241,7 +241,7 @@ export const transformItemToViewPayload = (payload, items = [], config, contentT
       }
       return {
         ...item,
-        items: transformItemToViewPayload(payload, item.items, config, contentTypeItems),
+        items: transformItemToViewPayload(payload, item.items, config),
       };
     });
   return reOrderItems(updatedLevel);
@@ -251,8 +251,7 @@ export const prepareItemToViewPayload = ({
   items = [],
   viewParentId = null,
   config = {},
-  structureIdPrefix = '',
-  contentTypeItems
+  structureIdPrefix = ''
 }) =>
   reOrderItems(items.map((item, n) => {
     const viewId = uuid();
@@ -266,7 +265,7 @@ export const prepareItemToViewPayload = ({
         order: item.order || (n + 1),
         structureId,
         updated: item.updated || isNil(item.order),
-      }, config, contentTypeItems),
+      }, config),
       items: prepareItemToViewPayload({
         config,
         items: item.items,

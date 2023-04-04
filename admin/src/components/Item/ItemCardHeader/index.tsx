@@ -13,7 +13,7 @@ import Wrapper from './Wrapper';
 import ItemCardBadge from '../ItemCardBadge';
 import { getMessage } from '../../../utils';
 import { ToBeFixed, VoidEffect } from '../../../../../types';
-import { pencilIcon, refreshIcon, trashIcon } from '../../../components/icons';
+import { pencilIcon, refreshIcon, trashIcon } from './icons';
 
 interface IProps {
   title: string,

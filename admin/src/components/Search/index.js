@@ -2,8 +2,8 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useIntl } from 'react-intl';
 import { IconButton } from '@strapi/design-system/IconButton';
 import { Searchbar } from '@strapi/design-system/Searchbar';
+import SearchIcon from "@strapi/icons/Search";
 import { getTradId } from '../../translations';
-import { searchIcon } from '../icons';
 
 const Search = ({ value, setValue }) => {
 	const [isOpen, setIsOpen] = useState(!!value);
@@ -39,7 +39,7 @@ const Search = ({ value, setValue }) => {
 		);
 	} else {
 		return (
-			<IconButton icon={searchIcon} onClick={() => setIsOpen(!isOpen)} />
+			<IconButton icon={<SearchIcon />} onClick={() => setIsOpen(!isOpen)} />
 		);
 	}
 }
