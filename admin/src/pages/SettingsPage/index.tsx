@@ -7,6 +7,7 @@ import {
   useOverlayBlocker,
   useAutoReloadOverlayBlocker,
   SettingsPageTitle,
+  useRBAC,
   //@ts-ignore
 } from '@strapi/helper-plugin';
 //@ts-ignore
@@ -53,6 +54,8 @@ import { NavigationItemAdditionalField, NavigationItemCustomField } from '../../
 import CustomFieldModal from './components/CustomFieldModal';
 import CustomFieldTable from './components/CustomFieldTable';
 import { HandleSetContentTypeExpanded, OnPopupClose, OnSave, PreparePayload, RawPayload, RestartReasons, RestartStatus, StrapiContentTypeSchema } from './types';
+import pluginPermissions from '../../permissions';
+import NoAcccessPage from '../NoAccessPage';
 
 const RESTART_NOT_REQUIRED: RestartStatus = { required: false }
 const RESTART_REQUIRED: RestartStatus = { required: true, reasons: [] }
@@ -77,6 +80,20 @@ const SettingsPage = () => {
   const [contentTypeExpanded, setContentTypeExpanded] = useState<string | undefined>(undefined);
   const { data: navigationConfigData, isLoading: isConfigLoading, error: configErr, submitMutation, restoreMutation, restartMutation } = useNavigationConfig();
   const { data: allContentTypesData, isLoading: isContentTypesLoading, error: contentTypesErr } = useAllContentTypes();
+
+  const viewPermissions = useMemo(
+    () => ({
+      settings: pluginPermissions.settings
+    }),
+    [],
+  );
+
+  const {
+    isLoading: isLoadingForPermissions,
+    allowedActions: {
+      canManageSettings,
+    },
+  } = useRBAC(viewPermissions);
   
   const isLoading = isConfigLoading || isContentTypesLoading;
   const isError = configErr || contentTypesErr;
@@ -236,6 +253,10 @@ const SettingsPage = () => {
     const updatedField = { ...field, enabled: !get(field, 'enabled', false) }
     const filteredFields = customFields.filter(f => f.name !== field.name);
     setCustomFields([...filteredFields, updatedField]);
+  }
+
+  if (!(isLoadingForPermissions || canManageSettings)) {
+    return (<NoAcccessPage />)
   }
 
   return (

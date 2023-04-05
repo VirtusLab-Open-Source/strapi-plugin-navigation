@@ -40,6 +40,7 @@ import {
   usedContentTypes,
   validateNavigationStructure,
 } from './utils/parsers';
+import NoAcccessPage from '../NoAccessPage';
 
 const View = () => {
   const toggleNotification = useNotification();
@@ -287,6 +288,10 @@ const View = () => {
     });
   }
 
+  if (!canAccess && !isLoadingForPermissions) {
+    return (<NoAcccessPage />);
+  }
+
   return (
     <Main labelledBy="title" aria-busy={isLoadingForSubmit}>
       <NavigationHeader
@@ -303,7 +308,7 @@ const View = () => {
         }}
       />
       <ContentLayout>
-        {isLoading && <LoadingIndicatorPage />}
+        {(isLoading || isLoadingForPermissions) && <LoadingIndicatorPage />}
         {changedActiveNavigation && (
           <>
             <NavigationContentHeader

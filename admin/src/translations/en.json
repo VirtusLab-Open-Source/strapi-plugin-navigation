@@ -84,6 +84,8 @@
   "notification.error": "Error while processing request.",
   "notification.error.customField.type": "Unsupported type of custom field",
   "notification.error.item.relation": "Relations provided in some items are incorrect",
+  "page.auth.noAccess": "No access",
+  "page.auth.not.allowed": "Oops! It seems like You do not have access to this page...",
   "pages.main.search.placeholder": "Type to start searching...",
   "pages.main.header.localization.select.placeholder": "Select locale",
   "pages.settings.general.title": "General settings",
@@ -197,6 +199,7 @@
   "components.confirmation.dialog.button.confirm": "Confirm",
   "components.confirmation.dialog.description": "Do you want to continue?",
   "components.confirmation.dialog.header": "Confirmation",
+  "components.notAccessPage.back": "Back to homepage",
   "view.i18n.fill.cta": "or bootstrap",
   "view.i18n.fill.option": "{locale} locale",
   "view.i18n.fill.cta.button": "copy"
