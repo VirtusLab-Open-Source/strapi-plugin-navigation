@@ -30,6 +30,7 @@ const NavigationItemPopUp = ({
   locale,
   readNavigationItemFromLocale,
   slugify,
+  permissions = {},
 }) => {
   const handleOnSubmit = (payload) => {
     onSubmit(payload);
@@ -43,6 +44,7 @@ const NavigationItemPopUp = ({
     contentTypeItems,
     contentTypesNameFields = {},
   } = config;
+  const { canUpdate } = permissions;
 
   const appendLabelPublicationStatus = (label = '', item = {}, isCollection = false) => {
     const appendix = isRelationPublished({
@@ -80,7 +82,7 @@ const NavigationItemPopUp = ({
 
   return (
     <ModalLayout labelledBy="condition-modal-breadcrumbs" onClose={onClose} isOpen={isOpen}>
-      <NavigationItemPopupHeader isNewItem={!hasViewId}/>
+      <NavigationItemPopupHeader isNewItem={!hasViewId} canUpdate={canUpdate} />
       <NavigationItemForm
         availableLocale={availableLocale}
         config={config}
@@ -100,6 +102,7 @@ const NavigationItemPopUp = ({
         locale={locale}
         readNavigationItemFromLocale={readNavigationItemFromLocale}
         slugify={slugify}
+        permissions={permissions}
       />
     </ModalLayout>
 

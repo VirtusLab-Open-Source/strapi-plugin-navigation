@@ -20,6 +20,7 @@ const List = ({
   displayFlat,
   contentTypes,
   contentTypesNameFields,
+  permissions,
 }) => (
   <Wrapper level={level}>
     {items.map((item, n) => {
@@ -46,6 +47,7 @@ const List = ({
             contentTypes,
             contentTypesNameFields
           }}
+          permissions={permissions}
         />
       );
     })}

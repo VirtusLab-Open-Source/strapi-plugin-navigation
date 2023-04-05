@@ -5,7 +5,10 @@ import { Button } from '@strapi/design-system/Button';
 import { ModalFooter } from '@strapi/design-system/ModalLayout';
 import { getMessage } from '../../../../utils';
 
-export const NavigationItemPopupFooter = ({ handleCancel, handleSubmit, submitDisabled, formViewId }) => {
+export const NavigationItemPopupFooter = ({ handleCancel, handleSubmit, submitDisabled, formViewId, canUpdate }) => {
+	if (!canUpdate) {
+		return null;
+	}
 
 	return (
 		<ModalFooter
@@ -34,4 +37,5 @@ NavigationItemPopupFooter.propTypes = {
 	handleSubmit: PropTypes.func,
 	submitDisabled: PropTypes.bool,
 	formViewId: PropTypes.object,
+	canUpdate: PropTypes.bool,
 };

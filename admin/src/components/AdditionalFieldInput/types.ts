@@ -6,6 +6,7 @@ export type AdditionalFieldInputProps = {
   isLoading: boolean;
   onChange: (name: string, value: string) => void;
   value: string | boolean | string[] | null;
+  disabled: boolean;
   error: MessageDescriptor | null;
 }
 export type TargetProp = "value" | "checked";

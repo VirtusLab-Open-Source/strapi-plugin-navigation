@@ -7,6 +7,7 @@ import {
   NavigationItemType,
   NavigationPluginConfig,
   PluginConfigNameFields,
+  PluginPermissions,
   ToBeFixed,
   VoidEffect
 } from '../../../../../../types';
@@ -76,6 +77,7 @@ export type NavigationItemFormProps = {
   readNavigationItemFromLocale: ToBeFixed;
   inputsPrefix: string;
   slugify: (q: string) => Promise<{slug: string}>
+  permissions: PluginPermissions;
 }
 
 export type ContentTypeSearchQuery = ToBeFixed;

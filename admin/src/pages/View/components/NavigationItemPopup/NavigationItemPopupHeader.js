@@ -5,11 +5,15 @@ import { Typography } from '@strapi/design-system/Typography';
 import { ModalHeader } from '@strapi/design-system/ModalLayout';
 import { getMessage } from '../../../../utils';
 
-export const NavigationItemPopupHeader = ({isNewItem}) => {
+export const NavigationItemPopupHeader = ({isNewItem, canUpdate}) => {
+	let modalType = 'view';
+	if (canUpdate) {
+		modalType = isNewItem ? 'new' : 'edit';
+	}
 	return (
 		<ModalHeader>
 			<Typography variant="omega" fontWeight="bold" textColor="neutral800" as="h2" id="asset-dialog-title">
-				{getMessage(`popup.item.header.${isNewItem ? 'new' : 'edit'}`)}
+				{getMessage(`popup.item.header.${modalType}`)}
 			</Typography>
 		</ModalHeader>
 	);

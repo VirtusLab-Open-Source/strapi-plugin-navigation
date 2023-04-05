@@ -38,6 +38,7 @@ const Item = (props) => {
     error,
     displayChildren,
     config = {},
+    permissions = {},
   } = props;
 
   const {
@@ -66,6 +67,8 @@ const Item = (props) => {
   const relatedItemLabel = !isExternal ? extractRelatedItemLabel(relatedRef, contentTypesNameFields, { contentTypes }) : '';
   const relatedTypeLabel = relatedRef?.labelSingular;
   const relatedBadgeColor = isPublished ? 'success' : 'secondary';
+
+  const { canUpdate } = permissions;
 
   const dragRef = useRef(null);
   const dropRef = useRef(null);
@@ -129,14 +132,14 @@ const Item = (props) => {
     const { isSingle } = contentType;
     return `/content-manager/${ isSingle ? 'singleType' : 'collectionType'}/${entity?.__collectionUid}${!isSingle ? '/' + entity?.id : ''}`
   }
-  const onNewItemClick = useCallback((event) => onItemLevelAdd(
+  const onNewItemClick = useCallback((event) => canUpdate && onItemLevelAdd(
     event,
     viewId,
     isNextMenuAllowedLevel,
     absolutePath,
     menuAttached,
     `${structureId}.${items.length}`,
-  ), [viewId, isNextMenuAllowedLevel, absolutePath, menuAttached, structureId, items]);
+  ), [viewId, isNextMenuAllowedLevel, absolutePath, menuAttached, structureId, items, canUpdate]);
 
   return (
     <Wrapper level={level} isLast={isLast} style={{ opacity: isDragging ? 0.2 : 1 }} ref={refs ? refs.dropRef : null} >
@@ -157,6 +160,7 @@ const Item = (props) => {
               onItemRestore={() => onItemRestore(item)}
               dragRef={refs.dragRef}
               removed={removed}
+              canUpdate={canUpdate}
             />
           </CardBody>
           <Divider />
@@ -165,7 +169,7 @@ const Item = (props) => {
               <Flex style={{ width: '100%' }} direction="row" alignItems="center" justifyContent="space-between">
                 <Flex>
                   {!isEmpty(item.items) && <CollapseButton toggle={() => onItemToggleCollapse(item)} collapsed={collapsed} itemsCount={item.items.length}/>}
-                  <TextButton
+                  {canUpdate && (<TextButton
                     disabled={removed}
                     startIcon={<Plus />}
                     onClick={onNewItemClick}
@@ -173,7 +177,7 @@ const Item = (props) => {
                     <Typography variant="pi" fontWeight="bold" textColor={removed ? "neutral600" : "primary600"}>
                       {getMessage("components.navigationItem.action.newItem")}
                     </Typography>
-                  </TextButton>
+                  </TextButton>)}
                 </Flex>
                 {relatedItemLabel && (
                   <Flex justifyContent='center' alignItems='center'>
@@ -212,6 +216,7 @@ const Item = (props) => {
         levelPath={absolutePath}
         contentTypes={contentTypes}
         contentTypesNameFields={contentTypesNameFields}
+        permissions={permissions}
       />
       }
     </Wrapper>

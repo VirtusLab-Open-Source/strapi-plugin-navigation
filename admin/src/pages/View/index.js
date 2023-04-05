@@ -19,9 +19,11 @@ import { Button } from '@strapi/design-system/Button';
 import { Select, Option } from '@strapi/design-system/Select';
 // @ts-ignore
 import { Grid, GridItem } from "@strapi/design-system/Grid";
-import { LoadingIndicatorPage, useNotification } from "@strapi/helper-plugin";
+import { LoadingIndicatorPage, useNotification, useRBAC } from "@strapi/helper-plugin";
 import EmptyDocumentsIcon from '@strapi/icons/EmptyDocuments';
 import PlusIcon from "@strapi/icons/Plus";
+
+import pluginPermissions from '../../permissions';
 
 // Components 
 import List from '../../components/NavigationItemList';
@@ -63,6 +65,23 @@ const View = () => {
     readNavigationItemFromLocale,
     slugify,
   } = useDataManager();
+
+  const viewPermissions = useMemo(
+    () => ({
+      access: pluginPermissions.access || pluginPermissions.update,
+      update: pluginPermissions.update,
+    }),
+    [],
+  );
+
+  const {
+    isLoading: isLoadingForPermissions,
+    allowedActions: {
+      canAccess,
+      canUpdate,
+    },
+  } = useRBAC(viewPermissions);
+
   const availableLocale = useMemo(
     () => allAvailableLocale.filter(locale => locale !== changedActiveNavigation?.localeCode),
     [changedActiveNavigation, allAvailableLocale]
@@ -111,15 +130,17 @@ const View = () => {
     parentAttachedToMenu = true,
     structureId = "0",
   ) => {
-    event.preventDefault();
-    event.stopPropagation();
-    changeNavigationItemPopupState(true, {
-      viewParentId,
-      isMenuAllowedLevel,
-      levelPath,
-      parentAttachedToMenu,
-      structureId,
-    });
+    if (canUpdate) {
+      event.preventDefault();
+      event.stopPropagation();
+      changeNavigationItemPopupState(true, {
+        viewParentId,
+        isMenuAllowedLevel,
+        levelPath,
+        parentAttachedToMenu,
+        structureId,
+      });
+    }
   }, [changeNavigationItemPopupState]);
 
   const usedContentTypesData = useMemo(
@@ -253,7 +274,9 @@ const View = () => {
       tradId: 'header.action.collapseAll',
       margin: '8px',
     },
-    {
+  ];
+  if (canUpdate) {
+    endActions.push({
       onClick: addNewNavigationItem,
       startIcon: <PlusIcon />,
       disabled: isLoadingForSubmit,
@@ -261,8 +284,8 @@ const View = () => {
       variant: "default",
       tradId: 'header.action.newItem',
       margin: '16px',
-    },
-  ];
+    });
+  }
 
   return (
     <Main labelledBy="title" aria-busy={isLoadingForSubmit}>
@@ -275,6 +298,9 @@ const View = () => {
         handleSave={handleSave}
         handleLocalizationSelection={handleLocalizationSelection}
         config={config}
+        permissions={{
+          canAccess, canUpdate
+        }}
       />
       <ContentLayout>
         {isLoading && <LoadingIndicatorPage />}
@@ -294,16 +320,16 @@ const View = () => {
                 <Box padding={4}>
                   <Typography variant="beta" textColor="neutral600">{formatMessage(getTrad('empty'))}</Typography>
                 </Box>
-                <Button
+                {canUpdate && (<Button
                   variant='secondary'
                   startIcon={<PlusIcon />}
                   label={formatMessage(getTrad('empty.cta'))}
                   onClick={addNewNavigationItem}
                 >
                   {formatMessage(getTrad('empty.cta'))}
-                </Button>
+                </Button>)}
                 {
-                  config.i18nEnabled && availableLocale.length ? (
+                  canUpdate && config.i18nEnabled && availableLocale.length ? (
                     <Flex direction="column" justifyContent="center">
                       <Box paddingTop={3} paddingBottom={3}>
                         <Typography variant="beta" textColor="neutral600">{formatMessage(getTrad('view.i18n.fill.cta'))}</Typography>
@@ -344,6 +370,9 @@ const View = () => {
                 contentTypes={config.contentTypes}
                 isParentAttachedToMenu={true}
                 contentTypesNameFields={config.contentTypesNameFields}
+                permissions={{
+                  canAccess, canUpdate
+                }}
               />
             }
           </>
@@ -362,8 +391,11 @@ const View = () => {
         locale={activeNavigation.localeCode}
         readNavigationItemFromLocale={readNavigationItemFromLocale}
         slugify={slugify}
+        permissions={{
+          canAccess, canUpdate
+        }}
       />}
-      {i18nCopyItemsModal}
+      {canUpdate && i18nCopyItemsModal}
     </Main>
   );
 };

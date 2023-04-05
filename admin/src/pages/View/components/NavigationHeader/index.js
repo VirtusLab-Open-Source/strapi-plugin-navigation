@@ -33,6 +33,7 @@ const NavigationHeader = ({
   handleLocalizationSelection,
   handleSave,
   config,
+  permissions = {},
 }) => {
   const { formatMessage } = useIntl();
   const allLocaleVersions = useMemo(
@@ -44,16 +45,17 @@ const NavigationHeader = ({
   );
   const hasLocalizations = config.i18nEnabled && allLocaleVersions.length;
   const passedActiveNavigation = pickDefaultLocaleNavigation({ activeNavigation, config });
-  const { closeNavigationManagerModal, openNavigationManagerModal, navigationManagerModal } = useNavigationManager()
+  const { closeNavigationManagerModal, openNavigationManagerModal, navigationManagerModal } = useNavigationManager();
+  const { canUpdate } = permissions;
 
   return (
     <HeaderLayout
       primaryAction={
         <Stack horizontal size={2}>
-          <Box width="27vw" marginRight="8px">
+          <Box marginRight="8px">
             <Grid gap={4}>
               {!hasLocalizations ? (<GridItem col={2} />) : null}
-              <GridItem col={3}>
+              {canUpdate && (<GridItem col={3}>
                 <Button
                   onClick={openNavigationManagerModal}
                   startIcon={null}
@@ -64,8 +66,8 @@ const NavigationHeader = ({
                 >
                   {formatMessage(getTrad('header.action.manage'))}
                 </Button>
-              </GridItem>
-              <GridItem col={4}>
+              </GridItem>)} 
+              <GridItem col={canUpdate ? 4 : 10}>
                 <Select
                   type="select"
                   placeholder="Change navigation"
@@ -93,7 +95,7 @@ const NavigationHeader = ({
                 </GridItem>
               : null
             }
-            <GridItem col={3}>
+            {canUpdate && (<GridItem col={3}>
               <Button
                 onClick={handleSave}
                 startIcon={submitIcon}
@@ -104,15 +106,10 @@ const NavigationHeader = ({
               >
                 {formatMessage(getTrad('submit.cta.save'))}
               </Button>
-            </GridItem>
+            </GridItem>)}
             </Grid>
           </Box>
-          {/* <MoreButton
-              id="more"
-              label="More"
-              icon={<More />}
-            /> */}
-          {navigationManagerModal}
+          {canUpdate && navigationManagerModal}
         </Stack>
       }
       title={formatMessage({
