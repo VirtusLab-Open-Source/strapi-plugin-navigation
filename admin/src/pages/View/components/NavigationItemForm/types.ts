@@ -5,8 +5,9 @@ import {
   NavigationItemAdditionalField,
   NavigationItemAdditionalFieldValues,
   NavigationItemType,
-  NavigationConfig,
+  NavigationPluginConfig,
   PluginConfigNameFields,
+  PluginPermissions,
   ToBeFixed,
   VoidEffect
 } from '../../../../../../types';
@@ -71,17 +72,18 @@ export type NavigationItemFormProps = {
   onSubmit: Effect<SanitizedFormPayload>;
   usedContentTypeEntities: ToBeFixed[];
   usedContentTypesData: ToBeFixed;
-  config: NavigationConfig;
+  config: NavigationPluginConfig;
   availableLocale: string[];
   readNavigationItemFromLocale: ToBeFixed;
   inputsPrefix: string;
   slugify: (q: string) => Promise<{slug: string}>
+  permissions: PluginPermissions;
 }
 
 export type ContentTypeSearchQuery = ToBeFixed;
 export type RawFormPayload = {
   type: NavigationItemType;
-  related?: string | number | { key: number, label: string, value: number};
+  related?: string;
   relatedType?: string;
   audience: Id[];
   menuAttached: boolean;

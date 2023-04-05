@@ -25,6 +25,7 @@ const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
   isLoading,
   onChange,
   value,
+  disabled,
   error
 }) => {
   const toggleNotification = useNotification();
@@ -33,7 +34,7 @@ const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
     id: field.name,
     name: field.name,
     label: field.label,
-    disabled: isLoading,
+    disabled: isLoading || disabled,
     error: error && formatMessage(error),
   }), [field, isLoading, error]);
   const handleBoolean = useMemo(() => handlerFactory({ field, onChange, prop: "checked" }), [onChange, field]);

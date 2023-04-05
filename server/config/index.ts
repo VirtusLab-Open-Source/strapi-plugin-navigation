@@ -1,8 +1,8 @@
-import { NavigationConfig, StrapiConfig } from "../../types";
+import { NavigationPluginConfig, StrapiConfig } from "../../types";
 
 export * from "./setupStrategy";
 
-const config: StrapiConfig<NavigationConfig> = {
+const config: StrapiConfig<NavigationPluginConfig> = {
   default: {
     additionalFields: [],
     allowedLevels: 2,

@@ -43,6 +43,12 @@ const setupPermissions = async ({ strapi }: StrapiContext) => {
       uid: permissions.navigation.update,
       pluginName: "navigation",
     },
+    {
+      section: "plugins",
+      displayName: "Settings",
+      uid: permissions.navigation.settings,
+      pluginName: "navigation",
+    },
   ];
   await strapi.admin.services.permission.actionProvider.registerMany(actions);
 };

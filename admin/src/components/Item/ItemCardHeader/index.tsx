@@ -13,13 +13,14 @@ import Wrapper from './Wrapper';
 import ItemCardBadge from '../ItemCardBadge';
 import { getMessage } from '../../../utils';
 import { ToBeFixed, VoidEffect } from '../../../../../types';
-import { pencilIcon, refreshIcon, trashIcon } from '../../../components/icons';
+import { pencilIcon, refreshIcon, trashIcon, eyeIcon } from './icons';
 
 interface IProps {
   title: string,
   path: string,
   icon: ToBeFixed,
   removed: boolean,
+  canUpdate: boolean,
   onItemRemove: VoidEffect,
   onItemEdit: VoidEffect,
   onItemRestore: VoidEffect,
@@ -29,10 +30,10 @@ interface IProps {
 const wrapperStyle = { zIndex: 2 };
 const pathWrapperStyle = { maxWidth: "425px" };
 
-const ItemCardHeader: React.FC<IProps> = ({ title, path, icon, removed, onItemRemove, onItemEdit, onItemRestore, dragRef }) => (
+const ItemCardHeader: React.FC<IProps> = ({ title, path, icon, removed, canUpdate, onItemRemove, onItemEdit, onItemRestore, dragRef }) => (
   <Wrapper>
     <Flex alignItems="center" >
-      <DragButton ref={dragRef} />
+      {canUpdate && (<DragButton ref={dragRef} />)}
       <Typography variant="omega" fontWeight="bold">
         {title}
       </Typography>
@@ -54,11 +55,11 @@ const ItemCardHeader: React.FC<IProps> = ({ title, path, icon, removed, onItemRe
         </ItemCardBadge>)
       }
 
-      <IconButton disabled={removed} onClick={onItemEdit} label="Edit" icon={pencilIcon} />
-      {removed ?
-        <IconButton onClick={onItemRestore} label="Restore" icon={refreshIcon} /> :
-        <IconButton onClick={onItemRemove} label="Remove" icon={trashIcon} />
-      }
+      <IconButton disabled={removed} onClick={onItemEdit} label={getMessage(`components.navigationItem.action.${ canUpdate ? 'edit' : 'view'}`, canUpdate ? 'Edit' : 'View')} icon={canUpdate ? pencilIcon : eyeIcon} />
+      {canUpdate && (<>{removed ?
+        <IconButton onClick={onItemRestore} label={getMessage('components.navigationItem.action.restore', "Restore")} icon={refreshIcon} /> :
+        <IconButton onClick={onItemRemove} label={getMessage('components.navigationItem.action.remove', "Remove")} icon={trashIcon} />
+      }</>)}
     </Flex>
   </Wrapper>
 );

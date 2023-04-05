@@ -53,6 +53,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
     items,
     parent = null,
     parentNavItem = null,
+    contentTypes = [],
     enabledCustomFieldsNames,
   }) {
     const clientService = getPluginService<IClientService>('client');
@@ -102,12 +103,14 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
           items: itemChilds,
           parent: itemPage.id,
           parentNavItem: itemNav,
+          contentTypes,
           enabledCustomFieldsNames,
         });
         const { pages: nestedPages } = clientService.renderRFR({
           items: (itemChilds).filter(child => child.type !== "EXTERNAL"),
           parent: itemPage.id,
           parentNavItem: itemNav,
+          contentTypes,
           enabledCustomFieldsNames,
         });
         pages = {
@@ -343,6 +346,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
           if (type === RENDER_TYPES.RFR) {
             return clientService.renderRFR({
               items: filteredStructure,
+              contentTypes,
               enabledCustomFieldsNames,
             });
           }

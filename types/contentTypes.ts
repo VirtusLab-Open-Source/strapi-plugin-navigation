@@ -1,19 +1,16 @@
 import { Id, StringMap, TypeResult } from "strapi-typed";
 import { DateString, ToBeFixed } from "./utils";
 
-type NavigationBase = {
-  id: Id,
+export type Navigation = {
+  id: Id;
   name: string;
   slug: string;
   visible?: boolean;
-  localeCode?: string | null;
-  localizations?: Navigation[] | null;
-}
-
-export type NavigationEntity = EntityDatePartial & NavigationBase;
-
-export type Navigation = NavigationBase &  {
   items?: NestedStructure<NavigationItemEntity<ToBeFixed>>[];
+  createdAt: string;
+  updatedAt: string;
+  localeCode?: string | null;
+  localizations?: Navigation[] | null
 }
 
 export type NavigationItem = NavigationItemPartial & {
@@ -23,14 +20,12 @@ export type NavigationItem = NavigationItemPartial & {
   audience: string[];
   externalPath?: string;
   related: RelatedRef[];
-  removed?: boolean;
-  updated?: boolean;
+  removed: boolean;
+  updated: boolean;
   slug?: string
-  isSingle?: boolean;
 }
-
-export type NavigationItemInput = NavigationItemPartial
-  & Omit<NavigationItem, "related">
+export type NavigationItemInput = NavigationItemPartial 
+  & Omit<NavigationItem, "related"> 
   & {
     related: RelatedRefBase[]
   }
@@ -42,18 +37,16 @@ export type NavigationItemEntity<RelatedType = NavigationItemRelated> = TypeResu
   audience: Audience[];
   externalPath: string | null;
   related: RelatedType | null;
+  additionalFields: StringMap<string | boolean>;
 }>
 
 type NavigationItemPartial = {
-  additionalFields?: StringMap<string | boolean>;
-  collapsed: boolean;
-  externalPath?: string | null;
-  id?: Id;
-  menuAttached: boolean;
-  order: number;
   path: string | null;
   title: string;
   type: NavigationItemType;
+  collapsed: boolean;
+  menuAttached: boolean;
+  order: number;
   uiRouterKey: string;
 }
 
@@ -93,20 +86,6 @@ export type NavigationItemRelated = {
   refId?: Id;
   ref?: string;
 };
-
-export type NavigationItemViewPartial = {
-  viewId?: string;
-  viewParentId: string | null;
-  levelPath?: string;
-  parentAttachedToMenu?: boolean;
-  related: number | null;
-  structureId: string;
-  updated: boolean;
-  relatedType: string;
-  isMenuAllowedLevel: boolean;
-  parent?: number;
-  relatedRef: RelatedRef;
-}
 
 export type NavigationItemType = "INTERNAL" | "EXTERNAL" | "WRAPPER";
 

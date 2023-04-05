@@ -7,6 +7,8 @@ import { VisuallyHidden } from '@strapi/design-system/VisuallyHidden';
 //@ts-ignore
 import { Table, Thead, Tr, Th, Tbody, Td, TFooter } from '@strapi/design-system/Table';
 //@ts-ignore
+import { Plus, Trash, Pencil, Refresh, Check, Minus, EyeStriked, Eye } from '@strapi/icons';
+//@ts-ignore
 import { Typography } from '@strapi/design-system/Typography';
 //@ts-ignore
 import { Tooltip } from '@strapi/design-system/Tooltip';
@@ -19,7 +21,6 @@ import { getMessage } from '../../../../utils';
 import { Effect, NavigationItemCustomField } from '../../../../../../types';
 import ConfirmationDialog from '../../../../components/ConfirmationDialog';
 import { getTradId } from '../../../../translations';
-import { checkIcon, eyeIcon, eyeStrikedIcon, minusIcon, pencilIcon, plusIcon, refreshIcon, trashIcon } from '../../../../components/icons';
 
 interface ICustomFieldTableProps {
   data: NavigationItemCustomField[];
@@ -28,6 +29,8 @@ interface ICustomFieldTableProps {
   onToggleCustomField: Effect<NavigationItemCustomField>;
 }
 
+const refreshIcon = <Refresh />;
+const plusIcon = <Plus />;
 const tradPrefix = "pages.settings.form.customFields.table.";
 
 const CustomFieldTable: React.FC<ICustomFieldTableProps> = ({
@@ -67,11 +70,9 @@ const CustomFieldTable: React.FC<ICustomFieldTableProps> = ({
     cleanup();
   }, [cleanup, fieldToRemove, getTradId, onRemoveCustomField, toggleNotification]);
 
+
   return (
-    <Stack spacing={4}>
-      <Typography variant="delta" as="h2">
-        {getMessage('pages.settings.customFields.title')}
-      </Typography>
+    <>
       <ConfirmationDialog
         isVisible={confirmationVisible}
         header={getMessage(`${tradPrefix}confirmation.header`)}
@@ -142,28 +143,28 @@ const CustomFieldTable: React.FC<ICustomFieldTableProps> = ({
               <Td width="5%">
                 <Tooltip description={getMessage(`${tradPrefix}${customField.required ? "required" : "notRequired"}`)}>
                   <Typography textColor="neutral800">
-                    {customField.required ? checkIcon : minusIcon}
+                    {customField.required ? <Check /> : <Minus />}
                   </Typography>
                 </Tooltip>
               </Td>
               <Td>
-                <Stack horizontal spacing={1}>
+                <Stack horizontal size={1}>
                   <IconButton
                     onClick={() => onOpenModal(customField)}
                     label={getMessage(`${tradPrefix}edit`)}
-                    icon={pencilIcon}
+                    icon={<Pencil />}
                     noBorder
                   />
                   <IconButton
                     onClick={() => onToggleCustomField(customField)}
                     label={getMessage(`${tradPrefix}${customField.enabled ? 'disable' : 'enable'}`)}
-                    icon={customField.enabled ? eyeIcon : eyeStrikedIcon}
+                    icon={customField.enabled ? <Eye /> : <EyeStriked />}
                     noBorder
                   />
                   <IconButton
                     onClick={() => handleRemove(customField)}
                     label={getMessage(`${tradPrefix}remove`)}
-                    icon={trashIcon}
+                    icon={<Trash />}
                     noBorder
                   />
                 </Stack>
@@ -172,7 +173,7 @@ const CustomFieldTable: React.FC<ICustomFieldTableProps> = ({
           ))}
         </Tbody>
       </Table>
-    </Stack>
+    </>
   );
 }
 

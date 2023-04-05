@@ -15,7 +15,7 @@ import { GenericInput } from '@strapi/helper-plugin';
 import { Button } from '@strapi/design-system/Button';
 
 import { NavigationItemPopupFooter } from '../NavigationItemPopup/NavigationItemPopupFooter';
-import { ResourceState, getDefaultCustomFields, getMessage, navigationItemType } from '../../../../utils';
+import { getDefaultCustomFields, navigationItemType } from '../../../../utils';
 import { extractRelatedItemLabel } from '../../utils/parsers';
 import * as formDefinition from './utils/form';
 import { checkFormValidity } from '../../utils/form';
@@ -23,6 +23,7 @@ import { getTrad, getTradId } from '../../../../translations';
 import { assertString, Audience, Effect, NavigationItemAdditionalField, NavigationItemType, ToBeFixed } from '../../../../../../types';
 import { ContentTypeSearchQuery, NavigationItemFormData, NavigationItemFormProps, RawFormPayload, SanitizedFormPayload, Slugify } from './types';
 import AdditionalFieldInput from '../../../../components/AdditionalFieldInput';
+import { getMessage, ResourceState } from '../../../../utils';
 import { Id } from 'strapi-typed';
 
 const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
@@ -45,12 +46,14 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   locale,
   readNavigationItemFromLocale,
   slugify,
+  permissions = {},
 }) => {
   const [isLoading, setIsLoading] = useState(isPreloading);
   const [hasBeenInitialized, setInitializedState] = useState(false);
   const [hasChanged, setChangedState] = useState(false);
   const [contentTypeSearchQuery, setContentTypeSearchQuery] = useState<ContentTypeSearchQuery>(undefined);
   const [contentTypeSearchInputValue, setContentTypeSearchInputValue] = useState(undefined);
+  const { canUpdate } = permissions;
   const formik: FormikProps<RawFormPayload> = useFormik<RawFormPayload>({
     initialValues: formDefinition.defaultValues,
     onSubmit: loadingAware(
@@ -127,7 +130,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   };
 
   const getDefaultTitle =
-    useCallback((related: string | number | undefined, relatedType: string | undefined, isSingleSelected: boolean) => {
+    useCallback((related: string | undefined, relatedType: string | undefined, isSingleSelected: boolean) => {
       if (isSingleSelected) {
         return contentTypes.find(_ => _.uid === relatedType)?.label
       } else {
@@ -141,12 +144,12 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
 
   const sanitizePayload = async (slugify: Slugify, payload: RawFormPayload, data: Partial<NavigationItemFormData>): Promise<SanitizedFormPayload> => {
     const { related, relatedType, menuAttached, type, ...purePayload } = payload;
-    const relatedId = isObject(related) ? related.value : related;
+    const relatedId = related;
     const singleRelatedItem = isSingleSelected ? first(contentTypeEntities) : undefined;
     const relatedCollectionType = relatedType;
     const title = !!payload.title?.trim()
       ? payload.title
-      : getDefaultTitle(relatedId, relatedType, isSingleSelected)
+      : getDefaultTitle(related, relatedType, isSingleSelected)
     const uiRouterKey = await generateUiRouterKey(slugify, title, relatedId, relatedCollectionType);
 
     return {
@@ -210,7 +213,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
     });
   }
 
-  const generateUiRouterKey = async (slugify: Slugify, title: string, related?: string | number, relatedType?: string): Promise<string | undefined> => {
+  const generateUiRouterKey = async (slugify: Slugify, title: string, related?: string, relatedType?: string): Promise<string | undefined> => {
     if (title) {
       return isString(title) && !isEmpty(title) ? await slugify(title).then(prop("slug")) : undefined;
     } else if (related) {
@@ -456,12 +459,13 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
           <Grid gap={5} >
             <GridItem key="title" col={12}>
               <GenericInput
-                autoFocused
+                autoFocused={true}
                 intlLabel={getTrad('popup.item.form.title.label', 'Title')}
                 name="title"
                 placeholder={getTrad("e.g. Blog", 'e.g. Blog')}
                 description={getTrad('popup.item.form.title.placeholder', 'e.g. Blog')}
                 type="text"
+                disabled={!canUpdate}
                 error={formik.errors.title}
                 onChange={({ target: { name, value } }: BaseSyntheticEvent) => onChange({ name, value })}
                 value={formik.values.title}
@@ -473,6 +477,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                 name="type"
                 options={navigationItemTypeOptions}
                 type="select"
+                disabled={!canUpdate}
                 error={formik.errors.type}
                 onChange={({ target: { name, value } }: BaseSyntheticEvent) => onChange({ name, value })}
                 value={formik.values.type}
@@ -486,7 +491,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                 error={formik.errors.menuAttached}
                 onChange={({ target: { name, value } }: BaseSyntheticEvent) => onChange({ name, value })}
                 value={formik.values.menuAttached}
-                disabled={config.cascadeMenuAttached ? !(data.isMenuAllowedLevel && data.parentAttachedToMenu) : false}
+                disabled={!canUpdate || (config.cascadeMenuAttached ? !(data.isMenuAllowedLevel && data.parentAttachedToMenu) : false)}
               />
             </GridItem>
             <GridItem key="path" col={12}>
@@ -495,6 +500,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                 name={pathSourceName}
                 placeholder={getTrad(`popup.item.form.${pathSourceName}.placeholder`, 'e.g. Blog')}
                 type="text"
+                disabled={!canUpdate}
                 error={formik.errors[pathSourceName]}
                 onChange={({ target: { name, value } }: BaseSyntheticEvent) => onChange({ name, value })}
                 value={formik.values[pathSourceName]}
@@ -513,7 +519,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                     onChange={onChangeRelatedType}
                     options={relatedTypeSelectOptions}
                     value={formik.values.relatedType}
-                    disabled={isLoading || isEmpty(relatedTypeSelectOptions)}
+                    disabled={isLoading || isEmpty(relatedTypeSelectOptions) || !canUpdate}
                     description={
                       !isLoading && isEmpty(relatedTypeSelectOptions)
                         ? getTrad('popup.item.form.relatedType.empty', 'There are no more content types')
@@ -534,7 +540,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                       inputValue={contentTypeSearchInputValue}
                       options={relatedSelectOptions}
                       value={formik.values.related}
-                      disabled={isLoading || thereAreNoMoreContentTypes}
+                      disabled={isLoading || thereAreNoMoreContentTypes || !canUpdate}
                       description={
                         !isLoading && thereAreNoMoreContentTypes
                           ? {
@@ -566,7 +572,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                       }
                       multi
                       withTags
-                      disabled={isEmpty(audienceOptions)}
+                      disabled={isEmpty(audienceOptions) || !canUpdate}
                     >
                       {audienceOptions.map(({ value, label }) => <Option key={value} value={value}>{label}</Option>)}
                     </Select>
@@ -580,6 +586,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                       isLoading={isLoading}
                       onChange={onAdditionalFieldChange}
                       value={get(formik.values, `additionalFields.${additionalField.name}`, null)}
+                      disabled={!canUpdate}
                       error={get(formik.errors, `additionalFields.${additionalField.name}`, null)}
                     />
                   </GridItem>
@@ -599,10 +606,10 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                     onChange={onChangeLocaleCopy}
                     options={availableLocaleOptions}
                     value={itemLocaleCopyValue}
-                    disabled={isLoading}
+                    disabled={isLoading || !canUpdate}
                   />
                 </GridItem>
-                <GridItem col={6} lg={12} paddingTop={6}>
+                {canUpdate && (<GridItem col={6} lg={12} paddingTop={6}>
                   <Button
                     variant="tertiary"
                     onClick={onCopyFromLocale}
@@ -610,13 +617,13 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                   >
                     {getMessage('popup.item.form.i18n.locale.button')}
                   </Button>
-                </GridItem>
+                </GridItem>)}
               </Grid>
             ) : null
           }
         </ModalBody >
       </form>
-      <NavigationItemPopupFooter handleSubmit={formik.handleSubmit} handleCancel={onCancel} submitDisabled={submitDisabled} />
+      <NavigationItemPopupFooter handleSubmit={formik.handleSubmit} handleCancel={onCancel} submitDisabled={submitDisabled} canUpdate={canUpdate} />
     </>
   );
 };

@@ -93,7 +93,7 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({ isEditForm, customFi
           <GridItem key="name" col={12}>
             <GenericInput
               {...defaultProps("name")}
-              autoFocused
+              autoFocused={true}
               placeholder={getTrad(`${tradPrefix}name.placeholder`)}
               description={getTrad(`${tradPrefix}name.description`)}
               type="text"

@@ -5,8 +5,8 @@ import Item from "../Item";
 import Wrapper from "./Wrapper";
 
 const List = ({
-  config,
-  displayFlat,
+  allowedLevels,
+  error,
   isParentAttachedToMenu = false,
   items,
   level = 0,
@@ -14,28 +14,40 @@ const List = ({
   onItemEdit,
   onItemLevelAdd,
   onItemRemove,
-  onItemReOrder,
   onItemRestore,
+  onItemReOrder,
   onItemToggleCollapse,
+  displayFlat,
+  contentTypes,
+  contentTypesNameFields,
+  permissions,
 }) => (
   <Wrapper level={level}>
     {items.map((item, n) => {
+      const { relatedRef, ...itemProps } = item
       return (
         <Item
-          config={config}
-          displayChildren={displayFlat}
-          isLast={n === items.length - 1}
-          isParentAttachedToMenu={isParentAttachedToMenu}
-          item={item}
           key={`list-item-${item.viewId || n}`}
+          item={itemProps}
+          isLast={n === items.length - 1}
+          relatedRef={relatedRef}
           level={level}
           levelPath={levelPath}
-          onItemEdit={onItemEdit}
+          isParentAttachedToMenu={isParentAttachedToMenu}
+          allowedLevels={allowedLevels}
+          onItemRestore={onItemRestore}
           onItemLevelAdd={onItemLevelAdd}
           onItemRemove={onItemRemove}
+          onItemEdit={onItemEdit}
           onItemReOrder={onItemReOrder}
-          onItemRestore={onItemRestore}
           onItemToggleCollapse={onItemToggleCollapse}
+          error={error}
+          displayChildren={displayFlat}
+          config={{
+            contentTypes,
+            contentTypesNameFields
+          }}
+          permissions={permissions}
         />
       );
     })}
@@ -43,6 +55,7 @@ const List = ({
 );
 
 List.propTypes = {
+  allowedLevels: PropTypes.number,
   isParentAttachedToMenu: PropTypes.bool,
   items: PropTypes.array,
   level: PropTypes.number,
@@ -52,7 +65,8 @@ List.propTypes = {
   onItemRestore: PropTypes.func.isRequired,
   onItemReOrder: PropTypes.func.isRequired,
   onItemToggleCollapse: PropTypes.func.isRequired,
-  root: PropTypes.bool,
+  contentTypes: PropTypes.array.isRequired,
+  contentTypesNameFields: PropTypes.object.isRequired
 };
 
 export default List;
