@@ -15,6 +15,12 @@ export type ToBeFixed = any;
 export type DateString = string;
 export type PopulateQueryParam = string | PopulateClause;
 
+export type PluginPermissions = {
+  canAccess: boolean;
+  canUpdate?: boolean;
+  canUpdateSettings?: boolean;
+};
+
 export type NavigationActions = {
   create?: boolean;
   update?: boolean;

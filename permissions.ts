@@ -7,5 +7,6 @@ export default {
   navigation: {
     read: 'read',
     update: 'update',
+    settings: 'settings',
   },
 };

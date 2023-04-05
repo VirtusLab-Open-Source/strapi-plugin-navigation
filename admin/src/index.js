@@ -28,7 +28,7 @@ export default {
     
             return component;
           },
-          permissions: pluginPermissions.access,
+          permissions: pluginPermissions.settings,
         }
       ]);
     app.addMenuLink({
