@@ -8,6 +8,7 @@ import {
   LoadingIndicatorPage,
   useNotification,
   useAppInfos,
+  useRBAC,
 } from "@strapi/helper-plugin";
 import DataManagerContext from "../../contexts/DataManagerContext";
 import pluginId from "../../pluginId";
@@ -35,6 +36,8 @@ import {
 } from './actions';
 import { prepareItemToViewPayload } from '../View/utils/parsers';
 import { errorStatusResourceFor, resolvedResourceFor } from "../../utils";
+import NoAcccessPage from "../NoAccessPage";
+import pluginPermissions from "../../permissions";
 
 const i18nAwareItems = ({ items, config }) => 
   config.i18nEnabled ? items.filter(({ localeCode }) => localeCode === config.defaultLocale) : items;
@@ -64,6 +67,22 @@ const DataManagerProvider = ({ children }) => {
   const { pathname } = useLocation();
   const formatMessageRef = useRef();
   formatMessageRef.current = formatMessage;
+
+  const viewPermissions = useMemo(
+    () => ({
+      access: pluginPermissions.access || pluginPermissions.update,
+      update: pluginPermissions.update,
+    }),
+    [],
+  );
+
+  const {
+    isLoading: isLoadingForPermissions,
+    allowedActions: {
+      canAccess,
+      canUpdate,
+    },
+  } = useRBAC(viewPermissions);
 
   const getLayoutSettingRef = useRef();
   getLayoutSettingRef.current = (settingName) =>
@@ -354,6 +373,11 @@ const DataManagerProvider = ({ children }) => {
 
   const hardReset = () => getDataRef.current();
 
+
+  if (!canAccess && !isLoadingForPermissions) {
+    return (<NoAcccessPage />);
+  }
+
   return (
     <DataManagerContext.Provider
       value={{
@@ -386,9 +410,12 @@ const DataManagerProvider = ({ children }) => {
         handleNavigationsDeletion,
         hardReset,
         slugify,
+        permissions: {
+          canAccess, canUpdate
+        },
       }}
     >
-      {isLoading ? <LoadingIndicatorPage /> : children}
+      {isLoading || isLoadingForPermissions ? <LoadingIndicatorPage /> : children}
     </DataManagerContext.Provider>
   );
 };

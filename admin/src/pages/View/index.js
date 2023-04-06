@@ -65,23 +65,10 @@ const View = () => {
     availableLocale: allAvailableLocale,
     readNavigationItemFromLocale,
     slugify,
+    permissions,
   } = useDataManager();
 
-  const viewPermissions = useMemo(
-    () => ({
-      access: pluginPermissions.access || pluginPermissions.update,
-      update: pluginPermissions.update,
-    }),
-    [],
-  );
-
-  const {
-    isLoading: isLoadingForPermissions,
-    allowedActions: {
-      canAccess,
-      canUpdate,
-    },
-  } = useRBAC(viewPermissions);
+  const { canAccess, canUpdate } = permissions;
 
   const availableLocale = useMemo(
     () => allAvailableLocale.filter(locale => locale !== changedActiveNavigation?.localeCode),
@@ -288,10 +275,6 @@ const View = () => {
     });
   }
 
-  if (!canAccess && !isLoadingForPermissions) {
-    return (<NoAcccessPage />);
-  }
-
   return (
     <Main labelledBy="title" aria-busy={isLoadingForSubmit}>
       <NavigationHeader
@@ -308,7 +291,7 @@ const View = () => {
         }}
       />
       <ContentLayout>
-        {(isLoading || isLoadingForPermissions) && <LoadingIndicatorPage />}
+        {isLoading && <LoadingIndicatorPage />}
         {changedActiveNavigation && (
           <>
             <NavigationContentHeader
@@ -375,9 +358,7 @@ const View = () => {
                 contentTypes={config.contentTypes}
                 isParentAttachedToMenu={true}
                 contentTypesNameFields={config.contentTypesNameFields}
-                permissions={{
-                  canAccess, canUpdate
-                }}
+                permissions={permissions}
               />
             }
           </>
@@ -396,9 +377,7 @@ const View = () => {
         locale={activeNavigation.localeCode}
         readNavigationItemFromLocale={readNavigationItemFromLocale}
         slugify={slugify}
-        permissions={{
-          canAccess, canUpdate
-        }}
+        permissions={permissions}
       />}
       {canUpdate && i18nCopyItemsModal}
     </Main>

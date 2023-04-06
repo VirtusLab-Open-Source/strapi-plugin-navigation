@@ -91,7 +91,7 @@ const SettingsPage = () => {
   const {
     isLoading: isLoadingForPermissions,
     allowedActions: {
-      canManageSettings,
+      canSettings: canManageSettings,
     },
   } = useRBAC(viewPermissions);
   
@@ -197,6 +197,10 @@ const SettingsPage = () => {
   const handleRestartDiscard = () => setRestartStatus(RESTART_NOT_REQUIRED);
   const handleSetContentTypeExpanded: HandleSetContentTypeExpanded = key => setContentTypeExpanded(key === contentTypeExpanded ? undefined : key);
 
+  if (!(isLoadingForPermissions || canManageSettings)) {
+    return (<NoAcccessPage />)
+  }
+
   if (isLoading || isError) {
     return (
       <>
@@ -253,10 +257,6 @@ const SettingsPage = () => {
     const updatedField = { ...field, enabled: !get(field, 'enabled', false) }
     const filteredFields = customFields.filter(f => f.name !== field.name);
     setCustomFields([...filteredFields, updatedField]);
-  }
-
-  if (!(isLoadingForPermissions || canManageSettings)) {
-    return (<NoAcccessPage />)
   }
 
   return (
