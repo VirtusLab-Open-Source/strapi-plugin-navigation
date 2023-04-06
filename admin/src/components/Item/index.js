@@ -130,7 +130,8 @@ const Item = (props) => {
   const contentType = contentTypes.find(_ => _.uid === contentTypeUid) || {};
   const generatePreviewUrl = entity => {
     const { isSingle } = contentType;
-    return `/content-manager/${ isSingle ? 'singleType' : 'collectionType'}/${entity?.__collectionUid}${!isSingle ? '/' + entity?.id : ''}`
+    const entityLocale = entity?.locale ? `?plugins[i18n][locale]=${entity?.locale}` : '';
+    return `/content-manager/${ isSingle ? 'singleType' : 'collectionType'}/${entity?.__collectionUid}${!isSingle ? '/' + entity?.id : ''}${entityLocale}`
   }
   const onNewItemClick = useCallback((event) => canUpdate && onItemLevelAdd(
     event,
@@ -193,7 +194,7 @@ const Item = (props) => {
                     <Typography variant="omega" textColor='neutral600'>{relatedTypeLabel}&nbsp;/&nbsp;</Typography>
                     <Typography variant="omega" textColor='neutral800'>{relatedItemLabel}</Typography>
                       <Link
-                        to={`/content-manager/collectionType/${relatedRef?.__collectionUid}/${relatedRef?.id}`}
+                        to={generatePreviewUrl(relatedRef)}
                         endIcon={<ArrowRight />}>&nbsp;</Link>
                   </Flex>)
                 }
