@@ -45,12 +45,14 @@ Strapi Navigation Plugin provides a website navigation / menu builder feature fo
    - [Plugin file](#in-v202-and-older--default-configuration-state-for-v203-and-newer)
 5. [🔧 GraphQL Configuration](#-gql-configuration)
 6. [🌍 i18n Internationalization](#-i18n-internationalization)
-7. [🕸️ Public API specification](#%EF%B8%8F-public-api-specification)
+7. [👤 RBAC](#-rbac)
+8. [🔐 Authorization strategy](#-authorization-strategy)
+9. [🕸️ Public API specification](#%EF%B8%8F-public-api-specification)
    - [REST API](#rest-api) 
    - [GraphQL API](#graphql-api)
-8. [💬 FAQ](#-faq)
-10. [🤝 Contributing](#-contributing)
-11. [👨‍💻 Community support](#-community-support)
+10. [💬 FAQ](#-faq)
+11. [🤝 Contributing](#-contributing)
+12. [👨‍💻 Community support](#-community-support)
 
 ## ✨ Features
 
@@ -253,11 +255,34 @@ Of course if you know that `fr` version is present at id `2` you can just query 
 If feature is enabled GQL render navigation query is expanded to handle `locale` param(it will work the same as regular requests). Checkout schema provided by GraphQL plugin.
 
 ## 👤 RBAC
-Plugin provides granular permissions based on Strapi RBAC functionality.
+Plugin provides granular permissions based on **Strapi RBAC** functionality within the editorial interface &amp; **Admin API**. Those settings are editable via the _Setings_ -> _Administration Panel_ -> _Roles_.
+
+For any role different than **Super Admin**, to access the **Navigation panel** you must set following permissions:
 
 ### Mandatory permissions
-For any role different than **Super Admin**, to access the **Navigation panel** you must set following permissions:
 - _Plugins_ -> _Navigation_ -> _Read_ - gives you the access to **Navigation Panel**
+
+### Other permissions
+- _Plugins_ -> _Navigation_ -> _Update_ - with this permission user is able to change Navigation structure
+- _Plugins_ -> _Navigation_ -> _Settings_ - special permission for users that should be able to change plugin settings
+
+## 🔐 Authorization strategy
+Is applied for **Public API** both for REST and GraphQL. You can manage is by two different ways. Those settings are editable via the _Setings_ -> _Users &amp; Permissions Plugin_ -> _Roles_. 
+
+## User based
+- _Public_ - as per description it's default role for any not authenticated user. By enabling **Public API** of the plugin here you're making it **fully public**, without **any permissions check**.
+- _Authenticated_ - as per description this is default role for Strapi Users. If you enable **Public API** here, for any call made you must use the User authentication token as `Bearer <token>`.
+
+## Token based
+- _Full Access_ - gives full access to every Strapi Content API including our plugin endpoints as well.
+- _Custom_ - granural access management to every Strapi Content API endpoints as well as plugin **Public API** - _(recomended approach)_
+
+> _Note: Token usage &amp Read-Only tokens_
+> If you're aiming to use token based approach, for every call you must provide proper token in headers as `Bearer <token>`.
+>
+> Important: As the Read-Only tokens are dedicated to support just `find` and `findAll` endpoints from Strapi Content API, they are not covering access to plugin **Public API** `render` and `renderChild` endpoints. We recommend to use the `Custom` token type for fully granural and secured approach instead of `Full Access` ones.
+>
+> Reference: [Strapi - API Tokens](https://docs.strapi.io/dev-docs/configurations/api-tokens#usage)
 
 ## Base Navigation Item model
 
