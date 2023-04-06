@@ -359,3 +359,20 @@ export const parsePopulateQuery = (populate: PopulateQueryParam): PopulateClause
     return populate;
   }
 }
+
+export const purgeSensitiveData = (data: any = {}) => {
+  if (!data) {
+    return undefined;
+  }
+
+  const forbiddenFields = ['password', 'token', 'secret'];
+  return Object.keys(data)
+    .filter((key: string) => 
+      !forbiddenFields.includes(key.toLowerCase()) &&
+      isEmpty(forbiddenFields.filter(_ => key.toLowerCase().includes(_)))
+    )
+    .reduce((prev, curr) => ({
+      ...prev,
+      [curr]: data[curr],
+    }), {});
+};

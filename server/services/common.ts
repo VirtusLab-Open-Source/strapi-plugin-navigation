@@ -6,7 +6,7 @@ import { sanitize } from '@strapi/utils';
 import { ContentTypeEntity, ICommonService, Navigation, NavigationActions, NavigationActionsPerItem, NavigationItem, NavigationItemCustomField, NavigationItemEntity, NavigationItemRelated, NavigationPluginConfig, NestedStructure, RelatedRef, ToBeFixed } from "../../types";
 import { configSetupStrategy } from "../config";
 import { addI18nWhereClause } from "../i18n";
-import { checkDuplicatePath, getPluginModels, getPluginService, isContentTypeEligible, KIND_TYPES, parsePopulateQuery, singularize } from "../utils";
+import { checkDuplicatePath, getPluginModels, getPluginService, isContentTypeEligible, KIND_TYPES, parsePopulateQuery, purgeSensitiveData, singularize } from "../utils";
 import slugify from "@sindresorhus/slugify";
 
 const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) => ({
@@ -282,7 +282,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
                     {
                       __contentType: model,
                       navigationItemId: related.find(
-                        ({ related_id }) => related_id === _.id!.toString())?.navigationItemId,
+                        ({ related_id }) => related_id === _.id!.toString())?.navigationItemId
                     },
                   ),
                 );
@@ -296,7 +296,13 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
       .map(({ related, ...item }) => {
         const relatedData = data.get(item.id);
         if (relatedData) {
-          return Object.assign(item, { related: relatedData });
+          return Object.assign(item, { 
+            related: {
+              ...relatedData,
+              createdBy: purgeSensitiveData(relatedData.createdBy),
+              updatedBy: purgeSensitiveData(relatedData.updatedBy),
+            }
+          });
         }
         return { ...item, related: null };
       });

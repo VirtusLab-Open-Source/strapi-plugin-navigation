@@ -2,7 +2,7 @@ import { IStrapi } from "strapi-typed";
 import { NavigationItemEntity } from "../../../types";
 
 import setupStrapi from '../../../__mocks__/strapi';
-import { buildNestedPaths, filterByPath, getPluginModels } from "../functions";
+import { buildNestedPaths, filterByPath, getPluginModels, purgeSensitiveData } from "../functions";
 
 declare var strapi: IStrapi;
 
@@ -46,6 +46,25 @@ describe('Utilities functions', () => {
       expect(root).toBeDefined();
       expect(root?.path).toBe(rootPath);
       expect(items.length).toBe(1)
+    });
+
+    it('Filter out sensitive information from related entities', () => {
+      const sensitiveDataModel = {
+        name: 'Amy',
+        password: 'test-password',
+        accessToken: 'token',
+        reset_token: 'token',
+        renewtoken: 'token',
+        secret: 'secret'
+      };
+      const result = purgeSensitiveData(sensitiveDataModel);
+
+      expect(result).toHaveProperty('name', 'Amy');
+      expect(result).not.toHaveProperty('password');
+      expect(result).not.toHaveProperty('accessToken');
+      expect(result).not.toHaveProperty('reset_token');
+      expect(result).not.toHaveProperty('renewtoken');
+      expect(result).not.toHaveProperty('secret');
     });
   });
 });
