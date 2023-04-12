@@ -50,9 +50,11 @@ Strapi Navigation Plugin provides a website navigation / menu builder feature fo
 9. [🕸️ Public API specification](#%EF%B8%8F-public-api-specification)
    - [REST API](#rest-api) 
    - [GraphQL API](#graphql-api)
-10. [💬 FAQ](#-faq)
-11. [🤝 Contributing](#-contributing)
-12. [👨‍💻 Community support](#-community-support)
+10. [🔌 Extensions](#-extensions)
+11. [🧩 Examples](#-examples)
+12. [💬 FAQ](#-faq)
+13. [🤝 Contributing](#-contributing)
+14. [👨‍💻 Community support](#-community-support)
 
 ## ✨ Features
 
@@ -184,7 +186,6 @@ Config for this plugin is stored as a part of the `config/plugins.js` or `config
 - `gql` - If you're using GraphQL that's the right place to put all necessary settings. More **[ here ](#gql-configuration)**
 - `i18nEnabled` - should you want to manage multi-locale content via navigation set this value `Enabled`. More **[ here ](#i18n-internationalization)**
 - `cascadeMenuAttached` - If you don't want "Menu attached" to cascade on child items set this value `Disabled`.
-- `slugify` - allows to extend configuration of our "slugging" solution of choice. To learn more visit the [documentation](https://github.com/sindresorhus/slugify#api). It can be left unset since it's optional. **This option can only be handled by configuration in config file**.
 
 ### Properties
 
@@ -638,6 +639,33 @@ For collection types it will be read from content type's attribute name `templat
 
 For single types a global name of this content type will be used as a template name or it can be set manually with an option named `templateName`.
 
+## 🔌 Extensions
+
+### Slug generation
+
+Slug generation is available as a controller and service. If you have custom requirements outside of what this plugin provides you can add your own logic with [plugins extensions](https://docs.strapi.io/developer-docs/latest/development/plugins-extension.html).
+
+For example:
+
+```ts
+// path: /admin/src/index.js
+
+module.exports = {
+  // ...
+  bootstrap({ strapi }) {
+    const navigationCommonService = strapi.plugin("navigation").service("common");
+    const originalGetSlug = navigationCommonService.getSlug;
+    const preprocess = (q) => {
+      return q + "suffix";
+    };
+
+    navigationCommonService.getSlug = (query) => {
+      return originalGetSlug(preprocess(query));
+    };
+  },
+};
+```
+
 ## 🧩 Examples
 
 Live example of plugin usage can be found in the [VirtusLab Strapi Examples](https://github.com/VirtusLab/strapi-examples/tree/master/strapi-plugin-navigation) repository.
@@ -658,33 +686,6 @@ module.exports = {
 ```
 
 If you already got it, make sure that `navigation` plugin is inserted before `graphql`. That should do the job.
-
-### Slug generation
-
-#### Customisation
-
-Slug generation is available as a controller and service. If you have custom requirements outside of what this plugin provides you can add your own logic with [plugins extensions](https://docs.strapi.io/developer-docs/latest/development/plugins-extension.html).
-
-For example:
-
-```ts
-// path: ./src/index.js
-
-module.exports = {
-  // ...
-  bootstrap({ strapi }) {
-    const navigationCommonService = strapi.plugin("navigation").service("common");
-    const originalGetSlug = navigationCommonService.getSlug;
-    const preprocess = (q) => {
-      return q + "suffix";
-    };
-
-    navigationCommonService.getSlug = (query) => {
-      return originalGetSlug(preprocess(query));
-    };
-  },
-};
-```
 
 ## 🤝 Contributing
 
