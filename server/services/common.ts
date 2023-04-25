@@ -93,7 +93,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
         const { key, available } = value;
         const item = strapi.contentTypes[key];
         const relatedField = (item.associations || []).find((_: ToBeFixed) => _.model === 'navigationitem');
-        const { uid, options, info, collectionName, modelName, apiName, plugin, kind, pluginOptions } = item;
+        const { uid, options, info, collectionName, modelName, apiName, plugin, kind, pluginOptions = {} } = item;
         const { visible = true } = pluginOptions['content-manager'] || {};
         const { name, description } = info;
         const { hidden, templateName, draftAndPublish } = options;
