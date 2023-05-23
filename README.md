@@ -676,7 +676,7 @@ Live example of plugin usage can be found in the [VirtusLab Strapi Examples](htt
 
 **Q:** I would like to use GraphQL schemas but I'm not getting renderNavigation query or even proper types as Navigation, NavigationItem etc. What should I do?
 
-**A:** **A:** There is a one trick you might try. Strapi by default is ordering plugins by the way which takes `strapi-plugin-graphql` to initialize earlier than other plugins so types might not be injected. If you don't have it yet, please create `config/plugins.js` file and put there following lines (put `graphql` at the end):
+**A:** There is a one trick you might try. Strapi by default is ordering plugins by the way which takes `strapi-plugin-graphql` to initialize earlier than other plugins so types might not be injected. If you don't have it yet, please create `config/plugins.js` file and put there following lines (put `graphql` at the end):
 
 ```js
 module.exports = {
