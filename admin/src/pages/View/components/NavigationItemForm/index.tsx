@@ -190,8 +190,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
     if (isEmpty(formik.values.path) && !isEmpty(pathDefaultFields)) {
       const selectedEntity = isSingleSelected
         ? first(contentTypeEntities)
-        : contentTypeEntities.find(i => i.id === relatedSelectValue);
-      
+        : contentTypeEntities.find(i => String(i.id) === relatedSelectValue);
       const pathDefaultValues = pathDefaultFields
         .map((field) => get(selectedEntity, field, ""))
         .filter(value => !isNil(value) && String(value).match(/^\S+$/));
