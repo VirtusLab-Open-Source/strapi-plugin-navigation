@@ -95,10 +95,14 @@ const View = () => {
 
   const structureHasErrors = !validateNavigationStructure((changedActiveNavigation || {}).items);
   
-  useEffect(() => structureHasErrors && toggleNotification({
-    type: 'warning',
-    message: getTrad('notification.error.item.relation'),
-  }), [structureHasErrors]);
+  useEffect(() => {
+    if(structureHasErrors) {
+      toggleNotification({
+        type: 'warning',
+        message: getTrad('notification.error.item.relation'),
+      });
+    }
+  }, [structureHasErrors]);
 
   const navigationSelectValue = get(activeNavigation, "id", null);
   const handleSave = () => isLoadingForSubmit || structureHasErrors

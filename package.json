@@ -1,6 +1,6 @@
 {
   "name": "strapi-plugin-navigation",
-  "version": "2.2.10",
+  "version": "2.2.11",
   "description": "Strapi - Navigation plugin",
   "strapi": {
     "name": "navigation",
@@ -26,9 +26,9 @@
     "@strapi/utils": "^4.11.0",
     "lodash": "^4.17.11",
     "pluralize": "^8.0.0",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-intl": "6.3.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-intl": "6.4.1",
     "react-router": "^5.3.4",
     "react-router-dom": "^5.3.4",
     "uuid": "^8.3.0"
