@@ -131,15 +131,19 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
 
   const getDefaultTitle =
     useCallback((related: string | undefined, relatedType: string | undefined, isSingleSelected: boolean) => {
+      let selectedEntity;
       if (isSingleSelected) {
-        return contentTypes.find(_ => _.uid === relatedType)?.label
+        selectedEntity = contentTypeEntities.find(_ => (_.uid === relatedType) || (_.__collectionUid === relatedType));
+        if (!selectedEntity) {
+          return contentTypes.find(_ => _.uid === relatedType)?.label
+        }
       } else {
-        return extractRelatedItemLabel({
+        selectedEntity = {
           ...contentTypeEntities.find(_ => _.id === related),
           __collectionUid: relatedType
-        }, contentTypesNameFields, { contentTypes });
+        };
       }
-
+      return extractRelatedItemLabel(selectedEntity, contentTypesNameFields, { contentTypes });
     }, [contentTypeEntities, contentTypesNameFields, contentTypes]);
 
   const sanitizePayload = async (slugify: Slugify, payload: RawFormPayload, data: Partial<NavigationItemFormData>): Promise<SanitizedFormPayload> => {
