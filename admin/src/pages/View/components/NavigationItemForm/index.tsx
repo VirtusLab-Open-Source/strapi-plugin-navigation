@@ -139,7 +139,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
         }
       } else {
         selectedEntity = {
-          ...contentTypeEntities.find(_ => _.id === related),
+          ...contentTypeEntities.find(_ => String(_.id) === related),
           __collectionUid: relatedType
         };
       }
