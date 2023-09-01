@@ -1233,7 +1233,7 @@
     nexus "1.3.0"
     pluralize "^8.0.0"
 
-"@strapi/utils@4.9.0", "@strapi/utils@^4.7.1":
+"@strapi/utils@4.9.0":
   version "4.9.0"
   resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.9.0.tgz#35731524d4c237f046b4fb4df1c32730dc85ad7d"
   integrity sha512-Tyr2Qk4pixl1uVVLdF0hehwaEKBiYqaB7/JMSzjsaN8/8XwLPEi5Y3cymYkzZy2Dcyl58FW+V+3fHmAUN39y9A==
@@ -1245,10 +1245,10 @@
     p-map "4.0.0"
     yup "0.32.9"
 
-"@strapi/utils@^4.11.0":
-  version "4.11.0"
-  resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.11.0.tgz#2f123cd0049028d92f7ecba0b63bb853411401f6"
-  integrity sha512-0k+0igoH/LRlxhKQDr7t6w1lg+7mQV0CYt0eNFNPC8u8o6SFA0l57jgYUZYU7q/jxofD4xrZituEEy5GQXaTEA==
+"@strapi/utils@^4.10.8", "@strapi/utils@^4.7.1":
+  version "4.10.8"
+  resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.10.8.tgz#ca78f0207c7983e88a38e27001d8c2f0723b7ca1"
+  integrity sha512-v9YAzH+d+SULhLbSnqEGrSaAzvT7Zsgxvri8PN+986jQ02bdWDMQbrMK9R/4VzC5aEP+bby9e5AhSjTNW1gRfw==
   dependencies:
     "@sindresorhus/slugify" "1.1.0"
     date-fns "2.30.0"
@@ -3696,7 +3696,7 @@ lodash.sortby@^4.7.0:
   resolved "https://registry.yarnpkg.com/lodash.sortby/-/lodash.sortby-4.7.0.tgz#edd14c824e2cc9c1e0b0a1b42bb5210516a42438"
   integrity sha512-HDWXG8isMntAyRF5vZ7xKuEvOhT4AhlRt/3czTSjvGUxjYCBVRQY48ViDHyfYz9VIoBkW4TMGQNapx+l3RUwdA==
 
-lodash@4.17.21, lodash@^4.17.11, lodash@^4.17.20, lodash@^4.17.21, lodash@^4.7.0:
+lodash@4.17.21, lodash@^4.17.20, lodash@^4.17.21, lodash@^4.7.0:
   version "4.17.21"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
@@ -4815,10 +4815,10 @@ typedarray-to-buffer@^3.1.5:
   dependencies:
     is-typedarray "^1.0.0"
 
-typescript@^4.5.5:
-  version "4.7.4"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.7.4.tgz#1a88596d1cf47d59507a1bcdfb5b9dfe4d488235"
-  integrity sha512-C0WQT0gezHuw6AdY1M2jxUO83Rjf0HP7Sk1DtXj6j1EwkQNZrHAg2XPWlq62oqEhYvONq5pkC2Y9oPljWToLmQ==
+typescript@5.1.3:
+  version "5.1.3"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.1.3.tgz#8d84219244a6b40b6fb2b33cc1c062f715b9e826"
+  integrity sha512-XH627E9vkeqhlZFQuL+UsyAXEnibT0kWR2FWONlr4sTjvxyJYnyefgrkyECLzM5NenmKzRAy2rR/OlYLA1HkZw==
 
 undefsafe@^2.0.5:
   version "2.0.5"
