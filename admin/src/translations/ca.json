@@ -18,6 +18,7 @@
     "notification.error": "S'ha produït un error en processar la sol·licitud.",
     "notification.error.customField.type": "Tipus de camp personalitzat no compatible",
     "notification.error.item.relation": "Les relacions proporcionades en alguns elements són incorrectes",
+    "notification.error.item.slug": "No es pot crear la clau (slug) vàlida de l'encaminador de la IU des de \"{ query }\". \"{ result }\" rebut",
     "notification.navigation.error": "Camí duplicat: { path } al pare: { parentTitle } per a { errorTitles } elements",
     "notification.navigation.item.relation": "La relació d'entitat no existeix!",
     "notification.navigation.item.relation.status.draft": "esborrany",
