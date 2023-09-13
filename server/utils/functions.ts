@@ -1,4 +1,5 @@
 import {
+  capitalize,
   find,
   first,
   flatten,
@@ -37,6 +38,8 @@ import {
 import { NavigationError } from '../../utils/NavigationError';
 import { TEMPLATE_DEFAULT, ALLOWED_CONTENT_TYPES, RESTRICTED_CONTENT_TYPES } from './constant';
 declare var strapi: IStrapi;
+
+const UID_REGEX = /^(?<type>[a-z0-9-]+)\:{2}(?<api>[a-z0-9-]+)\.{1}(?<contentType>[a-z0-9-]+)$/i;
 
 export const getPluginService = <T extends NavigationService>(name: NavigationServiceName): T =>
   strapi.plugin("navigation").service(name);
@@ -375,4 +378,21 @@ export const purgeSensitiveData = (data: any = {}) => {
       ...prev,
       [curr]: data[curr],
     }), {});
+};
+
+export const resolveGlobalLikeId = (uid = '') =>  {
+    const parse = (str: string) => str.split('-')
+        .map(_ => capitalize(_))
+        .join('');
+
+    const [type, scope, contentTypeName] = splitTypeUid(uid);
+
+    if (type === 'api') {
+        return parse(contentTypeName);
+    }
+    return `${parse(scope)}${parse(contentTypeName)}`;
+};
+
+const splitTypeUid = (uid = '') => {
+    return uid.split(UID_REGEX).filter((s) => s && s.length > 0);
 };

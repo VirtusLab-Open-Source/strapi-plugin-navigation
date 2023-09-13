@@ -1,3 +1,4 @@
+import { StrapiContext } from "strapi-typed";
 import {
   assertNotEmpty,
   IConfigSetupStrategy,
@@ -10,7 +11,7 @@ import {
   PluginConfigPopulate,
   PluginDefaultConfigGetter,
 } from "../../types";
-import { validateAdditionalFields } from "../utils";
+import { resolveGlobalLikeId, validateAdditionalFields } from "../utils";
 
 export const configSetupStrategy: IConfigSetupStrategy = async ({ strapi }) => {
   const pluginStore = strapi.store({
@@ -28,7 +29,8 @@ export const configSetupStrategy: IConfigSetupStrategy = async ({ strapi }) => {
   const getWithFallback = getWithFallbackFactory(config, getFromPluginDefaults);
 
   config = {
-    additionalFields: getWithFallback<NavigationItemAdditionalField[]>("additionalFields"),
+    additionalFields:
+      getWithFallback<NavigationItemAdditionalField[]>("additionalFields"),
     contentTypes: getWithFallback<string[]>("contentTypes"),
     contentTypesNameFields: getWithFallback<PluginConfigNameFields>(
       "contentTypesNameFields"
@@ -40,12 +42,15 @@ export const configSetupStrategy: IConfigSetupStrategy = async ({ strapi }) => {
     gql: getWithFallback<PluginConfigGraphQL>("gql"),
     i18nEnabled: hasI18nPlugin && getWithFallback<boolean>("i18nEnabled"),
     pruneObsoleteI18nNavigations: false,
-    pathDefaultFields: getWithFallback<PluginConfigPathDefaultFields>("pathDefaultFields"),
+    pathDefaultFields:
+      getWithFallback<PluginConfigPathDefaultFields>("pathDefaultFields"),
     cascadeMenuAttached: getWithFallback<boolean>("cascadeMenuAttached"),
   };
 
+  handleDeletedContentTypes(config, { strapi });
+
   validateAdditionalFields(config.additionalFields);
-  
+
   await pluginStore.set({
     key: "config",
     value: config,
@@ -66,3 +71,33 @@ const getWithFallbackFactory =
 
     return value as T;
   };
+
+const handleDeletedContentTypes = (
+  config: NavigationPluginConfig,
+  { strapi }: StrapiContext
+): void => {
+  const notAvailableContentTypes = config.contentTypes.filter(
+    (contentType) => !strapi.contentTypes[contentType]
+  );
+
+  if (notAvailableContentTypes.length === 0) {
+    return;
+  }
+
+  const notAvailableContentTypesGraphQL =
+    notAvailableContentTypes.map(resolveGlobalLikeId);
+
+  config.contentTypes = config.contentTypes.filter(
+    (contentType) => !notAvailableContentTypes.includes(contentType)
+  );
+
+  config.contentTypesNameFields = Object.fromEntries(
+    Object.entries(config.contentTypesNameFields).filter(
+      ([contentType]) => !notAvailableContentTypes.includes(contentType)
+    )
+  );
+
+  config.gql.navigationItemRelated = config.gql.navigationItemRelated.filter(
+    (contentType) => !notAvailableContentTypesGraphQL.includes(contentType)
+  );
+};
