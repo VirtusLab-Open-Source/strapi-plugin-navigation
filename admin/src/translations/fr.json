@@ -41,5 +41,6 @@
   "components.navigationItem.action.newItem": "Nouvel élément imbriqué",
 	"components.navigationItem.badge.removed": "Supprimé",
 	"components.navigationItem.badge.draft": "Brouillon",
-	"components.navigationItem.badge.published": "Publié"
+	"components.navigationItem.badge.published": "Publié",
+  "notification.error.item.slug": "Impossible de créer une clé de routeur d'interface utilisateur valide (slug) à partir de \"{ query }\". \"{ result }\" reçu"
 }

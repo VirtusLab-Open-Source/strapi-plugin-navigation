@@ -378,7 +378,19 @@ const DataManagerProvider = ({ children }) => {
     request(
       `/${pluginId}/slug?q=${query}`,
       { method: "GET", signal }
-    );
+    ).then((res) => {
+      if (!res?.slug) {
+        toggleNotification({
+          type: 'warning',
+          message: formatMessage(
+            getTrad('notification.error.item.slug'),
+            { query, result: res?.slug || "" }
+          )
+        });
+      }
+
+      return res;
+    });
 
   const hardReset = () => getDataRef.current();
 
