@@ -198,7 +198,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
         ));
       }
     }
-    const result = commonService
+    const result = await commonService
       .analyzeBranch(payload.items, existingEntity)
       .then((auditLogsOperations: ToBeFixed) =>
         Promise.all([

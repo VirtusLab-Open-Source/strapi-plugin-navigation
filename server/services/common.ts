@@ -394,7 +394,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
           currentItem = item;
         }
         return !isEmpty(items)
-          ? commonService.analyzeBranch(
+          ? await commonService.analyzeBranch(
             items,
             masterEntity,
             currentItem,

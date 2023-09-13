@@ -332,27 +332,36 @@ const DataManagerProvider = ({ children }) => {
          message: getTrad('notification.navigation.submit'),
        });
      } catch (err) {
-       dispatch({
-         type: SUBMIT_NAVIGATION_ERROR,
-         error: err.response.payload.data
-       });
-       console.error({ err: err.response });
+        dispatch({
+          type: SUBMIT_NAVIGATION_ERROR,
+          error: err.response.payload.data
+        });
 
-       if (err.response.payload.data && err.response.payload.data.errorTitles) {
-         return toggleNotification({
-           type: 'warning',
-           message: {
-             id: formatMessage(
-               getTrad('notification.navigation.error'),
-               { ...err.response.payload.data, errorTitles: err.response.payload.data.errorTitles.join(' and ') },
-             )
+        if (
+          err.response.payload.error &&
+          err.response.payload.error.details &&
+          err.response.payload.error.details.errorTitles
+        ) {
+          return toggleNotification({
+            type: 'warning',
+            message: {
+              id: formatMessage(
+                getTrad('notification.navigation.error'),
+                {
+                  ...err.response.payload.error.details,
+                  errorTitles: err.response.payload.error.details.errorTitles
+                    .map(title => `"${title}"`)
+                    .join(", ")
+                },
+              )
            },
          });
-       }
-       toggleNotification({
-         type: 'warning',
-         message: getTrad('notification.error'),
-       });
+        }
+
+        toggleNotification({
+            type: 'warning',
+            message: getTrad('notification.error'),
+        });
      }
   };
 
