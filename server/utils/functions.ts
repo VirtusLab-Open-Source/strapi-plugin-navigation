@@ -273,7 +273,8 @@ export const buildNestedPaths = <T extends Pick<NavigationItemEntity, 'parent' |
       return (data && data === id) || (isObject(entity.parent) && ((entity.parent).id === id));
     })
     .reduce((acc: NestedPath[], entity) => {
-      const path = `${parentPath || ''}/${entity.path}`
+      const path = `${parentPath || ''}/${entity.path}`.replace("//", "/")
+
       return [
         {
           id: entity.id,
