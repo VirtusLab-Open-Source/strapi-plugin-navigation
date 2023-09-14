@@ -5,6 +5,8 @@ import { Stack } from '@strapi/design-system/Stack';
 import { Button } from '@strapi/design-system/Button';
 import Check from '@strapi/icons/Check';
 import More from '@strapi/icons/More';
+import Information from '@strapi/icons/Information';
+import { Tag } from '@strapi/design-system/Tag';
 import { getTrad } from '../../../../translations';
 import { MoreButton } from './styles';
 import { Select, Option } from '@strapi/design-system/Select';
@@ -50,6 +52,20 @@ const NavigationHeader = ({
 
   return (
     <HeaderLayout
+      secondaryAction={
+        <Tag icon={<Information aria-hidden={true} />}>
+          {
+            activeNavigation
+              ? formatMessage(
+                    getTrad('header.meta'),
+                  {
+                    id: activeNavigation?.id,
+                    key: activeNavigation?.slug
+                  })
+              : null
+          }
+        </Tag>
+      }
       primaryAction={
         <Stack horizontal size={2}>
           <Box marginRight="8px">
