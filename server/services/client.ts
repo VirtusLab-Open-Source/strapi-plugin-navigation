@@ -362,8 +362,9 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
               return cached;
 
             const item = result.find(item => item.id === id);
+
             if (isNil(item))
-              throw new Error("Item not found");
+              return [0];
 
             const { order, parent } = item;
 
@@ -372,6 +373,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
               : [order];
 
             cache.set(id, nestedOrders);
+
             return nestedOrders;
           }
 
