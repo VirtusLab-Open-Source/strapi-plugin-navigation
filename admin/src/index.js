@@ -53,11 +53,13 @@ export default {
   },
   bootstrap() {},
   registerTrads({ locales = [] }) {
-    return locales.map((locale) => {
-      return {
-        data: prefixPluginTranslations(get(trads, locale), pluginId, {}),
-        locale,
-      };
+    return locales
+      .filter((locale) => Object.keys(trads).includes(locale))
+      .map((locale) => {
+        return {
+          data: prefixPluginTranslations(get(trads, locale, trads.en), pluginId, {}),
+          locale,
+        };
     });
   },
 };
