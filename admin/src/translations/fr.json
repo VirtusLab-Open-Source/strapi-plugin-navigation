@@ -2,6 +2,7 @@
   "plugin.name": "UI Navigation",
   "header.title": "Navigation",
   "header.description": "Définisser votre menu de navigation",
+  "header.meta": "ID: { id }, slug: { key }",
   "submit.cta.cancel": "Annuler",
   "submit.cta.save": "Sauvegarder",
   "empty": "Le menu de navigation est vide",

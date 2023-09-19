@@ -14,6 +14,7 @@
     "header.action.manage": "Gestionar",
     "header.action.newItem": "Element nou",
     "header.description": "Definiu la vostra navegació del lloc web",
+    "header.meta": "ID: { id }, slug: { key }",
     "header.title": "Navegació",
     "notification.error": "S'ha produït un error en processar la sol·licitud.",
     "notification.error.customField.type": "Tipus de camp personalitzat no compatible",

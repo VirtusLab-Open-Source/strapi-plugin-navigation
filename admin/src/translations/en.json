@@ -2,6 +2,7 @@
   "plugin.name": "UI Navigation",
   "header.title": "Navigation",
   "header.description": "Define your portal navigation",
+  "header.meta": "ID: { id }, slug: { key }",
   "header.action.newItem": "New Item",
   "header.action.manage": "Manage",
   "header.action.collapseAll": "Collapse All",
