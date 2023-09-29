@@ -433,14 +433,12 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
       return acc.map((item) => omit(item, [`additionalFields.${curr.name}`]) as NavigationItemEntity);
     }, navigationItems);
 
-    await Promise.all(
-      navigationItemsToUpdate.map(async (item) =>
-        await databaseModel.update({
-          where: { id: item.id },
-          data: { additionalFields: item.additionalFields },
-        })
-      )
-    );
+    for (const item of navigationItemsToUpdate) {
+      await databaseModel.update({
+        where: { id: item.id },
+        data: { additionalFields: item.additionalFields },
+      })
+    }
   },
 
   async getSlug(query) {

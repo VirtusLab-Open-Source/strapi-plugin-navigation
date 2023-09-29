@@ -88,13 +88,18 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
     };
   },
 
-  async get(): Promise<Navigation[]> {
+  async get(ids): Promise<Navigation[]> {
     const { masterModel } = getPluginModels();
     const entities = await strapi
       .query<Navigation>(masterModel.uid)
       .findMany({
         limit: Number.MAX_SAFE_INTEGER,
         populate: DEFAULT_POPULATE,
+        where: ids ? {
+          id: {
+            $in: ids
+          }
+        } : undefined
       });
     return entities;
   },
@@ -184,8 +189,8 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
       });
 
       if (i18nEnabled && existingEntity.localizations) {
-        await Promise.all(existingEntity.localizations.map((locale) => 
-          strapi.query<Navigation>(masterModel.uid).update({
+        for (const locale of existingEntity.localizations) {
+          await strapi.query<Navigation>(masterModel.uid).update({
             where: {
               id: locale.id,
             },
@@ -195,7 +200,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
               visible,
             },
           })
-        ));
+        }
       }
     }
     const result = await commonService
@@ -229,13 +234,13 @@ const adminService: (context: StrapiContext) => IAdminService = ({ strapi }) => 
     });
 
     if (i18nEnabled && entity.localizations) {
-      await Promise.all(entity.localizations.map((localeVersion) =>
-        strapi.query<Navigation>(masterModel.uid).delete({
-          where: {
-            id: localeVersion.id,
+      await strapi.query<Navigation>(masterModel.uid).deleteMany({
+        where: {
+          id: {
+            $in: entity.localizations.map(_ => _.id),
           }
-        })
-      ));
+        }
+      });
     }
 
     sendAuditLog(auditLog, 'onNavigationDeletion', { entity, actionType: "DELETE" });
