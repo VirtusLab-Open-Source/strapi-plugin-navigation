@@ -9,6 +9,23 @@ const clientControllers: IClientController = {
     return getPluginService<T>(name);
   },
 
+  async readAll(ctx) {
+    const { query = {} } = ctx;
+    const { locale, orderBy, orderDirection } = query;
+
+    try {
+      return await this.getService().readAll({
+        locale, orderBy, orderDirection 
+      });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        return ctx.badRequest(error.message)
+      }
+
+      throw error
+    }
+  },
+
   async render(ctx) {
     const { params, query = {} } = ctx;
     const { type, menu: menuOnly, path: rootPath, locale, populate } = query;
