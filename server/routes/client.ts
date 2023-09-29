@@ -18,6 +18,14 @@ const routes: StrapiRoutes = {
       config: {
         policies: []
       }
+    },
+    {
+      method: "GET",
+      path: "/",
+      handler: "client.readAll",
+      config: {
+        policies: []
+      }
     }
   ]
 }

@@ -44,6 +44,7 @@ export interface ICommonService {
 }
 
 export interface IClientService {
+  readAll: (input: { orderBy?: string, orderDirection?: string } & I18nQueryParams) => Promise<ToBeFixed>,
   render: (input: { idOrSlug: Id, type?: RenderType, menuOnly?: boolean, rootPath?: string, wrapRelated?: boolean, populate?: PopulateQueryParam } & I18nQueryParams) => Promise<ToBeFixed>,
   renderChildren: (input: { idOrSlug: Id, childUIKey: string, type?: RenderType, menuOnly?: boolean, wrapRelated?: boolean } & I18nQueryParams) => Promise<ToBeFixed>,
   renderRFR: (input: { items: NestedStructure<NavigationItem>[], parent?: Id | null, parentNavItem?: RFRNavItem | null, contentTypes: string[], enabledCustomFieldsNames: string[] }) => ToBeFixed,
