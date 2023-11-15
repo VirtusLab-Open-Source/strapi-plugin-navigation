@@ -9,6 +9,25 @@ import { i18nAwareEntityReadHandler } from "../i18n";
 import { NavigationError } from "../../utils/NavigationError";
 
 const clientService: (context: StrapiContext) => IClientService = ({ strapi }) => ({
+  async readAll({ locale, orderBy = 'createdAt', orderDirection = "DESC" }) {
+    const { masterModel } = getPluginModels();
+
+    const navigations = await strapi
+      .query<Navigation>(masterModel.uid)
+      .findMany({
+        where: locale
+          ? {
+              localeCode: locale,
+            }
+          : undefined,
+        orderBy: { [orderBy]: orderDirection } as ToBeFixed,
+        limit: Number.MAX_SAFE_INTEGER,
+        populate: false
+      });
+
+    return navigations;
+  },
+
   async render({
     idOrSlug,
     type = RENDER_TYPES.FLAT,
@@ -362,8 +381,9 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
               return cached;
 
             const item = result.find(item => item.id === id);
+
             if (isNil(item))
-              throw new Error("Item not found");
+              return [0];
 
             const { order, parent } = item;
 
@@ -372,6 +392,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
               : [order];
 
             cache.set(id, nestedOrders);
+
             return nestedOrders;
           }
 

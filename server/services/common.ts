@@ -267,14 +267,22 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
         await Promise.all(
           Object.entries(groupedItems)
             .map(async ([model, related]) => {
-              const relationData = await strapi
-                .query<StrapiContentType<ToBeFixed>>(model)
-                .findMany({
-                  where: {
-                    id: { $in: map(related, 'related_id') },
-                  },
-                  populate: isNil(populate) ? config.contentTypesPopulate[model] || [] : parsePopulateQuery(populate)
-                });
+              let relationData = [];
+
+              try {
+                relationData = await strapi
+                  .query<StrapiContentType<ToBeFixed>>(model)
+                  .findMany({
+                    where: {
+                      id: { $in: map(related, 'related_id') },
+                    },
+                    populate: isNil(populate) ? config.contentTypesPopulate[model] || [] : parsePopulateQuery(populate)
+                  });
+              } catch (e: unknown) {
+                console.log("Related content type was removed. See details below.");
+                console.error(e);
+              }
+
               return relationData
                 .flatMap(_ =>
                   Object.assign(
@@ -386,7 +394,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
           currentItem = item;
         }
         return !isEmpty(items)
-          ? commonService.analyzeBranch(
+          ? await commonService.analyzeBranch(
             items,
             masterEntity,
             currentItem,
@@ -425,14 +433,12 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
       return acc.map((item) => omit(item, [`additionalFields.${curr.name}`]) as NavigationItemEntity);
     }, navigationItems);
 
-    await Promise.all(
-      navigationItemsToUpdate.map(async (item) =>
-        await databaseModel.update({
-          where: { id: item.id },
-          data: { additionalFields: item.additionalFields },
-        })
-      )
-    );
+    for (const item of navigationItemsToUpdate) {
+      await databaseModel.update({
+        where: { id: item.id },
+        data: { additionalFields: item.additionalFields },
+      })
+    }
   },
 
   async getSlug(query) {

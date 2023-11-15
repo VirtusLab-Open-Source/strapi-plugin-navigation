@@ -121,7 +121,7 @@ export const addI18nWhereClause = async <T>({
     };
   }
 
-  return previousWhere;
+  return previousWhere as T & { locale?: string };
 };
 
 export const i18nNavigationContentsCopy = async ({
@@ -172,7 +172,7 @@ export const i18nNavigationItemRead = async ({
       new InvalidParamNavigationError("Path is invalid");
     }
 
-    let result = get(source.items, intercalate("items", structurePath.map(toString)))
+    let result = get(source.items, intercalate<string, string>("items", structurePath.map(toString)))
 
     if (!result) {
       throw new errors.NotFoundError("Unable to find navigation item");

@@ -3,7 +3,8 @@ import pluginPkg from '../../package.json';
 import pluginId from './pluginId';
 import pluginPermissions from './permissions';
 import NavigationIcon from './components/icons/navigation';
-import { getTrad } from './translations';
+import trads, { getTrad } from './translations';
+import { get } from 'lodash';
 const name = pluginPkg.strapi.name;
 
 export default {
@@ -51,27 +52,14 @@ export default {
     });
   },
   bootstrap() {},
-  async registerTrads({ locales }) {
-    const importedTrads = await Promise.all(
-      locales.map(locale => {
-        return import(
-          /* webpackChunkName: "[pluginId]-[request]" */ `./translations/${locale}.json`
-        )
-          .then(({ default: data }) => {
-            return {
-              data: prefixPluginTranslations(data, pluginId),
-              locale,
-            };
-          })
-          .catch(() => {
-            return {
-              data: {},
-              locale,
-            };
-          });
-      })
-    );
-
-    return Promise.resolve(importedTrads);
+  registerTrads({ locales = [] }) {
+    return locales
+      .filter((locale) => Object.keys(trads).includes(locale))
+      .map((locale) => {
+        return {
+          data: prefixPluginTranslations(get(trads, locale, trads.en), pluginId, {}),
+          locale,
+        };
+    });
   },
 };

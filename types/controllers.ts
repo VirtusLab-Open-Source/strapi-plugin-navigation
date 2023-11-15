@@ -35,6 +35,7 @@ export interface IClientController {
 
   render: (ctx: StrapiControllerContext) => ToBeFixed;
   renderChild: (ctx: StrapiControllerContext) => ToBeFixed;
+  readAll: (ctx: StrapiControllerContext) => ToBeFixed;
 };
 
 export type NavigationController = {

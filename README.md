@@ -122,7 +122,7 @@ Complete installation requirements are exact same as for Strapi itself and can b
 
 **Supported Strapi versions**:
 
-- Strapi v4.13.x (recently tested)
+- Strapi v4.14.x (recently tested)
 - Strapi v4.x
 
 > This plugin is designed for **Strapi v4** and is not working with v3.x. To get version for **Strapi v3** install version [v1.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/strapi-v3).
@@ -376,6 +376,73 @@ Plugin supports both **REST API** and **GraphQL API** exposed by Strapi.
 > **Important!**
 > Version `v2.0.13` introduced breaking change!
 > All responses have changed their structure. Related field will now be of type ContentType instead of Array\<ContentType\>
+
+`GET <host>/api/navigation/?locale=<locale>&orderBy=<orderBy>&orderDirection=<orderDirection>`
+
+NOTE: All params are optional
+
+**Example URL**: `https://localhost:1337/api/navigation?locale=en`
+
+**Example response body**
+
+```json
+[
+  {
+    "id": 383,
+    "name": "Floor",
+    "slug": "floor-pl",
+    "visible": true,
+    "createdAt": "2023-09-29T12:45:54.399Z",
+    "updatedAt": "2023-09-29T13:44:08.702Z",
+    "localeCode": "pl"
+  },
+  {
+    "id": 384,
+    "name": "Floor",
+    "slug": "floor-fr",
+    "visible": true,
+    "createdAt": "2023-09-29T12:45:54.399Z",
+    "updatedAt": "2023-09-29T13:44:08.725Z",
+    "localeCode": "fr"
+  },
+  {
+    "id": 382,
+    "name": "Floor",
+    "slug": "floor",
+    "visible": true,
+    "createdAt": "2023-09-29T12:45:54.173Z",
+    "updatedAt": "2023-09-29T13:44:08.747Z",
+    "localeCode": "en"
+  },
+  {
+    "id": 374,
+    "name": "Main navigation",
+    "slug": "main-navigation-pl",
+    "visible": true,
+    "createdAt": "2023-09-29T12:22:30.373Z",
+    "updatedAt": "2023-09-29T13:44:08.631Z",
+    "localeCode": "pl"
+  },
+  {
+    "id": 375,
+    "name": "Main navigation",
+    "slug": "main-navigation-fr",
+    "visible": true,
+    "createdAt": "2023-09-29T12:22:30.373Z",
+    "updatedAt": "2023-09-29T13:44:08.658Z",
+    "localeCode": "fr"
+  },
+  {
+    "id": 373,
+    "name": "Main navigation",
+    "slug": "main-navigation",
+    "visible": true,
+    "createdAt": "2023-09-29T12:22:30.356Z",
+    "updatedAt": "2023-09-29T13:44:08.680Z",
+    "localeCode": "en"
+  }
+]
+```
 
 `GET <host>/api/navigation/render/<navigationIdOrSlug>?type=<type>`
 

@@ -1,6 +1,6 @@
 {
   "name": "strapi-plugin-navigation",
-  "version": "2.2.12",
+  "version": "2.2.16",
   "description": "Strapi - Navigation plugin",
   "strapi": {
     "name": "navigation",
@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@sindresorhus/slugify": "1.1.0",
-    "@strapi/utils": "^4.13.1",
+    "@strapi/utils": "^4.14.2",
     "lodash": "^4.17.21",
     "pluralize": "^8.0.0",
     "react": "^18.2.0",
@@ -72,6 +72,11 @@
     {
       "name": "VirtusLab // Maciej Witkowski",
       "email": "mwitkowski@virtuslab.com",
+      "url": "https://virtuslab.com"
+    },
+    {
+      "name": "VirtusLab // Tomasz Puch",
+      "email": "tpuch@virtuslab.com",
       "url": "https://virtuslab.com"
     }
   ],
