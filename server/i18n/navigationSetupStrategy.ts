@@ -69,8 +69,23 @@ export const i18nNavigationSetupStrategy: INavigationSetupStrategy = async ({
         ...(rootNavigation.localizations ?? []).map<Navigation>(
           (localization) => assertEntity(localization, "Navigation")
         ),
-        rootNavigation,
       ];
+
+      const connectOrphans = currentNavigations.filter((navigation) => {
+        return (
+          navigation.slug.startsWith(rootNavigation.slug) &&
+          navigation.id !== rootNavigation.id &&
+          !localizations.find(({ id }) => navigation.id === id)
+        );
+      });
+
+      localizations = localizations
+        .concat([rootNavigation])
+        .concat(connectOrphans)
+        // hiding not supported locale versions
+        .filter(
+          ({ localeCode }) => !!localeCode && allLocale.includes(localeCode)
+        );
 
       const missingLocale = allLocale.filter(
         (locale) =>

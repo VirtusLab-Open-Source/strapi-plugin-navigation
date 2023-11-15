@@ -94,7 +94,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
       type: get(data, "type", formDefinition.defaultValues.type),
       related: get(data, "related.value", formDefinition.defaultValues.related),
       relatedType: get(data, "relatedType.value", formDefinition.defaultValues.relatedType),
-      audience: get(data, "audience", formDefinition.defaultValues.audience).map((item: Audience | Id) => isObject(item) ? item.id : item),
+      audience: get(data, "audience", formDefinition.defaultValues.audience).map((item: Audience | Id) => isObject(item) ? item.id.toString() : item.toString()),
       additionalFields: getDefaultCustomFields({
         additionalFields,
         customFieldsValues: get(data, "additionalFields", []),
