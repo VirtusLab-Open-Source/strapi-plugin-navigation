@@ -241,7 +241,15 @@ const View = () => {
   const onPopUpClose = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    changeNavigationItemPopupState(false);
+    
+    // Using Strapi design system select components inside a modal causes
+    // extraneous close events to be fired. It is most likely related to how
+    // the select component handles onOutsideClick events. In those situations
+    // the event target element is the root HTML element.
+    // This is a workaround to prevent the modal from closing in those cases.
+    if (e.target.tagName !== 'HTML') {
+      changeNavigationItemPopupState(false);
+    }
   };
 
   const handleChangeNavigationSelection = (...args) => {
