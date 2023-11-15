@@ -221,7 +221,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
       return isString(title) && !isEmpty(title) ? await slugify(title).then(prop("slug")) : undefined;
     } else if (related) {
       const relationTitle = extractRelatedItemLabel({
-        ...contentTypeEntities.find(_ => String(_.id) === related),
+        ...contentTypeEntities.find(_ => String(_.id) === String(related)),
         __collectionUid: relatedType
       }, contentTypesNameFields, { contentTypes });
       return isString(relationTitle) && !isEmpty(relationTitle) ? await slugify(relationTitle).then(prop("slug")) : undefined;
