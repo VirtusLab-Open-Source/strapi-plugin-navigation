@@ -82,8 +82,8 @@
     }
   ],
   "engines": {
-    "node": ">=16.0.0 <=20.x.x",
-    "npm": ">=7.x.x"
+    "node": ">=18.0.0 <=20.x.x",
+    "npm": ">=6.0.0"
   },
   "nodemonConfig": {
     "ignore": [

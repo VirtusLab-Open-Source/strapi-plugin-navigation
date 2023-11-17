@@ -6,7 +6,7 @@ jobs:
     environment:
       CODECOV_TOKEN: c803c20c-c45d-4a63-9ba9-58c7d5d05bbf
     docker:
-      - image: cimg/node:16.2.0
+      - image: cimg/node:18.18.2
     working_directory: ~/repo
     steps:
       - checkout
