@@ -122,7 +122,7 @@ Complete installation requirements are exact same as for Strapi itself and can b
 
 **Supported Strapi versions**:
 
-- Strapi v4.14.x (recently tested)
+- Strapi v4.15.x (recently tested)
 - Strapi v4.x
 
 > This plugin is designed for **Strapi v4** and is not working with v3.x. To get version for **Strapi v3** install version [v1.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/strapi-v3).

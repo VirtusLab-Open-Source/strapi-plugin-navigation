@@ -1335,10 +1335,10 @@
     p-map "4.0.0"
     yup "0.32.9"
 
-"@strapi/utils@^4.14.2":
-  version "4.14.2"
-  resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.14.2.tgz#e2d45067ecf5e46c1b630fbf2c5603d75f0d3da9"
-  integrity sha512-iT/tkUx/fcctwOlcVSyjCgRQWYG1IHHdRzUm0kjrO9ZCh/ORAqMhMViZSXZ7DR6saPfCUeVvwZf2hdPGUCu2Ig==
+"@strapi/utils@^4.15.4":
+  version "4.15.4"
+  resolved "https://registry.yarnpkg.com/@strapi/utils/-/utils-4.15.4.tgz#4f8b0f064f866bc2175cff63ea4a16d221b351d2"
+  integrity sha512-w6dURdVraSoVkfZiU4enkJlrAJ0XxW/ma+SSsQJQuYjvyqg2wCndqhkjOnCu9mHZ701IbkYqRhF5jpm8gVEoDg==
   dependencies:
     "@sindresorhus/slugify" "1.1.0"
     date-fns "2.30.0"
