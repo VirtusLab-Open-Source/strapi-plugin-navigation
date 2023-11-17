@@ -21,6 +21,7 @@
     "clean": "rm -rf build",
     "develop": "nodemon --exec \"npm run build:dev\""
   },
+  "types": "./types/index.d.ts",
   "dependencies": {
     "@sindresorhus/slugify": "1.1.0",
     "@strapi/utils": "^4.14.2",
