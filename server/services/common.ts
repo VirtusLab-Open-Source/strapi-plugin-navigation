@@ -303,13 +303,10 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
     return entityItems
       .map(({ related, ...item }) => {
         const relatedData = data.get(item.id);
+
         if (relatedData) {
           return Object.assign(item, { 
-            related: {
-              ...relatedData,
-              createdBy: purgeSensitiveData(relatedData.createdBy),
-              updatedBy: purgeSensitiveData(relatedData.updatedBy),
-            }
+            related: purgeSensitiveData(relatedData),
           });
         }
         return { ...item, related: null };

@@ -1,11 +1,19 @@
 //@ts-ignore
-import { errors } from '@strapi/utils';
+import { errors, sanitize } from "@strapi/utils";
 import { Id, StringMap } from "strapi-typed";
-import { IClientController, IClientService, NavigationService, NavigationServiceName, ToBeFixed } from "../../types";
-import { getPluginService, parseParams } from "../utils";
+import {
+  IClientController,
+  IClientService,
+  NavigationService,
+  NavigationServiceName,
+  ToBeFixed,
+} from "../../types";
+import { getPluginService, parseParams, sanitizePopulateField } from "../utils";
 
 const clientControllers: IClientController = {
-  getService<T extends NavigationService = IClientService>(name: NavigationServiceName = "client") {
+  getService<T extends NavigationService = IClientService>(
+    name: NavigationServiceName = "client"
+  ) {
     return getPluginService<T>(name);
   },
 
@@ -15,14 +23,16 @@ const clientControllers: IClientController = {
 
     try {
       return await this.getService().readAll({
-        locale, orderBy, orderDirection 
+        locale,
+        orderBy,
+        orderDirection,
       });
     } catch (error: unknown) {
       if (error instanceof Error) {
-        return ctx.badRequest(error.message)
+        return ctx.badRequest(error.message);
       }
 
-      throw error
+      throw error;
     }
   },
 
@@ -39,7 +49,7 @@ const clientControllers: IClientController = {
         menuOnly,
         rootPath,
         locale,
-        populate
+        populate: sanitizePopulateField(populate) as ToBeFixed,
       });
     } catch (error: unknown) {
       if (error instanceof errors.NotFoundError) {
@@ -47,10 +57,10 @@ const clientControllers: IClientController = {
       }
 
       if (error instanceof Error) {
-        return ctx.badRequest(error.message)
+        return ctx.badRequest(error.message);
       }
 
-      throw error
+      throw error;
     }
   },
   async renderChild(ctx) {
@@ -74,10 +84,10 @@ const clientControllers: IClientController = {
       }
 
       if (error instanceof Error) {
-        return ctx.badRequest(error.message)
+        return ctx.badRequest(error.message);
       }
 
-      throw error
+      throw error;
     }
   },
 };
