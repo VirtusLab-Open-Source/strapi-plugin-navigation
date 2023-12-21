@@ -372,7 +372,7 @@ export const parsePopulateQuery = (populate: PopulateQueryParam): PopulateClause
 }
 
 export const purgeSensitiveData = (data: ToBeFixed): ToBeFixed => {
-  if (!data || !Object.keys(data).length) {
+  if (!data || !(typeof data === "object") || !Object.keys(data).length) {
     return data;
   }
 
@@ -383,7 +383,9 @@ export const purgeSensitiveData = (data: ToBeFixed): ToBeFixed => {
   }
 
   return {
-    ...purgeSensitiveData(rest),
+    ...Object.fromEntries(
+      Object.entries(rest).map(([key, value]) => [key, purgeSensitiveData(value)])
+    ),
     ...(createdBy ? { createdBy: purgeSensitiveDataFromUser(createdBy) } : {}),
     ...(updatedBy ? { updatedBy: purgeSensitiveDataFromUser(updatedBy) } : {}),
   }
@@ -428,8 +430,7 @@ export const sanitizePopulateField = (populate: Populate): Populate => {
 
   if (Array.isArray(populate)) {
     return populate
-      .map((item): Populate => sanitizePopulateField(item))
-      .filter(Boolean);
+      .map((item): Populate => sanitizePopulateField(item));
   }
 
   if ("object" === typeof populate) {
