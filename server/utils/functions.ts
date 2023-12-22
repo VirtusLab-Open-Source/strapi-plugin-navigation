@@ -39,6 +39,13 @@ import { NavigationError } from '../../utils/NavigationError';
 import { TEMPLATE_DEFAULT, ALLOWED_CONTENT_TYPES, RESTRICTED_CONTENT_TYPES } from './constant';
 declare var strapi: IStrapi;
 
+type Populate =
+  | string
+  | undefined
+  | boolean
+  | Array<Populate>
+  | Record<string, string | boolean | undefined>;
+
 const UID_REGEX = /^(?<type>[a-z0-9-]+)\:{2}(?<api>[a-z0-9-]+)\.{1}(?<contentType>[a-z0-9-]+)$/i;
 
 export const getPluginService = <T extends NavigationService>(name: NavigationServiceName): T =>
@@ -364,17 +371,35 @@ export const parsePopulateQuery = (populate: PopulateQueryParam): PopulateClause
   }
 }
 
-export const purgeSensitiveData = (data: any = {}) => {
+export const purgeSensitiveData = (data: ToBeFixed): ToBeFixed => {
+  if (!data || !(typeof data === "object") || !Object.keys(data).length) {
+    return data;
+  }
+
+  const { createdBy = undefined, updatedBy = undefined, ...rest } = data;
+
+  if (!createdBy && !updatedBy) {
+    return data;
+  }
+
+  return {
+    ...Object.fromEntries(
+      Object.entries(rest).map(([key, value]) => [key, purgeSensitiveData(value)])
+    ),
+    ...(createdBy ? { createdBy: purgeSensitiveDataFromUser(createdBy) } : {}),
+    ...(updatedBy ? { updatedBy: purgeSensitiveDataFromUser(updatedBy) } : {}),
+  }
+}
+
+export const purgeSensitiveDataFromUser = (data: any = {}) => {
   if (!data) {
     return undefined;
   }
 
-  const forbiddenFields = ['password', 'token', 'secret'];
+  const allowedFields = ['username', 'firstname', 'lastname', 'email'];
+
   return Object.keys(data)
-    .filter((key: string) => 
-      !forbiddenFields.includes(key.toLowerCase()) &&
-      isEmpty(forbiddenFields.filter(_ => key.toLowerCase().includes(_)))
-    )
+    .filter((key: string) => allowedFields.includes(key.toLowerCase()))
     .reduce((prev, curr) => ({
       ...prev,
       [curr]: data[curr],
@@ -396,4 +421,25 @@ export const resolveGlobalLikeId = (uid = '') =>  {
 
 const splitTypeUid = (uid = '') => {
     return uid.split(UID_REGEX).filter((s) => s && s.length > 0);
+};
+
+export const sanitizePopulateField = (populate: Populate): Populate => {
+  if (!populate || populate === true || populate === "*") {
+    return undefined;
+  }
+
+  if (Array.isArray(populate)) {
+    return populate
+      .map((item): Populate => sanitizePopulateField(item));
+  }
+
+  if ("object" === typeof populate) {
+    return Object.fromEntries(
+      Object.entries(populate).map(
+        ([key, value]) => [key, sanitizePopulateField(value)] as const
+      )
+    ) as Record<string, string | boolean | undefined>;
+  }
+
+  return populate;
 };
