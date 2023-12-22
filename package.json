@@ -16,6 +16,7 @@
     "publish:latest": "cd build && npm publish --tag latest",
     "prepublish:latest": "npm run clean && npm run build && node build/setup-package.js",
     "test:unit": "jest --verbose --coverage",
+    "test:unit:watch": "jest --watch",
     "build": "tsc",
     "build:dev": "npm run build && cp ./package.json ./build && cd ./build && yarn",
     "clean": "rm -rf build",
