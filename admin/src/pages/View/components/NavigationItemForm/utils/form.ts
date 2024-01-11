@@ -1,6 +1,5 @@
 import * as yup from "yup";
 import { isNil } from "lodash";
-//@ts-ignore
 import { translatedErrors } from "@strapi/helper-plugin";
 import { navigationItemType } from "../../../../../utils";
 import { NavigationItemAdditionalField, NavigationItemType } from "../../../../../../../types";

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Effect } from '../../../../types';
 // @ts-ignore
 import { TextInput } from '@strapi/design-system/TextInput';
+import { GenericInputProps } from "@strapi/helper-plugin"
 import { isArray } from 'lodash';
 
 interface IProps {
@@ -11,7 +12,7 @@ interface IProps {
   name?: string;
   label?: string;
   disabled?: boolean;
-  error?: string | string[];
+  error?: GenericInputProps["error"];
 }
 
 const TextArrayInput: React.FC<IProps> = ({ onChange, initialValue, ...props }) => {

@@ -55,6 +55,7 @@ export type NavigationItemFormData = {
   };
   relatedRef?: ToBeFixed;
   structureId: ToBeFixed;
+  additionalFields?: ToBeFixed;
 }
 
 export type NavigationItemFormProps = {
@@ -77,7 +78,7 @@ export type NavigationItemFormProps = {
   readNavigationItemFromLocale: ToBeFixed;
   inputsPrefix: string;
   slugify: (q: string) => Promise<{slug: string}>
-  permissions: PluginPermissions;
+  permissions: Partial<PluginPermissions>;
 }
 
 export type ContentTypeSearchQuery = ToBeFixed;

@@ -1,4 +1,3 @@
-// @ts-ignore
 import { request } from '@strapi/helper-plugin';
 import { prop } from 'lodash/fp';
 import { NavigationPluginConfig } from '../../../types';
@@ -8,7 +7,7 @@ export const fetchNavigationConfig = () =>
   request(`/${pluginId}/settings/config`, { method: 'GET' });
 
 export const updateNavigationConfig = ({ body }: { body: NavigationPluginConfig }) =>
-  request(`/${pluginId}/config`, { method: 'PUT', body }, true);
+  request(`/${pluginId}/config`, { method: 'PUT', body: (body as unknown as XMLHttpRequestBodyInit) }, true);
 
 export const restoreNavigationConfig = () =>
   request(`/${pluginId}/config`, { method: 'DELETE' }, true);

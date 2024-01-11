@@ -1,12 +1,10 @@
-import React, { useCallback, useMemo, useState, VFC } from "react";
+import React, { useCallback, useMemo, useState, FC } from "react";
 import ConfirmationDialog from "../../../../components/ConfirmationDialog";
 import { getMessage } from "../../../../utils";
 // @ts-ignore
 import { Formik } from "formik";
 // @ts-ignore
 import { Check, Refresh, Play, Information } from "@strapi/icons";
-// @ts-ignore
-import { Form } from "@strapi/helper-plugin";
 // @ts-ignore
 import { Stack } from "@strapi/design-system/Stack";
 // @ts-ignore
@@ -45,7 +43,7 @@ const refreshIcon = <></>;
 
 const INITIAL_VALUES: Form = { pruneNavigations: false, enabled: true };
 
-export const DisableI18nModal: VFC<Props> = ({ onSubmit, onCancel }) => {
+export const DisableI18nModal: FC<Props> = ({ onSubmit, onCancel }) => {
   const [state, setState] = useState(INITIAL_VALUES);
   const onConfirm = useCallback(() => {
     onSubmit(state);
@@ -66,7 +64,7 @@ export const DisableI18nModal: VFC<Props> = ({ onSubmit, onCancel }) => {
       onCancel={onCancel}
     >
       <Formik initialValues={INITIAL_VALUES} onSubmit={onConfirm}>
-        {({ handleSubmit, setFieldValue, values }: ToBeFixed) => (
+        {({ setFieldValue, values }: ToBeFixed) => (
           <>
             <Grid gap={4}>
               <GridItem col={12}>
@@ -89,39 +87,37 @@ export const DisableI18nModal: VFC<Props> = ({ onSubmit, onCancel }) => {
                 </Box>
               </GridItem>
             </Grid>
-            <Form noValidate onSubmit={handleSubmit}>
-              <Stack spacing={4}>
-                <Grid gap={4}>
-                  <GridItem col={12}>
-                    <Box padding={2}>
-                      <ToggleInput
-                        name="audienceFieldChecked"
-                        label={getMessage(
-                          "pages.settings.actions.disableI18n.prune.label"
-                        )}
-                        hint={""}
-                        checked={values.pruneNavigations}
-                        onChange={({
-                          target: { checked },
-                        }: FormBooleanItemInput) => {
-                          setFieldValue("pruneNavigations", checked, false);
-                          setState((state) => ({
-                            ...state,
-                            pruneNavigations: checked,
-                          }));
-                        }}
-                        onLabel={getMessage(
-                          "pages.settings.actions.disableI18n.prune.on"
-                        )}
-                        offLabel={getMessage(
-                          "pages.settings.actions.disableI18n.prune.off"
-                        )}
-                      />
-                    </Box>
-                  </GridItem>
-                </Grid>
-              </Stack>
-            </Form>
+            <Stack spacing={4}>
+              <Grid gap={4}>
+                <GridItem col={12}>
+                  <Box padding={2}>
+                    <ToggleInput
+                      name="audienceFieldChecked"
+                      label={getMessage(
+                        "pages.settings.actions.disableI18n.prune.label"
+                      )}
+                      hint={""}
+                      checked={values.pruneNavigations}
+                      onChange={({
+                        target: { checked },
+                      }: FormBooleanItemInput) => {
+                        setFieldValue("pruneNavigations", checked, false);
+                        setState((state) => ({
+                          ...state,
+                          pruneNavigations: checked,
+                        }));
+                      }}
+                      onLabel={getMessage(
+                        "pages.settings.actions.disableI18n.prune.on"
+                      )}
+                      offLabel={getMessage(
+                        "pages.settings.actions.disableI18n.prune.off"
+                      )}
+                    />
+                  </Box>
+                </GridItem>
+              </Grid>
+            </Stack>
           </>
         )}
       </Formik>
