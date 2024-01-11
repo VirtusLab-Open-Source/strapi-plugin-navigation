@@ -97,7 +97,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
         const { visible = true } = pluginOptions['content-manager'] || {};
         const { name, description } = info;
         const { hidden, templateName, draftAndPublish } = options;
-        const findRouteConfig = find(get(strapi.api, `[${modelName}].config.routes`, []),
+        const findRouteConfig = find<ToBeFixed>(get(strapi.api, `[${modelName}].config.routes`, []),
           route => route.handler.includes('.find'));
         const findRoutePath = findRouteConfig && findRouteConfig.path.split('/')[1];
         const apiPath = findRoutePath && (findRoutePath !== apiName) ? findRoutePath : apiName || modelName;

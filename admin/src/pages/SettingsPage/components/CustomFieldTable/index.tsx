@@ -60,7 +60,7 @@ const CustomFieldTable: React.FC<ICustomFieldTableProps> = ({
         type: 'warning',
         message: {
           id: getTradId(`${tradPrefix}confirmation.error`),
-          default: 'Something went wrong',
+          defaultMessage: 'Something went wrong',
         }
       });
     } else {

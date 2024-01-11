@@ -1,5 +1,4 @@
 import { object, string, mixed, bool, array } from "yup";
-//@ts-ignore
 import { translatedErrors } from "@strapi/helper-plugin";
 import { getTradId } from "../../../translations";
 import { NavigationItemCustomField, NavigationItemCustomFieldType } from "../../../../../types";

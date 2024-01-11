@@ -50,7 +50,7 @@ import { isContentTypeEligible, resolveGlobalLikeId } from './utils/functions';
 import { PermanentAlert } from '../../components/Alert/styles';
 import { useDisableI18nModal } from './components/DisableI18nModal';
 
-import { NavigationItemAdditionalField, NavigationItemCustomField } from '../../../../types';
+import { NavigationItemAdditionalField, NavigationItemCustomField, ToBeFixed } from '../../../../types';
 import CustomFieldModal from './components/CustomFieldModal';
 import CustomFieldTable from './components/CustomFieldTable';
 import { HandleSetContentTypeExpanded, OnPopupClose, OnSave, PreparePayload, RawPayload, RestartReasons, RestartStatus, StrapiContentTypeSchema } from './types';
@@ -68,9 +68,11 @@ const BOX_DEFAULT_PROPS = {
   padding: 6,
 };
 
+const noopFallback = () => {}
+
 const SettingsPage = () => {
-  const { lockApp, unlockApp } = useOverlayBlocker();
-  const { lockAppWithAutoreload, unlockAppWithAutoreload } = useAutoReloadOverlayBlocker();
+  const { lockApp = noopFallback, unlockApp = noopFallback } = useOverlayBlocker();
+  const { lockAppWithAutoreload = noopFallback, unlockAppWithAutoreload = noopFallback } = useAutoReloadOverlayBlocker();
   const [restartStatus, setRestartStatus] = useState<RestartStatus>(RESTART_NOT_REQUIRED);
   const [pruneObsoleteI18nNavigations, setPruneObsoleteI18nNavigations] = useState<boolean>(false);
   const [isCustomFieldModalOpen, setIsCustomFieldModalOpen] = useState<boolean>(false);
@@ -78,10 +80,10 @@ const SettingsPage = () => {
   const [customFields, setCustomFields] = useState<NavigationItemCustomField[]>([]);
   const [isRestorePopupOpen, setIsRestorePopupOpen] = useState<boolean>(false);
   const [contentTypeExpanded, setContentTypeExpanded] = useState<string | undefined>(undefined);
-  const { data: navigationConfigData, isLoading: isConfigLoading, error: configErr, submitMutation, restoreMutation, restartMutation } = useNavigationConfig();
-  const { data: allContentTypesData, isLoading: isContentTypesLoading, error: contentTypesErr } = useAllContentTypes();
+  const { data: navigationConfigData, isLoading: isConfigLoading, error: configErr, submitMutation, restoreMutation, restartMutation }: ToBeFixed = useNavigationConfig();
+  const { data: allContentTypesData, isLoading: isContentTypesLoading, error: contentTypesErr }: ToBeFixed = useAllContentTypes();
 
-  const viewPermissions = useMemo(
+  const viewPermissions: ToBeFixed = useMemo(
     () => ({
       settings: pluginPermissions.settings
     }),
@@ -94,7 +96,7 @@ const SettingsPage = () => {
       canSettings: canManageSettings,
     },
   } = useRBAC(viewPermissions);
-  
+
   const isLoading = isConfigLoading || isContentTypesLoading;
   const isError = configErr || contentTypesErr;
   const configContentTypes: StrapiContentTypeSchema[] = navigationConfigData?.contentTypes || [];

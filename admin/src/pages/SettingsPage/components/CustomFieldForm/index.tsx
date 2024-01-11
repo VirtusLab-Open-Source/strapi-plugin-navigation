@@ -3,8 +3,7 @@ import React, { useCallback, useMemo } from 'react';
 import { ModalBody, ModalFooter } from '@strapi/design-system/ModalLayout';
 //@ts-ignore
 import { Button } from '@strapi/design-system/Button';
-//@ts-ignore
-import { GenericInput } from '@strapi/helper-plugin';
+import { GenericInput, GenericInputProps } from '@strapi/helper-plugin';
 //@ts-ignore
 import { Grid, GridItem } from '@strapi/design-system/Grid';
 import { useFormik } from 'formik';
@@ -26,12 +25,14 @@ interface ICustomFieldFormProps {
 
 const customFieldsTypes = ["string", "boolean", "select"];
 const prepareSelectOptions = (options: string[]) => options.map((option, index) => ({
-  key: index,
+  key: `${option}-${index}`,
   metadatas: {
     intlLabel: {
       id: option,
       defaultMessage: option,
-    }
+    },
+    hidden: false,
+    disabled: false,
   },
   value: option,
   label: option,
@@ -78,13 +79,17 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({ isEditForm, customFi
     validationSchema: formDefinition.schemaFactory(usedCustomFieldNames),
     validateOnChange: false,
   });
-  const defaultProps = useCallback((fieldName: keyof NavigationItemCustomField) => ({
-    intlLabel: getTrad(`${tradPrefix}${fieldName}.label`),
-    onChange: handleChange,
-    name: fieldName,
-    value: values[fieldName],
-    error: errors[fieldName],
-  }), [values, errors, handleChange]);
+  const defaultProps = useCallback((fieldName: keyof NavigationItemCustomField): Omit<GenericInputProps, "type"> => {
+    const error = mapError(errors[fieldName]);
+
+    return {
+      intlLabel: getTrad(`${tradPrefix}${fieldName}.label`),
+      onChange: handleChange,
+      name: fieldName,
+      value: values[fieldName],
+      error,
+    };
+  }, [values, errors, handleChange]);
 
   return (
     <form>
@@ -93,7 +98,6 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({ isEditForm, customFi
           <GridItem key="name" col={12}>
             <GenericInput
               {...defaultProps("name")}
-              autoFocused={true}
               placeholder={getTrad(`${tradPrefix}name.placeholder`)}
               description={getTrad(`${tradPrefix}name.description`)}
               type="text"
@@ -160,3 +164,17 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({ isEditForm, customFi
 }
 
 export default CustomFieldForm;
+
+const mapError = (err: unknown): GenericInputProps["error"] => {
+  if (typeof err === "string") {
+    return err;
+  }
+
+  if (
+    typeof err === "object" &&
+    err &&
+    ((err as any).id || (err as any).description || (err as any).defaultMessage)
+  ) {
+    return err;
+  }
+};

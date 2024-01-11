@@ -1,7 +1,6 @@
 // @ts-ignore
 import { Grid, GridItem } from "@strapi/design-system/Grid";
-// @ts-ignore
-import { Form as BaseForm, GenericInput } from "@strapi/helper-plugin";
+import { Form as BaseForm, GenericInput, GenericInputProps } from "@strapi/helper-plugin";
 // @ts-ignore
 import { Formik } from "formik";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -11,6 +10,7 @@ import { Effect } from "../../../../../../../types";
 import { getTradId } from "../../../../../translations";
 import { Navigation } from "../types";
 import { get } from "lodash";
+import { GenericInputOnChangeInput } from "../../../utils/types";
 
 interface Props {
   navigation: Partial<Navigation>;
@@ -29,8 +29,8 @@ export const Form = ({
     id: get(navigation, "id", ""),
     name: get(navigation, "name", ""),
   }
-  const onChange = useCallback(
-    ({ target: { name, value } }: React.ChangeEvent<HTMLInputElement>) => {
+  const onChange: GenericInputProps["onChange"] = useCallback(
+    ({ target: { name, value } }: GenericInputOnChangeInput) => {
       onChangeBase({
         ...navigation,
         [name]: value,
