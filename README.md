@@ -759,6 +759,16 @@ Example:
 
       console.log(saveResult);
     },
+    contentTypeName: "navigation",
+    hookName: "afterCreate",
+  });
+
+  navigationCommonService.registerLifecycleHook({
+    callback: async ({ action, result }) => {
+      const saveResult = await logIntoSystem(action, result);
+
+      console.log(saveResult);
+    },
     contentTypeName: "navigation-item",
     hookName: "afterCreate",
   });
