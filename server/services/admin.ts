@@ -6,7 +6,6 @@ import {
   Audience,
   AuditLogContext,
   IAdminService,
-  ICommonService,
   Navigation,
   NavigationItem,
   NavigationItemCustomField,
@@ -42,7 +41,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({
   strapi,
 }) => ({
   async config(viaSettingsPage = false): Promise<SettingsPageConfig> {
-    const commonService = getPluginService<ICommonService>("common");
+    const commonService = getPluginService("common");
     const { audienceModel } = getPluginModels();
     const pluginStore = await commonService.getPluginStore();
     const config = await pluginStore.get<string, NavigationPluginConfig>({
@@ -127,7 +126,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({
   },
 
   async getById(id: Id): Promise<Navigation> {
-    const commonService = getPluginService<ICommonService>("common");
+    const commonService = getPluginService("common");
 
     const { masterModel, itemModel } = getPluginModels();
     const entity = await strapi
@@ -152,8 +151,8 @@ const adminService: (context: StrapiContext) => IAdminService = ({
   },
 
   async post(payload: ToBeFixed, auditLog: AuditLogContext) {
-    const commonService = getPluginService<ICommonService>("common");
-    const adminService = getPluginService<IAdminService>("admin");
+    const commonService = getPluginService("common");
+    const adminService = getPluginService("admin");
     const { enabled: i18nEnabled, defaultLocale } = await getI18nStatus({
       strapi,
     });
@@ -200,8 +199,8 @@ const adminService: (context: StrapiContext) => IAdminService = ({
     payload: Navigation & { items: ToBeFixed },
     auditLog: AuditLogContext
   ) {
-    const adminService = getPluginService<IAdminService>("admin");
-    const commonService = getPluginService<ICommonService>("common");
+    const adminService = getPluginService("admin");
+    const commonService = getPluginService("common");
     const { enabled: i18nEnabled } = await getI18nStatus({ strapi });
 
     const { masterModel } = getPluginModels();
@@ -275,7 +274,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({
 
   async delete(id, auditLog) {
     const { masterModel, itemModel } = getPluginModels();
-    const adminService = getPluginService<IAdminService>("admin");
+    const adminService = getPluginService("admin");
     const entity = await adminService.getById(id);
     const { enabled: i18nEnabled } = await getI18nStatus({ strapi });
     // TODO: remove when cascade deletion is present
@@ -324,14 +323,14 @@ const adminService: (context: StrapiContext) => IAdminService = ({
   },
 
   async restoreConfig(): Promise<void> {
-    const commonService = getPluginService<ICommonService>("common");
+    const commonService = getPluginService("common");
     const pluginStore = await commonService.getPluginStore();
     await pluginStore.delete({ key: "config" });
     await commonService.setDefaultConfig();
   },
 
   async updateConfig(newConfig: NavigationPluginConfig): Promise<void> {
-    const commonService = getPluginService<ICommonService>("common");
+    const commonService = getPluginService("common");
     const pluginStore = await commonService.getPluginStore();
     const config = await pluginStore.get<string, NavigationPluginConfig>({
       key: "config",
@@ -356,8 +355,8 @@ const adminService: (context: StrapiContext) => IAdminService = ({
       throw new NavigationError("Not yet implemented.");
     }
 
-    const adminService = getPluginService<IAdminService>("admin");
-    const commonService = getPluginService<ICommonService>("common");
+    const adminService = getPluginService("admin");
+    const commonService = getPluginService("common");
     const targetEntity = await adminService.getById(target);
 
     return await i18nNavigationContentsCopy({

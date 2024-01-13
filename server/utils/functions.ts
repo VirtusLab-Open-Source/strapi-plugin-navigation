@@ -14,7 +14,7 @@ import {
   uniqBy,
   zipWith,
 } from 'lodash';
-import { PopulateClause } from 'strapi-typed';
+import { PopulateClause, StrapiContext } from 'strapi-typed';
 import { Id, IStrapi, Primitive, StrapiContentType, StringMap, StrapiContentTypeFullSchema } from "strapi-typed";
 
 import {
@@ -22,6 +22,12 @@ import {
   AuditLogContext,
   AuditLogParams,
   ContentTypeEntity,
+  Effect,
+  IAdminService,
+  IClientService,
+  ICommonService,
+  LifeCycleEvent,
+  LifeCycleHookName,
   NavigationActions,
   NavigationItem,
   NavigationItemAdditionalField,
@@ -36,7 +42,7 @@ import {
   ToBeFixed,
 } from "../../types";
 import { NavigationError } from '../../utils/NavigationError';
-import { TEMPLATE_DEFAULT, ALLOWED_CONTENT_TYPES, RESTRICTED_CONTENT_TYPES } from './constant';
+import { TEMPLATE_DEFAULT, ALLOWED_CONTENT_TYPES, RESTRICTED_CONTENT_TYPES, ContentType, allLifecycleHooks } from './constant';
 declare var strapi: IStrapi;
 
 type Populate =
@@ -48,8 +54,12 @@ type Populate =
 
 const UID_REGEX = /^(?<type>[a-z0-9-]+)\:{2}(?<api>[a-z0-9-]+)\.{1}(?<contentType>[a-z0-9-]+)$/i;
 
-export const getPluginService = <T extends NavigationService>(name: NavigationServiceName): T =>
-  strapi.plugin("navigation").service(name);
+export function getPluginService(name: "client"): IClientService;
+export function getPluginService(name: "admin"): IAdminService;
+export function getPluginService(name: "common"): ICommonService;
+export function getPluginService(name: NavigationServiceName) {
+  return strapi.plugin("navigation").service(name) as NavigationService
+}
 
 export const errorHandler = (ctx: ToBeFixed) => (error: NavigationError | string) => {
   if (error instanceof NavigationError) {
@@ -442,3 +452,29 @@ export const sanitizePopulateField = (populate: Populate): Populate => {
 
   return populate;
 };
+
+export const buildHookListener =
+  (contentTypeName: ContentType, { strapi }: StrapiContext) =>
+  (hookName: LifeCycleHookName): [LifeCycleHookName, Effect<LifeCycleEvent>] =>
+    [
+      hookName,
+      async (event) => {
+        const commonService: ICommonService = strapi
+          .plugin("navigation")
+          .service("common");
+
+        await commonService.runLifecycleHook({
+          contentTypeName,
+          hookName,
+          event,
+        });
+      },
+    ];
+
+export const buildAllHookListeners = (
+  contentTypeName: ContentType,
+  context: StrapiContext,
+): Record<LifeCycleHookName, Effect<LifeCycleEvent>> =>
+  Object.fromEntries(
+    allLifecycleHooks.map(buildHookListener(contentTypeName, context))
+  ) as ToBeFixed;

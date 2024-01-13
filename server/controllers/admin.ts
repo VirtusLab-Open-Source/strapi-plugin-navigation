@@ -3,10 +3,6 @@ import { errors } from "@strapi/utils"
 import {
   assertIsNumber,
   assertNotEmpty,
-  IAdminService,
-  ICommonService,
-  NavigationService,
-  NavigationServiceName,
   ToBeFixed,
 } from "../../types";
 import { getPluginService, parseParams } from "../utils";
@@ -17,24 +13,25 @@ import { InvalidParamNavigationError } from "../../utils/InvalidParamNavigationE
 import { NavigationError } from "../../utils/NavigationError";
 
 const adminControllers: IAdminController = {
-  getService<T extends NavigationService = IAdminService>(
-    name: NavigationServiceName = "admin"
-  ) {
-    return getPluginService<T>(name);
+  getAdminService() {
+    return getPluginService("admin");
+  },
+  getCommonService() {
+    return getPluginService("common");
   },
   async get() {
-    return await this.getService().get();
+    return await this.getAdminService().get();
   },
   post(ctx) {
     const { auditLog } = ctx;
     const { body = {} } = ctx.request;
-    return this.getService().post(body, auditLog);
+    return this.getAdminService().post(body, auditLog);
   },
   put(ctx) {
     const { params, auditLog } = ctx;
     const { id } = parseParams<StringMap<string>, { id: Id }>(params);
     const { body = {} } = ctx.request;
-    return this.getService().put(id, body, auditLog).catch(errorHandler(ctx));
+    return this.getAdminService().put(id, body, auditLog).catch(errorHandler(ctx));
   },
   async delete(ctx) {
     const { params, auditLog } = ctx;
@@ -43,7 +40,7 @@ const adminControllers: IAdminController = {
     try {
       assertNotEmpty(id, new InvalidParamNavigationError("Navigation's id is not a id"));
 
-      await this.getService().delete(id, auditLog);
+      await this.getAdminService().delete(id, auditLog);
 
       return {};
     } catch (error) {
@@ -57,12 +54,12 @@ const adminControllers: IAdminController = {
     }
   },
   async config() {
-    return this.getService().config();
+    return this.getAdminService().config();
   },
 
   async updateConfig(ctx) {
     try {
-      await this.getService().updateConfig(ctx.request.body);
+      await this.getAdminService().updateConfig(ctx.request.body);
     } catch (e: ToBeFixed) {
       errorHandler(ctx)(e);
     }
@@ -71,7 +68,7 @@ const adminControllers: IAdminController = {
 
   async restoreConfig(ctx) {
     try {
-      await this.getService().restoreConfig();
+      await this.getAdminService().restoreConfig();
     } catch (e: ToBeFixed) {
       errorHandler(ctx)(e);
     }
@@ -79,12 +76,12 @@ const adminControllers: IAdminController = {
   },
 
   async settingsConfig() {
-    return this.getService().config(true);
+    return this.getAdminService().config(true);
   },
 
   async settingsRestart(ctx) {
     try {
-      await this.getService().restart();
+      await this.getAdminService().restart();
       return ctx.send({ status: 200 });
     } catch (e: ToBeFixed) {
       errorHandler(ctx)(e);
@@ -93,12 +90,12 @@ const adminControllers: IAdminController = {
   async getById(ctx) {
     const { params } = ctx;
     const { id } = parseParams<StringMap<string>, { id: Id }>(params);
-    return this.getService().getById(id);
+    return this.getAdminService().getById(id);
   },
   async getContentTypeItems(ctx) {
     const { params, query = {} } = ctx;
     const { model } = parseParams<StringMap<string>, { model: string }>(params);
-    return this.getService<ICommonService>("common").getContentTypeItems(
+    return this.getCommonService().getContentTypeItems(
       model,
       query
     );
@@ -114,7 +111,7 @@ const adminControllers: IAdminController = {
     try {
       assertCopyParams(source, target);
 
-      return this.getService().fillFromOtherLocale({ source, target, auditLog });
+      return this.getAdminService().fillFromOtherLocale({ source, target, auditLog });
     } catch (error) {
       if (error instanceof Error) {
         return ctx.badRequest(error.message)
@@ -137,7 +134,7 @@ const adminControllers: IAdminController = {
         new InvalidParamNavigationError("Path is missing")
       )
 
-      return await this.getService().readNavigationItemFromLocale({
+      return await this.getAdminService().readNavigationItemFromLocale({
         path,
         source,
         target,
@@ -163,7 +160,7 @@ const adminControllers: IAdminController = {
     try {
       assertNotEmpty(q);
 
-      return this.getService<ICommonService>("common").getSlug(q).then((slug) => ({ slug }));
+      return this.getCommonService().getSlug(q).then((slug) => ({ slug }));
     } catch (error) {
       if (error instanceof Error) {
         return ctx.badRequest(error.message)

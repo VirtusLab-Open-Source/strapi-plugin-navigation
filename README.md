@@ -51,10 +51,11 @@ Strapi Navigation Plugin provides a website navigation / menu builder feature fo
    - [REST API](#rest-api) 
    - [GraphQL API](#graphql-api)
 10. [🔌 Extensions](#-extensions)
-11. [🧩 Examples](#-examples)
-12. [💬 FAQ](#-faq)
-13. [🤝 Contributing](#-contributing)
-14. [👨‍💻 Community support](#-community-support)
+11. [🌿 Model lifecycle hooks](#model-life-cycle-hooks)
+12. [🧩 Examples](#-examples)
+13. [💬 FAQ](#-faq)
+14. [🤝 Contributing](#-contributing)
+15. [👨‍💻 Community support](#-community-support)
 
 ## ✨ Features
 
@@ -731,6 +732,36 @@ module.exports = {
     };
   },
 };
+```
+
+## Model lifecycle hooks
+
+Navigation plugin allows to register lifecycle hooks for `Navigation` and `NavigationItem` content types.
+
+You can read more about lifecycle hooks [here](https://docs.strapi.io/dev-docs/backend-customization/models#lifecycle-hooks). (You can set a listener for all of the hooks).
+
+Lifecycle hooks can be register either in `register()` or `bootstrap()` methods of your server. You can register more than one listener for a specified lifecycle hook. For example: you want to do three things on navigation item creation and do not want to handle all of these actions in one big function. You can split logic in as many listeners as you want.
+
+Listeners can by sync and `async`.
+
+>Be aware that lifecycle hooks registered in `register()` may be fired by plugin's bootstrapping. If you want listen to events triggered after server's startup use `bootstrap()`.
+
+Example:
+
+```ts
+  const navigationCommonService = strapi
+    .plugin("navigation")
+    .service("common");
+
+  navigationCommonService.registerLifecycleHook({
+    callback: async ({ action, result }) => {
+      const saveResult = await logIntoSystem(action, result);
+
+      console.log(saveResult);
+    },
+    contentTypeName: "navigation-item",
+    hookName: "afterCreate",
+  });
 ```
 
 ## 🧩 Examples

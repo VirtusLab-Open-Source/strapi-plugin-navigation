@@ -1,5 +1,4 @@
 import { StrapiContext } from "strapi-typed";
-import { ICommonService } from "../../types";
 import { getPluginService } from "../utils";
 
 const getTypes = require("./types");
@@ -15,7 +14,7 @@ export default async ({ strapi }: StrapiContext) => {
   extensionService
     .shadowCRUD("plugin::navigation.navigations-items-related")
     .disable();
-  const commonService = getPluginService<ICommonService>('common');
+  const commonService = getPluginService('common');
   const pluginStore = await commonService.getPluginStore()
   const config = await pluginStore.get({ key: 'config' });
 
