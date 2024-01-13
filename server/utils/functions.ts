@@ -33,7 +33,6 @@ import {
   NavigationItemAdditionalField,
   NavigationItemCustomField,
   NavigationItemEntity,
-  NavigationService,
   NavigationServiceName,
   NestedPath,
   NestedStructure,
@@ -54,11 +53,16 @@ type Populate =
 
 const UID_REGEX = /^(?<type>[a-z0-9-]+)\:{2}(?<api>[a-z0-9-]+)\.{1}(?<contentType>[a-z0-9-]+)$/i;
 
-export function getPluginService(name: "client"): IClientService;
-export function getPluginService(name: "admin"): IAdminService;
-export function getPluginService(name: "common"): ICommonService;
-export function getPluginService(name: NavigationServiceName) {
-  return strapi.plugin("navigation").service(name) as NavigationService
+type TypeMap = {
+  client: IClientService,
+  admin: IAdminService,
+  common: ICommonService
+}
+
+export function getPluginService<T extends NavigationServiceName>(name: T): T extends infer R extends NavigationServiceName 
+  ? TypeMap[R] 
+  : never {
+  return strapi.plugin("navigation").service(name)
 }
 
 export const errorHandler = (ctx: ToBeFixed) => (error: NavigationError | string) => {
