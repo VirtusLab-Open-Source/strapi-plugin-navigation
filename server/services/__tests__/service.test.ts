@@ -4,6 +4,7 @@ import { Navigation, ToBeFixed } from "../../../types";
 import setupStrapi from '../../../__mocks__/strapi';
 import { allLifecycleHooks, getPluginService, RENDER_TYPES } from "../../utils";
 import clientService from "../client";
+import adminService from "../admin";
 
 declare var strapi: IStrapi;
 
@@ -529,6 +530,309 @@ describe("Navigation services", () => {
                 },
               ],
               "name": "Navigation-55",
+            },
+          ]
+        `);
+      });
+    });
+  });
+
+  describe("AdminService", () => {
+    let index = 0;
+    const generateNavigation = (
+      rest: Partial<Navigation> = {}
+    ): Partial<Navigation> => ({
+      name: `Navigation-${++index}`,
+      id: ++index,
+      ...rest,
+    });
+
+    describe("get()", () => {
+      it("should read all navigations", async () => {
+        // Given
+        const ids = [1, 2, 3, 4, 5, 6, 7];
+        const navigations = ids.map((id) => generateNavigation({ id }));
+        const locale = "en";
+        const activeLocale = [locale];
+        const findMany = jest.fn();
+        const query = (): any => ({ findMany });
+        const i18nPluginService = {
+          getDefaultLocale() {
+            return locale;
+          },
+          find() {
+            return activeLocale.map((code) => ({ code }));
+          },
+        } as ToBeFixed;
+        const i18nPlugin = {
+          service() {
+            return i18nPluginService;
+          },
+        };
+        const store = () =>
+          ({
+            get() {
+              return { i18nEnabled: false };
+            },
+          } as ToBeFixed);
+        const strapi: Partial<StrapiContext["strapi"]> = {
+          query,
+          plugin(name): any {
+            return name === "i18n" ? i18nPlugin : null;
+          },
+          store,
+        };
+        const adminServiceBuilt = adminService({ strapi } as StrapiContext);
+
+        findMany.mockResolvedValue(navigations);
+
+        // When
+        const result = await adminServiceBuilt.get();
+
+        // Then
+        expect(findMany.mock.calls).toMatchInlineSnapshot(`
+          Array [
+            Array [
+              Object {
+                "limit": 9007199254740991,
+                "populate": Array [
+                  "localizations",
+                ],
+                "where": Object {},
+              },
+            ],
+          ]
+        `);
+        expect(result).toMatchInlineSnapshot(`
+          Array [
+            Object {
+              "id": 1,
+              "name": "Navigation-1",
+            },
+            Object {
+              "id": 2,
+              "name": "Navigation-3",
+            },
+            Object {
+              "id": 3,
+              "name": "Navigation-5",
+            },
+            Object {
+              "id": 4,
+              "name": "Navigation-7",
+            },
+            Object {
+              "id": 5,
+              "name": "Navigation-9",
+            },
+            Object {
+              "id": 6,
+              "name": "Navigation-11",
+            },
+            Object {
+              "id": 7,
+              "name": "Navigation-13",
+            },
+          ]
+        `);
+      });
+
+      it("should read navigations only for specified ids", async () => {
+        // Given
+        const ids = [1, 2, 3, 4, 5, 6, 7];
+        const navigations = ids.map((id) => generateNavigation({ id }));
+        const locale = "en";
+        const activeLocale = [locale];
+        const findMany = jest.fn();
+        const query = (): any => ({ findMany });
+        const i18nPluginService = {
+          getDefaultLocale() {
+            return locale;
+          },
+          find() {
+            return activeLocale.map((code) => ({ code }));
+          },
+        } as ToBeFixed;
+        const i18nPlugin = {
+          service() {
+            return i18nPluginService;
+          },
+        };
+        const store = () =>
+          ({
+            get() {
+              return { i18nEnabled: false };
+            },
+          } as ToBeFixed);
+        const strapi: Partial<StrapiContext["strapi"]> = {
+          query,
+          plugin(name): any {
+            return name === "i18n" ? i18nPlugin : null;
+          },
+          store,
+        };
+        const adminServiceBuilt = adminService({ strapi } as StrapiContext);
+
+        const selectedIds = [3, 4, 7];
+        findMany.mockResolvedValue(
+          navigations.filter(({ id }) => selectedIds.includes(Number(id)))
+        );
+
+        // When
+        const result = await adminServiceBuilt.get([3, 4, 7]);
+
+        // Then
+        expect(findMany.mock.calls).toMatchInlineSnapshot(`
+          Array [
+            Array [
+              Object {
+                "limit": 9007199254740991,
+                "populate": Array [
+                  "localizations",
+                ],
+                "where": Object {
+                  "id": Object {
+                    "$in": Array [
+                      3,
+                      4,
+                      7,
+                    ],
+                  },
+                },
+              },
+            ],
+          ]
+        `);
+        expect(result).toMatchInlineSnapshot(`
+          Array [
+            Object {
+              "id": 3,
+              "name": "Navigation-19",
+            },
+            Object {
+              "id": 4,
+              "name": "Navigation-21",
+            },
+            Object {
+              "id": 7,
+              "name": "Navigation-27",
+            },
+          ]
+        `);
+      });
+
+      it("should be internationalisation aware", async () => {
+        // Given
+        const locale = "en";
+        const activeLocale = [locale, "fr", "ff"];
+        const allLocale = [locale, "fr", "ff", "de"];
+        const findMany = jest.fn();
+        const query = (): any => ({ findMany });
+        const i18nPluginService = {
+          getDefaultLocale() {
+            return locale;
+          },
+          find() {
+            return activeLocale.map((code) => ({ code }));
+          },
+        } as ToBeFixed;
+        const i18nPlugin = {
+          service() {
+            return i18nPluginService;
+          },
+        };
+        const store = () =>
+          ({
+            get() {
+              return { i18nEnabled: true };
+            },
+          } as ToBeFixed);
+        const strapi: Partial<StrapiContext["strapi"]> = {
+          query,
+          plugin(name): any {
+            return name === "i18n" ? i18nPlugin : null;
+          },
+          store,
+        };
+        const adminServiceBuilt = adminService({ strapi } as StrapiContext);
+        const navigations = allLocale.map((localeCode) =>
+          generateNavigation({
+            localeCode,
+            localizations: allLocale
+              .filter((locale) => locale !== localeCode)
+              .map((_localeCode) =>
+                generateNavigation({ localeCode: _localeCode })
+              ) as ToBeFixed,
+          })
+        );
+        const ids = navigations
+          .map(({ id }) => id)
+          .slice(1, 3)
+          .map(Number);
+
+        findMany.mockResolvedValue(
+          navigations.filter(({ id }) => ids.includes(Number(id)))
+        );
+
+        // When
+        const result = await adminServiceBuilt.get(ids);
+
+        // Then
+        expect(findMany.mock.calls).toMatchInlineSnapshot(`
+          Array [
+            Array [
+              Object {
+                "limit": 9007199254740991,
+                "populate": Array [
+                  "localizations",
+                ],
+                "where": Object {
+                  "id": Object {
+                    "$in": Array [
+                      44,
+                      52,
+                    ],
+                  },
+                },
+              },
+            ],
+          ]
+        `);
+        expect(result).toMatchInlineSnapshot(`
+          Array [
+            Object {
+              "id": 44,
+              "localeCode": "fr",
+              "localizations": Array [
+                Object {
+                  "id": 38,
+                  "localeCode": "en",
+                  "name": "Navigation-37",
+                },
+                Object {
+                  "id": 40,
+                  "localeCode": "ff",
+                  "name": "Navigation-39",
+                },
+              ],
+              "name": "Navigation-43",
+            },
+            Object {
+              "id": 52,
+              "localeCode": "ff",
+              "localizations": Array [
+                Object {
+                  "id": 46,
+                  "localeCode": "en",
+                  "name": "Navigation-45",
+                },
+                Object {
+                  "id": 48,
+                  "localeCode": "fr",
+                  "name": "Navigation-47",
+                },
+              ],
+              "name": "Navigation-51",
             },
           ]
         `);
