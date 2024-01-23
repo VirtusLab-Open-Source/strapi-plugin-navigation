@@ -131,7 +131,7 @@ const Item = (props) => {
   const generatePreviewUrl = entity => {
     const { isSingle } = contentType;
     const entityLocale = entity?.locale ? `?plugins[i18n][locale]=${entity?.locale}` : '';
-    return `/content-manager/${ isSingle ? 'singleType' : 'collectionType'}/${entity?.__collectionUid}${!isSingle ? '/' + entity?.id : ''}${entityLocale}`
+    return `/content-manager/${ isSingle ? 'single-types' : 'collection-types'}/${entity?.__collectionUid}${!isSingle ? '/' + entity?.id : ''}${entityLocale}`
   }
   const onNewItemClick = useCallback((event) => canUpdate && onItemLevelAdd(
     event,
