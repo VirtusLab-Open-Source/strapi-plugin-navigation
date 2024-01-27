@@ -31,6 +31,9 @@ module.exports = ({ nexus, config }) =>
         if (field !== 'audience') {
           if (field.enabled) {
             switch (field.type) {
+              case 'media':
+                t.field(field.name, { type: "NavigationItemAdditionalFieldMedia" });
+                break;
               case 'string':
                 t.string(field.name);
                 break;

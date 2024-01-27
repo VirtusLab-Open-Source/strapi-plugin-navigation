@@ -1,12 +1,13 @@
 import { first, get, isEmpty, isNil, isString, isArray, last, toNumber } from "lodash";
 import { Id, StrapiContext } from "strapi-typed";
 import { validate } from "uuid";
-import { assertNotEmpty, ContentTypeEntity, IClientService, Navigation, NavigationItem, NavigationItemEntity, RFRNavItem, ToBeFixed } from "../../types"
+import { assertNotEmpty, ContentTypeEntity, IClientService, Navigation, NavigationItem, NavigationItemCustomField, NavigationItemEntity, RFRNavItem, ToBeFixed } from "../../types"
 import { composeItemTitle, getPluginModels, filterByPath, filterOutUnpublished, getPluginService, templateNameFactory, RENDER_TYPES, compareArraysOfNumbers, getCustomFields } from "../utils";
 //@ts-ignore
 import { errors } from '@strapi/utils';
 import { getI18nStatus, i18nAwareEntityReadHandler } from "../i18n";
 import { NavigationError } from "../../utils/NavigationError";
+import { identity, pick } from "lodash/fp";
 
 const clientService: (context: StrapiContext) => IClientService = ({ strapi }) => ({
   async readAll({ locale, orderBy = 'createdAt', orderDirection = "DESC" }) {
@@ -319,6 +320,9 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
         id: itemContentType.id,
         attributes: { ...itemContentType }
       } : itemContentType;
+      const pickMediaFields = pick(["name", "url", "mime", "width", "height", "previewUrl"]);
+      const customFieldsDefinitions = additionalFields.filter(_ => typeof _ !== "string") as NavigationItemCustomField[];
+
 
       switch (type) {
         case RENDER_TYPES.TREE:
@@ -333,6 +337,15 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
               (first(parentPath) === '/' ? parentPath.substring(1) : parentPath).replace(/\//g, '-')) : undefined;
             const lastRelated = isArray(item.related) ? last(item.related) : item.related;
             const relatedContentType = wrapContentType(lastRelated);
+            const customFields = enabledCustomFieldsNames.reduce((acc, field) => {
+              const mapper = customFieldsDefinitions.find(({ name }) => name === field)?.type === "media"
+                ? (_: string) => pickMediaFields(JSON.parse(_))
+                : identity;
+              const content = get(item, `additionalFields.${field}`);
+
+              return { ...acc, [field]: content ? mapper(content) : content }
+            }, {});
+
             return {
               id: item.id,
               title: composeItemTitle(item, contentTypesNameFields, contentTypes),
@@ -355,7 +368,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
                 parentPath,
                 itemParser,
               ),
-              ...enabledCustomFieldsNames.reduce((acc, field) => ({ ...acc, [field]: get(item, `additionalFields.${field}`) }), {}),
+              ...customFields
             };
           };
 
@@ -411,14 +424,24 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
           }
 
           return result
-            .map(({ additionalFields, ...item }: NavigationItemEntity<ContentTypeEntity>) => ({
-              ...item,
-              audience: item.audience?.map(_ => (_).key),
-              title: composeItemTitle({ ...item, additionalFields }, contentTypesNameFields, contentTypes) || '',
-              related: wrapContentType(item.related),//omit(item.related, 'localizations'),
-              items: null,
-              ...enabledCustomFieldsNames.reduce((acc, name) => ({ ...acc, [name]: get(additionalFields, name, undefined) }), {}),
-            }))
+            .map(({ additionalFields, ...item }: NavigationItemEntity<ContentTypeEntity>) => {
+              const customFields = enabledCustomFieldsNames.reduce((acc, field) => {
+                const mapper = customFieldsDefinitions.find(({ name }) => name === field)?.type === "media"
+                  ? (_: string | boolean) => pickMediaFields(JSON.parse(_.toString()))
+                  : identity;
+                const content = get(additionalFields, field);
+  
+                return { ...acc, [field]: content ? mapper(content) : content }
+              }, {});
+
+              return ({
+                ...item,
+                audience: item.audience?.map(_ => (_).key),
+                title: composeItemTitle({ ...item, additionalFields }, contentTypesNameFields, contentTypes) || '',
+                related: wrapContentType(item.related),//omit(item.related, 'localizations'),
+                items: null,
+                ...customFields,
+              })})
             .sort((a, b) => compareArraysOfNumbers(getNestedOrders(a.id), getNestedOrders(b.id)));
       }
     }

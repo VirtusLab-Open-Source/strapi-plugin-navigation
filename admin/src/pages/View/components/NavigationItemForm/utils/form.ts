@@ -69,6 +69,8 @@ export const schemaFactory = (isSingleSelected: boolean, additionalFields: Navig
           value = yup.array().of(yup.string());
         else if (current.type === 'select' && !current.multi)
           value = yup.string();
+        else if (current.type === 'media')
+          value = yup.mixed();
         else
           throw new Error(`Type "${current.type}" is unsupported by custom fields`);
 

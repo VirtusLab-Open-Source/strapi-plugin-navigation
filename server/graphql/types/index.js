@@ -1,4 +1,5 @@
 const typesFactories = [
+	require('./navigation-item-additional-field-media'),
 	require('./navigation-item-related'),
 	require('./navigation-item-related-data'),
 	require('./navigation-item'),
