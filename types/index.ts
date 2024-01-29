@@ -6,3 +6,4 @@ export * from './services';
 export * from './utils';
 export * from './bootstrap';
 export * from './graphQL';
+export * from './lifecycle';

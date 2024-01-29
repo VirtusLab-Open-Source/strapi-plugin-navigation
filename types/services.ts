@@ -2,7 +2,9 @@ import { Id, StrapiContentType, StrapiEvents, StrapiStore, StringMap } from "str
 import { NavigationPluginConfig } from "./config";
 import { Navigation, NavigationItem, NavigationItemCustomField, NavigationItemEntity, NavigationItemInput, NestedStructure, NotVoid, RelatedRef, RelatedRefBase } from "./contentTypes";
 import { I18nQueryParams } from "./i18n";
-import { AuditLogContext, ContentTypeEntity, NavigationActions, NavigationActionsPerItem, PopulateQueryParam, RenderType, RFRNavItem, ToBeFixed } from "./utils";
+import { AuditLogContext, ContentTypeEntity, Effect, NavigationActions, NavigationActionsPerItem, PopulateQueryParam, RenderType, RFRNavItem, ToBeFixed } from "./utils";
+import { ContentType } from "../server/utils";
+import { LifeCycleEvent, LifeCycleHookName } from "./lifecycle";
 
 export type NavigationServiceName = "common" | "admin" | "client"
 export type NavigationService = ICommonService | IAdminService | IClientService
@@ -41,6 +43,8 @@ export interface ICommonService {
   setDefaultConfig: () => Promise<NavigationPluginConfig>,
   updateBranch: (toUpdate: NestedStructure<NavigationItem>[], masterEntity: Navigation | null, parentItem: NavigationItemEntity | null, operations: NavigationActions) => ToBeFixed,
   getSlug(query: string): Promise<string>;
+  registerLifecycleHook(input: { hookName: LifeCycleHookName, callback: Effect<LifeCycleEvent>, contentTypeName: ContentType }): void;
+  runLifecycleHook(input: { hookName: LifeCycleHookName, event: LifeCycleEvent, contentTypeName: ContentType }): Promise<void>;
 }
 
 export interface IClientService {

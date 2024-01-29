@@ -1,7 +1,7 @@
 import { first, get, isEmpty, isNil, isString, isArray, last, toNumber } from "lodash";
 import { Id, StrapiContext } from "strapi-typed";
 import { validate } from "uuid";
-import { assertNotEmpty, ContentTypeEntity, IAdminService, IClientService, ICommonService, Navigation, NavigationItem, NavigationItemEntity, RFRNavItem, ToBeFixed } from "../../types"
+import { assertNotEmpty, ContentTypeEntity, IClientService, Navigation, NavigationItem, NavigationItemEntity, RFRNavItem, ToBeFixed } from "../../types"
 import { composeItemTitle, getPluginModels, filterByPath, filterOutUnpublished, getPluginService, templateNameFactory, RENDER_TYPES, compareArraysOfNumbers, getCustomFields } from "../utils";
 //@ts-ignore
 import { errors } from '@strapi/utils';
@@ -37,7 +37,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
     locale,
     populate,
   }) {
-    const clientService = getPluginService<IClientService>('client');
+    const clientService = getPluginService('client');
 
     const findById = !isNaN(toNumber(idOrSlug)) || validate(idOrSlug as string);
     const criteria = findById ? { id: idOrSlug } : { slug: idOrSlug };
@@ -55,7 +55,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
     wrapRelated = false,
     locale,
   }) {
-    const clientService = getPluginService<IClientService>('client');
+    const clientService = getPluginService('client');
     const findById = !isNaN(toNumber(idOrSlug)) || validate(idOrSlug as string);
     const criteria = findById ? { id: idOrSlug } : { slug: idOrSlug };
     const filter = type === RENDER_TYPES.FLAT ? null : childUIKey;
@@ -75,7 +75,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
     contentTypes = [],
     enabledCustomFieldsNames,
   }) {
-    const clientService = getPluginService<IClientService>('client');
+    const clientService = getPluginService('client');
     let pages = {};
     let nav = {};
     let navItems: RFRNavItem[] = [];
@@ -260,9 +260,9 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
     locale,
     populate,
   }) {
-    const clientService = getPluginService<IClientService>('client');
-    const adminService = getPluginService<IAdminService>('admin');
-    const commonService = getPluginService<ICommonService>('common');
+    const clientService = getPluginService('client');
+    const adminService = getPluginService('admin');
+    const commonService = getPluginService('common');
     const entityWhereClause = {
       ...criteria,
       visible: true,

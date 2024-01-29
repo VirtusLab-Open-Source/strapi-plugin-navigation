@@ -1,8 +1,8 @@
 import { IStrapi } from "strapi-typed";
-import { IClientService } from "../../../types";
+import { ToBeFixed } from "../../../types";
 
 import setupStrapi from '../../../__mocks__/strapi';
-import { getPluginService, RENDER_TYPES } from "../../utils";
+import { allLifecycleHooks, getPluginService, RENDER_TYPES } from "../../utils";
 
 declare var strapi: IStrapi
 
@@ -36,7 +36,7 @@ describe('Navigation services', () => {
 
   describe('Render navigation', () => {
     it('Can render branch in flat format', async () => {
-      const clientService = getPluginService<IClientService>('client');
+      const clientService = getPluginService('client');
       const result = await clientService.render({ idOrSlug: 1 });
 
       expect(result).toBeDefined()
@@ -47,7 +47,7 @@ describe('Navigation services', () => {
     });
 
     it('Can render branch in flat format for GraphQL', async () => {
-      const clientService = getPluginService<IClientService>('client');
+      const clientService = getPluginService('client');
       const result = await clientService.render({ idOrSlug: 1, wrapRelated: true });
 
       expect(result).toBeDefined();
@@ -58,7 +58,7 @@ describe('Navigation services', () => {
     });
 
     it('Can render branch in tree format', async () => {
-      const clientService = getPluginService<IClientService>('client');
+      const clientService = getPluginService('client');
       const result = await clientService.render({
         idOrSlug: 1,
         type: RENDER_TYPES.TREE
@@ -72,7 +72,7 @@ describe('Navigation services', () => {
     });
 
     it('Can render branch in tree format for GraphQL', async () => {
-      const clientService = getPluginService<IClientService>('client');
+      const clientService = getPluginService('client');
       const result = await clientService.render({
         idOrSlug: 1,
         type: RENDER_TYPES.TREE,
@@ -89,7 +89,7 @@ describe('Navigation services', () => {
     });
 
     it('Can render branch in rfr format', async () => {
-      const clientService = getPluginService<IClientService>('client');
+      const clientService = getPluginService('client');
       const result = await clientService.render({
         idOrSlug: 1,
         type: RENDER_TYPES.RFR
@@ -101,7 +101,7 @@ describe('Navigation services', () => {
     });
 
     it('Can render branch in rfr format for GraphQL', async () => {
-      const clientService = getPluginService<IClientService>('client');
+      const clientService = getPluginService('client');
       const result = await clientService.render({
         idOrSlug: 1,
         type: RENDER_TYPES.RFR,
@@ -115,7 +115,7 @@ describe('Navigation services', () => {
     });
 
     it('Can render only menu attached elements', async () => {
-      const clientService = getPluginService<IClientService>('client');
+      const clientService = getPluginService('client');
       const result = await clientService.render({
         idOrSlug: 1,
         type: RENDER_TYPES.FLAT,
@@ -127,7 +127,7 @@ describe('Navigation services', () => {
     });
 
     it('Can render branch by path', async () => {
-      const clientService = getPluginService<IClientService>('client');
+      const clientService = getPluginService('client');
       const result = await clientService.render({
         idOrSlug: 1,
         type: RENDER_TYPES.FLAT,
@@ -142,11 +142,43 @@ describe('Navigation services', () => {
 
   describe('Render child', () => {
     it('Can render child', async () => {
-      const clientService = getPluginService<IClientService>('client');
+      const clientService = getPluginService('client');
       const result = await clientService.renderChildren({idOrSlug: 1, childUIKey: "home"});
 
       expect(result).toBeDefined();
       expect(result.length).toBe(1);
     });
   });
+
+  describe('Lifecycle hooks', () => {
+    it.each(allLifecycleHooks)('should trigger for %s hook listener', async (hookName: ToBeFixed) => {
+      // Given
+      const commonService = getPluginService('common');
+      const listenerA = jest.fn().mockResolvedValue("ABC");
+      const listenerB = jest.fn();
+      const event = {} as ToBeFixed
+      
+      commonService.registerLifecycleHook({
+        callback: listenerA,
+        contentTypeName: "navigation",
+        hookName,
+      })
+      commonService.registerLifecycleHook({
+        callback: listenerB,
+        contentTypeName: "navigation",
+        hookName,
+      })
+
+      // When
+      await commonService.runLifecycleHook({
+        contentTypeName: "navigation",
+        event,
+        hookName,
+      })
+
+      // Then
+      expect(listenerA).toHaveBeenCalledTimes(1);
+      expect(listenerB).toHaveBeenCalledTimes(1);
+    })
+  })
 });
