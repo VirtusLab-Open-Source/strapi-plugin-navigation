@@ -1,4 +1,4 @@
-import { RenderTypeOptions } from "../../types";
+import { LifeCycleHookName, RenderTypeOptions } from "../../types";
 import { I18N_DEFAULT_POPULATE } from "../i18n";
 
 export const TEMPLATE_DEFAULT = 'Generic' as const;
@@ -19,3 +19,27 @@ export const RENDER_TYPES = {
   TREE: 'TREE',
   RFR: 'RFR'
 } as RenderTypeOptions;
+
+
+export type ContentType = "navigation" | "navigation-item";
+
+export const allLifecycleHooks: ReadonlyArray<LifeCycleHookName> = [
+  "beforeCreate",
+  "beforeCreateMany",
+  "afterCreate",
+  "afterCreateMany",
+  "beforeUpdate",
+  "beforeUpdateMany",
+  "afterUpdate",
+  "afterUpdateMany",
+  "beforeDelete",
+  "beforeDeleteMany",
+  "afterDelete",
+  "afterDeleteMany",
+  "beforeCount",
+  "afterCount",
+  "beforeFindOne",
+  "afterFindOne",
+  "beforeFindMany",
+  "afterFindMany",
+] as const;

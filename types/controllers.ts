@@ -1,6 +1,6 @@
 import { StrapiController } from "strapi-typed";
 import { Navigation, NotVoid } from "./contentTypes";
-import { IAdminService, IClientService, NavigationService, NavigationServiceName } from "./services";
+import { IAdminService, IClientService, ICommonService } from "./services";
 import { AuditLogContext, StrapiControllerContext, ToBeFixed } from "./utils";
 
 type ControllerCommonContext = {
@@ -8,8 +8,8 @@ type ControllerCommonContext = {
 };
 
 export interface IAdminController {
-  getService: <T extends NavigationService = IAdminService>(name?: NavigationServiceName) => T;
-
+  getAdminService(): IAdminService;
+  getCommonService(): ICommonService;
   config: () => ToBeFixed;
   get: StrapiController<Promise<Array<Navigation>>>;
   getById: StrapiController<Promise<Navigation>, never, never, { id: string }>;
@@ -31,7 +31,7 @@ export interface IAdminController {
 };
 
 export interface IClientController {
-  getService: <T extends NavigationService = IClientService>(name?: NavigationServiceName) => T;
+  getService: () => IClientService;
 
   render: (ctx: StrapiControllerContext) => ToBeFixed;
   renderChild: (ctx: StrapiControllerContext) => ToBeFixed;

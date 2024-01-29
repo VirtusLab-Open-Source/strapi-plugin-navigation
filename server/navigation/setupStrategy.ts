@@ -1,5 +1,5 @@
 import { IStrapi, StrapiPlugin } from "strapi-typed";
-import { IAdminService, INavigationSetupStrategy, Navigation } from "../../types";
+import { INavigationSetupStrategy, Navigation } from "../../types";
 import { i18nNavigationSetupStrategy } from "../i18n";
 import { DEFAULT_NAVIGATION_ITEM, DEFAULT_POPULATE, getPluginService } from "../utils";
 
@@ -54,4 +54,4 @@ const createNavigation = ({
   });
 
 const getCurrentNavigations = (): Promise<Navigation[]> =>
-  getPluginService<IAdminService>('admin').get();
+  getPluginService('admin').get();
