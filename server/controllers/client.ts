@@ -1,20 +1,12 @@
 //@ts-ignore
 import { errors, sanitize } from "@strapi/utils";
 import { Id, StringMap } from "strapi-typed";
-import {
-  IClientController,
-  IClientService,
-  NavigationService,
-  NavigationServiceName,
-  ToBeFixed,
-} from "../../types";
+import { IClientController, ToBeFixed } from "../../types";
 import { getPluginService, parseParams, sanitizePopulateField } from "../utils";
 
 const clientControllers: IClientController = {
-  getService<T extends NavigationService = IClientService>(
-    name: NavigationServiceName = "client"
-  ) {
-    return getPluginService<T>(name);
+  getService() {
+    return getPluginService("client");
   },
 
   async readAll(ctx) {

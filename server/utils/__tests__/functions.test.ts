@@ -1,8 +1,16 @@
-import { IStrapi } from "strapi-typed";
-import { NavigationItemEntity } from "../../../types";
+import { IStrapi, StrapiContext } from "strapi-typed";
+import {
+  ICommonService,
+  LifeCycleEvent,
+  LifeCycleHookName,
+  NavigationItemEntity,
+  ToBeFixed,
+} from "../../../types";
 
 import setupStrapi from "../../../__mocks__/strapi";
 import {
+  buildAllHookListeners,
+  buildHookListener,
   buildNestedPaths,
   filterByPath,
   getPluginModels,
@@ -10,6 +18,7 @@ import {
   purgeSensitiveDataFromUser,
   sanitizePopulateField,
 } from "../functions";
+import { ContentType } from "../constant";
 
 declare var strapi: IStrapi;
 
@@ -172,6 +181,78 @@ describe("Utilities functions", () => {
             "key-5": "bar",
           }
         `);
+      });
+    });
+
+    describe("buildAllHookListeners()", () => {
+      it("should define a listener for each available model lifecycle hook", () => {
+        // Then
+        expect(buildAllHookListeners("navigation", {} as StrapiContext))
+          .toMatchInlineSnapshot(`
+          Object {
+            "afterCount": [Function],
+            "afterCreate": [Function],
+            "afterCreateMany": [Function],
+            "afterDelete": [Function],
+            "afterDeleteMany": [Function],
+            "afterFindMany": [Function],
+            "afterFindOne": [Function],
+            "afterUpdate": [Function],
+            "afterUpdateMany": [Function],
+            "beforeCount": [Function],
+            "beforeCreate": [Function],
+            "beforeCreateMany": [Function],
+            "beforeDelete": [Function],
+            "beforeDeleteMany": [Function],
+            "beforeFindMany": [Function],
+            "beforeFindOne": [Function],
+            "beforeUpdate": [Function],
+            "beforeUpdateMany": [Function],
+          }
+        `);
+      });
+    });
+
+    describe("buildHookListener()", () => {
+      it("should delegate lifecycle hook event to defined listeners", async () => {
+        // Given
+        const contentTypeName: ContentType = "navigation";
+        const service: Partial<ICommonService> = {
+          runLifecycleHook: jest.fn(),
+        };
+        const plugin: ToBeFixed = {
+          service() { return service; }
+        };
+        const context: StrapiContext = {
+          strapi: {
+            plugin() {
+              return plugin;
+            },
+          } as unknown as StrapiContext["strapi"],
+        };
+        const hookName: LifeCycleHookName = "afterCreate";
+        const event: Partial<LifeCycleEvent> = {
+          action: hookName,
+          model: {
+            attributes: {
+              name: "name",
+            },
+          } as unknown as LifeCycleEvent["model"],
+        };
+        const [, listener] = buildHookListener(
+          contentTypeName,
+          context
+        )(hookName);
+
+        // When
+        await listener(event as LifeCycleEvent);
+
+        // Then
+        expect(service.runLifecycleHook).toHaveBeenCalledWith({
+          contentTypeName,
+          hookName,
+          event,
+        });
       });
     });
   });

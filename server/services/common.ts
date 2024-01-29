@@ -3,11 +3,18 @@ import pluralize from "pluralize";
 import { Id, StrapiContentType, StrapiContext, StrapiStore, StringMap } from "strapi-typed";
 //@ts-ignore
 import { sanitize } from '@strapi/utils';
-import { ContentTypeEntity, ICommonService, Navigation, NavigationActions, NavigationActionsPerItem, NavigationItem, NavigationItemCustomField, NavigationItemEntity, NavigationItemRelated, NavigationPluginConfig, NestedStructure, RelatedRef, ToBeFixed } from "../../types";
+import { ContentTypeEntity, Effect, ICommonService, LifeCycleHookName, Navigation, NavigationActions, NavigationActionsPerItem, NavigationItem, NavigationItemCustomField, NavigationItemEntity, NavigationItemRelated, NavigationPluginConfig, NestedStructure, RelatedRef, ToBeFixed } from "../../types";
 import { configSetupStrategy } from "../config";
 import { addI18nWhereClause } from "../i18n";
-import { checkDuplicatePath, getPluginModels, getPluginService, isContentTypeEligible, KIND_TYPES, parsePopulateQuery, purgeSensitiveData, singularize } from "../utils";
+import { checkDuplicatePath, ContentType, getPluginModels, getPluginService, isContentTypeEligible, KIND_TYPES, parsePopulateQuery, purgeSensitiveData, singularize } from "../utils";
 import slugify from "@sindresorhus/slugify";
+
+type LifecycleHookRecord = Partial<Record<LifeCycleHookName, Array<Effect<ToBeFixed>>>>;
+
+const lifecycleHookListeners: Record<ContentType, LifecycleHookRecord> = {
+  navigation: {},
+  "navigation-item": {}
+}
 
 const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) => ({
   analyzeBranch(
@@ -16,7 +23,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
     parentItem: NavigationItemEntity | null = null,
     prevOperations: NavigationActions = {},
   ): Promise<NavigationActionsPerItem[]> {
-    const commonService = getPluginService<ICommonService>('common');
+    const commonService = getPluginService('common');
     const { toCreate, toRemove, toUpdate } = items
       .reduce((acc: NavigationActionsPerItem, _) => {
         const branchName: keyof NavigationActionsPerItem | void = commonService.getBranchName(_);
@@ -43,7 +50,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
   },
 
   async configContentTypes(viaSettingsPage: boolean = false): Promise<StrapiContentType<ToBeFixed>[]> {
-    const commonService = getPluginService<ICommonService>('common');
+    const commonService = getPluginService('common');
     const pluginStore = await commonService.getPluginStore()
     const config: NavigationPluginConfig = await pluginStore.get({ key: 'config' });
     const eligibleContentTypes =
@@ -136,7 +143,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
     parentItem,
     operations,
   ) {
-    const commonService = getPluginService<ICommonService>('common');
+    const commonService = getPluginService('common');
     const { itemModel } = getPluginModels();
     return await Promise.all<NavigationActions[]>(
       items.map(async (item) => {
@@ -181,7 +188,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
   },
 
   async getContentTypeItems(uid: string, query: StringMap<string>): Promise<ContentTypeEntity[]> {
-    const commonService = getPluginService<ICommonService>('common');
+    const commonService = getPluginService('common');
     const pluginStore = await commonService.getPluginStore();
     const config: NavigationPluginConfig = await pluginStore.get({ key: 'config' });
     const where = await addI18nWhereClause({
@@ -246,7 +253,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
   },
 
   async getRelatedItems(entityItems, populate): Promise<NavigationItemEntity<ContentTypeEntity>[]> {
-    const commonService = getPluginService<ICommonService>('common');
+    const commonService = getPluginService('common');
     const pluginStore = await commonService.getPluginStore();
     const config: NavigationPluginConfig = await pluginStore.get({ key: 'config' });
     const relatedTypes: Set<string> = new Set(entityItems.flatMap((item) => get(item.related, 'related_type', '')));
@@ -317,7 +324,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
     items: NestedStructure<NavigationItem>[] = [],
     operations: NavigationActions = {}
   ) {
-    const commonService = getPluginService<ICommonService>('common');
+    const commonService = getPluginService('common');
     const { itemModel } = getPluginModels();
     return Promise.all(
       items
@@ -367,7 +374,7 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
     parentItem: NavigationItemEntity | null,
     operations: NavigationActions
   ) {
-    const commonService = getPluginService<ICommonService>('common');
+    const commonService = getPluginService('common');
     const { itemModel } = getPluginModels();
     const databaseModel = strapi.query<NavigationItemEntity>(itemModel.uid);
     return Promise.all(
@@ -465,6 +472,20 @@ const commonService: (context: StrapiContext) => ICommonService = ({ strapi }) =
     }
 
     return slug.toLowerCase();
+  },
+  registerLifecycleHook({ callback, contentTypeName, hookName }) {
+    if (!lifecycleHookListeners[contentTypeName][hookName]) {
+      lifecycleHookListeners[contentTypeName][hookName] = [];
+    }
+
+    lifecycleHookListeners[contentTypeName][hookName]?.push(callback);
+  },
+  async runLifecycleHook({ contentTypeName, event, hookName }) {
+    const hookListeners = lifecycleHookListeners[contentTypeName][hookName] ?? [];
+
+    for (const listener of hookListeners) {
+      await listener(event);
+    }
   },
 });
 
