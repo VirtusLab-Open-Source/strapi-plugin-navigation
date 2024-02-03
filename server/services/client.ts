@@ -5,14 +5,15 @@ import { assertNotEmpty, ContentTypeEntity, IClientService, Navigation, Navigati
 import { composeItemTitle, getPluginModels, filterByPath, filterOutUnpublished, getPluginService, templateNameFactory, RENDER_TYPES, compareArraysOfNumbers, getCustomFields } from "../utils";
 //@ts-ignore
 import { errors } from '@strapi/utils';
-import { i18nAwareEntityReadHandler } from "../i18n";
+import { getI18nStatus, i18nAwareEntityReadHandler } from "../i18n";
 import { NavigationError } from "../../utils/NavigationError";
 
 const clientService: (context: StrapiContext) => IClientService = ({ strapi }) => ({
   async readAll({ locale, orderBy = 'createdAt', orderDirection = "DESC" }) {
     const { masterModel } = getPluginModels();
+    const { enabled: i18nEnabled, locales } = await getI18nStatus({ strapi });
 
-    const navigations = await strapi
+    let navigations = await strapi
       .query<Navigation>(masterModel.uid)
       .findMany({
         where: locale
@@ -24,6 +25,19 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
         limit: Number.MAX_SAFE_INTEGER,
         populate: false
       });
+
+    if (i18nEnabled) {
+      navigations = navigations.reduce((acc, navigation) => {
+        if (navigation.localeCode && locales?.includes(navigation.localeCode)) {
+          acc.push({
+            ...navigation,
+            localizations: navigation.localizations?.filter(({ localeCode }) => localeCode && locales?.includes(localeCode)),
+          });
+        }
+
+        return acc;
+      }, [] as Navigation[]);
+    }
 
     return navigations;
   },

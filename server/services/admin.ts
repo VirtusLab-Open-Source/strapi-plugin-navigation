@@ -1,7 +1,7 @@
 // @ts-ignore
 import { errors } from "@strapi/utils";
 import { differenceBy, get, isEmpty, isNil, isObject } from "lodash";
-import { Id, StrapiContext } from "strapi-typed";
+import { Id, StrapiContext, StrapiDBQueryArgs } from "strapi-typed";
 import {
   Audience,
   AuditLogContext,
@@ -111,17 +111,32 @@ const adminService: (context: StrapiContext) => IAdminService = ({
 
   async get(ids): Promise<Navigation[]> {
     const { masterModel } = getPluginModels();
-    const entities = await strapi.query<Navigation>(masterModel.uid).findMany({
+    const { enabled: i18nEnabled, locales } = await getI18nStatus({ strapi });
+    const whereClause: StrapiDBQueryArgs<keyof Navigation, unknown>['where'] = {};
+
+    if (ids) {
+      whereClause.id = { $in: ids };
+    }
+
+    let entities = await strapi.query<Navigation>(masterModel.uid).findMany({
       limit: Number.MAX_SAFE_INTEGER,
       populate: DEFAULT_POPULATE,
-      where: ids
-        ? {
-            id: {
-              $in: ids,
-            },
-          }
-        : undefined,
+      where: whereClause,
     });
+
+    if (i18nEnabled) {
+      entities = entities.reduce((acc, entity) => {
+        if (entity.localeCode && locales?.includes(entity.localeCode)) {
+          acc.push({
+            ...entity,
+            localizations: entity.localizations?.filter(({ localeCode }) => localeCode && locales?.includes(localeCode)),
+          });
+        }
+
+        return acc;
+      }, [] as Navigation[]);
+    }
+
     return entities;
   },
 
