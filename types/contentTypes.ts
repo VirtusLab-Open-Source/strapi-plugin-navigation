@@ -96,7 +96,7 @@ type EntityDatePartial = {
 
 export type NotVoid<T> = T extends undefined ? never : T;
 
-export type NavigationItemCustomFieldType = 'boolean' | 'string' | 'select';
+export type NavigationItemCustomFieldType = 'boolean' | 'string' | 'select' | 'media';
 type NavigationItemCustomFieldBase = {
   name: string;
   label: string;
@@ -114,7 +114,14 @@ type NavigationItemCustomFieldPrimitive = NavigationItemCustomFieldBase & {
   multi: false;
   options: [];
 }
-export type NavigationItemCustomField = NavigationItemCustomFieldPrimitive | NavigationItemCustomFieldSelect;
+
+type NavigationItemCustomFieldMedia = NavigationItemCustomFieldBase & {
+  type: 'media';
+  multi: false;
+  options: [];
+}
+
+export type NavigationItemCustomField = NavigationItemCustomFieldPrimitive | NavigationItemCustomFieldSelect | NavigationItemCustomFieldMedia;
 
 export type NavigationItemAdditionalField = NavigationItemCustomField | 'audience';
 export type NavigationItemAdditionalFieldValues = Record<string, string | boolean | string[]>;

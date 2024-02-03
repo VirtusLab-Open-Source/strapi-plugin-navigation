@@ -13,6 +13,7 @@ import { getMessage } from '../../../../utils';
 import { isEmpty, isNil } from 'lodash';
 import { getTrad } from '../../../../translations';
 import TextArrayInput from '../../../../components/TextArrayInput';
+import { customFieldsTypes } from '../../common';
 const tradPrefix = 'pages.settings.form.customFields.popup.'
 
 interface ICustomFieldFormProps {
@@ -23,7 +24,6 @@ interface ICustomFieldFormProps {
   usedCustomFieldNames: string[];
 }
 
-const customFieldsTypes = ["string", "boolean", "select"];
 const prepareSelectOptions = (options: string[]) => options.map((option, index) => ({
   key: `${option}-${index}`,
   metadatas: {

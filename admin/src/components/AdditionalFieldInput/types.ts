@@ -4,7 +4,7 @@ import { NavigationItemCustomField } from "../../../../types";
 export type AdditionalFieldInputProps = {
   field: NavigationItemCustomField;
   isLoading: boolean;
-  onChange: (name: string, value: string) => void;
+  onChange: (name: string, value: string, fieldType: string) => void;
   value: string | boolean | string[] | null;
   disabled: boolean;
   error: MessageDescriptor | null;

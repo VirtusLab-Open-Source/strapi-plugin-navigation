@@ -211,9 +211,12 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
     onChange({ name: "audience", value });
   }, [onChange]);
 
-  const onAdditionalFieldChange = (name: string, newValue: string | boolean | string[]) => {
+  const onAdditionalFieldChange = (name: string, newValue: string | boolean | string[], fieldType: string) => {
     const fieldsValue = formik.values.additionalFields;
-    const value = { ...fieldsValue, [name]: newValue }
+    const value = {
+      ...fieldsValue,
+      [name]: fieldType === "media" && newValue ? JSON.stringify(newValue) : newValue 
+    }
     onChange({
       name: "additionalFields",
       value,

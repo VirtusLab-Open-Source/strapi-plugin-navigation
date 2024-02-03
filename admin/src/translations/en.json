@@ -84,6 +84,7 @@
   "notification.navigation.item.relation.status.published": "published",
   "notification.error": "Error while processing request.",
   "notification.error.customField.type": "Unsupported type of custom field",
+  "notification.error.customField.media.missing": "Media input component is missing",
   "notification.error.item.relation": "Relations provided in some items are incorrect",
   "notification.error.item.slug": "Unable to create valid UI Router Key(slug) from \"{ query }\". \"{ result }\" received",
   "page.auth.noAccess": "No access",
