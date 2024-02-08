@@ -50,6 +50,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(isPreloading);
   const [hasBeenInitialized, setInitializedState] = useState(false);
+  const [autoSync, setAutoSync] = useState(true);
   const [hasChanged, setChangedState] = useState(false);
   const [contentTypeSearchQuery, setContentTypeSearchQuery] = useState<ContentTypeSearchQuery>(undefined);
   const { canUpdate } = permissions;
@@ -182,6 +183,35 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
       updated: true,
       [name]: value,
     }));
+
+    if (name === "related" && relatedTypeSelectValue && autoSync) {
+      const { contentTypesNameFields, pathDefaultFields } = config;
+      const selectedRelated =  contentTypeEntities.find(({ id, __collectionUid }) =>
+        `${id}` === `${value}` && __collectionUid === relatedTypeSelectValue
+      );
+      const newPath = pathDefaultFields[relatedTypeSelectValue]?.reduce<null | string>((acc, field) => {
+        return acc ? acc : selectedRelated?.[field] as string | null;
+      }, null);
+      const newTitle = (contentTypesNameFields[relatedTypeSelectValue] ?? []).concat(contentTypesNameFields.default || []).reduce<null | string>((acc, field) => {
+        return acc ? acc : selectedRelated?.[field] as string | null;
+      }, null);
+      const batch = [];
+
+      if (newPath) {
+        batch.push({ name: "path", value: newPath });
+      }
+
+      if (newTitle) {
+        batch.push({ name: "title", value: newTitle });
+      }
+
+      batch.forEach((next, i) => {
+        setTimeout(() => {
+          onChange(next);
+        }, i * 100);
+      });
+    }
+    
     if (name === "type") {
       formik.setErrors({});
     }
@@ -513,6 +543,15 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
             </GridItem>
             {formik.values.type === navigationItemType.INTERNAL && (
               <>
+                <GridItem key="menuAttached" col={12}>
+                  <GenericInput
+                    intlLabel={getTrad('popup.item.form.autoSync.label', 'Read fields from related')}
+                    name="autoSync"
+                    type="bool"
+                    onChange={({ target: { value } }: GenericInputOnChangeInput) => setAutoSync(value)}
+                    value={autoSync}
+                  />
+                </GridItem>
                 <GridItem col={6} lg={12}>
                   <GenericInput
                     type="select"

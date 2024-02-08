@@ -9,6 +9,7 @@
   "empty.cta": "Créer un premier élément",
   "popup.item.header": "Modifiez les éléments de navigation",
   "popup.item.form.title.label": "Titre",
+  "popup.item.form.autoSync.label": "Lire les champs associés",
   "popup.item.form.title.placeholder": "Saisissez le titre de l'élément ou laissez le champ vide pour utiliser celui de l'entité associée",
   "popup.item.form.uiRouterKey.label": "Clé de routeur pour l'interface utilisateur",
   "popup.item.form.uiRouterKey.placeholder": "Si vide, généré automatiquement par \"Title\"",
