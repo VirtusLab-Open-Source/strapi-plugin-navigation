@@ -48,6 +48,7 @@ const List = ({
             contentTypesNameFields
           }}
           permissions={permissions}
+          isSearchActive={!!item.isSearchActive}
         />
       );
     })}

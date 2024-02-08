@@ -88,7 +88,7 @@ const View = () => {
   const [activeNavigationItem, setActiveNavigationItemState] = useState({});
   const { formatMessage } = useIntl();
 
-  const [searchValue, setSearchValue] = useState('');
+  const [{ value: searchValue, index: searchIndex }, setSearchValue] = useState({ value: '' });
   const [structureChanged, setStructureChanged] = useState(false);
   const isSearchEmpty = isEmpty(searchValue);
   const normalisedSearchValue = (searchValue || '').toLowerCase();
@@ -157,14 +157,26 @@ const View = () => {
     setStructureChanged(true);
   };
 
-  const filteredListFactory = (items, doUse) => items.reduce((acc, item) => {
-    const subItems = !isEmpty(item.items) ? filteredListFactory(item.items, doUse) : [];
-    if (doUse(item))
-      return [item, ...subItems, ...acc];
-    else
-      return [...subItems, ...acc];
-  }, []);
-  const filteredList = !isSearchEmpty ? filteredListFactory(changedActiveNavigation.items, (item) => (item?.title || '').toLowerCase().includes(normalisedSearchValue)) : [];
+  const filteredListFactory = (items, doUse, activeIndex) => {
+    const filteredItems = items.reduce((acc, item) => {
+      const subItems = !isEmpty(item.items) ? filteredListFactory(item.items, doUse) : [];
+      if (doUse(item))
+        return [item, ...subItems, ...acc];
+      else
+        return [...subItems, ...acc];
+    }, []);
+
+    if (activeIndex !== undefined) {
+      const index = activeIndex % filteredItems.length;
+
+      return filteredItems.map((item, currentIndex) => {
+        return index === currentIndex ? ({ ...item, isSearchActive: true }) : item;
+      });
+    }
+
+    return filteredItems;
+  };
+  const filteredList = !isSearchEmpty ? filteredListFactory(changedActiveNavigation.items.map(_ => ({..._})), (item) => (item?.title || '').toLowerCase().includes(normalisedSearchValue), normalisedSearchValue ? searchIndex : undefined) : [];
 
   const changeCollapseItemDeep = (item, isCollapsed) => {
     if (item.collapsed !== isCollapsed) {
@@ -223,6 +235,7 @@ const View = () => {
       ...item,
       collapsed: !item.collapsed,
       updated: true,
+      isSearchActive: false,
     });
   }
 
@@ -254,7 +267,7 @@ const View = () => {
 
   const handleChangeNavigationSelection = (...args) => {
     handleChangeSelection(...args);
-    setSearchValue('');
+    setSearchValue({ value: '', index: 0 });
   }
 
   const endActions = [
