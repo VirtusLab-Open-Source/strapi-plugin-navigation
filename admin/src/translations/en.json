@@ -91,6 +91,7 @@
   "page.auth.noAccess": "No access",
   "page.auth.not.allowed": "Oops! It seems like You do not have access to this page...",
   "pages.main.search.placeholder": "Type to start searching...",
+  "pages.main.search.subLabel": "press ENTER to highlight next item",
   "pages.main.header.localization.select.placeholder": "Select locale",
   "pages.settings.general.title": "General settings",
   "pages.settings.additional.title": "Additional settings",

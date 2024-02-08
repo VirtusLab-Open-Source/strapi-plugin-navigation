@@ -27,6 +27,7 @@
     "notification.navigation.submit": "S'han desat els canvis de navegació",
     "pages.main.header.localization.select.placeholder": "Seleccioneu la configuració regional",
     "pages.main.search.placeholder": "Escriviu per començar a cercar...",
+    "pages.main.search.subLabel": "appuyez sur ENTER pour mettre en surbrillance l'élément suivant",
     "pages.settings.actions.disableI18n.confirmation.confirm": "entenc",
     "pages.settings.actions.disableI18n.confirmation.description.line1": "Esteu desactivant la internacionalització per a la navegació. Les navegacions per a configuracions regionals diferents de les predeterminades no estan disponibles per a la visualització i modificacions mitjançant aquesta extensió.",
     "pages.settings.actions.disableI18n.confirmation.description.line2": "Podeu optar per eliminar les navegacions per a altres configuracions regionals.",

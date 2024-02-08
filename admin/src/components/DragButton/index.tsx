@@ -15,10 +15,11 @@ const DragButtonWrapper = styled.span`
   width: ${DRAG_BUTTON_SIZE_IN_REM}rem;
   padding: ${({ theme }: ToBeFixed) => theme.spaces[2]};
 
-  background: ${({ theme }: ToBeFixed) => theme.colors.neutral0};
+  background: ${({ theme, isActive }: ToBeFixed) => isActive ? theme.colors.neutral150 : theme.colors.neutral0};
   border: 1px solid ${({ theme }: ToBeFixed) => theme.colors.neutral200};
   border-radius: ${({ theme }: ToBeFixed) => theme.borderRadius};
   cursor: pointer;
+  transition: background-color 0.3s ease-in;
 
   svg {
     height: ${({ theme }: ToBeFixed) => theme.spaces[3]};
@@ -55,7 +56,7 @@ const DragButtonWrapper = styled.span`
   }
 `;
 
-const DragButton = React.forwardRef((props, ref) => (
+const DragButton = React.forwardRef<unknown, { isActive?: boolean }>((props, ref) => (
   <DragButtonWrapper {...props} ref={ref}>
     <Drag />
   </DragButtonWrapper>
