@@ -1,7 +1,8 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { useDrag, useDrop } from 'react-dnd';
 import { isEmpty, isNumber } from 'lodash';
+import { useTheme } from 'styled-components';
 
 import { Card, CardBody } from '@strapi/design-system/Card';
 import { Divider } from '@strapi/design-system/Divider';
@@ -52,6 +53,7 @@ const Item = (props) => {
     collapsed,
     structureId,
     items = [],
+    isSearchActive,
   } = item;
 
   const { contentTypes = [], contentTypesNameFields } = config;
@@ -142,9 +144,29 @@ const Item = (props) => {
     `${structureId}.${items.length}`,
   ), [viewId, isNextMenuAllowedLevel, absolutePath, menuAttached, structureId, items, canUpdate]);
 
+  useEffect(() => {
+    if (isSearchActive) {
+      refs.dropRef.current?.scrollIntoView?.({
+        behavior: "smooth",
+        block: "center",
+        inline: "center",
+      });
+    }
+  }, [isSearchActive, refs.dropRef.current])
+
+  const theme = useTheme();
+
   return (
     <Wrapper level={level} isLast={isLast} style={{ opacity: isDragging ? 0.2 : 1 }} ref={refs ? refs.dropRef : null} >
-      <Card style={{ width: "728px", zIndex: 1, position: "relative", overflow: 'hidden' }}>
+      <Card style={{ 
+          width: "728px",
+          zIndex: 1,
+          position: "relative",
+          overflow: "hidden",
+          backgroundColor: isSearchActive ? theme.colors.neutral150 : undefined,
+          borderColor: isSearchActive ? theme.colors.neutral300 : undefined,
+          transition: "background-color 0.3s ease-in"
+        }}>
         {removed && (<ItemCardRemovedOverlay />)}
         <div ref={refs.previewRef}>
           <CardBody>
@@ -157,11 +179,13 @@ const Item = (props) => {
                 ...item,
                 isMenuAllowedLevel,
                 isParentAttachedToMenu,
+                isSearchActive: false,
               }, levelPath, isParentAttachedToMenu)}
               onItemRestore={() => onItemRestore(item)}
               dragRef={refs.dragRef}
               removed={removed}
               canUpdate={canUpdate}
+              isSearchActive={isSearchActive}
             />
           </CardBody>
           <Divider />
