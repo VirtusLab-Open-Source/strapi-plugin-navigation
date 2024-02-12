@@ -58,7 +58,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
     const criteria = findById ? { id: idOrSlug } : { slug: idOrSlug };
     const itemCriteria = menuOnly ? { menuAttached: true } : {};
     return await clientService.renderType({
-      type, criteria, itemCriteria, filter: null, rootPath, wrapRelated, locale, populate
+      type, criteria, itemCriteria, filter: null, rootPath, wrapRelated, locale, populate, menuOnly,
     });
   },
 
@@ -274,6 +274,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
     wrapRelated = false,
     locale,
     populate,
+    menuOnly,
   }) {
     const clientService = getPluginService('client');
     const adminService = getPluginService('admin');
@@ -415,7 +416,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
             const { order, parent } = item;
 
             const nestedOrders = parent
-              ? getNestedOrders(parent.id, cache).concat(order)
+              ? !menuOnly ? getNestedOrders(parent.id, cache).concat(order) : [order]
               : [order];
 
             cache.set(id, nestedOrders);
