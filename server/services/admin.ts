@@ -339,7 +339,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({
   },
 
   async restoreConfig(): Promise<void> {
-    const commonService = getPluginService("common");
+    const commonService = getPluginService("common", strapi);
     const pluginStore = await commonService.getPluginStore();
     await pluginStore.delete({ key: "config" });
     await commonService.setDefaultConfig();
