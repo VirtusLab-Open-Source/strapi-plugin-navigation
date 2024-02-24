@@ -109,7 +109,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({
     };
   },
 
-  async get(ids): Promise<Navigation[]> {
+  async get(ids, ignoreLocale = false): Promise<Navigation[]> {
     const { masterModel } = getPluginModels();
     const { enabled: i18nEnabled, locales } = await getI18nStatus({ strapi });
     const whereClause: StrapiDBQueryArgs<keyof Navigation, unknown>['where'] = {};
@@ -124,7 +124,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({
       where: whereClause,
     });
 
-    if (i18nEnabled) {
+    if (i18nEnabled && !ignoreLocale) {
       entities = entities.reduce((acc, entity) => {
         if (entity.localeCode && locales?.includes(entity.localeCode)) {
           acc.push({
@@ -178,13 +178,14 @@ const adminService: (context: StrapiContext) => IAdminService = ({
       name,
       slug: await commonService.getSlug(name),
       visible,
+      localeCode: i18nEnabled && defaultLocale ? defaultLocale : null
     };
 
     const existingEntity = await strapi
       .query<Navigation>(masterModel.uid)
       .create({ data });
 
-    const result = commonService
+    const result = await commonService
       .createBranch(payload.items, existingEntity, null, {})
       .then(() => adminService.getById(existingEntity.id))
       .then((newEntity: Navigation) => {
