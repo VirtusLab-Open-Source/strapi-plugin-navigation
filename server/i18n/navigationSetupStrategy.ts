@@ -150,7 +150,7 @@ const getCurrentNavigations = (
   strapi: IStrapi,
   ids?: Array<number>
 ): Promise<Navigation[]> =>
-  strapi.plugin("navigation").service("admin").get(ids);
+  strapi.plugin("navigation").service("admin").get(ids, true);
 
 // TODO: Move to service
 const createNavigation = ({

@@ -59,10 +59,10 @@ type TypeMap = {
   common: ICommonService
 }
 
-export function getPluginService<T extends NavigationServiceName>(name: T): T extends infer R extends NavigationServiceName 
+export function getPluginService<T extends NavigationServiceName>(name: T, strapiInstance = strapi): T extends infer R extends NavigationServiceName 
   ? TypeMap[R] 
   : never {
-  return strapi.plugin("navigation").service(name)
+  return strapiInstance.plugin("navigation").service(name)
 }
 
 export const errorHandler = (ctx: ToBeFixed) => (error: NavigationError | string) => {
