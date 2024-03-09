@@ -1,6 +1,6 @@
 import React from "react";
-// @ts-ignore
-import { Pencil, Trash } from "@strapi/icons";
+import { Pencil, Trash, Brush } from "@strapi/icons";
 
 export const edit = <Pencil />;
 export const deleteIcon = <Trash />;
+export const brushIcon = <Brush />;

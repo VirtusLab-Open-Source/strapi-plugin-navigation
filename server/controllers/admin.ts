@@ -8,9 +8,10 @@ import {
 import { getPluginService, parseParams } from "../utils";
 import { errorHandler } from "../utils";
 import { IAdminController } from "../../types";
-import { Id, StringMap } from "strapi-typed";
+import { Id, IStrapi, StringMap } from "strapi-typed";
 import { InvalidParamNavigationError } from "../../utils/InvalidParamNavigationError";
 import { NavigationError } from "../../utils/NavigationError";
+import { getCacheStatus } from "../cache/utils";
 
 const adminControllers: IAdminController = {
   getAdminService() {
@@ -169,6 +170,29 @@ const adminControllers: IAdminController = {
       throw error
     }
   },
+
+  async purgeNavigationsCache() {
+    const mappedStrapi = strapi as unknown as IStrapi;
+    const { enabled } = await getCacheStatus({ strapi: mappedStrapi });
+
+    if (!enabled) {
+      return { success: false };
+    }
+
+    return await this.getAdminService().purgeNavigationsCache();
+  },
+
+  async purgeNavigationCache(ctx) {
+    const { params: { id }, query: { clearLocalisations = 'false' } } = ctx;
+    const mappedStrapi = strapi as unknown as IStrapi;
+    const { enabled } = await getCacheStatus({ strapi: mappedStrapi });
+
+    if (!enabled) {
+      return { success: false };
+    }
+    
+    return await this.getAdminService().purgeNavigationCache(id, JSON.parse(clearLocalisations));
+  }
 };
 
 const assertCopyParams = (source: unknown, target: unknown) => {

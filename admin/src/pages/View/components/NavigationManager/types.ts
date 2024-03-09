@@ -12,6 +12,7 @@ export type State =
   | EditState
   | CreateState
   | DeleteState
+  | PurgeCacheState
   | ErrorState;
 
 export type SetState = Dispatch<SetStateAction<State>>;
@@ -49,6 +50,11 @@ export interface CreateState extends CommonState {
 
 export interface DeleteState extends CommonState {
   view: "DELETE";
+  navigations: Array<Navigation>;
+}
+
+export interface PurgeCacheState extends CommonState {
+  view: "CACHE_PURGE";
   navigations: Array<Navigation>;
 }
 

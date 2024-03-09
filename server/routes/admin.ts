@@ -70,6 +70,26 @@ const routes: StrapiRoutes = {
       }
     },
     {
+      method: 'DELETE',
+      path: '/cache/purge/:id',
+      handler: 'admin.purgeNavigationCache',
+      config: {
+        policies: [
+          'admin::isAuthenticatedAdmin'
+        ]
+      }
+    },
+    {
+      method: 'DELETE',
+      path: '/cache/purge',
+      handler: 'admin.purgeNavigationsCache',
+      config: {
+        policies: [
+          'admin::isAuthenticatedAdmin'
+        ]
+      }
+    },
+    {
       method: 'GET',
       path: '/slug',
       handler: 'admin.getSlug',

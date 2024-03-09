@@ -33,6 +33,8 @@ import {
   SUBMIT_NAVIGATION_ERROR,
   I18N_COPY_NAVIGATION,
   I18N_COPY_NAVIGATION_SUCCESS,
+  CACHE_CLEAR_SUCCEEDED,
+  CACHE_CLEAR,
 } from './actions';
 import { prepareItemToViewPayload } from '../View/utils/parsers';
 import { errorStatusResourceFor, resolvedResourceFor } from "../../utils";
@@ -368,6 +370,39 @@ const DataManagerProvider = ({ children }) => {
   const handleNavigationsDeletion = (ids) => 
     Promise.all(ids.map(handleNavigationDeletion));
 
+  const handleNavigationsPurge = async (ids, withLangVersions = false, skipDispatch = false) => {
+    if (!skipDispatch) {
+      dispatch({ type: CACHE_CLEAR });
+    }
+
+    try {
+      if (ids.length) {
+      
+        await Promise.all(ids.map((id) => handleNavigationPurgeReq(id, withLangVersions)));
+      } else {
+        await handleNavigationsPurgeReq();
+      }
+    } catch (error) {
+      console.error("Unable to clear navigation cache");
+    }
+
+    if (!skipDispatch) {
+      dispatch({ type: CACHE_CLEAR_SUCCEEDED });
+    }
+  }
+
+  const handleNavigationPurgeReq = (id, withLangVersions) => 
+    request(`/${pluginId}/cache/purge/${id}?clearLocalisations=${!!withLangVersions}`, {
+      method: "DELETE",
+      signal,
+    });
+
+  const handleNavigationsPurgeReq = () => 
+    request(`/${pluginId}/cache/purge`, {
+      method: "DELETE",
+      signal,
+    });
+
   const handleNavigationDeletion = (id) => 
     request(`/${pluginId}/${id}`, {
       method: "DELETE",
@@ -429,6 +464,7 @@ const DataManagerProvider = ({ children }) => {
         availableLocale,
         readNavigationItemFromLocale,
         handleNavigationsDeletion,
+        handleNavigationsPurge,
         hardReset,
         slugify,
         permissions: {

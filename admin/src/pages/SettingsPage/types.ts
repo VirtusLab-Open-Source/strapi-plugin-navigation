@@ -9,6 +9,7 @@ export type RawPayload = {
   pathDefaultFields: Record<string, string[]>;
   populate: Record<string, string[]>;
   selectedContentTypes: string[];
+  isCacheEnabled: boolean;
 }
 export type StrapiContentTypeSchema = StrapiContentTypeFullSchema & { available: boolean, isSingle: boolean, plugin: string, label: string  }
 
@@ -16,5 +17,5 @@ export type PreparePayload = (payload: { form: RawPayload, pruneObsoleteI18nNavi
 export type OnSave = Effect<RawPayload>;
 export type OnPopupClose = Effect<boolean>;
 export type HandleSetContentTypeExpanded = Effect<string | undefined>;
-export type RestartReasons = 'I18N' | 'GRAPH_QL' | 'I18N_NAVIGATIONS_PRUNE';
+export type RestartReasons = 'I18N' | 'GRAPH_QL' | 'I18N_NAVIGATIONS_PRUNE' | 'CACHE';
 export type RestartStatus = { required: true, reasons?: RestartReasons[] } | { required: false };

@@ -16,6 +16,7 @@ const config: StrapiConfig<NavigationPluginConfig> = {
     pathDefaultFields: {},
     pruneObsoleteI18nNavigations: false,
     cascadeMenuAttached: true,
+    isCacheEnabled: false,
   },
 };
 

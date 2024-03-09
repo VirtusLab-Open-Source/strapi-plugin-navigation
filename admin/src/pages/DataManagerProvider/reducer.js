@@ -19,6 +19,8 @@ import {
   SUBMIT_NAVIGATION_ERROR,
   I18N_COPY_NAVIGATION_SUCCESS,
   I18N_COPY_NAVIGATION,
+  CACHE_CLEAR,
+  CACHE_CLEAR_SUCCEEDED,
 } from './actions';
 
 const initialState = {
@@ -128,6 +130,14 @@ const reducer = (state, action) => produce(state, draftState => {
       break;
     }
     case I18N_COPY_NAVIGATION_SUCCESS: {
+      draftState.isLoading = false;
+      break;
+    }
+    case CACHE_CLEAR: {
+      draftState.isLoading = true;
+      break;
+    }
+    case CACHE_CLEAR_SUCCEEDED: {
       draftState.isLoading = false;
       break;
     }
