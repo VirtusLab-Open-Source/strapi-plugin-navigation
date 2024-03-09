@@ -110,6 +110,7 @@ const SettingsPage = () => {
     pathDefaultFields: get(navigationConfigData, "pathDefaultFields", {}),
     populate: get(navigationConfigData, "contentTypesPopulate", {}),
     selectedContentTypes: configContentTypes.map(item => item.uid),
+    isCacheEnabled: get(navigationConfigData, "isCacheEnabled", false),
   }), [configContentTypes, navigationConfigData, navigationItemAdditionalFields]);
 
   const {
@@ -136,6 +137,7 @@ const SettingsPage = () => {
       pathDefaultFields,
       populate,
       selectedContentTypes,
+      isCacheEnabled,
     },
     pruneObsoleteI18nNavigations
   }) => ({
@@ -150,7 +152,8 @@ const SettingsPage = () => {
     pruneObsoleteI18nNavigations,
     gql: {
       navigationItemRelated: selectedContentTypes.map((uid: string) => resolveGlobalLikeId(uid)),
-    }
+    },
+    isCacheEnabled,
   }), [customFields]);
 
   const onSave: OnSave = async (form) => {
@@ -159,9 +162,13 @@ const SettingsPage = () => {
     await submitMutation({ body: payload });
     const isContentTypesChanged = !isEqual(payload.contentTypes, navigationConfigData.contentTypes);
     const isI18nChanged = !isEqual(payload.i18nEnabled, navigationConfigData.i18nEnabled);
+    const isCacheChanged = !isEqual(payload.isCacheEnabled, navigationConfigData.isCacheEnabled);
     const restartReasons: RestartReasons[] = []
     if (isI18nChanged) {
       restartReasons.push('I18N');
+    }
+    if (isCacheChanged) {
+      restartReasons.push('CACHE');
     }
     if (isContentTypesChanged && navigationConfigData.isGQLPluginEnabled) {
       restartReasons.push('GRAPH_QL');
@@ -234,6 +241,7 @@ const SettingsPage = () => {
   }), ct => ct.info.displayName) : [];
 
   const isI18NPluginEnabled = navigationConfigData?.isI18NPluginEnabled;
+  const isCachePluginEnabled = navigationConfigData?.isCachePluginEnabled;
   const defaultLocale = navigationConfigData?.defaultLocale;
 
   const handleSubmitCustomField = (field: NavigationItemCustomField) => {
@@ -417,7 +425,7 @@ const SettingsPage = () => {
                         {getMessage('pages.settings.additional.title')}
                       </Typography>
                       <Grid gap={4}>
-                        <GridItem col={4} s={6} xs={12}>
+                        <GridItem col={6} s={6} xs={12}>
                           <Box style={{ maxWidth: 257 }}>
                             <NumberInput
                               name="allowedLevels"
@@ -430,7 +438,7 @@ const SettingsPage = () => {
                             />
                           </Box>
                         </GridItem>
-                        <GridItem col={4} s={12} xs={12}>
+                        <GridItem col={6} s={12} xs={12}>
                           <ToggleInput
                             name="cascadeMenuAttachedChecked"
                             label={getMessage('pages.settings.form.cascadeMenuAttached.label')}
@@ -446,7 +454,7 @@ const SettingsPage = () => {
                         </GridItem>
                       </Grid>
                       <Grid gap={4}>
-                        <GridItem col={4} s={12} xs={12}>
+                        <GridItem col={6} s={12} xs={12}>
                           <ToggleInput
                             name="audienceFieldChecked"
                             label={getMessage('pages.settings.form.audience.label')}
@@ -459,7 +467,7 @@ const SettingsPage = () => {
                           />
                         </GridItem>
                         {isI18NPluginEnabled && (
-                          <GridItem col={4} s={12} xs={12}>
+                          <GridItem col={6} s={12} xs={12}>
                             <ToggleInput
                               name="i18nEnabled"
                               label={getMessage('pages.settings.form.i18n.label')}
@@ -486,6 +494,24 @@ const SettingsPage = () => {
                           </GridItem>
                         )}
                       </Grid>
+                      {isCachePluginEnabled && (
+                        <Grid gap={4}>
+                          <GridItem col={12} s={12} xs={12}>
+                            <ToggleInput
+                              name="cacheEnabled"
+                              label={getMessage('pages.settings.form.cache.label')}
+                              hint={getMessage('pages.settings.form.cache.hint')}
+                              checked={values.isCacheEnabled}
+                              onChange={({ target: { checked } }: { target: { checked: boolean } }) => {
+                                setFieldValue('isCacheEnabled', checked, false);
+                              }}
+                              onLabel="Enabled"
+                              offLabel="Disabled"
+                              disabled={restartStatus.required}
+                            />
+                          </GridItem>
+                        </Grid>
+                      )}
                     </Stack>
                   </Box>
                   <Box {...BOX_DEFAULT_PROPS} >

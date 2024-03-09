@@ -34,6 +34,7 @@ const NavigationHeader = ({
   handleChangeSelection,
   handleLocalizationSelection,
   handleSave,
+  handleCachePurge,
   config,
   permissions = {},
 }) => {
@@ -69,7 +70,8 @@ const NavigationHeader = ({
       primaryAction={
         <Stack horizontal size={2}>
           <Box marginRight="8px">
-            <Grid gap={4}>
+            {/* TODO: Reorganise to use flex */}
+            <Grid gap={4} style={ config.isCacheEnabled ? { display: "flex" } : undefined}>
               {!hasLocalizations ? (<GridItem col={2} />) : null}
               {canUpdate && (<GridItem col={3}>
                 <Button
@@ -96,33 +98,45 @@ const NavigationHeader = ({
                   {availableNavigations.map(({ id, name }) => <Option key={id} value={id}>{name}</Option>)}
                 </Select>
               </GridItem>
-            {hasLocalizations
-              ? <GridItem col={2}>
-                  <Select
-                    type="select"
-                    placeholder={formatMessage(getTrad('pages.main.header.localization.select.placeholder'))}
-                    name="navigationLocalizationSelect"
-                    onChange={handleLocalizationSelection}
-                    value={activeNavigation?.id}
-                    size="S"
-                  >
-                    {allLocaleVersions.map(({ id, localeCode }) => <Option key={id} value={id}>{localeCode}</Option>)}
-                  </Select> 
-                </GridItem>
-              : null
-            }
-            {canUpdate && (<GridItem col={3}>
-              <Button
-                onClick={handleSave}
-                startIcon={submitIcon}
-                disabled={structureHasErrors || !structureHasChanged}
-                type="submit"
-                fullWidth
-                size="S"
-              >
-                {formatMessage(getTrad('submit.cta.save'))}
-              </Button>
-            </GridItem>)}
+              {hasLocalizations
+                ? <GridItem col={2}>
+                    <Select
+                      type="select"
+                      placeholder={formatMessage(getTrad('pages.main.header.localization.select.placeholder'))}
+                      name="navigationLocalizationSelect"
+                      onChange={handleLocalizationSelection}
+                      value={activeNavigation?.id}
+                      size="S"
+                    >
+                      {allLocaleVersions.map(({ id, localeCode }) => <Option key={id} value={id}>{localeCode}</Option>)}
+                    </Select> 
+                  </GridItem>
+                : null
+              }
+              {canUpdate && (<GridItem col={3}>
+                <Button
+                  onClick={handleSave}
+                  startIcon={submitIcon}
+                  disabled={structureHasErrors || !structureHasChanged}
+                  type="submit"
+                  fullWidth
+                  size="S"
+                >
+                  {formatMessage(getTrad('submit.cta.save'))}
+                </Button>
+              </GridItem>)}
+              {config.isCacheEnabled && (<GridItem col={3}>
+                <Button
+                  onClick={handleCachePurge}
+                  // startIcon={submitIcon}
+                  variant="danger"
+                  type="submit"
+                  fullWidth
+                  size="S"
+                >
+                  {formatMessage(getTrad('submit.cta.cache.purge'))}
+                </Button>
+              </GridItem>)}
             </Grid>
           </Box>
           {canUpdate && navigationManagerModal}
