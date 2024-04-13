@@ -306,14 +306,14 @@ const adminService: (context: StrapiContext) => IAdminService = ({
 
       const navigationItems = await strapi.query<NavigationItem>(itemModel.uid).findMany({
         where: {
-          $or: masterIds.map((id) => ({ master: id }))
+          $or: masterIds.map((id) => ({ master: id })),
         },
         limit: Number.MAX_SAFE_INTEGER,
       });
 
       await strapi.query<NavigationItem>(itemModel.uid).deleteMany({
         where: {
-          id:  navigationItems.map(({ id }) => ( id )),
+          id: navigationItems.map(({ id }) => (id)),
         },
       });
     };
