@@ -300,6 +300,10 @@ const adminService: (context: StrapiContext) => IAdminService = ({
     // TODO: remove when cascade deletion is present
     // NOTE: Delete many with relation `where` crashes ORM
     const cleanNavigationItems = async (masterIds: Array<Id>) => {
+      if (masterIds.length < 1) {
+        return;
+      }
+
       const navigationItems = await strapi.query<NavigationItem>(itemModel.uid).findMany({
         where: {
           $or: masterIds.map((id) => ({ master: id }))
@@ -309,7 +313,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({
 
       await strapi.query<NavigationItem>(itemModel.uid).deleteMany({
         where: {
-          $or: navigationItems.map(({ id }) => ({ id }))
+          id:  navigationItems.map(({ id }) => ( id )),
         },
       });
     };
