@@ -294,8 +294,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({
 
   async delete(id, auditLog) {
     const { masterModel, itemModel } = getPluginModels();
-    const adminService = getPluginService("admin");
-    const entity = await adminService.getById(id);
+    const entity = await this.getById(id);
     const { enabled: i18nEnabled } = await getI18nStatus({ strapi });
     // TODO: remove when cascade deletion is present
     // NOTE: Delete many with relation `where` crashes ORM
