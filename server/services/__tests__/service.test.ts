@@ -1,10 +1,15 @@
 import { IStrapi, StrapiContext, StrapiStore } from "strapi-typed";
-import { ICommonService, Navigation, ToBeFixed } from "../../../types";
+import {
+  ICommonService,
+  Navigation,
+  NavigationItem,
+  ToBeFixed,
+} from "../../../types";
 
 import setupStrapi from "../../../__mocks__/strapi";
 import { allLifecycleHooks, getPluginService, RENDER_TYPES } from "../../utils";
-import clientService from "../client";
 import adminService from "../admin";
+import clientService from "../client";
 
 declare var strapi: IStrapi;
 
@@ -534,6 +539,7 @@ describe("Navigation services", () => {
 
   describe("AdminService", () => {
     let navigationIndex = 0;
+    let itemIndex = 0;
     const generateNavigation = (
       rest: Partial<Navigation> = {}
     ): Partial<Navigation> => ({
@@ -544,6 +550,13 @@ describe("Navigation services", () => {
 
     beforeEach(() => {
       navigationIndex = 0;
+    });
+    const generateNavigationItem = (
+      rest: Partial<NavigationItem> = {}
+    ): Partial<NavigationItem> => ({
+      path: `/navigation-item-${++itemIndex}`,
+      id: ++itemIndex,
+      ...rest,
     });
 
     describe("get()", () => {
@@ -1001,6 +1014,325 @@ describe("Navigation services", () => {
       });
     });
 
+    describe("delete()", () => {
+      it("should delete navigation with items", async () => {
+        // Given
+        const auditLogMock = jest.fn();
+        const ids = [1];
+        const navigations = ids.map((id) => generateNavigation({ id }));
+        const locale = "en";
+        const activeLocale = [locale];
+        const findManyNavigation = jest.fn();
+        const findManyNavigationItem = jest.fn();
+        const deleteNavigation = jest.fn();
+        const deleteManyNavigation = jest.fn();
+        const deleteManyNavigationItem = jest.fn();
+        const query = (uid: string): any => {
+          if (uid === "plugin::navigation.navigation") {
+            return {
+              findMany: findManyNavigation,
+              delete: deleteNavigation,
+              deleteMany: deleteManyNavigation,
+            };
+          }
+
+          return {
+            findMany: findManyNavigationItem,
+            deleteMany: deleteManyNavigationItem,
+          };
+        };
+        const i18nPluginService = {
+          getDefaultLocale() {
+            return locale;
+          },
+          find() {
+            return activeLocale.map((code) => ({ code }));
+          },
+        } as ToBeFixed;
+        const i18nPlugin = {
+          service() {
+            return i18nPluginService;
+          },
+        };
+        const store = () =>
+          ({
+            get() {
+              return { i18nEnabled: false };
+            },
+          } as ToBeFixed);
+        const strapi: Partial<StrapiContext["strapi"]> = {
+          query,
+          plugin(name): any {
+            return name === "i18n" ? i18nPlugin : null;
+          },
+          store,
+        };
+        const adminServiceBuilt = adminService({ strapi } as StrapiContext);
+
+        findManyNavigation.mockResolvedValue(navigations);
+        findManyNavigationItem.mockResolvedValueOnce([
+          generateNavigationItem({}),
+          generateNavigationItem({}),
+        ]);
+
+        adminServiceBuilt.getById = jest.fn();
+
+        (adminServiceBuilt.getById as jest.Mock).mockReturnValue(
+          navigations[0]
+        );
+
+        // When
+        await adminServiceBuilt.delete(1, { emit: auditLogMock });
+
+        // Then
+        expect(findManyNavigation.mock.calls).toMatchInlineSnapshot(`Array []`);
+        expect(findManyNavigationItem.mock.calls).toMatchInlineSnapshot(`
+          Array [
+            Array [
+              Object {
+                "limit": 9007199254740991,
+                "where": Object {
+                  "$or": Array [
+                    Object {
+                      "master": 1,
+                    },
+                  ],
+                },
+              },
+            ],
+          ]
+        `);
+        expect(deleteManyNavigation.mock.calls).toMatchInlineSnapshot(
+          `Array []`
+        );
+        expect(deleteManyNavigationItem.mock.calls).toMatchInlineSnapshot(`
+          Array [
+            Array [
+              Object {
+                "where": Object {
+                  "id": Array [
+                    2,
+                    4,
+                  ],
+                },
+              },
+            ],
+          ]
+        `);
+        expect(deleteNavigation.mock.calls).toMatchInlineSnapshot(`
+          Array [
+            Array [
+              Object {
+                "where": Object {
+                  "id": 1,
+                },
+              },
+            ],
+          ]
+        `);
+        expect(auditLogMock.mock.calls).toMatchInlineSnapshot(`
+          Array [
+            Array [
+              "onNavigationDeletion",
+              Object {
+                "actionType": "DELETE",
+                "entity": Object {
+                  "id": 1,
+                  "name": "Navigation-1",
+                },
+              },
+            ],
+          ]
+        `);
+      });
+
+      it("should delete navigation with localisations", async () => {
+        // Given
+        const auditLogMock = jest.fn();
+        const allLocale = ["en", "pl"];
+        const activeLocale = allLocale.filter((locale) => locale != "fr");
+        const locale = allLocale[0];
+        const navigations = allLocale.map((localeCode) =>
+          generateNavigation({
+            localeCode,
+            localizations: allLocale
+              .filter((locale) => locale !== localeCode)
+              .map((_localeCode) =>
+                generateNavigation({ localeCode: _localeCode })
+              ) as ToBeFixed,
+          })
+        );
+        const findManyNavigation = jest.fn();
+        const findManyNavigationItem = jest.fn();
+        const deleteNavigation = jest.fn();
+        const deleteManyNavigation = jest.fn();
+        const deleteManyNavigationItem = jest.fn();
+        const query = (uid: string): any => {
+          if (uid === "plugin::navigation.navigation") {
+            return {
+              findMany: findManyNavigation,
+              delete: deleteNavigation,
+              deleteMany: deleteManyNavigation,
+            };
+          }
+
+          return {
+            findMany: findManyNavigationItem,
+            deleteMany: deleteManyNavigationItem,
+          };
+        };
+        const i18nPluginService = {
+          getDefaultLocale() {
+            return locale;
+          },
+          find() {
+            return activeLocale.map((code) => ({ code }));
+          },
+        } as ToBeFixed;
+        const i18nPlugin = {
+          service() {
+            return i18nPluginService;
+          },
+        };
+        const store = () =>
+          ({
+            get() {
+              return { i18nEnabled: true };
+            },
+          } as ToBeFixed);
+        const strapi: Partial<StrapiContext["strapi"]> = {
+          query,
+          plugin(name): any {
+            return name === "i18n" ? i18nPlugin : null;
+          },
+          store,
+        };
+        const adminServiceBuilt = adminService({ strapi } as StrapiContext);
+        const id = navigations[0].id;
+
+        findManyNavigation.mockResolvedValue(navigations);
+
+        [1, 2, 3, 4, 5].forEach(() => {
+          findManyNavigationItem.mockResolvedValueOnce([
+            generateNavigationItem({}),
+            generateNavigationItem({}),
+          ]);
+        });
+
+        adminServiceBuilt.getById = jest.fn();
+
+        (adminServiceBuilt.getById as jest.Mock).mockReturnValue(
+          navigations[0]
+        );
+
+        // When
+        await adminServiceBuilt.delete(id!, { emit: auditLogMock });
+
+        // Then
+        expect(findManyNavigation.mock.calls).toMatchInlineSnapshot(`Array []`);
+        expect(findManyNavigationItem.mock.calls).toMatchInlineSnapshot(`
+          Array [
+            Array [
+              Object {
+                "limit": 9007199254740991,
+                "where": Object {
+                  "$or": Array [
+                    Object {
+                      "master": 4,
+                    },
+                  ],
+                },
+              },
+            ],
+            Array [
+              Object {
+                "limit": 9007199254740991,
+                "where": Object {
+                  "$or": Array [
+                    Object {
+                      "master": 2,
+                    },
+                  ],
+                },
+              },
+            ],
+          ]
+        `);
+        expect(deleteManyNavigation.mock.calls).toMatchInlineSnapshot(`
+          Array [
+            Array [
+              Object {
+                "where": Object {
+                  "id": Object {
+                    "$in": Array [
+                      2,
+                    ],
+                  },
+                },
+              },
+            ],
+          ]
+        `);
+        expect(deleteManyNavigationItem.mock.calls).toMatchInlineSnapshot(`
+          Array [
+            Array [
+              Object {
+                "where": Object {
+                  "id": Array [
+                    6,
+                    8,
+                  ],
+                },
+              },
+            ],
+            Array [
+              Object {
+                "where": Object {
+                  "id": Array [
+                    10,
+                    12,
+                  ],
+                },
+              },
+            ],
+          ]
+        `);
+        expect(deleteNavigation.mock.calls).toMatchInlineSnapshot(`
+          Array [
+            Array [
+              Object {
+                "where": Object {
+                  "id": 4,
+                },
+              },
+            ],
+          ]
+        `);
+        expect(auditLogMock.mock.calls).toMatchInlineSnapshot(`
+          Array [
+            Array [
+              "onNavigationDeletion",
+              Object {
+                "actionType": "DELETE",
+                "entity": Object {
+                  "id": 4,
+                  "localeCode": "en",
+                  "localizations": Array [
+                    Object {
+                      "id": 2,
+                      "localeCode": "pl",
+                      "name": "Navigation-1",
+                    },
+                  ],
+                  "name": "Navigation-3",
+                },
+              },
+            ],
+          ]
+        `);
+      });
+    });
+
     describe("purgeNavigationsCache()", () => {
       it("should clear all navigations", async () => {
         // Given
@@ -1199,7 +1531,7 @@ describe("Navigation services", () => {
         `);
       });
     });
-    
+
     describe("restoreConfig()", () => {
       it("should restore config", async () => {
         // Given
@@ -1229,7 +1561,6 @@ describe("Navigation services", () => {
         // Then
         expect(pluginStore.delete).toHaveBeenCalled();
         expect(commonService.setDefaultConfig).toHaveBeenCalled();
-
       });
     });
   });
