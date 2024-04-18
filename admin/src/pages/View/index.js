@@ -66,6 +66,7 @@ const View = () => {
     readNavigationItemFromLocale,
     slugify,
     permissions,
+    handleNavigationsPurge,
   } = useDataManager();
 
   const { canAccess, canUpdate } = permissions;
@@ -108,6 +109,9 @@ const View = () => {
   const handleSave = () => isLoadingForSubmit || structureHasErrors
     ? null
     : handleSubmitNavigation(formatMessage, transformToRESTPayload(changedActiveNavigation, config));
+  const handleCachePurge = () => {
+    handleNavigationsPurge([navigationSelectValue]);
+  };
 
   const changeNavigationItemPopupState = (visible, editedItem = {}) => {
     setActiveNavigationItemState(editedItem);
@@ -309,6 +313,7 @@ const View = () => {
         activeNavigation={activeNavigation}
         handleChangeSelection={handleChangeNavigationSelection}
         handleSave={handleSave}
+        handleCachePurge={handleCachePurge}
         handleLocalizationSelection={handleLocalizationSelection}
         config={config}
         permissions={{

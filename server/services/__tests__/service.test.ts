@@ -1001,6 +1001,205 @@ describe("Navigation services", () => {
       });
     });
 
+    describe("purgeNavigationsCache()", () => {
+      it("should clear all navigations", async () => {
+        // Given
+        const cacheCacheStore = { clearByRegexp: jest.fn() };
+        const cachePlugin = {
+          service() {
+            return cacheCacheStore;
+          },
+        } as ToBeFixed;
+        const strapi = {
+          plugin() {
+            return cachePlugin;
+          },
+        } as ToBeFixed as IStrapi;
+        const adminServiceBuilt = adminService({ strapi } as StrapiContext);
+
+        // When
+        await adminServiceBuilt.purgeNavigationsCache();
+
+        // Then
+        expect(cacheCacheStore.clearByRegexp).toHaveBeenCalled();
+        expect(cacheCacheStore.clearByRegexp.mock.calls).toMatchInlineSnapshot(`
+          Array [
+            Array [
+              Array [
+                /\\\\/api\\\\/navigation\\\\/render\\(\\.\\*\\)/,
+              ],
+            ],
+          ]
+        `);
+      });
+    });
+
+    describe("purgeNavigationCache()", () => {
+      it("should purge a single navigation's cache", async () => {
+        // Given
+        const cacheCacheStore = { clearByRegexp: jest.fn() };
+        const cachePlugin = {
+          service() {
+            return cacheCacheStore;
+          },
+        } as ToBeFixed;
+        const strapi = {
+          plugin() {
+            return cachePlugin;
+          },
+        } as ToBeFixed as IStrapi;
+        const adminServiceBuilt = adminService({ strapi } as StrapiContext);
+
+        adminServiceBuilt.getById = jest.fn();
+
+        (adminServiceBuilt.getById as jest.Mock).mockResolvedValue({
+          id: 1,
+          localizations: [{ id: 2 }, { id: 3 }],
+        });
+
+        // When
+        await adminServiceBuilt.purgeNavigationCache(1, false);
+
+        // Then
+        expect(cacheCacheStore.clearByRegexp).toHaveBeenCalled();
+        expect(cacheCacheStore.clearByRegexp.mock.calls).toMatchInlineSnapshot(`
+          Array [
+            Array [
+              Array [
+                /\\\\/api\\\\/navigation\\\\/render\\\\/1/,
+              ],
+            ],
+          ]
+        `);
+      });
+
+      it("should purge a single navigation's cache and localisation when requested (if i18n enabled)", async () => {
+        // Given
+        const cacheCacheStore = { clearByRegexp: jest.fn() };
+        const findMany = jest.fn();
+        const locale = "en";
+        const query = (): any => ({ findMany });
+        const i18nPluginService = {
+          getDefaultLocale() {
+            return locale;
+          },
+          find() {
+            return [locale];
+          },
+        } as ToBeFixed;
+        const i18nPlugin = {
+          service() {
+            return i18nPluginService;
+          },
+        };
+        const cachePlugin = {
+          service() {
+            return cacheCacheStore;
+          },
+        } as ToBeFixed;
+        const store = () =>
+          ({
+            get() {
+              return { i18nEnabled: true };
+            },
+          } as ToBeFixed);
+        const strapi = {
+          query,
+          plugin(name: string): any {
+            return name === "i18n" ? i18nPlugin : cachePlugin;
+          },
+          store,
+        } as ToBeFixed as IStrapi;
+        const adminServiceBuilt = adminService({ strapi } as StrapiContext);
+
+        adminServiceBuilt.getById = jest.fn();
+
+        (adminServiceBuilt.getById as jest.Mock).mockResolvedValue({
+          id: 1,
+          localizations: [{ id: 2 }, { id: 3 }],
+        });
+
+        // When
+        await adminServiceBuilt.purgeNavigationCache(1, true);
+
+        // Then
+        expect(cacheCacheStore.clearByRegexp).toHaveBeenCalled();
+        expect(cacheCacheStore.clearByRegexp.mock.calls).toMatchInlineSnapshot(`
+          Array [
+            Array [
+              Array [
+                /\\\\/api\\\\/navigation\\\\/render\\\\/2/,
+                /\\\\/api\\\\/navigation\\\\/render\\\\/3/,
+                /\\\\/api\\\\/navigation\\\\/render\\\\/1/,
+              ],
+            ],
+          ]
+        `);
+      });
+
+      it("should purge a single navigation's cache only when requested to clear localisations (if i18n disabled)", async () => {
+        // Given
+        const cacheCacheStore = { clearByRegexp: jest.fn() };
+        const findMany = jest.fn();
+        const locale = "en";
+        const query = (): any => ({ findMany });
+        const i18nPluginService = {
+          getDefaultLocale() {
+            return locale;
+          },
+          find() {
+            return [locale];
+          },
+        } as ToBeFixed;
+        const i18nPlugin = {
+          service() {
+            return i18nPluginService;
+          },
+        };
+        const cachePlugin = {
+          service() {
+            return cacheCacheStore;
+          },
+        } as ToBeFixed;
+        const store = () =>
+          ({
+            get() {
+              return { i18nEnabled: false };
+            },
+          } as ToBeFixed);
+        const strapi = {
+          query,
+          plugin(name: string): any {
+            return name === "i18n" ? i18nPlugin : cachePlugin;
+          },
+          store,
+        } as ToBeFixed as IStrapi;
+        const adminServiceBuilt = adminService({ strapi } as StrapiContext);
+
+        adminServiceBuilt.getById = jest.fn();
+
+        (adminServiceBuilt.getById as jest.Mock).mockResolvedValue({
+          id: 1,
+          localizations: [{ id: 2 }, { id: 3 }],
+        });
+
+        // When
+        await adminServiceBuilt.purgeNavigationCache(1, true);
+
+        // Then
+        expect(cacheCacheStore.clearByRegexp).toHaveBeenCalled();
+        expect(cacheCacheStore.clearByRegexp.mock.calls).toMatchInlineSnapshot(`
+          Array [
+            Array [
+              Array [
+                /\\\\/api\\\\/navigation\\\\/render\\\\/1/,
+              ],
+            ],
+          ]
+        `);
+      });
+    });
+    
     describe("restoreConfig()", () => {
       it("should restore config", async () => {
         // Given
@@ -1030,6 +1229,7 @@ describe("Navigation services", () => {
         // Then
         expect(pluginStore.delete).toHaveBeenCalled();
         expect(commonService.setDefaultConfig).toHaveBeenCalled();
+
       });
     });
   });

@@ -25,6 +25,8 @@ export interface IAdminService {
       Pick<NotVoid<Navigation['items']>[number], 'path' | 'related' | 'type' | 'uiRouterKey' | 'title' | 'externalPath'>
     >
   >;
+  purgeNavigationsCache: () => Promise<{ success: boolean }>;
+  purgeNavigationCache: (id: Id, clearLocalisations?: boolean) => Promise<{ success: boolean }>;
 }
 
 export interface ICommonService {

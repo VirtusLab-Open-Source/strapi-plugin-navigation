@@ -34,8 +34,10 @@ import {
   i18nNavigationItemRead,
 } from "../i18n";
 import { NavigationError } from "../../utils/NavigationError";
+import { addCacheConfigFields } from "../cache/serviceEnhancers";
+import { CacheConfigFields } from "../cache/types";
 
-type SettingsPageConfig = NavigationPluginConfig & I18NConfigFields;
+type SettingsPageConfig = NavigationPluginConfig & I18NConfigFields & CacheConfigFields;
 
 const adminService: (context: StrapiContext) => IAdminService = ({
   strapi,
@@ -90,6 +92,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({
       viaSettingsPage,
       previousConfig: {},
     });
+    const cacheConfig = await addCacheConfigFields({ strapi, previousConfig: {} })
 
     if (additionalFields.includes("audience")) {
       const audienceItems = await strapi
@@ -106,6 +109,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({
       ...result,
       ...extendedResult,
       ...i18nConfig,
+      ...cacheConfig,
     };
   },
 
@@ -414,6 +418,46 @@ const adminService: (context: StrapiContext) => IAdminService = ({
       strapi,
     });
   },
+
+  async purgeNavigationCache(id, clearLocalisations) {
+    const entity = await this.getById(id);
+    const regexps = [];
+    const mapToRegExp = (id: Id) => new RegExp(`/api/navigation/render/${id}`);
+
+    if (!entity) {
+      throw new errors.NotFoundError("Navigation is not defined");
+    }
+
+    if (clearLocalisations) {
+      const { enabled: isI18nEnabled } = await getI18nStatus({ strapi });
+
+      if (isI18nEnabled) {
+        entity.localizations?.forEach((navigation) => {
+          regexps.push(mapToRegExp(navigation.id));
+        });
+      }
+    }
+
+    const restCachePlugin = strapi.plugin("rest-cache");
+    const cacheStore = restCachePlugin.service("cacheStore");
+
+    regexps.push(mapToRegExp(id));
+
+    await cacheStore.clearByRegexp(regexps);
+
+    return { success: true };
+  },
+
+  async purgeNavigationsCache() {
+    const restCachePlugin = strapi.plugin("rest-cache");
+    const cacheStore = restCachePlugin.service("cacheStore");
+
+    const regex = new RegExp("/api/navigation/render(.*)");
+
+    await cacheStore.clearByRegexp([regex]);
+
+    return { success: true };
+  }
 });
 
 export default adminService;

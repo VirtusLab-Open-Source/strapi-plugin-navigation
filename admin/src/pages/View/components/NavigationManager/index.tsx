@@ -22,6 +22,10 @@ import { Footer } from "./Footer";
 import { NavigationUpdate, NavigationUpdateFooter } from "./NavigationUpdate";
 import { NewNavigation, NewNavigationFooter } from "./NewNavigation";
 import { SetState, State } from "./types";
+import {
+  PurgeCacheConfirm,
+  PurgeCacheConfirmFooter,
+} from "./PurgeCacheConfirm";
 
 interface Props {
   initialState: State;
@@ -40,6 +44,7 @@ export const NavigationManager = ({
   const {
     items = [],
     handleNavigationsDeletion,
+    handleNavigationsPurge,
     handleSubmitNavigation,
     hardReset,
   } = useDataManager();
@@ -58,6 +63,11 @@ export const NavigationManager = ({
         : (state.view === "CREATE" || state.view === "EDIT") && state.current
         ? async () => {
             await handleSubmitNavigation(formatMessage, state.current);
+            await hardReset();
+          }
+        : state.view === "CACHE_PURGE"
+        ? async () => {
+            await handleNavigationsPurge(state.navigations.map(prop("id")), true, true);
             await hardReset();
           }
         : () => {};
@@ -122,6 +132,7 @@ const renderHeader = (state: State) => {
     case "LIST":
     case "CREATE":
     case "ERROR":
+    case "CACHE_PURGE":
     case "DELETE": {
       return (
         <Flex direction="row">
@@ -169,6 +180,9 @@ const renderContent = (state: State, setState: SetState) => {
     case "DELETE": {
       return <DeletionConfirm {...state} {...commonProps} />;
     }
+    case "CACHE_PURGE": {
+      return <PurgeCacheConfirm {...state} {...commonProps} />;
+    }
     case "INITIAL": {
       return <Loader small />;
     }
@@ -193,6 +207,9 @@ const renderFooter: Footer = (props) => {
     }
     case "DELETE": {
       return <DeleteConfirmFooter {...props} />;
+    }
+    case "CACHE_PURGE": {
+      return <PurgeCacheConfirmFooter {...props} />;
     }
     case "ERROR": {
       return <ErrorDetailsFooter {...props} />;

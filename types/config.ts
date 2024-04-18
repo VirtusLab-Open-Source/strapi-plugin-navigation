@@ -19,6 +19,7 @@ export type NavigationPluginConfig = {
   pruneObsoleteI18nNavigations: boolean;
   pathDefaultFields: PluginConfigPathDefaultFields;
   cascadeMenuAttached: boolean;
+  isCacheEnabled: boolean;
 };
 
 export type StrapiConfig<T> = {

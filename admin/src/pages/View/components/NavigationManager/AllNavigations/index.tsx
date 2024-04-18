@@ -27,7 +27,7 @@ interface Props extends ListState, CommonProps {}
 
 export const AllNavigations = ({ navigations, selected, setState }: Props) => {
   const {
-    config: { i18nEnabled },
+    config: { i18nEnabled, isCacheEnabled },
   } = useDataManager();
 
   const hasAnySelected = !!selected.length;
@@ -76,7 +76,16 @@ export const AllNavigations = ({ navigations, selected, setState }: Props) => {
     });
   };
 
+  const purgeCache = (navigations: Array<Navigation>) => () => {
+    setState({
+      view: "CACHE_PURGE",
+      navigations,
+    });
+  };
+
   const deleteSelected = useCallback(_delete(selected), [_delete]);
+
+  const purgeSelected = useCallback(purgeCache(selected), [purgeCache]);
 
   return (
     <>
@@ -95,6 +104,11 @@ export const AllNavigations = ({ navigations, selected, setState }: Props) => {
               <Button onClick={deleteSelected} variant="tertiary">
                 {getMessage("popup.navigation.manage.button.delete")}
               </Button>
+              {isCacheEnabled ? (
+                <Button onClick={purgeSelected} variant="tertiary">
+                  {getMessage("popup.navigation.manage.button.purge")}
+                </Button>
+              ) : null}
             </Flex>
           ) : null}
         </GridItem>
@@ -130,7 +144,20 @@ export const AllNavigations = ({ navigations, selected, setState }: Props) => {
                 {getMessage("popup.navigation.manage.table.visibility")}
               </Typography>
             </Th>
-            <Th />
+            <Th>
+              {isCacheEnabled ? (
+                <Flex direction="row">
+                  <Box paddingLeft={1}>
+                    <IconButton
+                      onClick={purgeCache([])}
+                      label={getMessage("popup.navigation.manage.button.purge")}
+                      noBorder
+                      icon={icons.brushIcon}
+                    />
+                  </Box>
+                </Flex>
+              ) : null}
+            </Th>
           </Tr>
         </Thead>
         <Tbody>
@@ -189,6 +216,18 @@ export const AllNavigations = ({ navigations, selected, setState }: Props) => {
                       icon={icons.deleteIcon}
                     />
                   </Box>
+                  {isCacheEnabled ? (
+                    <Box paddingLeft={1}>
+                      <IconButton
+                        onClick={purgeCache([navigation])}
+                        label={getMessage(
+                          "popup.navigation.manage.button.purge"
+                        )}
+                        noBorder
+                        icon={icons.brushIcon}
+                      />
+                    </Box>
+                  ) : null}
                 </Flex>
               </Td>
             </Tr>

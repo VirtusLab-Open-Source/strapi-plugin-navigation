@@ -13,3 +13,7 @@ export interface INavigationSetupStrategy {
 export interface IGraphQLSetupStrategy {
   (context: StrapiContext): Promise<void>;
 }
+
+export interface IRestCacheSetupStrategy {
+  (context: StrapiContext): Promise<void>;
+}
