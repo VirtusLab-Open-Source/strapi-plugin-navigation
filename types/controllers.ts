@@ -28,6 +28,8 @@ export interface IAdminController {
     >
   >, never, { path?: string }, { source: string, target: string }, ControllerCommonContext>;
   getSlug: StrapiController<Promise<{ slug: string }>, never, { q: string }>;
+  purgeNavigationsCache: StrapiController<Promise<{ success: boolean }>>;
+  purgeNavigationCache: StrapiController<Promise<{ success: boolean }>, never, { clearLocalisations?: 'true' | 'false' }, { id: string }>;
 };
 
 export interface IClientController {

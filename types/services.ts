@@ -11,7 +11,7 @@ export type NavigationService = ICommonService | IAdminService | IClientService
 
 export interface IAdminService {
   config: (viaSettingsPage?: boolean) => Promise<NavigationPluginConfig>,
-  get: (ids?: Array<number>) => Promise<Navigation[]>,
+  get: (ids?: Array<number>, ignoreLocale?: boolean) => Promise<Navigation[]>,
   getById: (id: Id) => Promise<Navigation>,
   post: (payload: ToBeFixed, auditLog: AuditLogContext) => ToBeFixed,
   put: (id: Id, payload: ToBeFixed, auditLog: AuditLogContext) => ToBeFixed,
@@ -25,6 +25,8 @@ export interface IAdminService {
       Pick<NotVoid<Navigation['items']>[number], 'path' | 'related' | 'type' | 'uiRouterKey' | 'title' | 'externalPath'>
     >
   >;
+  purgeNavigationsCache: () => Promise<{ success: boolean }>;
+  purgeNavigationCache: (id: Id, clearLocalisations?: boolean) => Promise<{ success: boolean }>;
 }
 
 export interface ICommonService {
