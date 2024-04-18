@@ -1,5 +1,5 @@
-import { IStrapi, StrapiContext } from "strapi-typed";
-import { Navigation, ToBeFixed } from "../../../types";
+import { IStrapi, StrapiContext, StrapiStore } from "strapi-typed";
+import { ICommonService, Navigation, ToBeFixed } from "../../../types";
 
 import setupStrapi from "../../../__mocks__/strapi";
 import { allLifecycleHooks, getPluginService, RENDER_TYPES } from "../../utils";
@@ -533,16 +533,183 @@ describe("Navigation services", () => {
   });
 
   describe("AdminService", () => {
-    let index = 0;
+    let navigationIndex = 0;
     const generateNavigation = (
       rest: Partial<Navigation> = {}
     ): Partial<Navigation> => ({
-      name: `Navigation-${++index}`,
-      id: ++index,
+      name: `Navigation-${++navigationIndex}`,
+      id: ++navigationIndex,
       ...rest,
     });
 
+    beforeEach(() => {
+      navigationIndex = 0;
+    });
+
     describe("get()", () => {
+      it("should ignore i18n when required", async () => {
+        // Given
+        const locale = "en";
+        const allLocale = [locale, "fr", "ff", "de"];
+        const findMany = jest.fn();
+        const query = (): any => ({ findMany });
+        const i18nPluginService = {
+          getDefaultLocale() {
+            return locale;
+          },
+          find() {
+            return allLocale.map((code) => ({ code }));
+          },
+        } as ToBeFixed;
+        const i18nPlugin = {
+          service() {
+            return i18nPluginService;
+          },
+        };
+        const store = () =>
+          ({
+            get() {
+              return { i18nEnabled: true };
+            },
+          } as ToBeFixed);
+        const strapi: Partial<StrapiContext["strapi"]> = {
+          query,
+          plugin(name): any {
+            return name === "i18n" ? i18nPlugin : null;
+          },
+          store,
+        };
+        const adminServiceBuilt = adminService({ strapi } as StrapiContext);
+        const navigations = allLocale
+          .map((localeCode) =>
+            generateNavigation({
+              localeCode,
+              localizations: allLocale
+                .filter((locale) => locale !== localeCode)
+                .map((_localeCode) =>
+                  generateNavigation({ localeCode: _localeCode })
+                ) as ToBeFixed,
+            })
+          )
+          .concat([generateNavigation({ localeCode: null })]);
+
+        findMany.mockResolvedValue(navigations);
+
+        // When
+        const result = await adminServiceBuilt.get(undefined, true);
+
+        // Then
+        expect(findMany.mock.calls).toMatchInlineSnapshot(`
+          Array [
+            Array [
+              Object {
+                "limit": 9007199254740991,
+                "populate": Array [
+                  "localizations",
+                ],
+                "where": Object {},
+              },
+            ],
+          ]
+        `);
+        expect(result).toMatchInlineSnapshot(`
+          Array [
+            Object {
+              "id": 8,
+              "localeCode": "en",
+              "localizations": Array [
+                Object {
+                  "id": 2,
+                  "localeCode": "fr",
+                  "name": "Navigation-1",
+                },
+                Object {
+                  "id": 4,
+                  "localeCode": "ff",
+                  "name": "Navigation-3",
+                },
+                Object {
+                  "id": 6,
+                  "localeCode": "de",
+                  "name": "Navigation-5",
+                },
+              ],
+              "name": "Navigation-7",
+            },
+            Object {
+              "id": 16,
+              "localeCode": "fr",
+              "localizations": Array [
+                Object {
+                  "id": 10,
+                  "localeCode": "en",
+                  "name": "Navigation-9",
+                },
+                Object {
+                  "id": 12,
+                  "localeCode": "ff",
+                  "name": "Navigation-11",
+                },
+                Object {
+                  "id": 14,
+                  "localeCode": "de",
+                  "name": "Navigation-13",
+                },
+              ],
+              "name": "Navigation-15",
+            },
+            Object {
+              "id": 24,
+              "localeCode": "ff",
+              "localizations": Array [
+                Object {
+                  "id": 18,
+                  "localeCode": "en",
+                  "name": "Navigation-17",
+                },
+                Object {
+                  "id": 20,
+                  "localeCode": "fr",
+                  "name": "Navigation-19",
+                },
+                Object {
+                  "id": 22,
+                  "localeCode": "de",
+                  "name": "Navigation-21",
+                },
+              ],
+              "name": "Navigation-23",
+            },
+            Object {
+              "id": 32,
+              "localeCode": "de",
+              "localizations": Array [
+                Object {
+                  "id": 26,
+                  "localeCode": "en",
+                  "name": "Navigation-25",
+                },
+                Object {
+                  "id": 28,
+                  "localeCode": "fr",
+                  "name": "Navigation-27",
+                },
+                Object {
+                  "id": 30,
+                  "localeCode": "ff",
+                  "name": "Navigation-29",
+                },
+              ],
+              "name": "Navigation-31",
+            },
+            Object {
+              "id": 34,
+              "localeCode": null,
+              "name": "Navigation-33",
+            },
+          ]
+        `);
+      });
       it("should read all navigations", async () => {
         // Given
         const ids = [1, 2, 3, 4, 5, 6, 7];
@@ -702,15 +869,15 @@ describe("Navigation services", () => {
           Array [
             Object {
               "id": 3,
-              "name": "Navigation-19",
+              "name": "Navigation-5",
             },
             Object {
               "id": 4,
-              "name": "Navigation-21",
+              "name": "Navigation-7",
             },
             Object {
               "id": 7,
-              "name": "Navigation-27",
+              "name": "Navigation-13",
             },
           ]
         `);
@@ -784,8 +951,8 @@ describe("Navigation services", () => {
                 "where": Object {
                   "id": Object {
                     "$in": Array [
-                      44,
-                      52,
+                      16,
+                      24,
                     ],
                   },
                 },
@@ -796,38 +963,38 @@ describe("Navigation services", () => {
         expect(result).toMatchInlineSnapshot(`
           Array [
             Object {
-              "id": 44,
+              "id": 16,
               "localeCode": "fr",
               "localizations": Array [
                 Object {
-                  "id": 38,
+                  "id": 10,
                   "localeCode": "en",
-                  "name": "Navigation-37",
+                  "name": "Navigation-9",
                 },
                 Object {
-                  "id": 40,
+                  "id": 12,
                   "localeCode": "ff",
-                  "name": "Navigation-39",
+                  "name": "Navigation-11",
                 },
               ],
-              "name": "Navigation-43",
+              "name": "Navigation-15",
             },
             Object {
-              "id": 52,
+              "id": 24,
               "localeCode": "ff",
               "localizations": Array [
                 Object {
-                  "id": 46,
+                  "id": 18,
                   "localeCode": "en",
-                  "name": "Navigation-45",
+                  "name": "Navigation-17",
                 },
                 Object {
-                  "id": 48,
+                  "id": 20,
                   "localeCode": "fr",
-                  "name": "Navigation-47",
+                  "name": "Navigation-19",
                 },
               ],
-              "name": "Navigation-51",
+              "name": "Navigation-23",
             },
           ]
         `);
@@ -1030,6 +1197,37 @@ describe("Navigation services", () => {
             ],
           ]
         `);
+
+    describe("restoreConfig()", () => {
+      it("should restore config", async () => {
+        // Given
+        const pluginStore: Partial<StrapiStore> = {
+          delete: jest.fn().mockResolvedValue(undefined),
+        };
+        const commonService: Partial<ICommonService> = {
+          async getPluginStore() {
+            return pluginStore as StrapiStore;
+          },
+          setDefaultConfig: jest.fn().mockResolvedValue(undefined),
+        };
+        const strapi: Partial<StrapiContext["strapi"]> = {
+          plugin() {
+            return {
+              service() {
+                return commonService;
+              },
+            } as any;
+          },
+        };
+        const adminServiceBuilt = adminService({ strapi } as StrapiContext);
+
+        // When
+        await adminServiceBuilt.restoreConfig();
+
+        // Then
+        expect(pluginStore.delete).toHaveBeenCalled();
+        expect(commonService.setDefaultConfig).toHaveBeenCalled();
+
       });
     });
   });
