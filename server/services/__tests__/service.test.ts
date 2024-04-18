@@ -1,5 +1,10 @@
 import { IStrapi, StrapiContext, StrapiStore } from "strapi-typed";
-import { ICommonService, Navigation, NavigationItem, ToBeFixed } from "../../../types";
+import {
+  ICommonService,
+  Navigation,
+  NavigationItem,
+  ToBeFixed,
+} from "../../../types";
 
 import setupStrapi from "../../../__mocks__/strapi";
 import { allLifecycleHooks, getPluginService, RENDER_TYPES } from "../../utils";
@@ -1133,7 +1138,7 @@ describe("Navigation services", () => {
                 "actionType": "DELETE",
                 "entity": Object {
                   "id": 1,
-                  "name": "Navigation-61",
+                  "name": "Navigation-1",
                 },
               },
             ],
@@ -1233,7 +1238,7 @@ describe("Navigation services", () => {
                 "where": Object {
                   "$or": Array [
                     Object {
-                      "master": 66,
+                      "master": 4,
                     },
                   ],
                 },
@@ -1245,7 +1250,7 @@ describe("Navigation services", () => {
                 "where": Object {
                   "$or": Array [
                     Object {
-                      "master": 64,
+                      "master": 2,
                     },
                   ],
                 },
@@ -1260,7 +1265,7 @@ describe("Navigation services", () => {
                 "where": Object {
                   "id": Object {
                     "$in": Array [
-                      64,
+                      2,
                     ],
                   },
                 },
@@ -1297,7 +1302,7 @@ describe("Navigation services", () => {
             Array [
               Object {
                 "where": Object {
-                  "id": 66,
+                  "id": 4,
                 },
               },
             ],
@@ -1310,16 +1315,16 @@ describe("Navigation services", () => {
               Object {
                 "actionType": "DELETE",
                 "entity": Object {
-                  "id": 66,
+                  "id": 4,
                   "localeCode": "en",
                   "localizations": Array [
                     Object {
-                      "id": 64,
+                      "id": 2,
                       "localeCode": "pl",
-                      "name": "Navigation-63",
+                      "name": "Navigation-1",
                     },
                   ],
-                  "name": "Navigation-65",
+                  "name": "Navigation-3",
                 },
               },
             ],
@@ -1526,7 +1531,7 @@ describe("Navigation services", () => {
         `);
       });
     });
-    
+
     describe("restoreConfig()", () => {
       it("should restore config", async () => {
         // Given
@@ -1556,7 +1561,6 @@ describe("Navigation services", () => {
         // Then
         expect(pluginStore.delete).toHaveBeenCalled();
         expect(commonService.setDefaultConfig).toHaveBeenCalled();
-
       });
     });
   });
