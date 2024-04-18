@@ -1197,7 +1197,9 @@ describe("Navigation services", () => {
             ],
           ]
         `);
-
+      });
+    });
+    
     describe("restoreConfig()", () => {
       it("should restore config", async () => {
         // Given
