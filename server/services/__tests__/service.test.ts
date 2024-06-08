@@ -44,6 +44,7 @@ describe("Navigation services", () => {
       ).toBeDefined();
       expect(strapi.plugin("navigation").config("allowedLevels")).toBeDefined();
       expect(strapi.plugin("navigation").config("gql")).toBeDefined();
+      expect(strapi.plugin("navigation").config("preferCustomContentTypes")).toBeDefined();
     });
   });
 

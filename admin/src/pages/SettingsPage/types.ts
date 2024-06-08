@@ -10,6 +10,7 @@ export type RawPayload = {
   populate: Record<string, string[]>;
   selectedContentTypes: string[];
   isCacheEnabled: boolean;
+  preferCustomContentTypes: boolean;
 }
 export type StrapiContentTypeSchema = StrapiContentTypeFullSchema & { available: boolean, isSingle: boolean, plugin: string, label: string  }
 

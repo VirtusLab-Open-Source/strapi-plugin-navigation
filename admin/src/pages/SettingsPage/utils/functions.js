@@ -22,9 +22,18 @@ module.exports = {
     },
 
     isContentTypeEligible(uid = '', config = {}) {
-        const { allowedContentTypes = [], restrictedContentTypes = []} = config;
+        const {
+            allowedContentTypes: baseAllowedContentTypes = [],
+            restrictedContentTypes = [],
+            preferCustomContentTypes = false,
+            selectedContentTypes = [],
+        } = config;
+
+        const allowedContentTypes = preferCustomContentTypes ? ["api::", ...selectedContentTypes]  : baseAllowedContentTypes;
+
         const isOneOfAllowedType = allowedContentTypes.filter(_ => uid.includes(_) || (uid === _)).length > 0;
         const isNoneOfRestricted = restrictedContentTypes.filter(_ => uid.includes(_) || (uid === _)).length === 0;
+
         return !!uid && isOneOfAllowedType && isNoneOfRestricted;
     },
 }

@@ -111,6 +111,7 @@ const SettingsPage = () => {
     populate: get(navigationConfigData, "contentTypesPopulate", {}),
     selectedContentTypes: configContentTypes.map(item => item.uid),
     isCacheEnabled: get(navigationConfigData, "isCacheEnabled", false),
+    preferCustomContentTypes: get(navigationConfigData, "preferCustomContentTypes", true) ?? true,
   }), [configContentTypes, navigationConfigData, navigationItemAdditionalFields]);
 
   const {
@@ -138,6 +139,7 @@ const SettingsPage = () => {
       populate,
       selectedContentTypes,
       isCacheEnabled,
+      preferCustomContentTypes,
     },
     pruneObsoleteI18nNavigations
   }) => ({
@@ -154,6 +156,7 @@ const SettingsPage = () => {
       navigationItemRelated: selectedContentTypes.map((uid: string) => resolveGlobalLikeId(uid)),
     },
     isCacheEnabled,
+    preferCustomContentTypes,
   }), [customFields]);
 
   const onSave: OnSave = async (form) => {
@@ -224,22 +227,6 @@ const SettingsPage = () => {
     )
   }
 
-  const allContentTypes: StrapiContentTypeSchema[] = !isLoading ? sortBy(Object.values<StrapiContentTypeSchema>(allContentTypesData).filter(({ uid }) => isContentTypeEligible(uid, {
-    allowedContentTypes: navigationConfigData?.allowedContentTypes,
-    restrictedContentTypes: navigationConfigData?.restrictedContentTypes,
-  })).map(ct => {
-    const type = configContentTypes.find(_ => _.uid === ct.uid);
-    if (type) {
-      const { available, isSingle } = type;
-      return {
-        ...ct,
-        available,
-        isSingle,
-      };
-    }
-    return ct;
-  }), ct => ct.info.displayName) : [];
-
   const isI18NPluginEnabled = navigationConfigData?.isI18NPluginEnabled;
   const isCachePluginEnabled = navigationConfigData?.isCachePluginEnabled;
   const defaultLocale = navigationConfigData?.defaultLocale;
@@ -279,231 +266,207 @@ const SettingsPage = () => {
           initialValues={formikInitialValues}
           onSubmit={onSave}
         >
-          {({ handleSubmit, setFieldValue, values }) => (
-            <Form noValidate onSubmit={handleSubmit}>
-              <HeaderLayout
-                title={getMessage('pages.settings.header.title')}
-                subtitle={getMessage('pages.settings.header.description')}
-                primaryAction={
-                  <CheckPermissions permissions={permissions.access}>
-                    <Button type="submit" startIcon={<Check />} disabled={restartStatus.required}>
-                      {getMessage('pages.settings.actions.submit')}
-                    </Button>
-                  </CheckPermissions>
-                }
-              />
-              <ContentLayout>
-                <Stack spacing={7}>
-                  {restartStatus.required && (
-                    <RestartAlert
-                      closeLabel={getMessage('pages.settings.actions.restart.alert.cancel')}
-                      title={getMessage('pages.settings.actions.restart.alert.title')}
-                      action={<Box><Button onClick={handleRestart} startIcon={<Play />}>{getMessage('pages.settings.actions.restart')}</Button></Box>}
-                      onClose={handleRestartDiscard}>
-                      <>
-                        <Box paddingBottom={1}>
-                          {getMessage('pages.settings.actions.restart.alert.description')}
-                        </Box>
-                        {
-                          restartStatus.reasons?.map((reason, i) => <Box
-                            paddingBottom={1}
-                            key={i}
-                            children={getMessage(`pages.settings.actions.restart.alert.reason.${reason}`)}
-                          />)
-                        }
-                      </>
-                    </RestartAlert>)}
-                  <Box {...BOX_DEFAULT_PROPS} >
-                    <Stack size={4}>
-                      <Typography variant="delta" as="h2">
-                        {getMessage('pages.settings.general.title')}
-                      </Typography>
-                      <Grid gap={4}>
-                        <GridItem col={12} s={12} xs={12}>
-                          <Select
-                            name="selectedContentTypes"
-                            label={getMessage('pages.settings.form.contentTypes.label')}
-                            placeholder={getMessage('pages.settings.form.contentTypes.placeholder')}
-                            hint={getMessage('pages.settings.form.contentTypes.hint')}
-                            onClear={() => setFieldValue('selectedContentTypes', [], false)}
-                            value={values.selectedContentTypes}
-                            onChange={(value: string[]) => setFieldValue('selectedContentTypes', value, false)}
-                            multi
-                            withTags
-                            disabled={restartStatus.required}
-                          >
-                            {allContentTypes.map((item) => <Option key={item.uid} value={item.uid}>{item.info.displayName}</Option>)}
-                          </Select>
-                        </GridItem>
-                        {!isEmpty(values.selectedContentTypes) && (
-                          <GridItem col={12}>
-                            <AccordionGroup
-                              label={getMessage('pages.settings.form.contentTypesSettings.label')}
-                              labelAction={<Tooltip description={getMessage('pages.settings.form.contentTypesSettings.tooltip')}>
-                                <Information aria-hidden={true} />
-                              </Tooltip>}>
-                              {orderBy(values.selectedContentTypes).map(uid => {
-                                const contentType = allContentTypes.find(item => item.uid == uid);
-                                if (!contentType) return;
-                                const { info: { displayName }, available, isSingle } = contentType;
-                                const attributeKeys = Object.keys(contentType.attributes).sort();
-                                const stringAttributes = attributeKeys.filter(key => STRING_ATTRIBUTE_TYPES.includes(contentType.attributes[key].type));
-                                const relationAttributes = attributeKeys.filter(key => RELATION_ATTRIBUTE_TYPES.includes(contentType.attributes[key].type));
-                                const key = `collectionSettings-${uid}`;
-                                return (<Accordion
-                                  expanded={contentTypeExpanded === key}
-                                  toggle={() => handleSetContentTypeExpanded(key)}
-                                  key={key}
-                                  id={key}
-                                  size="S">
-                                  <AccordionToggle title={displayName} togglePosition="left" startIcon={(isSingle && !available) ? (<ExclamationMarkCircle aria-hidden={true} />) : null} />
-                                  <AccordionContent>
-                                    <Box padding={6}>
-                                      <Stack size={4}>
-                                        {(isSingle && !available) && (
-                                          <PermanentAlert title={getMessage('pages.settings.form.contentTypesSettings.initializationWarning.title')} variant="danger" onClose={(e: React.FormEvent) => e.preventDefault()}>
-                                            {getMessage('pages.settings.form.contentTypesSettings.initializationWarning.content')}
-                                          </PermanentAlert>)}
-                                        <Select
-                                          name={`collectionSettings-${uid}-entryLabel`}
-                                          label={getMessage('pages.settings.form.nameField.label')}
-                                          hint={getMessage(`pages.settings.form.nameField.${isEmpty(stringAttributes) ? 'empty' : 'hint'}`)}
-                                          placeholder={getMessage('pages.settings.form.nameField.placeholder')}
-                                          onClear={() => setFieldValue('nameFields', prepareNewValueForRecord(uid, values.nameFields, []))}
-                                          value={values.nameFields[uid] || []}
-                                          onChange={(value: string[]) => setFieldValue('nameFields', prepareNewValueForRecord(uid, values.nameFields, value))}
-                                          multi
-                                          withTags
-                                          disabled={restartStatus.required || isEmpty(stringAttributes)}
-                                        >
-                                          {stringAttributes.map(key =>
-                                            (<Option key={uid + key} value={key}>{capitalize(key.split('_').join(' '))}</Option>))}
-                                        </Select>
-                                        <Select
-                                          name={`collectionSettings-${uid}-populate`}
-                                          label={getMessage('pages.settings.form.populate.label')}
-                                          hint={getMessage(`pages.settings.form.populate.${isEmpty(relationAttributes) ? 'empty' : 'hint'}`)}
-                                          placeholder={getMessage('pages.settings.form.populate.placeholder')}
-                                          onClear={() => setFieldValue('populate', prepareNewValueForRecord(uid, values.populate, []))}
-                                          value={values.populate[uid] || []}
-                                          onChange={(value: string[]) => setFieldValue('populate', prepareNewValueForRecord(uid, values.populate, value))}
-                                          multi
-                                          withTags
-                                          disabled={restartStatus.required || isEmpty(relationAttributes)}
-                                        >
-                                          {relationAttributes.map(key =>
-                                            (<Option key={uid + key} value={key}>{capitalize(key.split('_').join(' '))}</Option>))}
-                                        </Select>
-                                        <Select
-                                          name={`collectionSettings-${uid}-pathDefaultFields`}
-                                          label={getMessage('pages.settings.form.pathDefaultFields.label')}
-                                          hint={getMessage(`pages.settings.form.pathDefaultFields.${isEmpty(stringAttributes) ? 'empty' : 'hint'}`)}
-                                          placeholder={getMessage('pages.settings.form.pathDefaultFields.placeholder')}
-                                          onClear={() => setFieldValue('pathDefaultFields', prepareNewValueForRecord(uid, values.pathDefaultFields, []))}
-                                          value={values.pathDefaultFields[uid] || []}
-                                          onChange={(value: string[]) => setFieldValue('pathDefaultFields', prepareNewValueForRecord(uid, values.pathDefaultFields, value))}
-                                          multi
-                                          withTags
-                                          disabled={restartStatus.required || isEmpty(stringAttributes)}
-                                        >
-                                          {stringAttributes.map(key =>
-                                            (<Option key={uid + key} value={key}>{capitalize(key.split('_').join(' '))}</Option>))}
-                                        </Select>
-                                      </Stack>
-                                    </Box>
-                                  </AccordionContent>
-                                </Accordion>);
-                              })}
-                            </AccordionGroup>
-                          </GridItem>)}
-                      </Grid>
-                    </Stack>
-                  </Box>
-                  <Box {...BOX_DEFAULT_PROPS} >
-                    <Stack size={4}>
-                      <Typography variant="delta" as="h2">
-                        {getMessage('pages.settings.additional.title')}
-                      </Typography>
-                      <Grid gap={4}>
-                        <GridItem col={6} s={6} xs={12}>
-                          <Box style={{ maxWidth: 257 }}>
-                            <NumberInput
-                              name="allowedLevels"
-                              label={getMessage('pages.settings.form.allowedLevels.label')}
-                              placeholder={getMessage('pages.settings.form.allowedLevels.placeholder')}
-                              hint={getMessage('pages.settings.form.allowedLevels.hint')}
-                              onValueChange={(value: number) => setFieldValue('allowedLevels', value, false)}
-                              value={values.allowedLevels}
-                              disabled={restartStatus.required}
-                            />
+          {({ handleSubmit, setFieldValue, values }) => {
+            const allContentTypes: StrapiContentTypeSchema[] = !isLoading ? sortBy(Object.values<StrapiContentTypeSchema>(allContentTypesData).filter(({ uid }) => isContentTypeEligible(uid, {
+              allowedContentTypes: navigationConfigData?.allowedContentTypes,
+              restrictedContentTypes: navigationConfigData?.restrictedContentTypes,
+              selectedContentTypes: values?.selectedContentTypes,
+              preferCustomContentTypes: values?.preferCustomContentTypes,
+            })).map(ct => {
+              const type = configContentTypes.find(_ => _.uid === ct.uid);
+              if (type) {
+                const { available, isSingle } = type;
+                return {
+                  ...ct,
+                  available,
+                  isSingle,
+                };
+              }
+              return ct;
+            }), ct => ct.info.displayName) : [];
+
+            return (
+              <Form noValidate onSubmit={handleSubmit}>
+                <HeaderLayout
+                  title={getMessage('pages.settings.header.title')}
+                  subtitle={getMessage('pages.settings.header.description')}
+                  primaryAction={
+                    <CheckPermissions permissions={permissions.access}>
+                      <Button type="submit" startIcon={<Check />} disabled={restartStatus.required}>
+                        {getMessage('pages.settings.actions.submit')}
+                      </Button>
+                    </CheckPermissions>
+                  }
+                />
+                <ContentLayout>
+                  <Stack spacing={7}>
+                    {restartStatus.required && (
+                      <RestartAlert
+                        closeLabel={getMessage('pages.settings.actions.restart.alert.cancel')}
+                        title={getMessage('pages.settings.actions.restart.alert.title')}
+                        action={<Box><Button onClick={handleRestart} startIcon={<Play />}>{getMessage('pages.settings.actions.restart')}</Button></Box>}
+                        onClose={handleRestartDiscard}>
+                        <>
+                          <Box paddingBottom={1}>
+                            {getMessage('pages.settings.actions.restart.alert.description')}
                           </Box>
-                        </GridItem>
-                        <GridItem col={6} s={12} xs={12}>
-                          <ToggleInput
-                            name="cascadeMenuAttachedChecked"
-                            label={getMessage('pages.settings.form.cascadeMenuAttached.label')}
-                            hint={getMessage('pages.settings.form.cascadeMenuAttached.hint')}
-                            checked={values.cascadeMenuAttachedChecked}
-                            onChange={({ target: { checked } }: { target: { checked: boolean } }) => {
-                              setFieldValue('cascadeMenuAttachedChecked', checked, true);
-                            }}
-                            onLabel="Enabled"
-                            offLabel="Disabled"
-                            disabled={restartStatus.required}
-                          />
-                        </GridItem>
-                      </Grid>
-                      <Grid gap={4}>
-                        <GridItem col={6} s={12} xs={12}>
-                          <ToggleInput
-                            name="audienceFieldChecked"
-                            label={getMessage('pages.settings.form.audience.label')}
-                            hint={getMessage('pages.settings.form.audience.hint')}
-                            checked={values.audienceFieldChecked}
-                            onChange={() => setFieldValue('audienceFieldChecked', !values.audienceFieldChecked, false)}
-                            onLabel="Enabled"
-                            offLabel="Disabled"
-                            disabled={restartStatus.required}
-                          />
-                        </GridItem>
-                        {isI18NPluginEnabled && (
-                          <GridItem col={6} s={12} xs={12}>
-                            <ToggleInput
-                              name="i18nEnabled"
-                              label={getMessage('pages.settings.form.i18n.label')}
-                              hint={defaultLocale
-                                ? getMessage('pages.settings.form.i18n.hint')
-                                : getMessage('pages.settings.form.i18n.hint.missingDefaultLocale')
-                              }
-                              checked={values.i18nEnabled}
-                              onChange={({ target: { checked } }: { target: { checked: boolean } }) => {
-                                setFieldValue('i18nEnabled', checked, false);
-                                if (checked) {
-                                  setPruneObsoleteI18nNavigations(false);
-                                } else {
-                                  setDisableI18nModalOpened(true);
-                                  setI18nModalOnCancel(() => () => {
-                                    setFieldValue('i18nEnabled', true);
-                                  });
-                                }
-                              }}
-                              onLabel="Enabled"
-                              offLabel="Disabled"
-                              disabled={restartStatus.required || !defaultLocale}
-                            />
-                          </GridItem>
-                        )}
-                      </Grid>
-                      {isCachePluginEnabled && (
+                          {
+                            restartStatus.reasons?.map((reason, i) => <Box
+                              paddingBottom={1}
+                              key={i}
+                              children={getMessage(`pages.settings.actions.restart.alert.reason.${reason}`)}
+                            />)
+                          }
+                        </>
+                      </RestartAlert>)}
+                    <Box {...BOX_DEFAULT_PROPS} >
+                      <Stack size={4}>
+                        <Typography variant="delta" as="h2">
+                          {getMessage('pages.settings.general.title')}
+                        </Typography>
                         <Grid gap={4}>
                           <GridItem col={12} s={12} xs={12}>
                             <ToggleInput
-                              name="cacheEnabled"
-                              label={getMessage('pages.settings.form.cache.label')}
-                              hint={getMessage('pages.settings.form.cache.hint')}
-                              checked={values.isCacheEnabled}
+                              name="preferCustomContentTypes"
+                              label={getMessage('pages.settings.form.preferCustomContentTypes.label', 'Prefer custom content types')}
+                              hint={getMessage('pages.settings.form.preferCustomContentTypes.hint', 'Prefer if to use only api:: prefixed content types')}
+                              checked={values.preferCustomContentTypes}
                               onChange={({ target: { checked } }: { target: { checked: boolean } }) => {
-                                setFieldValue('isCacheEnabled', checked, false);
+                                setFieldValue('preferCustomContentTypes', checked, true);
+                              }}
+                              onLabel="Enabled"
+                              offLabel="Disabled"
+                              disabled={restartStatus.required}
+                            />
+                          </GridItem>
+
+                          <GridItem col={12} s={12} xs={12}>
+                            <Select
+                              name="selectedContentTypes"
+                              label={getMessage('pages.settings.form.contentTypes.label')}
+                              placeholder={getMessage('pages.settings.form.contentTypes.placeholder')}
+                              hint={getMessage('pages.settings.form.contentTypes.hint')}
+                              onClear={() => setFieldValue('selectedContentTypes', [], false)}
+                              value={values.selectedContentTypes}
+                              onChange={(value: string[]) => setFieldValue('selectedContentTypes', value, false)}
+                              multi
+                              withTags
+                              disabled={restartStatus.required}
+                            >
+                              {allContentTypes.map((item) => <Option key={item.uid} value={item.uid}>{item.info.displayName}</Option>)}
+                            </Select>
+                          </GridItem>
+                          {!isEmpty(values.selectedContentTypes) && (
+                            <GridItem col={12}>
+                              <AccordionGroup
+                                label={getMessage('pages.settings.form.contentTypesSettings.label')}
+                                labelAction={<Tooltip description={getMessage('pages.settings.form.contentTypesSettings.tooltip')}>
+                                  <Information aria-hidden={true} />
+                                </Tooltip>}>
+                                {orderBy(values.selectedContentTypes).map(uid => {
+                                  const contentType = allContentTypes.find(item => item.uid == uid);
+                                  if (!contentType) return;
+                                  const { info: { displayName }, available, isSingle } = contentType;
+                                  const attributeKeys = Object.keys(contentType.attributes).sort();
+                                  const stringAttributes = attributeKeys.filter(key => STRING_ATTRIBUTE_TYPES.includes(contentType.attributes[key].type));
+                                  const relationAttributes = attributeKeys.filter(key => RELATION_ATTRIBUTE_TYPES.includes(contentType.attributes[key].type));
+                                  const key = `collectionSettings-${uid}`;
+                                  return (<Accordion
+                                    expanded={contentTypeExpanded === key}
+                                    toggle={() => handleSetContentTypeExpanded(key)}
+                                    key={key}
+                                    id={key}
+                                    size="S">
+                                    <AccordionToggle title={displayName} togglePosition="left" startIcon={(isSingle && !available) ? (<ExclamationMarkCircle aria-hidden={true} />) : null} />
+                                    <AccordionContent>
+                                      <Box padding={6}>
+                                        <Stack size={4}>
+                                          {(isSingle && !available) && (
+                                            <PermanentAlert title={getMessage('pages.settings.form.contentTypesSettings.initializationWarning.title')} variant="danger" onClose={(e: React.FormEvent) => e.preventDefault()}>
+                                              {getMessage('pages.settings.form.contentTypesSettings.initializationWarning.content')}
+                                            </PermanentAlert>)}
+                                          <Select
+                                            name={`collectionSettings-${uid}-entryLabel`}
+                                            label={getMessage('pages.settings.form.nameField.label')}
+                                            hint={getMessage(`pages.settings.form.nameField.${isEmpty(stringAttributes) ? 'empty' : 'hint'}`)}
+                                            placeholder={getMessage('pages.settings.form.nameField.placeholder')}
+                                            onClear={() => setFieldValue('nameFields', prepareNewValueForRecord(uid, values.nameFields, []))}
+                                            value={values.nameFields[uid] || []}
+                                            onChange={(value: string[]) => setFieldValue('nameFields', prepareNewValueForRecord(uid, values.nameFields, value))}
+                                            multi
+                                            withTags
+                                            disabled={restartStatus.required || isEmpty(stringAttributes)}
+                                          >
+                                            {stringAttributes.map(key =>
+                                              (<Option key={uid + key} value={key}>{capitalize(key.split('_').join(' '))}</Option>))}
+                                          </Select>
+                                          <Select
+                                            name={`collectionSettings-${uid}-populate`}
+                                            label={getMessage('pages.settings.form.populate.label')}
+                                            hint={getMessage(`pages.settings.form.populate.${isEmpty(relationAttributes) ? 'empty' : 'hint'}`)}
+                                            placeholder={getMessage('pages.settings.form.populate.placeholder')}
+                                            onClear={() => setFieldValue('populate', prepareNewValueForRecord(uid, values.populate, []))}
+                                            value={values.populate[uid] || []}
+                                            onChange={(value: string[]) => setFieldValue('populate', prepareNewValueForRecord(uid, values.populate, value))}
+                                            multi
+                                            withTags
+                                            disabled={restartStatus.required || isEmpty(relationAttributes)}
+                                          >
+                                            {relationAttributes.map(key =>
+                                              (<Option key={uid + key} value={key}>{capitalize(key.split('_').join(' '))}</Option>))}
+                                          </Select>
+                                          <Select
+                                            name={`collectionSettings-${uid}-pathDefaultFields`}
+                                            label={getMessage('pages.settings.form.pathDefaultFields.label')}
+                                            hint={getMessage(`pages.settings.form.pathDefaultFields.${isEmpty(stringAttributes) ? 'empty' : 'hint'}`)}
+                                            placeholder={getMessage('pages.settings.form.pathDefaultFields.placeholder')}
+                                            onClear={() => setFieldValue('pathDefaultFields', prepareNewValueForRecord(uid, values.pathDefaultFields, []))}
+                                            value={values.pathDefaultFields[uid] || []}
+                                            onChange={(value: string[]) => setFieldValue('pathDefaultFields', prepareNewValueForRecord(uid, values.pathDefaultFields, value))}
+                                            multi
+                                            withTags
+                                            disabled={restartStatus.required || isEmpty(stringAttributes)}
+                                          >
+                                            {stringAttributes.map(key =>
+                                              (<Option key={uid + key} value={key}>{capitalize(key.split('_').join(' '))}</Option>))}
+                                          </Select>
+                                        </Stack>
+                                      </Box>
+                                    </AccordionContent>
+                                  </Accordion>);
+                                })}
+                              </AccordionGroup>
+                            </GridItem>)}
+                        </Grid>
+                      </Stack>
+                    </Box>
+                    <Box {...BOX_DEFAULT_PROPS} >
+                      <Stack size={4}>
+                        <Typography variant="delta" as="h2">
+                          {getMessage('pages.settings.additional.title')}
+                        </Typography>
+                        <Grid gap={4}>
+                          <GridItem col={6} s={6} xs={12}>
+                            <Box style={{ maxWidth: 257 }}>
+                              <NumberInput
+                                name="allowedLevels"
+                                label={getMessage('pages.settings.form.allowedLevels.label')}
+                                placeholder={getMessage('pages.settings.form.allowedLevels.placeholder')}
+                                hint={getMessage('pages.settings.form.allowedLevels.hint')}
+                                onValueChange={(value: number) => setFieldValue('allowedLevels', value, false)}
+                                value={values.allowedLevels}
+                                disabled={restartStatus.required}
+                              />
+                            </Box>
+                          </GridItem>
+                          <GridItem col={6} s={12} xs={12}>
+                            <ToggleInput
+                              name="cascadeMenuAttachedChecked"
+                              label={getMessage('pages.settings.form.cascadeMenuAttached.label')}
+                              hint={getMessage('pages.settings.form.cascadeMenuAttached.hint')}
+                              checked={values.cascadeMenuAttachedChecked}
+                              onChange={({ target: { checked } }: { target: { checked: boolean } }) => {
+                                setFieldValue('cascadeMenuAttachedChecked', checked, true);
                               }}
                               onLabel="Enabled"
                               offLabel="Disabled"
@@ -511,57 +474,115 @@ const SettingsPage = () => {
                             />
                           </GridItem>
                         </Grid>
-                      )}
-                    </Stack>
-                  </Box>
-                  <Box {...BOX_DEFAULT_PROPS} >
-                    <Stack size={4}>
-                      <Typography variant="delta" as="h2">
-                        {getMessage('pages.settings.customFields.title')}
-                      </Typography>
-                      <CustomFieldTable
-                        data={customFields}
-                        onOpenModal={handleOpenCustomFieldModal}
-                        onRemoveCustomField={handleRemoveCustomField}
-                        onToggleCustomField={handleToggleCustomField}
-                      />
-                    </Stack>
-                  </Box>
-                  <Box {...BOX_DEFAULT_PROPS} >
-                    <Stack size={4}>
-                      <Typography variant="delta" as="h2">
-                        {getMessage('pages.settings.restoring.title')}
-                      </Typography>
-                      <Grid gap={4}>
-                        <GridItem col={12} s={12} xs={12}>
-                          <Typography>
-                            {getMessage('pages.settings.actions.restore.description')}
-                          </Typography>
-                        </GridItem>
-                        <GridItem col={6} s={12} xs={12}>
-                          <CheckPermissions permissions={permissions.access}>
-                            <Button variant="danger-light" startIcon={<Refresh />} onClick={() => setIsRestorePopupOpen(true)}>
-                              {getMessage('pages.settings.actions.restore')}
-                            </Button>
-                          </CheckPermissions>
-                          <ConfirmationDialog
-                            isVisible={isRestorePopupOpen}
-                            header={getMessage('pages.settings.actions.restore.confirmation.header')}
-                            labelConfirm={getMessage('pages.settings.actions.restore.confirmation.confirm')}
-                            iconConfirm={<Refresh />}
-                            onConfirm={() => onPopupClose(true)}
-                            onCancel={() => onPopupClose(false)}>
-                            {getMessage('pages.settings.actions.restore.confirmation.description')}
-                          </ConfirmationDialog>
-                          {disableI18nModal}
-                        </GridItem>
-                      </Grid>
-                    </Stack>
-                  </Box>
-                </Stack>
-              </ContentLayout>
-            </Form>
-          )}
+                        <Grid gap={4}>
+                          <GridItem col={6} s={12} xs={12}>
+                            <ToggleInput
+                              name="audienceFieldChecked"
+                              label={getMessage('pages.settings.form.audience.label')}
+                              hint={getMessage('pages.settings.form.audience.hint')}
+                              checked={values.audienceFieldChecked}
+                              onChange={() => setFieldValue('audienceFieldChecked', !values.audienceFieldChecked, false)}
+                              onLabel="Enabled"
+                              offLabel="Disabled"
+                              disabled={restartStatus.required}
+                            />
+                          </GridItem>
+                          {isI18NPluginEnabled && (
+                            <GridItem col={6} s={12} xs={12}>
+                              <ToggleInput
+                                name="i18nEnabled"
+                                label={getMessage('pages.settings.form.i18n.label')}
+                                hint={defaultLocale
+                                  ? getMessage('pages.settings.form.i18n.hint')
+                                  : getMessage('pages.settings.form.i18n.hint.missingDefaultLocale')
+                                }
+                                checked={values.i18nEnabled}
+                                onChange={({ target: { checked } }: { target: { checked: boolean } }) => {
+                                  setFieldValue('i18nEnabled', checked, false);
+                                  if (checked) {
+                                    setPruneObsoleteI18nNavigations(false);
+                                  } else {
+                                    setDisableI18nModalOpened(true);
+                                    setI18nModalOnCancel(() => () => {
+                                      setFieldValue('i18nEnabled', true);
+                                    });
+                                  }
+                                }}
+                                onLabel="Enabled"
+                                offLabel="Disabled"
+                                disabled={restartStatus.required || !defaultLocale}
+                              />
+                            </GridItem>
+                          )}
+                        </Grid>
+                        {isCachePluginEnabled && (
+                          <Grid gap={4}>
+                            <GridItem col={12} s={12} xs={12}>
+                              <ToggleInput
+                                name="cacheEnabled"
+                                label={getMessage('pages.settings.form.cache.label')}
+                                hint={getMessage('pages.settings.form.cache.hint')}
+                                checked={values.isCacheEnabled}
+                                onChange={({ target: { checked } }: { target: { checked: boolean } }) => {
+                                  setFieldValue('isCacheEnabled', checked, false);
+                                }}
+                                onLabel="Enabled"
+                                offLabel="Disabled"
+                                disabled={restartStatus.required}
+                              />
+                            </GridItem>
+                          </Grid>
+                        )}
+                      </Stack>
+                    </Box>
+                    <Box {...BOX_DEFAULT_PROPS} >
+                      <Stack size={4}>
+                        <Typography variant="delta" as="h2">
+                          {getMessage('pages.settings.customFields.title')}
+                        </Typography>
+                        <CustomFieldTable
+                          data={customFields}
+                          onOpenModal={handleOpenCustomFieldModal}
+                          onRemoveCustomField={handleRemoveCustomField}
+                          onToggleCustomField={handleToggleCustomField}
+                        />
+                      </Stack>
+                    </Box>
+                    <Box {...BOX_DEFAULT_PROPS} >
+                      <Stack size={4}>
+                        <Typography variant="delta" as="h2">
+                          {getMessage('pages.settings.restoring.title')}
+                        </Typography>
+                        <Grid gap={4}>
+                          <GridItem col={12} s={12} xs={12}>
+                            <Typography>
+                              {getMessage('pages.settings.actions.restore.description')}
+                            </Typography>
+                          </GridItem>
+                          <GridItem col={6} s={12} xs={12}>
+                            <CheckPermissions permissions={permissions.access}>
+                              <Button variant="danger-light" startIcon={<Refresh />} onClick={() => setIsRestorePopupOpen(true)}>
+                                {getMessage('pages.settings.actions.restore')}
+                              </Button>
+                            </CheckPermissions>
+                            <ConfirmationDialog
+                              isVisible={isRestorePopupOpen}
+                              header={getMessage('pages.settings.actions.restore.confirmation.header')}
+                              labelConfirm={getMessage('pages.settings.actions.restore.confirmation.confirm')}
+                              iconConfirm={<Refresh />}
+                              onConfirm={() => onPopupClose(true)}
+                              onCancel={() => onPopupClose(false)}>
+                              {getMessage('pages.settings.actions.restore.confirmation.description')}
+                            </ConfirmationDialog>
+                            {disableI18nModal}
+                          </GridItem>
+                        </Grid>
+                      </Stack>
+                    </Box>
+                  </Stack>
+                </ContentLayout>
+              </Form>
+          )}}
         </Formik>
       </Main>
       {isCustomFieldModalOpen &&
