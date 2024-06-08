@@ -424,7 +424,7 @@ const clientService: (context: StrapiContext) => IClientService = ({ strapi }) =
           }
 
           return result
-            .map(({ additionalFields, ...item }: NavigationItemEntity<ContentTypeEntity>) => {
+            .map(({ additionalFields, autoSync: _,  ...item }: NavigationItemEntity<ContentTypeEntity>) => {
               const customFields = enabledCustomFieldsNames.reduce((acc, field) => {
                 const mapper = customFieldsDefinitions.find(({ name }) => name === field)?.type === "media"
                   ? (_: string | boolean) => pickMediaFields(JSON.parse(_.toString()))

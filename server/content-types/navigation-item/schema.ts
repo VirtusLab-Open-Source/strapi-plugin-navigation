@@ -71,6 +71,11 @@ export default {
       default: false,
       configurable: false
     },
+    autoSync: {
+      type: "boolean",
+      default: true,
+      configurable: false
+    },
     related: {
       type: "relation",
       relation: "oneToOne",
