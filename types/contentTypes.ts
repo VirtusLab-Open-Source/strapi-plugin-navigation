@@ -38,6 +38,7 @@ export type NavigationItemEntity<RelatedType = NavigationItemRelated> = TypeResu
   externalPath: string | null;
   related: RelatedType | null;
   additionalFields: StringMap<string | boolean>;
+  autoSync?: boolean
 }>
 
 type NavigationItemPartial = {

@@ -15,6 +15,7 @@ const externalPathRegexps = [
 
 export const schemaFactory = (isSingleSelected: boolean, additionalFields: NavigationItemAdditionalField[]) => {
   return yup.object({
+    autoSync: yup.bool().optional(),
     title: yup.string()
       .when('type', {
         is: (val: NavigationItemType) => val !== navigationItemType.INTERNAL,
@@ -86,6 +87,7 @@ export const schemaFactory = (isSingleSelected: boolean, additionalFields: Navig
 };
 
 export const defaultValues: RawFormPayload = {
+  autoSync: true,
   type: "INTERNAL",
   related: "",
   relatedType: "",

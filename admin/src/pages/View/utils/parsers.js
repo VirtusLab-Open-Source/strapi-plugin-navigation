@@ -27,6 +27,7 @@ export const transformItemToRESTPayload = (
     collapsed,
     isSingle,
     additionalFields = {},
+    autoSync,
   } = item;
   const isExternal = type === navigationItemType.EXTERNAL;
   const isWrapper = type === navigationItemType.WRAPPER;
@@ -52,6 +53,7 @@ export const transformItemToRESTPayload = (
     uiRouterKey,
     collapsed,
     additionalFields,
+    autoSync,
     menuAttached: itemAttachedToMenu,
     audience: audience.map((audienceItem) =>
       isObject(audienceItem)
