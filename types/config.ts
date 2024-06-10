@@ -11,6 +11,7 @@ export type PluginConfigGraphQL = {
 export type NavigationPluginConfig = {
   additionalFields: NavigationItemAdditionalField[];
   contentTypes: string[];
+  preferCustomContentTypes: boolean;
   contentTypesNameFields: PluginConfigNameFields;
   contentTypesPopulate: PluginConfigPopulate;
   allowedLevels: number;

@@ -56,6 +56,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({
     const contentTypesPopulate = config.contentTypesPopulate;
     const pathDefaultFields = config.pathDefaultFields;
     const allowedLevels = config.allowedLevels;
+    const preferCustomContentTypes = config.preferCustomContentTypes;
     const isGQLPluginEnabled = !isNil(strapi.plugin("graphql"));
 
     let extendedResult: Record<string, unknown> = {
@@ -86,6 +87,7 @@ const adminService: (context: StrapiContext) => IAdminService = ({
       },
       isGQLPluginEnabled: viaSettingsPage ? isGQLPluginEnabled : undefined,
       cascadeMenuAttached,
+      preferCustomContentTypes,
     };
     const i18nConfig = await addI18NConfigFields({
       strapi,

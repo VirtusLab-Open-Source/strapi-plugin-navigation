@@ -46,6 +46,7 @@ export const configSetupStrategy: IConfigSetupStrategy = async ({ strapi }) => {
       getWithFallback<PluginConfigPathDefaultFields>("pathDefaultFields"),
     cascadeMenuAttached: getWithFallback<boolean>("cascadeMenuAttached"),
     isCacheEnabled: getWithFallback<boolean>("isCacheEnabled"),
+    preferCustomContentTypes: getWithFallback<boolean>("isCacheEnabled"),
   };
 
   handleDeletedContentTypes(config, { strapi });
