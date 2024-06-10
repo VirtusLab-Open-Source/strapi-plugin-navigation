@@ -1,30 +1,29 @@
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
-import { find, get, first, isEmpty, isEqual, isNil, isString, isObject, sortBy } from 'lodash';
+import { FormikProps, useFormik } from 'formik';
+import { find, first, get, isEmpty, isEqual, isNil, isObject, isString, sortBy } from 'lodash';
 import { prop } from 'lodash/fp';
-import { useFormik, FormikProps } from 'formik';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 //@ts-ignore
 import { ModalBody } from '@strapi/design-system/ModalLayout';
 //@ts-ignore
-import { Select, Option } from '@strapi/design-system/Select';
+import { Option, Select } from '@strapi/design-system/Select';
 //@ts-ignore
 import { Grid, GridItem } from '@strapi/design-system/Grid';
 import { GenericInput } from '@strapi/helper-plugin';
 //@ts-ignore
 import { Button } from '@strapi/design-system/Button';
 
-import { NavigationItemPopupFooter } from '../NavigationItemPopup/NavigationItemPopupFooter';
-import { getDefaultCustomFields, navigationItemType } from '../../../../utils';
-import { extractRelatedItemLabel } from '../../utils/parsers';
-import * as formDefinition from './utils/form';
-import { checkFormValidity } from '../../utils/form';
-import { getTrad, getTradId } from '../../../../translations';
-import { assertString, Audience, Effect, NavigationItemAdditionalField, NavigationItemType, ToBeFixed } from '../../../../../../types';
-import { ContentTypeSearchQuery, NavigationItemFormData, NavigationItemFormProps, RawFormPayload, SanitizedFormPayload, Slugify } from './types';
-import AdditionalFieldInput from '../../../../components/AdditionalFieldInput';
-import { getMessage, ResourceState } from '../../../../utils';
 import { Id } from 'strapi-typed';
+import { Audience, Effect, NavigationItemAdditionalField, NavigationItemType, ToBeFixed, assertString } from '../../../../../../types';
+import AdditionalFieldInput from '../../../../components/AdditionalFieldInput';
+import { getTrad, getTradId } from '../../../../translations';
+import { ResourceState, getDefaultCustomFields, getMessage, navigationItemType } from '../../../../utils';
+import { checkFormValidity } from '../../utils/form';
+import { extractRelatedItemLabel } from '../../utils/parsers';
 import { GenericInputOnChangeInput } from '../../utils/types';
+import { NavigationItemPopupFooter } from '../NavigationItemPopup/NavigationItemPopupFooter';
+import { ContentTypeSearchQuery, NavigationItemFormData, NavigationItemFormProps, RawFormPayload, SanitizedFormPayload, Slugify } from './types';
+import * as formDefinition from './utils/form';
 
 const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   config,
@@ -50,7 +49,6 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(isPreloading);
   const [hasBeenInitialized, setInitializedState] = useState(false);
-  const [autoSync, setAutoSync] = useState(true);
   const [hasChanged, setChangedState] = useState(false);
   const [contentTypeSearchQuery, setContentTypeSearchQuery] = useState<ContentTypeSearchQuery>(undefined);
   const { canUpdate } = permissions;
@@ -94,6 +92,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   if (!hasBeenInitialized && !isEmpty(data)) {
     setInitializedState(true);
     formik.setValues({
+      autoSync: get(data, "autoSync", formDefinition.defaultValues.autoSync) ?? true,
       type: get(data, "type", formDefinition.defaultValues.type),
       related: get(data, "related.value", formDefinition.defaultValues.related),
       relatedType: get(data, "relatedType.value", formDefinition.defaultValues.relatedType),
@@ -184,7 +183,7 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
       [name]: value,
     }));
 
-    if (name === "related" && relatedTypeSelectValue && autoSync) {
+    if (name === "related" && relatedTypeSelectValue && formik.values.autoSync) {
       const { contentTypesNameFields, pathDefaultFields } = config;
       const selectedRelated =  contentTypeEntities.find(({ id, __collectionUid }) =>
         `${id}` === `${value}` && __collectionUid === relatedTypeSelectValue
@@ -548,8 +547,8 @@ const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                     intlLabel={getTrad('popup.item.form.autoSync.label', 'Read fields from related')}
                     name="autoSync"
                     type="bool"
-                    onChange={({ target: { value } }: GenericInputOnChangeInput) => setAutoSync(value)}
-                    value={autoSync}
+                    onChange={({ target: { name, value } }: GenericInputOnChangeInput) => onChange({ name, value })}
+                    value={formik.values.autoSync}
                   />
                 </GridItem>
                 <GridItem col={6} lg={12}>
