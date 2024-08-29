@@ -1,53 +1,59 @@
+import { VisuallyHidden } from '@strapi/design-system';
+import { Check, Eye, EyeStriked, Minus, Pencil, Plus, PriceTag, Trash } from '@strapi/icons';
+import { useNotification } from '@strapi/strapi/admin';
 import { sortBy } from 'lodash';
-import React, { useCallback, useMemo, useState } from 'react';
-//@ts-ignore
-import { useNotification } from "@strapi/helper-plugin";
-//@ts-ignore
-import { VisuallyHidden } from '@strapi/design-system/VisuallyHidden';
-//@ts-ignore
-import { Table, Thead, Tr, Th, Tbody, Td, TFooter } from '@strapi/design-system/Table';
-//@ts-ignore
-import { Plus, Trash, Pencil, Refresh, Check, Minus, EyeStriked, Eye } from '@strapi/icons';
-//@ts-ignore
-import { Typography } from '@strapi/design-system/Typography';
-//@ts-ignore
-import { Tooltip } from '@strapi/design-system/Tooltip';
-//@ts-ignore
-import { Stack } from '@strapi/design-system/Stack';
-//@ts-ignore
-import { IconButton } from '@strapi/design-system/IconButton';
+import { useCallback, useMemo, useState } from 'react';
 
-import { getMessage } from '../../../../utils';
-import { Effect, NavigationItemCustomField } from '../../../../../../types';
-import ConfirmationDialog from '../../../../components/ConfirmationDialog';
-import { getTradId } from '../../../../translations';
+import {
+  Flex,
+  IconButton,
+  TFooter,
+  Table,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tooltip,
+  Tr,
+  Typography,
+} from '@strapi/design-system';
+import { useIntl } from 'react-intl';
+import { ConfirmationDialog } from '../../../../components/ConfirmationDialog';
+import { NavigationItemCustomField } from '../../../../schemas';
+import { getTrad, getTradId } from '../../../../translations';
+import { Effect } from '../../../../types';
 
 interface ICustomFieldTableProps {
-  data: NavigationItemCustomField[];
+  data: (NavigationItemCustomField | string)[];
   onOpenModal: (field: NavigationItemCustomField | null) => void;
   onRemoveCustomField: Effect<NavigationItemCustomField>;
   onToggleCustomField: Effect<NavigationItemCustomField>;
 }
 
-const refreshIcon = <Refresh />;
+const refreshIcon = <PriceTag />;
 const plusIcon = <Plus />;
-const tradPrefix = "pages.settings.form.customFields.table.";
+const tradPrefix = 'pages.settings.form.customFields.table.';
 
 const CustomFieldTable: React.FC<ICustomFieldTableProps> = ({
-  data,
+  data = [],
   onOpenModal,
   onRemoveCustomField,
   onToggleCustomField,
 }) => {
   const [confirmationVisible, setIsConfirmationVisible] = useState<boolean>(false);
   const [fieldToRemove, setFieldToRemove] = useState<NavigationItemCustomField | null>(null);
-  const toggleNotification = useNotification();
-  const customFields = useMemo(() => sortBy(data, "name"), [data]);
+  const { toggleNotification } = useNotification();
+  const customFields = useMemo(() => sortBy(data, 'name'), [data]);
 
-  const handleRemove = useCallback((field: NavigationItemCustomField) => {
-    setFieldToRemove(field);
-    setIsConfirmationVisible(true);
-  }, [setFieldToRemove, setIsConfirmationVisible]);
+  const { formatMessage } = useIntl();
+
+  const handleRemove = useCallback(
+    (field: NavigationItemCustomField) => {
+      setFieldToRemove(field);
+      setIsConfirmationVisible(true);
+    },
+    [setFieldToRemove, setIsConfirmationVisible]
+  );
 
   const cleanup = useCallback(() => {
     setFieldToRemove(null);
@@ -58,10 +64,7 @@ const CustomFieldTable: React.FC<ICustomFieldTableProps> = ({
     if (fieldToRemove === null) {
       toggleNotification({
         type: 'warning',
-        message: {
-          id: getTradId(`${tradPrefix}confirmation.error`),
-          defaultMessage: 'Something went wrong',
-        }
+        message: formatMessage(getTrad(`${tradPrefix}confirmation.error`)),
       });
     } else {
       onRemoveCustomField(fieldToRemove);
@@ -70,14 +73,13 @@ const CustomFieldTable: React.FC<ICustomFieldTableProps> = ({
     cleanup();
   }, [cleanup, fieldToRemove, getTradId, onRemoveCustomField, toggleNotification]);
 
-
   return (
     <>
       <ConfirmationDialog
         isVisible={confirmationVisible}
-        header={getMessage(`${tradPrefix}confirmation.header`)}
-        children={getMessage(`${tradPrefix}confirmation.message`)}
-        labelConfirm={getMessage(`${tradPrefix}confirmation.confirm`)}
+        header={formatMessage(getTrad(`${tradPrefix}confirmation.header`))}
+        children={formatMessage(getTrad(`${tradPrefix}confirmation.message`))}
+        labelConfirm={formatMessage(getTrad(`${tradPrefix}confirmation.confirm`))}
         iconConfirm={refreshIcon}
         mainIcon={refreshIcon}
         onConfirm={handleConfirm}
@@ -88,10 +90,13 @@ const CustomFieldTable: React.FC<ICustomFieldTableProps> = ({
         rowCount={data.length + 1}
         footer={
           <TFooter
-            onClick={(e: React.FormEvent) => { e.preventDefault(); onOpenModal(null); }}
+            onClick={(e: React.FormEvent) => {
+              e.preventDefault();
+              onOpenModal(null);
+            }}
             icon={plusIcon}
           >
-            {getMessage(`${tradPrefix}footer`)}
+            {formatMessage(getTrad(`${tradPrefix}footer`))}
           </TFooter>
         }
       >
@@ -99,22 +104,22 @@ const CustomFieldTable: React.FC<ICustomFieldTableProps> = ({
           <Tr>
             <Th width="20%">
               <Typography variant="sigma" textColor="neutral600">
-                {getMessage(`${tradPrefix}header.name`)}
+                {formatMessage(getTrad(`${tradPrefix}header.name`))}
               </Typography>
             </Th>
             <Th width="60%">
               <Typography variant="sigma" textColor="neutral600">
-                {getMessage(`${tradPrefix}header.label`)}
+                {formatMessage(getTrad(`${tradPrefix}header.label`))}
               </Typography>
             </Th>
             <Th width="15%">
               <Typography variant="sigma" textColor="neutral600">
-                {getMessage(`${tradPrefix}header.type`)}
+                {formatMessage(getTrad(`${tradPrefix}header.type`))}
               </Typography>
             </Th>
             <Th width="5%">
               <Typography variant="sigma" textColor="neutral600">
-                {getMessage(`${tradPrefix}header.required`)}
+                {formatMessage(getTrad(`${tradPrefix}header.required`))}
               </Typography>
             </Th>
             <Th>
@@ -123,58 +128,62 @@ const CustomFieldTable: React.FC<ICustomFieldTableProps> = ({
           </Tr>
         </Thead>
         <Tbody>
-          {customFields.map(customField => (
-            <Tr key={customField.name}>
-              <Td width='20%'>
-                <Typography fontWeight="semiBold" textColor="neutral800">
-                  {customField.name}
-                </Typography>
-              </Td>
-              <Td width="60%">
-                <Typography textColor="neutral800">
-                  {customField.label}
-                </Typography>
-              </Td>
-              <Td width="15%">
-                <Typography textColor="neutral800">
-                  {customField.type}
-                </Typography>
-              </Td>
-              <Td width="5%">
-                <Tooltip description={getMessage(`${tradPrefix}${customField.required ? "required" : "notRequired"}`)}>
-                  <Typography textColor="neutral800">
-                    {customField.required ? <Check /> : <Minus />}
+          {customFields.map((customField) =>
+            typeof customField !== 'string' ? (
+              <Tr key={customField.name}>
+                <Td width="20%">
+                  <Typography fontWeight="semiBold" textColor="neutral800">
+                    {customField.name}
                   </Typography>
-                </Tooltip>
-              </Td>
-              <Td>
-                <Stack horizontal size={1}>
-                  <IconButton
-                    onClick={() => onOpenModal(customField)}
-                    label={getMessage(`${tradPrefix}edit`)}
-                    icon={<Pencil />}
-                    noBorder
-                  />
-                  <IconButton
-                    onClick={() => onToggleCustomField(customField)}
-                    label={getMessage(`${tradPrefix}${customField.enabled ? 'disable' : 'enable'}`)}
-                    icon={customField.enabled ? <Eye /> : <EyeStriked />}
-                    noBorder
-                  />
-                  <IconButton
-                    onClick={() => handleRemove(customField)}
-                    label={getMessage(`${tradPrefix}remove`)}
-                    icon={<Trash />}
-                    noBorder
-                  />
-                </Stack>
-              </Td>
-            </Tr>
-          ))}
+                </Td>
+                <Td width="60%">
+                  <Typography textColor="neutral800">{customField.label}</Typography>
+                </Td>
+                <Td width="15%">
+                  <Typography textColor="neutral800">{customField.type}</Typography>
+                </Td>
+                <Td width="5%">
+                  <Tooltip
+                    description={formatMessage(
+                      getTrad(`${tradPrefix}${customField.required ? 'required' : 'notRequired'}`)
+                    )}
+                  >
+                    <Typography textColor="neutral800">
+                      {customField.required ? <Check /> : <Minus />}
+                    </Typography>
+                  </Tooltip>
+                </Td>
+                <Td>
+                  <Flex direction="row" size={1}>
+                    <IconButton
+                      onClick={() => onOpenModal(customField)}
+                      label={formatMessage(getTrad(`${tradPrefix}edit`))}
+                      children={<Pencil />}
+                      style={{ minWidth: 50 }}
+                    />
+                    <IconButton
+                      onClick={() => onToggleCustomField(customField)}
+                      label={formatMessage(
+                        getTrad(`${tradPrefix}${customField.enabled ? 'disable' : 'enable'}`)
+                      )}
+                      children={customField.enabled ? <Eye /> : <EyeStriked />}
+                      style={{ minWidth: 50 }}
+                    />
+                    <IconButton
+                      onClick={() => handleRemove(customField)}
+                      label={formatMessage(getTrad(`${tradPrefix}remove`))}
+                      children={<Trash />}
+                      style={{ minWidth: 50 }}
+                    />
+                  </Flex>
+                </Td>
+              </Tr>
+            ) : null
+          )}
         </Tbody>
       </Table>
     </>
   );
-}
+};
 
 export default CustomFieldTable;
