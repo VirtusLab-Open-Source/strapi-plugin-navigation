@@ -2,27 +2,23 @@
   <img style="width: 150px; height: auto;" src="public/assets/logo.png" alt="Logo - Strapi Navigation plugin" />
 </div>
 <div align="center">
-  <h1>Strapi v5 - Navigation plugin</h1>
+  <h1>Strapi v5 - Navigation plugin - Beta v5</h1>
   <p>Create consumable navigation with a simple and straightforward visual builder</p>
   <a href="https://www.npmjs.org/package/strapi-plugin-navigation">
-    <img alt="GitHub package.json version" src="https://img.shields.io/github/package-json/v/VirtusLab-Open-Source/strapi-plugin-navigation?label=npm&logo=npm">
+    <img alt="GitHub package.json version" src="https://img.shields.io/github/package-json/v/VirtusLab-Open-Source/strapi-plugin-navigation/v5?label=npm&logo=npm">
   </a>
   <a href="https://www.npmjs.org/package/strapi-plugin-navigation">
     <img src="https://img.shields.io/npm/dm/strapi-plugin-navigation.svg" alt="Monthly download on NPM" />
   </a>
   <a href="https://circleci.com/gh/VirtusLab/strapi-plugin-navigation">
-    <img src="https://circleci.com/gh/VirtusLab-Open-Source/strapi-plugin-navigation.svg?style=shield" alt="CircleCI" />
+    <img src="https://circleci.com/gh/VirtusLab-Open-Source/strapi-plugin-navigation/tree/v5.svg?style=shield" alt="CircleCI" />
   </a>
   <a href="https://codecov.io/gh/VirtusLab/strapi-plugin-navigation">
-    <img src="https://codecov.io/gh/VirtusLab/strapi-plugin-navigation/coverage.svg?branch=master" alt="codecov.io" />
-  </a>
-  <a href="https://sharing.clickup.com/tl/xhcmx-43/strapiv-4-navigation-roadmap">
-    <img src="https://img.shields.io/website?down_message=roadmap&label=product&up_message=roadmap&url=https%3A%2F%2Fsharing.clickup.com%2Ftl%2Fxhcmx-43%2Fstrapiv-4-navigation-roadmap" />
-  </a>
-  <a href="https://sharing.clickup.com/b/6-169004201-2/strapiv-4-navigation-board">
-    <img src="https://img.shields.io/website?down_message=board&label=product&up_color=blue&up_message=board&url=https%3A%2F%2Fsharing.clickup.com%2Fb%2F6-169004201-2%2Fstrapiv-4-navigation-board" />
+    <img src="https://codecov.io/gh/VirtusLab/strapi-plugin-navigation/coverage.svg?branch=v5" alt="codecov.io" />
   </a>
 </div>
+
+## ⚠️ This is the beta version for Strapi v5
 
 ---
 
@@ -36,27 +32,34 @@ Strapi Navigation Plugin provides a website navigation / menu builder feature fo
 - Tree (nested)
 - RFR (ready for handling by Redux First Router)
 
+
 ### Table of Contents
-1. [✨ Features](#-features)
-2. [⏳ Installation](#-installation)
-3. [🖐 Requirements](#-requirements)
-4. [🔧 Basic Configuration](#-configuration)
+1. [💎 Versions](#-features)
+2. [✨ Features](#-features)
+3. [⏳ Installation](#-installation)
+4. [🖐 Requirements](#-requirements)
+5. [🔧 Basic Configuration](#-configuration)
    - [Settings page](#in-v203-and-newer)
    - [Plugin file](#in-v202-and-older--default-configuration-state-for-v203-and-newer)
-5. [🔧 GraphQL Configuration](#-gql-configuration)
-6. [🌍 i18n Internationalization](#-i18n-internationalization)
-7. [👤 RBAC](#-rbac)
-8. [🔐 Authorization strategy](#-authorization-strategy)
-9. [🕸️ Public API specification](#%EF%B8%8F-public-api-specification)
+6. [🔧 GraphQL Configuration](#-gql-configuration)
+7. [🌍 i18n Internationalization](#-i18n-internationalization)
+8. [👤 RBAC](#-rbac)
+9. [🔐 Authorization strategy](#-authorization-strategy)
+10. [🕸️ Public API specification](#%EF%B8%8F-public-api-specification)
    - [REST API](#rest-api) 
    - [GraphQL API](#graphql-api)
-10. [🔌 Extensions](#-extensions)
-11. [🌿 Model lifecycle hooks](#model-life-cycle-hooks)
-11. [🧹 REST Cache](#rest-cache)
-12. [🧩 Examples](#-examples)
-13. [💬 FAQ](#-faq)
-14. [🤝 Contributing](#-contributing)
-15. [👨‍💻 Community support](#-community-support)
+11. [🔌 Extensions](#-extensions)
+12. [🌿 Model lifecycle hooks](#model-life-cycle-hooks)
+13. [🧹 REST Cache](#rest-cache)
+14. [🧩 Examples](#-examples)
+15. [💬 FAQ](#-faq)
+16. [🤝 Contributing](#-contributing)
+17. [👨‍💻 Community support](#-community-support)
+
+## 💎 Versions
+- **Strapi v5** - (current) [v3.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/v5)
+- **Strapi v4** - [v2.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation)
+- **Strapi v3** - [v1.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/strapi-v3)
 
 ## ✨ Features
 
@@ -129,9 +132,7 @@ Complete installation requirements are exact same as for Strapi itself and can b
 
 To start your journey with **Navigation plugin** you must first setup it using the dedicated Settings page or for any version, put your configuration in `config/plugins.js`. Anyway we're recommending the click-through option where your configuration is going to be properly validated.
 
-### In `v2.0.3` and newer
-
-Version `2.0.3` introduces the intuitive **Settings** page which you can easily access via `Strapi Settings -> Section: Navigation Plugin -> Configuration`. 
+### Settings page
 
 On the dedicated page, you will be able to set up all crucial properties which drive the plugin and customize each individual collection for which **Navigation plugin** should be enabled.
 
@@ -142,7 +143,7 @@ On the dedicated page, you will be able to set up all crucial properties which d
 > *Note*
 > The default configuration for your plugin is fetched from `config/plugins.js` or, if the file is not there, directly from the plugin itself. If you would like to customize the default state to which you might revert, please follow the next section.
 
-### In `v2.0.2` and older + default configuration state for `v2.0.3` and newer
+### File
 
 Config for this plugin is stored as a part of the `config/plugins.js` or `config/<env>/plugins.js` file. You can use the following snippet to make sure that the config structure is correct. If you've got already configurations for other plugins stores by this way, you can use the `navigation` along with them. 
 
