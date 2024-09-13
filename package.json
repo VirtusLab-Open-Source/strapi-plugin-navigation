@@ -1,6 +1,6 @@
 {
   "name": "strapi-plugin-navigation",
-  "version": "2.5.3",
+  "version": "3.0.0-beta.0",
   "description": "Strapi - Navigation plugin",
   "strapi": {
     "name": "navigation",
@@ -14,11 +14,14 @@
   },
   "scripts": {
     "publish:latest": "cd build && npm publish --tag latest",
-    "prepublish:latest": "npm run clean && npm run build && node build/setup-package.js",
+    "publish:beta": "cd build && npm publish --tag beta",
+    "prepublish": "yarn clean && yarn build && ts-node ./setup-package.ts",
     "test:unit": "jest --verbose --coverage",
     "test:unit:watch": "jest --watch",
     "build": "tsc -p ./server/tsconfig.json && tsc -p ./admin/tsconfig.json",
     "build:dev": "npm run build && cp ./package.json ./build && cd ./build && yarn",
+    "build:admin:watch": "tsc -p ./admin/tsconfig.json --watch",
+    "build:server:watch": "tsc -p ./server/tsconfig.json --watch",
     "clean": "rm -rf build",
     "develop": "nodemon --exec \"npm run build:dev\""
   },
@@ -42,15 +45,16 @@
   "devDependencies": {
     "@jest/types": "29.5.x",
     "@koa/router": "^12.0.1",
-    "@strapi/design-system": "2.0.0-rc.7",
-    "@strapi/icons": "2.0.0-rc.7",
-    "@strapi/plugin-graphql": "5.0.0-rc.5",
-    "@strapi/strapi": "5.0.0-rc.5",
+    "@strapi/design-system": "2.0.0-rc.10",
+    "@strapi/icons": "2.0.0-rc.10",
+    "@strapi/plugin-graphql": "5.0.0-rc.22",
+    "@strapi/strapi": "5.0.0-rc.22",
     "@strapi/typescript-utils": "4.22.1",
     "@types/jest": "29.5.1",
     "@types/koa": "2.15.0",
     "@types/koa__router": "^12.0.4",
     "@types/lodash": "^4.14.181",
+    "@types/node": "^20.12.0",
     "@types/pluralize": "0.0.33",
     "@types/react": "18.2.74",
     "@types/react-dom": "^18.2.24",
@@ -58,6 +62,7 @@
     "@types/uuid": "^10.0.0",
     "codecov": "^3.7.2",
     "formik": "^2.2.9",
+    "generate-lockfile": "0.0.12",
     "jest": "29.6.0",
     "jest-cli": "^27.5.1",
     "jest-styled-components": "^7.0.2",
@@ -77,6 +82,7 @@
     "typescript": "5.4.4"
   },
   "peerDependencies": {
+    "@strapi/strapi": "^5.0.0-rc.22",
     "react": "^17.0.0 || ^18.0.0",
     "react-dom": "^17.0.0 || ^18.0.0",
     "styled-components": "^6.0.0"

@@ -72,8 +72,8 @@ Strapi Navigation Plugin provides a website navigation / menu builder feature fo
 
 ## ⚙️ Versions
 
-- **Strapi v5** - (current) - [v5.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation)
-- **Strapi v4** - [v2.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/strapi-v3)
+- **Strapi v5** - (current) - [v3.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation)
+- **Strapi v4** - [v2.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/strapi-v4)
 
 ## ⏳ Installation
 
@@ -90,7 +90,7 @@ As a ✅ **verified** plugin by Strapi team we're available on the [**Strapi Mar
 It's recommended to use **yarn** to install this plugin within your Strapi project. [You can install yarn with these docs](https://yarnpkg.com/lang/en/docs/install/).
 
 ```bash
-yarn add strapi-plugin-navigation@latest
+yarn add strapi-plugin-navigation@beta
 ```
 
 After successful installation you've to re-build your Strapi instance. To archive that simply use:
@@ -118,8 +118,7 @@ Complete installation requirements are exact same as for Strapi itself and can b
 
 **Supported Strapi versions**:
 
-<!-- TODO: Strapi version -->
-- Strapi v5.24.x (recently tested)
+- Strapi v5.0.0-rc.22 (recently tested)
 - Strapi v5.x
 
 > This plugin is designed for **Strapi v5** and is not working with v4.x. To get version for **Strapi v4** install version [v4.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/strapi-v4).
