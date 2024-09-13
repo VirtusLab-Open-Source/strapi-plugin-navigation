@@ -16,12 +16,6 @@
   <a href="https://codecov.io/gh/VirtusLab/strapi-plugin-navigation">
     <img src="https://codecov.io/gh/VirtusLab/strapi-plugin-navigation/coverage.svg?branch=master" alt="codecov.io" />
   </a>
-  <a href="https://sharing.clickup.com/tl/xhcmx-43/strapiv-4-navigation-roadmap">
-    <img src="https://img.shields.io/website?down_message=roadmap&label=product&up_message=roadmap&url=https%3A%2F%2Fsharing.clickup.com%2Ftl%2Fxhcmx-43%2Fstrapiv-4-navigation-roadmap" />
-  </a>
-  <a href="https://sharing.clickup.com/b/6-169004201-2/strapiv-4-navigation-board">
-    <img src="https://img.shields.io/website?down_message=board&label=product&up_color=blue&up_message=board&url=https%3A%2F%2Fsharing.clickup.com%2Fb%2F6-169004201-2%2Fstrapiv-4-navigation-board" />
-  </a>
 </div>
 
 ---
@@ -37,26 +31,32 @@ Strapi Navigation Plugin provides a website navigation / menu builder feature fo
 - RFR (ready for handling by Redux First Router)
 
 ### Table of Contents
-1. [✨ Features](#-features)
-2. [⏳ Installation](#-installation)
-3. [🖐 Requirements](#-requirements)
-4. [🔧 Basic Configuration](#-configuration)
+1. [💎 Versions](#-versions)
+2. [✨ Features](#-features)
+3. [⏳ Installation](#-installation)
+4. [🖐 Requirements](#-requirements)
+5. [🔧 Basic Configuration](#-configuration)
    - [Settings page](#in-v203-and-newer)
    - [Plugin file](#in-v202-and-older--default-configuration-state-for-v203-and-newer)
-5. [🔧 GraphQL Configuration](#-gql-configuration)
-6. [🌍 i18n Internationalization](#-i18n-internationalization)
-7. [👤 RBAC](#-rbac)
-8. [🔐 Authorization strategy](#-authorization-strategy)
-9. [🕸️ Public API specification](#%EF%B8%8F-public-api-specification)
+6. [🔧 GraphQL Configuration](#-gql-configuration)
+7. [🌍 i18n Internationalization](#-i18n-internationalization)
+8. [👤 RBAC](#-rbac)
+9. [🔐 Authorization strategy](#-authorization-strategy)
+10. [🕸️ Public API specification](#%EF%B8%8F-public-api-specification)
    - [REST API](#rest-api) 
    - [GraphQL API](#graphql-api)
-10. [🔌 Extensions](#-extensions)
-11. [🌿 Model lifecycle hooks](#model-life-cycle-hooks)
-11. [🧹 REST Cache](#rest-cache)
-12. [🧩 Examples](#-examples)
-13. [💬 FAQ](#-faq)
-14. [🤝 Contributing](#-contributing)
-15. [👨‍💻 Community support](#-community-support)
+11. [🔌 Extensions](#-extensions)
+12. [🌿 Model lifecycle hooks](#model-life-cycle-hooks)
+13. [🧹 REST Cache](#rest-cache)
+14. [🧩 Examples](#-examples)
+15. [💬 FAQ](#-faq)
+16. [🤝 Contributing](#-contributing)
+17. [👨‍💻 Community support](#-community-support)
+
+## 💎 Versions
+- **Strapi v5** - [v3.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/v5)
+- **Strapi v4** - (current) [v2.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation)
+- **Strapi v3** - [v1.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/strapi-v3)
 
 ## ✨ Features
 
@@ -124,7 +124,7 @@ Complete installation requirements are exact same as for Strapi itself and can b
 
 **Supported Strapi versions**:
 
-- Strapi v4.24.x (recently tested)
+- Strapi v4.25.11 (recently tested)
 - Strapi v4.x
 
 > This plugin is designed for **Strapi v4** and is not working with v3.x. To get version for **Strapi v3** install version [v1.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/strapi-v3).
