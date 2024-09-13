@@ -49,7 +49,7 @@ export const Form = <T extends Partial<Navigation>>({
           control={control}
           name="name"
           render={({ field: { value, onChange }, fieldState }) => (
-            <Field.Root error={fieldState.error?.message}>
+            <Field.Root width="100%" error={fieldState.error?.message}>
               <Field.Label>
                 {formatMessage(getTrad('popup.navigation.form.name.label', 'Name'))}
               </Field.Label>

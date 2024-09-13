@@ -2,7 +2,7 @@
   <img style="width: 150px; height: auto;" src="public/assets/logo.png" alt="Logo - Strapi Navigation plugin" />
 </div>
 <div align="center">
-  <h1>Strapi - Navigation plugin - Beta v5</h1>
+  <h1>Strapi v5 - Navigation plugin - Beta</h1>
   <p>Create consumable navigation with a simple and straightforward visual builder</p>
   <a href="https://www.npmjs.org/package/strapi-plugin-navigation">
     <img alt="GitHub package.json version" src="https://img.shields.io/github/package-json/v/VirtusLab-Open-Source/strapi-plugin-navigation/v5?label=npm&logo=npm">

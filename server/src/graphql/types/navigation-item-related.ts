@@ -2,8 +2,6 @@ export default ({ strapi, nexus, config }: any) => {
 	const related = config.gql?.navigationItemRelated;
 	const name = "NavigationItemRelated";
 
-	debugger;
-
 	if (related?.length) {
 		return nexus.unionType({
 			name,

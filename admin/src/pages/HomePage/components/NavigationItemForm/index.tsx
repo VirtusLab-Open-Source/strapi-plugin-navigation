@@ -32,6 +32,7 @@ import { ContentTypeEntity } from './types';
 import { NavigationItemFormSchema, useNavigationItemForm } from './utils/form';
 import { useSlug } from './utils/hooks';
 import { generatePreviewPath, generateUiRouterKey } from './utils/properties';
+import { Divider } from '@strapi/design-system';
 
 export { ContentTypeEntity, GetContentTypeEntitiesPayload } from './types';
 export { NavigationItemFormSchema } from './utils/form';
@@ -120,15 +121,15 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
     onSubmit(
       payload.type === 'INTERNAL'
         ? {
-            ...payload,
-            title,
-            uiRouterKey,
-          }
+          ...payload,
+          title,
+          uiRouterKey,
+        }
         : {
-            ...payload,
-            title,
-            uiRouterKey,
-          }
+          ...payload,
+          title,
+          uiRouterKey,
+        }
     );
   });
 
@@ -392,6 +393,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
               name="title"
               render={({ field: { value, onChange, name }, fieldState }) => (
                 <Field.Root
+                  width="100%"
                   error={fieldState.error?.message}
                   hint={formatMessage(getTrad('popup.item.form.title.placeholder', 'e.g. Blog'))}
                 >
@@ -415,7 +417,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
             />
           </Grid.Item>
 
-          <Grid.Item alignItems="flex-start" key="type" col={4} lg={12}>
+          <Grid.Item alignItems="flex-start" key="type" col={currentType === 'INTERNAL' ? 4 : 7} lg={12}>
             <Controller
               control={control}
               name="type"
@@ -451,12 +453,13 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
             />
           </Grid.Item>
 
-          <Grid.Item alignItems="flex-start" key="menuAttached" col={4} lg={12}>
+          <Grid.Item alignItems="flex-start" key="menuAttached" col={currentType === 'INTERNAL' ? 4 : 5} lg={12}>
             <Controller
               control={control}
               name="menuAttached"
               render={({ field: { value, onChange, name }, fieldState }) => (
                 <Field.Root
+                  width="100%"
                   error={fieldState.error?.message}
                   hint={formatMessage(
                     getTrad(
@@ -498,6 +501,42 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
               )}
             />
           </Grid.Item>
+
+          {currentType === 'INTERNAL' && (
+            <Grid.Item alignItems="flex-start" key="autoSync" col={4} lg={12}>
+              <Controller
+                control={control}
+                name="autoSync"
+                render={({ field: { value, onChange, name }, fieldState }) => (
+                  <Field.Root error={fieldState.error?.message} width="230px">
+                    <Field.Label>
+                      {formatMessage(
+                        getTrad('popup.item.form.autoSync.label', 'Read fields from related')
+                      )}
+                    </Field.Label>
+
+                    <Toggle
+                      name={name}
+                      checked={value}
+                      onChange={({
+                        currentTarget: { checked },
+                      }: {
+                        currentTarget: { checked: boolean };
+                      }) => {
+                        onChange(checked);
+                      }}
+                      onLabel="Enabled"
+                      offLabel="Disabled"
+                    />
+
+                    <Field.Error />
+                  </Field.Root>
+                )}
+              />
+            </Grid.Item>
+
+          )}
+
           <Grid.Item alignItems="flex-start" key="path" col={12}>
             <Controller
               control={control}
@@ -524,8 +563,8 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                       ),
                       pathDefault
                         ? formatMessage(getTrad('popup.item.form.type.external.description'), {
-                            value: pathDefault,
-                          })
+                          value: pathDefault,
+                        })
                         : '',
                     ].join(' ')}
                     width="100%"
@@ -553,38 +592,6 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
 
           {currentType === 'INTERNAL' && (
             <>
-              <Grid.Item alignItems="flex-start" key="autoSync" col={12}>
-                <Controller
-                  control={control}
-                  name="autoSync"
-                  render={({ field: { value, onChange, name }, fieldState }) => (
-                    <Field.Root error={fieldState.error?.message} width="230px">
-                      <Field.Label>
-                        {formatMessage(
-                          getTrad('popup.item.form.autoSync.label', 'Read fields from related')
-                        )}
-                      </Field.Label>
-
-                      <Toggle
-                        name={name}
-                        checked={value}
-                        onChange={({
-                          currentTarget: { checked },
-                        }: {
-                          currentTarget: { checked: boolean };
-                        }) => {
-                          onChange(checked);
-                        }}
-                        onLabel="Enabled"
-                        offLabel="Disabled"
-                      />
-
-                      <Field.Error />
-                    </Field.Root>
-                  )}
-                />
-              </Grid.Item>
-
               <Grid.Item alignItems="flex-start" col={6} lg={12}>
                 <Controller
                   control={control}
@@ -596,11 +603,11 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                       hint={
                         !isLoading && isEmpty(relatedTypeSelectOptions)
                           ? formatMessage(
-                              getTrad(
-                                'popup.item.form.relatedType.empty',
-                                'There are no more content types'
-                              )
+                            getTrad(
+                              'popup.item.form.relatedType.empty',
+                              'There are no more content types'
                             )
+                          )
                           : undefined
                       }
                     >
@@ -647,12 +654,12 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                         hint={
                           !isLoading && thereAreNoMoreContentTypes
                             ? formatMessage(
-                                getTrad(
-                                  'popup.item.form.related.empty',
-                                  'There are no more entities'
-                                ),
-                                { contentTypeName: currentRelatedType }
-                              )
+                              getTrad(
+                                'popup.item.form.related.empty',
+                                'There are no more entities'
+                              ),
+                              { contentTypeName: currentRelatedType }
+                            )
                             : undefined
                         }
                         width="100%"
@@ -702,8 +709,8 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                           hint={
                             !isLoading && isEmpty(audienceOptions)
                               ? formatMessage(
-                                  getTrad('popup.item.form.title.placeholder', 'e.g. Blog')
-                                )
+                                getTrad('popup.item.form.title.placeholder', 'e.g. Blog')
+                              )
                               : undefined
                           }
                           width="100%"
@@ -761,45 +768,52 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
           )}
         </Grid.Root>
 
-        <Grid.Root gap={5} paddingTop={5}>
-          <Grid.Item alignItems="flex-start" col={6} lg={12}>
-            <Field.Root width="100%">
-              <Field.Label>
-                {formatMessage(getTrad('popup.item.form.i18n.locale.label', 'Copy details from'))}
-              </Field.Label>
+        {availableLocaleOptions && (availableLocaleOptions.length > 1) && (
+          <>
+            <Divider marginTop={5} marginBottom={5} />
 
-              <SingleSelect
-                name="i18n.locale"
-                onChange={setItemLocaleCopyValue}
-                value={itemLocaleCopyValue}
-                disabled={isLoading || !canUpdate}
-                placeholder={formatMessage(
-                  getTrad('popup.item.form.i18n.locale.placeholder', 'locale')
-                )}
-              >
-                {availableLocaleOptions.map(({ key, label, value }) => (
-                  <SingleSelectOption key={key} value={value}>
-                    {label}
-                  </SingleSelectOption>
-                ))}
-              </SingleSelect>
-            </Field.Root>
-          </Grid.Item>
+            <Grid.Root gap={5}>
+              <Grid.Item alignItems="flex-start" col={6} lg={12}>
+                <Field.Root width="100%">
+                  <Field.Label>
+                    {formatMessage(getTrad('popup.item.form.i18n.locale.label', 'Copy details from'))}
+                  </Field.Label>
 
-          {canUpdate && (
-            <Grid.Item alignItems="flex-start" col={6} lg={12} paddingTop={6}>
-              <Box>
-                <Button
-                  variant="tertiary"
-                  onClick={onCopyFromLocale}
-                  disabled={isLoading || !itemLocaleCopyValue}
-                >
-                  {formatMessage(getTrad('popup.item.form.i18n.locale.button'))}
-                </Button>
-              </Box>
-            </Grid.Item>
-          )}
-        </Grid.Root>
+                  <SingleSelect
+                    name="i18n.locale"
+                    onChange={setItemLocaleCopyValue}
+                    value={itemLocaleCopyValue}
+                    disabled={isLoading || !canUpdate}
+                    placeholder={formatMessage(
+                      getTrad('popup.item.form.i18n.locale.placeholder', 'locale')
+                    )}
+                  >
+                    {availableLocaleOptions.map(({ key, label, value }) => (
+                      <SingleSelectOption key={key} value={value}>
+                        {label}
+                      </SingleSelectOption>
+                    ))}
+                  </SingleSelect>
+                </Field.Root>
+              </Grid.Item>
+
+              {canUpdate && (
+                <Grid.Item alignItems="flex-start" col={6} lg={12} paddingTop={6}>
+                  <Box>
+                    <Button
+                      variant="tertiary"
+                      onClick={onCopyFromLocale}
+                      disabled={isLoading || !itemLocaleCopyValue}
+                    >
+                      {formatMessage(getTrad('popup.item.form.i18n.locale.button'))}
+                    </Button>
+                  </Box>
+                </Grid.Item>
+              )}
+            </Grid.Root>
+          </>
+        )}
+
       </Modal.Body>
 
       <NavigationItemPopupFooter

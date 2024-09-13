@@ -127,8 +127,8 @@ const Inner = () => {
     );
     const nextAdditionalFields = hasFieldAlready
       ? additionalFields.map((field) =>
-          typeof field !== 'string' && next.name === field.name ? next : field
-        )
+        typeof field !== 'string' && next.name === field.name ? next : field
+      )
       : [...additionalFields, next];
 
     setValue('additionalFields', nextAdditionalFields);
@@ -139,32 +139,32 @@ const Inner = () => {
 
   const allContentTypes = !isLoading
     ? sortBy(
-        Object.values(contentTypesQuery.data ?? [])
-          .filter(({ uid }) =>
-            isContentTypeEligible(uid, {
-              allowedContentTypes: configQuery.data?.allowedContentTypes,
-              restrictedContentTypes: configQuery.data?.restrictedContentTypes,
-              preferCustomContentTypes,
-              contentTypes: contentTypesCurrent,
-            })
-          )
-          .map((ct) => {
-            const type = contentTypesQuery.data?.find((_) => _.uid === ct.uid);
+      Object.values(contentTypesQuery.data ?? [])
+        .filter(({ uid }) =>
+          isContentTypeEligible(uid, {
+            allowedContentTypes: configQuery.data?.allowedContentTypes,
+            restrictedContentTypes: configQuery.data?.restrictedContentTypes,
+            preferCustomContentTypes,
+            contentTypes: contentTypesCurrent,
+          })
+        )
+        .map((ct) => {
+          const type = contentTypesQuery.data?.find((_) => _.uid === ct.uid);
 
-            if (type) {
-              const { isDisplayed: available, kind } = type;
-              const isSingle = kind === 'singleType';
+          if (type) {
+            const { isDisplayed: available, kind } = type;
+            const isSingle = kind === 'singleType';
 
-              return {
-                ...ct,
-                available,
-                isSingle,
-              };
-            }
-            return ct;
-          }),
-        (ct) => ct.info.displayName
-      )
+            return {
+              ...ct,
+              available,
+              isSingle,
+            };
+          }
+          return ct;
+        }),
+      (ct) => ct.info.displayName
+    )
     : [];
 
   const onSubmit = (rawData: unknown) => {
@@ -269,11 +269,10 @@ const Inner = () => {
               </Box>
             )}
             <Box {...BOX_DEFAULT_PROPS} width="100%">
-              <Flex direction="column">
+              <Flex direction="column" alignItems="flex-start" gap={2}>
                 <Typography variant="delta" as="h2">
                   {formatMessage(getTrad('pages.settings.general.title'))}
                 </Typography>
-                <Box padding={2} />
 
                 <Grid.Root gap={4} width="100%">
                   <Grid.Item col={12} s={12} xs={12}>
@@ -446,7 +445,7 @@ const Inner = () => {
                                             field: { name, value, onChange },
                                             fieldState: { error },
                                           }) => (
-                                            <Field.Root>
+                                            <Field.Root width="100%">
                                               <Field.Label>
                                                 {formatMessage(
                                                   getTrad('pages.settings.form.nameField.label')
@@ -608,21 +607,19 @@ const Inner = () => {
                       </Grid.Item>
                     </Grid.Root>
                   </Grid.Item>
-                  <Grid.Item col={4} s={12} xs={12}></Grid.Item>
                 </Grid.Root>
               </Flex>
             </Box>
 
             <Box {...BOX_DEFAULT_PROPS} width="100%">
-              <Flex direction="column" width="100%">
-                <Typography variant="delta" as="h2" textAlign="center">
+              <Flex direction="column" alignItems="flex-start" gap={2}>
+                <Typography variant="delta" as="h2">
                   {formatMessage(getTrad('pages.settings.additional.title'))}
                 </Typography>
-                <Box padding={2} />
 
                 <Grid.Root gap={4} width="100%">
                   <Grid.Item col={4} s={12} xs={12}>
-                    <Box style={{ maxWidth: 257 }}>
+                    <Box width="100%">
                       <Controller
                         control={control}
                         name="allowedLevels"
@@ -758,13 +755,11 @@ const Inner = () => {
               </Flex>
             </Box>
 
-            <Box {...BOX_DEFAULT_PROPS} width="100%">
+            <Box {...BOX_DEFAULT_PROPS} width="100%" gap={2} direction="column" alignItems="flex-start">
               <Typography variant="delta" as="h2">
                 {formatMessage(getTrad('pages.settings.customFields.title'))}
               </Typography>
-
-              <Box padding={2} />
-
+              <Box padding={1} />
               <CustomFieldTable
                 data={additionalFields}
                 onOpenModal={handleOpenCustomFieldModal}
@@ -774,7 +769,7 @@ const Inner = () => {
             </Box>
 
             <Box {...BOX_DEFAULT_PROPS} width="100%">
-              <Flex direction="column" gap={2}>
+              <Flex direction="column" alignItems="flex-start" gap={2}>
                 <Typography variant="delta" as="h2">
                   {formatMessage(getTrad('pages.settings.restoring.title'))}
                 </Typography>

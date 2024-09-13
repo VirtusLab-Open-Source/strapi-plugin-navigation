@@ -86,6 +86,7 @@ const CustomFieldTable: React.FC<ICustomFieldTableProps> = ({
         onCancel={cleanup}
       />
       <Table
+        width="100%"
         colCount={4}
         rowCount={data.length + 1}
         footer={

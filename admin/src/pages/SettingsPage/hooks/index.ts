@@ -73,7 +73,6 @@ export const useSaveConfig = () => {
           : data.additionalFields,
         gql: {
           navigationItemRelated: data.contentTypes.map((uid: string) => {
-            debugger;
             return resolveGlobalLikeId(uid);
           }),
         },

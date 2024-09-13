@@ -187,12 +187,12 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({
               </Grid.Item>
             </>
           )}
-          <Grid.Item key="required" col={12}>
+          <Grid.Item key="required" col={12} >
             <Controller
               control={control}
               name="required"
               render={({ field: { name, onChange, value }, fieldState }) => (
-                <Field.Root error={fieldState.error?.message}>
+                <Field.Root error={fieldState.error?.message} width="100%">
                   <Field.Label>{formatMessage(getTrad(`${tradPrefix}required.label`))}</Field.Label>
 
                   <Toggle

@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Field,
   Flex,
   Grid,
   SingleSelect,
@@ -87,29 +88,31 @@ export const NavigationHeader: React.FC<Props> = ({
                   </Grid.Item>
                 )}
                 <Grid.Item col={canUpdate ? 4 : 10}>
-                  <SingleSelect
-                    type="select"
-                    placeholder="Change navigation"
-                    name="navigationSelect"
-                    onChange={(nextId: number) => {
-                      const nextNavigation = availableNavigations.find(({ id }) => nextId === id);
+                  <Field.Root width="100%">
+                    <SingleSelect
+                      type="select"
+                      placeholder="Change navigation"
+                      name="navigationSelect"
+                      onChange={(nextId: number) => {
+                        const nextNavigation = availableNavigations.find(({ id }) => nextId === id);
 
-                      if (nextNavigation) {
-                        handleChangeSelection(nextNavigation);
-                      }
-                    }}
-                    value={activeNavigation?.id}
-                    size="S"
-                    style={null}
-                  >
-                    {availableNavigations
-                      .filter(({ localeCode }) => localeCode === currentLocale)
-                      .map(({ id, name }) => (
-                        <SingleSelectOption key={id} value={id}>
-                          {name}
-                        </SingleSelectOption>
-                      ))}
-                  </SingleSelect>
+                        if (nextNavigation) {
+                          handleChangeSelection(nextNavigation);
+                        }
+                      }}
+                      value={activeNavigation?.id}
+                      size="S"
+                      style={null}
+                    >
+                      {availableNavigations
+                        .filter(({ localeCode }) => localeCode === currentLocale)
+                        .map(({ id, name }) => (
+                          <SingleSelectOption key={id} value={id}>
+                            {name}
+                          </SingleSelectOption>
+                        ))}
+                    </SingleSelect>
+                  </Field.Root>
                 </Grid.Item>
                 {hasLocalizations ? (
                   <Grid.Item col={2}>
@@ -168,9 +171,9 @@ export const NavigationHeader: React.FC<Props> = ({
           <Tag icon={<Information aria-hidden={true} />}>
             {activeNavigation
               ? formatMessage(getTrad('header.meta'), {
-                  id: activeNavigation?.id,
-                  key: activeNavigation?.slug,
-                })
+                id: activeNavigation?.id,
+                key: activeNavigation?.slug,
+              })
               : null}
           </Tag>
         }
