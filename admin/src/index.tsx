@@ -1,5 +1,5 @@
 import { Initializer } from './components/Initializer';
-import { NavigationIcon } from './components/icons';
+import { PluginIcon } from './components/icons/pluginIcon';
 import App from './pages/App';
 import SettingsPage from './pages/SettingsPage';
 import { PLUGIN_ID } from './pluginId';
@@ -29,7 +29,7 @@ export default {
 
     app.addMenuLink({
       to: `plugins/${PLUGIN_ID}`,
-      icon: () => <NavigationIcon />,
+      icon: PluginIcon,
       intlLabel: getTrad('plugin.name', 'Navigation'),
       Component() {
         return App;

@@ -24,7 +24,7 @@ import { INITIAL_NAVIGATION } from '../NewNavigation';
 import { CommonProps, ListState, Navigation } from '../types';
 import * as icons from './icons';
 
-interface Props extends ListState, CommonProps {}
+interface Props extends ListState, CommonProps { }
 
 export const AllNavigations = ({ navigations, selected, setState }: Props) => {
   const configQuery = useConfig();
@@ -185,12 +185,14 @@ export const AllNavigations = ({ navigations, selected, setState }: Props) => {
                   </Typography>
                 </Td>
                 <Td>
-                  {navigation.visible
-                    ? formatMessage(getTrad('popup.navigation.manage.navigation.visible'))
-                    : formatMessage(getTrad('popup.navigation.manage.navigation.hidden'))}
+                  <Typography textColor="neutral800">
+                    {navigation.visible
+                      ? formatMessage(getTrad('popup.navigation.manage.navigation.visible'))
+                      : formatMessage(getTrad('popup.navigation.manage.navigation.hidden'))}
+                  </Typography>
                 </Td>
                 <Td>
-                  <Flex direction="row">
+                  <Flex width="100%" direction="row" alignItems="center" justifyContent="flex-end">
                     <Box paddingLeft={1}>
                       <IconButton
                         onClick={edit(navigation)}

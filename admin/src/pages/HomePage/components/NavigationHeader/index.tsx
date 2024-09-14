@@ -67,7 +67,7 @@ export const NavigationHeader: React.FC<Props> = ({
         subtitle={formatMessage(getTrad('header.description'))}
         primaryAction={
           <Flex direction="row" size={2}>
-            <Box marginRight="8px">
+            <Box>
               <Grid.Root
                 gap={4}
                 style={configQuery.data?.isCacheEnabled ? { display: 'flex' } : undefined}

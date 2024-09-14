@@ -1,7 +1,15 @@
+import styled from "styled-components";
+
 const initSize = 92;
 
+const NavigationIconSvg = styled.svg`
+  path {
+    fill: ${ ({ theme }) => theme.colors.neutral500 };
+  }
+`;
+
 export const NavigationIcon = ({ width = 24, height = 24 }) => (
-  <svg
+  <NavigationIconSvg
     viewBox={`0px 0px ${width}px ${height}px`}
     xmlns="http://www.w3.org/2000/svg"
     height={height}
@@ -14,5 +22,5 @@ export const NavigationIcon = ({ width = 24, height = 24 }) => (
         H14c-3.6,0-6.5,2.9-6.5,6.5s2.9,6.5,6.5,6.5h64C81.6,81.5,84.5,78.6,84.5,75z"
       />
     </g>
-  </svg>
+  </NavigationIconSvg>
 );
