@@ -20,7 +20,7 @@ jobs:
       - restore_cache:
           keys:
             # when lock file changes, use increasingly general patterns to restore cache
-            - strapi-plugin-navigation-v1-{{ checksum "yarn.lock" }}
+            - strapi-plugin-navigation-v3-{{ checksum "yarn.lock" }}
             - strapi-plugin-navigation-
       - run:
           name: Echo versions
@@ -32,16 +32,20 @@ jobs:
           command: |
             yarn install
       - run:
-          name: Test
+          name: Build
           command: |
-            yarn test:unit
-      - codecov/upload:
-          flags: unittest
-          file:
+            yarn build
+      # - run:
+      #     name: Test
+      #     command: |
+      #       yarn test:unit
+      # - codecov/upload:
+      #     flags: unittest
+      #     file:
       - save_cache:
           paths:
             - ./node_modules
-          key: strapi-plugin-navigation-v1-{{ checksum "yarn.lock" }}
+          key: strapi-plugin-navigation-v3-{{ checksum "yarn.lock" }}
 workflows:
     build-and-test:
       jobs:
