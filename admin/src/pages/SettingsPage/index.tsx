@@ -245,7 +245,7 @@ const Inner = () => {
                   action={
                     <Box>
                       <Button onClick={handleRestart} startIcon={<Play />}>
-                        {formatMessage(getTrad('pages.settings.actions.restart'))}
+                        {formatMessage(getTrad('pages.settings.actions.restart.label'))}
                       </Button>
                     </Box>
                   }
@@ -786,7 +786,7 @@ const Inner = () => {
                         startIcon={<Check />}
                         onClick={() => setIsRestorePopupOpen(true)}
                       >
-                        {formatMessage(getTrad('pages.settings.actions.restore'))}
+                        {formatMessage(getTrad('pages.settings.actions.restore.label'))}
                       </Button>
                     ) : null}
                     <ConfirmationDialog

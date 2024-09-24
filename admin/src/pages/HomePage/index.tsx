@@ -417,7 +417,7 @@ const Inner = () => {
           <Flex direction="column" minHeight="400px" justifyContent="center">
             <Box padding={4}>
               <Typography variant="beta" textColor="neutral600">
-                {formatMessage(getTrad('empty'))}
+                {formatMessage(getTrad('empty.description'))}
               </Typography>
             </Box>
             {canUpdate && (
@@ -434,7 +434,7 @@ const Inner = () => {
               <Flex direction="column" justifyContent="center">
                 <Box paddingTop={3} paddingBottom={3}>
                   <Typography variant="beta" textColor="neutral600">
-                    {formatMessage(getTrad('view.i18n.fill.cta'))}
+                    {formatMessage(getTrad('view.i18n.fill.cta.header'))}
                   </Typography>
                 </Box>
                 <Flex direction="row" justifyContent="center" alignItems="center">

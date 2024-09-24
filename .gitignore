@@ -113,4 +113,5 @@ coverage
 .env
 exports
 .cache
-build
+dist
+.vscode

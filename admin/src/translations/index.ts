@@ -1,12 +1,13 @@
+import { Path } from '@virtuslab/strapi-utils';
+import type { EN } from './en';
 import { PLUGIN_ID } from '../pluginId';
-import ca from './ca.json';
-import en from './en.json';
-import fr from './fr.json';
+
+export type TranslationPath = Path<EN>;
 
 const trads = {
-  en,
-  fr,
-  ca,
+  en: () => import('./en'),
+  fr: () => import('./fr'),
+  ca: () => import('./ca'),
 };
 
 export const getTradId = (msg: string) => `${PLUGIN_ID}.${msg}`;

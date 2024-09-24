@@ -797,27 +797,34 @@ If you already got it, make sure that `navigation` plugin is inserted before `gr
 
 Feel free to fork and make a Pull Request to this plugin project. All the input is warmly welcome!
 
-- Clone repository
+1. Clone repository
 
-    ```
-    git clone git@github.com:VirtusLab-Open-Source/strapi-plugin-navigation.git
-    ```
+   ```
+   git clone git@github.com:VirtusLab-Open-Source/strapi-plugin-navigation.git
+   ```
 
-- Create a soft link in your strapi project to plugin build folder
+2. Run `install` & `watch:link` command
 
-    ```sh
-    ln -s <...>/strapi-plugin-navigation/build <...>/strapi-project/src/plugins/navigation 
-    ```
+   ```ts
+   // Install all dependencies
+   yarn install
 
-- Run build command 
+   // Watch for file changes using `plugin-sdk` and follow the instructions provided by this official Strapi developer tool
+   yarn watch:link
+   ```
 
-    ```ts
-    // Watch for file changes
-    yarn develop
+3. Within the Strapi project, modify `config/plugins.{js,ts}` for `imgix`
 
-    // or run build without nodemon
-    yarn build:dev
-    ```
+```ts
+//...
+'navigation': {
+  enabled: true,
+  //...
+}
+//...
+```
+
+4. Run your Strapi instance
 
 ## 👨‍💻 Community support
 
