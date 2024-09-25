@@ -6,7 +6,6 @@ import {
   SingleSelect,
   SingleSelectOption,
   Typography,
-  lightTheme,
 } from '@strapi/design-system';
 import { Layouts, Page, useRBAC } from '@strapi/strapi/admin';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -39,6 +38,7 @@ import {
   transformItemToViewPayload,
 } from './utils';
 import { ListPlus } from '@strapi/icons';
+import { usePluginTheme } from '@virtuslab/strapi-utils';
 
 const queryClient = new QueryClient();
 
@@ -117,10 +117,10 @@ const Inner = () => {
 
   const filteredList = !isSearchEmpty
     ? filteredListFactory(
-        currentNavigation?.items.map((_) => ({ ..._ })) ?? [],
-        (item) => (item?.title || '').toLowerCase().includes(normalisedSearchValue),
-        normalisedSearchValue ? searchIndex : undefined
-      )
+      currentNavigation?.items.map((_) => ({ ..._ })) ?? [],
+      (item) => (item?.title || '').toLowerCase().includes(normalisedSearchValue),
+      normalisedSearchValue ? searchIndex : undefined
+    )
     : [];
 
   const changeNavigationItemPopupState = useCallback(
@@ -389,6 +389,7 @@ const Inner = () => {
 
   return (
     <Layouts.Root>
+      <Page.Title children={formatMessage(getTrad('header.title', 'UI Navigation'))} />
       <Page.Main>
         <NavigationHeader
           availableNavigations={navigationsQuery.data}
@@ -402,109 +403,111 @@ const Inner = () => {
           permissions={{ canUpdate }}
           currentLocale={currentLocale}
         />
-      </Page.Main>
 
-      <Layouts.Content>
-        <NavigationContentHeader
-          startActions={<Search value={searchValue} setValue={setSearchValue} />}
-          endActions={endActions.map(({ tradId, margin, ...item }, i) => (
-            <Box marginLeft={margin} key={i}>
-              <Button {...item}> {formatMessage(getTrad(tradId))} </Button>
-            </Box>
-          ))}
-        />
-        {!currentNavigation?.items.length ? (
-          <Flex direction="column" minHeight="400px" justifyContent="center">
-            <Box padding={4}>
-              <Typography variant="beta" textColor="neutral600">
-                {formatMessage(getTrad('empty.description'))}
-              </Typography>
-            </Box>
-            {canUpdate && (
-              <Button
-                variant="secondary"
-                startIcon={<ListPlus />}
-                label={formatMessage(getTrad('empty.cta'))}
-                onClick={addNewNavigationItem}
-              >
-                {formatMessage(getTrad('empty.cta'))}
-              </Button>
-            )}
-            {canUpdate && availableLocale.length ? (
-              <Flex direction="column" justifyContent="center">
-                <Box paddingTop={3} paddingBottom={3}>
-                  <Typography variant="beta" textColor="neutral600">
-                    {formatMessage(getTrad('view.i18n.fill.cta.header'))}
-                  </Typography>
-                </Box>
-                <Flex direction="row" justifyContent="center" alignItems="center">
-                  <Box paddingLeft={1} paddingRight={1}>
-                    <SingleSelect
-                      onChange={setI18nCopySourceLocale}
-                      value={i18nCopySourceLocale}
-                      size="S"
-                    >
-                      {availableLocale.map((locale) => (
-                        <SingleSelectOption key={locale} value={locale}>
-                          {formatMessage(getTrad('view.i18n.fill.option'), { locale })}
-                        </SingleSelectOption>
-                      ))}
-                    </SingleSelect>
+        <Layouts.Content>
+          <NavigationContentHeader
+            startActions={<Search value={searchValue} setValue={setSearchValue} />}
+            endActions={endActions.map(({ tradId, margin, ...item }, i) => (
+              <Box marginLeft={margin} key={i}>
+                <Button {...item}> {formatMessage(getTrad(tradId))} </Button>
+              </Box>
+            ))}
+          />
+          {!currentNavigation?.items.length ? (
+            <Flex direction="column" minHeight="400px" justifyContent="center">
+              <Box padding={4}>
+                <Typography variant="beta" textColor="neutral600">
+                  {formatMessage(getTrad('empty.description'))}
+                </Typography>
+              </Box>
+              {canUpdate && (
+                <Button
+                  variant="secondary"
+                  startIcon={<ListPlus />}
+                  label={formatMessage(getTrad('empty.cta'))}
+                  onClick={addNewNavigationItem}
+                >
+                  {formatMessage(getTrad('empty.cta'))}
+                </Button>
+              )}
+              {canUpdate && availableLocale.length ? (
+                <Flex direction="column" justifyContent="center">
+                  <Box paddingTop={3} paddingBottom={3}>
+                    <Typography variant="beta" textColor="neutral600">
+                      {formatMessage(getTrad('view.i18n.fill.cta.header'))}
+                    </Typography>
                   </Box>
-                  <Box paddingLeft={1} paddingRight={1}>
-                    <Button
-                      variant="tertiary"
-                      onClick={openI18nCopyModalOpened}
-                      disabled={!i18nCopySourceLocale}
-                      size="S"
-                    >
-                      {formatMessage(getTrad('view.i18n.fill.cta.button'))}
-                    </Button>
-                  </Box>
+                  <Flex direction="row" justifyContent="center" alignItems="center">
+                    <Box paddingLeft={1} paddingRight={1}>
+                      <SingleSelect
+                        onChange={setI18nCopySourceLocale}
+                        value={i18nCopySourceLocale}
+                        size="S"
+                      >
+                        {availableLocale.map((locale) => (
+                          <SingleSelectOption key={locale} value={locale}>
+                            {formatMessage(getTrad('view.i18n.fill.option'), { locale })}
+                          </SingleSelectOption>
+                        ))}
+                      </SingleSelect>
+                    </Box>
+                    <Box paddingLeft={1} paddingRight={1}>
+                      <Button
+                        variant="tertiary"
+                        onClick={openI18nCopyModalOpened}
+                        disabled={!i18nCopySourceLocale}
+                        size="S"
+                      >
+                        {formatMessage(getTrad('view.i18n.fill.cta.button'))}
+                      </Button>
+                    </Box>
+                  </Flex>
                 </Flex>
-              </Flex>
-            ) : null}
-          </Flex>
-        ) : (
-          <List
-            items={listItems}
-            onItemLevelAdd={addNewNavigationItem}
-            onItemRemove={handleItemRemove}
-            onItemEdit={handleItemEdit}
-            onItemRestore={handleItemRestore}
-            onItemReOrder={handleItemReOrder}
-            onItemToggleCollapse={handleItemToggleCollapse}
-            displayFlat={!isSearchEmpty}
-            isParentAttachedToMenu
-            permissions={{ canUpdate, canAccess }}
-            structurePrefix=""
-          />
-        )}
+              ) : null}
+            </Flex>
+          ) : (
+            <List
+              items={listItems}
+              onItemLevelAdd={addNewNavigationItem}
+              onItemRemove={handleItemRemove}
+              onItemEdit={handleItemEdit}
+              onItemRestore={handleItemRestore}
+              onItemReOrder={handleItemReOrder}
+              onItemToggleCollapse={handleItemToggleCollapse}
+              displayFlat={!isSearchEmpty}
+              isParentAttachedToMenu
+              permissions={{ canUpdate, canAccess }}
+              structurePrefix=""
+            />
+          )}
 
-        {isItemPopupVisible && currentLocale && currentNavigation && (
-          <NavigationItemPopUp
-            availableLocale={availableLocale}
-            currentItem={activeNavigationItem}
-            onSubmit={handleSubmitNavigationItem}
-            onClose={onPopUpClose}
-            locale={currentLocale}
-            permissions={{ canUpdate }}
-            isOpen={isItemPopupVisible}
-            isLoading={isLoadingForPermissions}
-            currentNavigation={currentNavigation}
-          />
-        )}
+          {isItemPopupVisible && currentLocale && currentNavigation && (
+            <NavigationItemPopUp
+              availableLocale={availableLocale}
+              currentItem={activeNavigationItem}
+              onSubmit={handleSubmitNavigationItem}
+              onClose={onPopUpClose}
+              locale={currentLocale}
+              permissions={{ canUpdate }}
+              isOpen={isItemPopupVisible}
+              isLoading={isLoadingForPermissions}
+              currentNavigation={currentNavigation}
+            />
+          )}
 
-        {canUpdate && i18nCopyItemsModal}
-      </Layouts.Content>
+          {canUpdate && i18nCopyItemsModal}
+        </Layouts.Content>
+      </Page.Main>
     </Layouts.Root>
   );
 };
 
 export default function HomePage() {
+  const theme = usePluginTheme();
+
   return (
     <QueryClientProvider client={queryClient}>
-      <DesignSystemProvider locale="en-GB" theme={lightTheme}>
+      <DesignSystemProvider theme={theme}>
         <Inner />
       </DesignSystemProvider>
     </QueryClientProvider>

@@ -9,7 +9,7 @@ import {
   Tag,
 } from '@strapi/design-system';
 import { Check, Information } from '@strapi/icons';
-import { Layouts, Page } from '@strapi/strapi/admin';
+import { Layouts } from '@strapi/strapi/admin';
 import React from 'react';
 import { useIntl } from 'react-intl';
 import { NavigationSchema } from '../../../../api/validators';
@@ -61,7 +61,6 @@ export const NavigationHeader: React.FC<Props> = ({
 
   return (
     <>
-      <Page.Title children={formatMessage(getTrad('header.title', 'UI Navigation'))} />
       <Layouts.Header
         title={formatMessage(getTrad('header.title', 'UI Navigation'))}
         subtitle={formatMessage(getTrad('header.description'))}
