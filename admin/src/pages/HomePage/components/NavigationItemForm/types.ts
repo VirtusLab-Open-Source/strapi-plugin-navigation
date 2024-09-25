@@ -42,6 +42,7 @@ export type SanitizedFormPayload = {
 
 export interface ContentTypeEntity {
   id: number;
+  documentId: string;
   uid?: string;
   __collectionUid?: string;
   label?: string;

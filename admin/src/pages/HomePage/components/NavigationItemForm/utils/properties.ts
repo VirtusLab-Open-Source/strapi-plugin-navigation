@@ -11,7 +11,7 @@ import { NavigationItemFormSchema } from './form';
 interface GenerateUiRouterKeyInput {
   slugify: (s: string) => Promise<string>;
   title: string;
-  related?: number;
+  related?: number | string;
   relatedType?: string;
   contentTypeItems?: Array<StrapiContentTypeItemSchema>;
   config?: ConfigFromServerSchema;
@@ -23,7 +23,7 @@ interface GeneratePreviewPathInput {
   current: Partial<NavigationItemFormSchema>;
   currentType: NavigationItemTypeSchema;
   currentRelatedType?: string;
-  currentRelated?: number;
+  currentRelated?: number | string;
   config?: ConfigFromServerSchema;
   isSingleSelected?: boolean;
   contentTypeItems?: Array<StrapiContentTypeItemSchema>;
@@ -32,7 +32,7 @@ interface GeneratePreviewPathInput {
 interface GetDefaultPathInput {
   currentType: NavigationItemTypeSchema;
   currentRelatedType?: string;
-  currentRelated?: number;
+  currentRelated?: number | string;
   config?: ConfigFromServerSchema;
   isSingleSelected?: boolean;
   contentTypeItems?: Array<StrapiContentTypeItemSchema>;
@@ -51,8 +51,8 @@ export const generateUiRouterKey = async ({
   } else if (related) {
     const relationTitle = extractRelatedItemLabel(
       {
-        ...(contentTypeItems?.find((_) => _.id === related) ?? {
-          id: -1,
+        ...(contentTypeItems?.find((_) => _.documentId === related.toString()) ?? {
+          documentId: '',
         }),
         __collectionUid: relatedType,
       },

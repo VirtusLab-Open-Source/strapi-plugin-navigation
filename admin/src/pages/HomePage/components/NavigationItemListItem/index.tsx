@@ -129,10 +129,10 @@ export const Item: React.FC<Props> = ({
   const contentType = contentTypesQuery.data?.find((_) => _.uid === relatedType);
 
   const relatedItem = contentTypeItemsQuery.data?.find(
-    (contentTypeItem) => contentTypeItem.id === related
-  ) ?? { id: -1 };
+    (contentTypeItem) => contentTypeItem.documentId === related
+  ) ?? { documentId: '' };
 
-  const isPublished = !!relatedItem.publishedAt;
+  const isPublished = !!relatedItem?.publishedAt;
 
   const relatedItemLabel = !isExternal
     ? extractRelatedItemLabel(relatedItem, configQuery.data)
@@ -212,7 +212,7 @@ export const Item: React.FC<Props> = ({
     const isSingle = contentType?.kind === 'singleType';
     const entityLocale = entity?.locale ? `?plugins[i18n][locale]=${entity?.locale}` : '';
 
-    return `/content-manager/${isSingle ? 'single-types' : 'collection-types'}/${contentType?.uid}${!isSingle ? '/' + entity?.id : ''}${entityLocale}`;
+    return `/admin/content-manager/${isSingle ? 'single-types' : 'collection-types'}/${contentType?.uid}${!isSingle ? '/' + entity?.documentId : ''}${entityLocale}`;
   };
 
   const onNewItemClick = useCallback(
@@ -255,8 +255,8 @@ export const Item: React.FC<Props> = ({
           zIndex: 1,
           position: 'relative',
           overflow: 'hidden',
-          backgroundColor: isSearchActive ? theme.colors.neutral150 : undefined,
-          borderColor: isSearchActive ? theme.colors.neutral300 : undefined,
+          backgroundColor: isSearchActive ? theme.colors.secondary100 : undefined,
+          borderColor: isSearchActive ? theme.colors.secondary200 : undefined,
           transition: 'background-color 0.3s ease-in',
         }}
       >
@@ -372,7 +372,7 @@ export const Item: React.FC<Props> = ({
                       {relatedItemLabel}
                     </Typography>
                     <Link
-                      to={generatePreviewUrl(relatedItem ?? undefined)}
+                      href={generatePreviewUrl(relatedItem ?? undefined)}
                       endIcon={<ArrowRight />}
                     >
                       &nbsp;

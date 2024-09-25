@@ -22,16 +22,6 @@ export const renderNavigation = ({ strapi, nexus }: any) => {
     resolve(_: unknown, { navigationIdOrSlug, type, menuOnly, path: rootPath, locale }: any) {
       const idOrSlug = parseId(z.string().parse(navigationIdOrSlug));
 
-      console.log({
-        navigationIdOrSlug,
-        type,
-        menuOnly,
-        path: rootPath,
-        locale,
-        idOrSlug,
-        _,
-      });
-
       return getPluginService({ strapi }, 'client')
         .render({
           idOrSlug,
@@ -40,11 +30,6 @@ export const renderNavigation = ({ strapi, nexus }: any) => {
           locale,
           menuOnly,
           wrapRelated: true,
-        })
-        .then((n) => {
-          console.log(n);
-
-          return n;
         });
     },
   };

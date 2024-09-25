@@ -32,6 +32,7 @@ const navigationItemCommon = ({ additionalFields }: FormSchemaBuilderInput) =>
     isSearchActive: z.boolean().optional(),
     viewParentId: z.number().optional(),
     id: z.number().optional(),
+    documentId: z.string().optional(),
     audience: z.number().array().optional(),
     order: z.number().optional(),
     items: z.any().array().optional(),
@@ -91,7 +92,7 @@ const navigationInternalItemFormSchema = ({
     path: z.string(),
     externalPath: z.string().optional(),
     relatedType: z.string(),
-    related: isSingleSelected ? z.number().optional() : z.number(),
+    related: isSingleSelected ? z.number().or(z.string()).optional() : z.number().or(z.string()),
   });
 
 const navigationExternalItemFormSchema = ({

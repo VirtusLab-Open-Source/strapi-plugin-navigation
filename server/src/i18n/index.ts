@@ -26,10 +26,6 @@ export const navigationSetup = async (context: { strapi: Core.Strapi }) => {
       );
 
       if (otherLocaleMissing) {
-        console.log(
-          `Missing locale "${otherLocale}" for "${defaultLocaleNavigation.name}". Adding...`
-        );
-
         await navigationRepository.save({
           documentId: defaultLocaleNavigation.documentId,
           name: defaultLocaleNavigation.name,
@@ -37,8 +33,6 @@ export const navigationSetup = async (context: { strapi: Core.Strapi }) => {
           visible: defaultLocaleNavigation.visible,
           slug: `${defaultLocaleNavigation.slug}-${otherLocale}`,
         });
-
-        console.log(`Added.`);
       }
     }
   }

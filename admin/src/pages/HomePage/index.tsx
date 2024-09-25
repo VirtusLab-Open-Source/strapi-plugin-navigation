@@ -37,7 +37,7 @@ import {
   mapServerNavigationItem,
   transformItemToViewPayload,
 } from './utils';
-import { ListPlus } from '@strapi/icons';
+import { ListPlus, Plus } from '@strapi/icons';
 import { usePluginTheme } from '@virtuslab/strapi-utils';
 
 const queryClient = new QueryClient();
@@ -350,6 +350,17 @@ const Inner = () => {
       margin: '8px',
     },
   ];
+
+  if (canUpdate) {
+    endActions.push({
+        onClick: addNewNavigationItem,
+        type: 'submit',
+        variant: 'primary',
+        tradId: 'header.action.newItem',
+        startIcon: <Plus />,
+        margin: '8px',
+      });
+  }
 
   useEffect(() => {
     if (!currentNavigation && navigationsQuery.data?.[0]) {

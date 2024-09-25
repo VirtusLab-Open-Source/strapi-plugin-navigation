@@ -157,7 +157,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
           });
 
           if (isSingleType) {
-            const repository = getGenericRepository(context, uid as UID.Schema);
+            const repository = getGenericRepository(context, uid as UID.ContentType);
 
             if (isSingleTypeWithPublishFlow) {
               const itemsCountOrBypass = isSingleTypeWithPublishFlow
@@ -664,17 +664,20 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
         $notNull: true,
       },
     };
+    const { draftAndPublish } = context.strapi.contentTypes[uid].options;
+    const { localized = false } = context.strapi.contentTypes[uid]?.pluginOptions?.i18n || {};
 
-    if (query.localeCode) {
-      where.locale = query.localeCode;
+    if (localized && query.locale) {
+      where.locale = query.locale;
     }
 
-    const repository = getGenericRepository(context, uid as UID.Schema);
+    const repository = getGenericRepository(context, uid as UID.ContentType);
 
     try {
       const contentTypeItems = await repository.findMany(
         where,
-        config.contentTypesPopulate[uid] || []
+        config.contentTypesPopulate[uid] || [],
+        draftAndPublish ? 'published' : undefined
       );
 
       return contentTypeItems;

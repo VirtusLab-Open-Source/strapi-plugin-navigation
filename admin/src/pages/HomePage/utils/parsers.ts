@@ -1,4 +1,4 @@
-import { get, orderBy } from 'lodash';
+import { capitalize, first, get, isEmpty, orderBy } from 'lodash';
 
 import {
   ConfigFromServerSchema,
@@ -161,11 +161,13 @@ export const extractRelatedItemLabel = (
     return contentType.labelSingular;
   }
 
-  return (
-    get(fields, `${contentType ? contentType.uid : __collectionUid}`, defaultFields)
-      .map((_) => item[_])
-      .filter((_) => _)[0] || ''
-  );
+  const defaultFieldsWithCapitalizedOptions = [...defaultFields, ...defaultFields.map((_) => capitalize(_))];
+  const labelFields = get(fields, `${contentType ? contentType.uid : __collectionUid}`, defaultFieldsWithCapitalizedOptions);
+  const itemLabels = (isEmpty(labelFields) ? defaultFieldsWithCapitalizedOptions : labelFields)
+    .map((_) => item[_])
+    .filter((_) => _);
+
+  return first(itemLabels) || '';
 };
 
 export const isRelationCorrect = ({ related, type }: Partial<NavigationItemFormSchema>) => {
@@ -212,7 +214,7 @@ export const mapServerNavigationItem = (
         additionalFields: item.additionalFields ?? {},
         path: item.path ?? '',
         relatedType,
-        related: parseInt(related, 10),
+        related,
         title: item.title,
         uiRouterKey: item.uiRouterKey,
         autoSync: item.autoSync ?? undefined,

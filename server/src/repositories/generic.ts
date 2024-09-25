@@ -1,21 +1,24 @@
 import { Core, UID } from '@strapi/strapi';
 
-export const getGenericRepository = (context: { strapi: Core.Strapi }, uid: UID.Schema) => ({
-  findById(id: number, populate: any) {
-    return context.strapi.query(uid).findOne({ where: { id }, populate });
+type PublicationStatus = 'published' | 'draft';
+
+export const getGenericRepository = (context: { strapi: Core.Strapi }, uid: UID.ContentType) => ({
+  findById(documentId: string, populate: any, status?: PublicationStatus) {
+    return context.strapi.documents(uid).findOne({ documentId, populate, status });
   },
 
-  findManyById(ids: number[], populate: any) {
-    return context.strapi.query(uid).findMany({ where: { id: { $in: ids } }, populate });
+  findManyById(documentIds: string[], populate: any, status?: PublicationStatus) {
+    return context.strapi.documents(uid).findMany({ where: { documentId: { $in: documentIds } }, populate, status });
   },
 
-  findMany(where: any, populate: any) {
-    return context.strapi.query(uid).findMany({ where, populate });
+  findMany(where: any, populate: any, status?: PublicationStatus) {
+    return context.strapi.documents(uid).findMany({ where, populate, status});
   },
 
-  count(where: Record<string, any>) {
-    return context.strapi.query(uid).count({
+  count(where: Record<string, any>, status?: PublicationStatus) {
+    return context.strapi.documents(uid).count({
       where,
+      status,
     });
   },
 });

@@ -118,14 +118,12 @@ export const getApiClient = once((fetch: ReturnType<typeof getFetchClient>) => (
   readContentTypeItems({ uid, locale, query }: { uid: string; locale?: string; query?: string }) {
     const queryParams = new URLSearchParams();
 
-    queryParams.append('_publicationState', 'preview');
-
     if (query) {
       queryParams.append('_q', query);
     }
 
     if (locale) {
-      queryParams.append('localeCode', locale);
+      queryParams.append('locale', locale);
     }
 
     return fetch

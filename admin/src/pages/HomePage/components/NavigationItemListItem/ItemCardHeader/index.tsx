@@ -1,4 +1,4 @@
-import { IconButton as BaseIconButton, Flex, Typography } from '@strapi/design-system';
+import { IconButton as BaseIconButton, IconButtonGroup, Flex, Typography } from '@strapi/design-system';
 import { FC, MutableRefObject, ReactNode } from 'react';
 import { useIntl } from 'react-intl';
 import styled from 'styled-components';
@@ -8,7 +8,7 @@ import { VoidEffect } from '../../../../../types';
 import DragButton from '../../DragButton';
 import { ItemCardBadge } from '../ItemCardBadge';
 import { CardItemTitle } from './Wrapper';
-import { eyeIcon, pencilIcon, refreshIcon, trashIcon } from './icons';
+import { eyeIcon, pencilIcon, arrowClockwise, trashIcon } from './icons';
 
 interface IProps {
   title: string;
@@ -64,46 +64,49 @@ export const ItemCardHeader: FC<IProps> = ({
             {formatMessage(getTrad('components.navigationItem.badge.removed'))}
           </ItemCardBadge>
         )}
-
-        <IconButton
-          isActive={isSearchActive}
-          disabled={removed}
-          onClick={onItemEdit}
-          label={formatMessage(
-            getTrad(
-              `components.navigationItem.action.${canUpdate ? 'edit' : 'view'}`,
-              canUpdate ? 'Edit' : 'View'
-            )
-          )}
-          children={canUpdate ? pencilIcon : eyeIcon}
-        />
-        {canUpdate && (
-          <>
-            {removed ? (
-              <IconButton
-                isActive={isSearchActive}
-                onClick={onItemRestore}
-                label={formatMessage(
-                  getTrad('components.navigationItem.action.restore', 'Restore')
-                )}
-                children={refreshIcon}
-              />
-            ) : (
-              <IconButton
-                isActive={isSearchActive}
-                onClick={onItemRemove}
-                label={formatMessage(getTrad('components.navigationItem.action.remove', 'Remove'))}
-                children={trashIcon}
-              />
+        <IconButtonGroup>
+          <IconButton
+            isActive={isSearchActive}
+            disabled={removed}
+            onClick={onItemEdit}
+            label={formatMessage(
+              getTrad(
+                `components.navigationItem.action.${canUpdate ? 'edit' : 'view'}`,
+                canUpdate ? 'Edit' : 'View'
+              )
             )}
-          </>
-        )}
+            children={canUpdate ? pencilIcon : eyeIcon}
+          />
+          {canUpdate && (
+            <>
+              {removed ? (
+                <IconButton
+                  isActive={isSearchActive}
+                  onClick={onItemRestore}
+                  label={formatMessage(
+                    getTrad('components.navigationItem.action.restore', 'Restore')
+                  )}
+                  variant="success-light"
+                  children={arrowClockwise}
+                />
+              ) : (
+                <IconButton
+                  isActive={isSearchActive}
+                  onClick={onItemRemove}
+                  variant="danger-light"
+                  label={formatMessage(getTrad('components.navigationItem.action.remove', 'Remove'))}
+                  children={trashIcon}
+                />
+              )}
+            </>
+          )}
+        </IconButtonGroup>
       </Flex>
     </CardItemTitle>
   );
 };
 
-const IconButton = styled(BaseIconButton)<{ isActive?: boolean }>`
+const IconButton = styled(BaseIconButton) <{ isActive?: boolean }>`
   transition: background-color 0.3s ease-in;
   ${({ isActive, theme }) => (isActive ? `background-color: ${theme.colors.neutral150} ;` : '')}
 `;

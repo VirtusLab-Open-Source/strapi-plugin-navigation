@@ -297,8 +297,9 @@ export const contentTypeSchema = contentTypeFullSchema.pick({
 export type StrapiContentTypeItemSchema = z.infer<typeof strapiContentTypeItemSchema>;
 export const strapiContentTypeItemSchema = z
   .object({
-    id: z.number(),
-    locale: z.string().optional(),
+    id: z.number().optional(),
+    documentId: z.string(),
+    locale: z.string().or(z.null()).optional(),
   })
   .and(z.record(z.string(), z.any()));
 

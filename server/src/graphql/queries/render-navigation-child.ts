@@ -19,13 +19,6 @@ export const renderNavigationChild = ({ strapi, nexus }: any) => {
       const { id, childUIKey, type, menuOnly } = args;
       const idOrSlug = parseId(z.string().parse(id));
 
-      console.log({
-        type,
-        menuOnly,
-        idOrSlug,
-        _,
-      });
-
       return getPluginService({ strapi }, 'client').renderChildren({
         idOrSlug,
         childUIKey,

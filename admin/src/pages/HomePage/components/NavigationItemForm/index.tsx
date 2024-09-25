@@ -95,7 +95,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   const submit = handleSubmit(async (payload): Promise<void> => {
     const title = !!payload.title.trim()
       ? payload.title
-      : getDefaultTitle(payload.related, payload.relatedType, isSingleSelected);
+      : getDefaultTitle(payload?.related?.toString(), payload.relatedType, isSingleSelected);
 
     setIsLoading(true);
 
@@ -176,7 +176,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   );
 
   const getDefaultTitle = useCallback(
-    (related: number | undefined, relatedType: string | undefined, isSingleSelected: boolean) => {
+    (related: string | undefined, relatedType: string | undefined, isSingleSelected: boolean) => {
       let selectedEntity;
 
       if (isSingleSelected) {
@@ -188,11 +188,11 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
           return contentTypes.find((_) => _.uid === relatedType)?.contentTypeName;
         }
       } else {
-        const entity = contentTypeItemsQuery.data?.find(({ id }) => id === related);
+        const entity = contentTypeItemsQuery.data?.find(({ documentId }) => documentId === related);
 
         selectedEntity = {
           ...(entity || {
-            id: -1,
+            documentId: -1,
           }),
           __collectionUid: relatedType,
         };
@@ -225,8 +225,8 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
       );
 
       return {
-        key: item?.id.toString(),
-        value: item.id.toString(),
+        key: item?.documentId.toString(),
+        value: item.documentId.toString(),
         label: label,
       };
     }) ?? [],
@@ -293,7 +293,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
               setValue('uiRouterKey', uiRouterKey);
 
               if (contentType && id) {
-                setValue('related', parseInt(id));
+                setValue('related', id);
                 setValue('relatedType', contentType);
               }
             },
@@ -320,7 +320,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
           const nextRelated = contentTypeItemsQuery.data[0];
 
           if (nextRelated) {
-            setValue('related', nextRelated.id);
+            setValue('related', nextRelated.documentId);
           }
         }
       }
@@ -336,7 +336,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
       configQuery.data
     ) {
       const relatedItem = contentTypeItemsQuery.data?.find((item) => {
-        return item.id === currentRelated;
+        return item.documentId === currentRelated;
       });
 
       if (relatedItem) {
@@ -670,9 +670,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
 
                         <SingleSelect
                           name={name}
-                          onChange={(next: string) => {
-                            onChange(parseInt(next, 10));
-                          }}
+                          onChange={onChange}
                           value={value}
                           options={relatedSelectOptions}
                           disabled={isLoading || thereAreNoMoreContentTypes || !canUpdate}

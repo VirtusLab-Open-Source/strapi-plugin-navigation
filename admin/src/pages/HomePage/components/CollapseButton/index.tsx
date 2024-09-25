@@ -30,7 +30,7 @@ export const CollapseButton = ({ toggle, collapsed, itemsCount }: Props) => (
     style={{ marginRight: '16px' }}
   >
     <Wrapper>
-      {collapsed ? <CaretDown width="7px" height="4px" /> : <CaretUp width="7px" height="4px" />}
+      {collapsed ? <CaretDown width="16px" height="9px" /> : <CaretUp width="16px" height="9px" />}
     </Wrapper>
     <Typography variant="pi">{itemsCount} nested items</Typography>
   </Flex>
