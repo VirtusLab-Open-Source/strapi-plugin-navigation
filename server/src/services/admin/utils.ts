@@ -55,10 +55,10 @@ export const processItems =
     let nextRelated = related;
 
     if (related && !context.entities.has(related)) {
-      const [uid, id] = related.split(RELATED_ITEM_SEPARATOR);
+      const [uid, documentId] = related.split(RELATED_ITEM_SEPARATOR);
 
-      const entity = await getGenericRepository(context, uid as UID.Schema).findById(
-        parseInt(id, 10),
+      const entity = await getGenericRepository(context, uid as UID.ContentType).findById(
+        documentId,
         true
       );
 
