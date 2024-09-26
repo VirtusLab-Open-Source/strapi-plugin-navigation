@@ -77,11 +77,11 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
       }
 
       if (related && !entities.has(related)) {
-        const [uid, id] = related.split(RELATED_ITEM_SEPARATOR);
+        const [uid, documentId] = related.split(RELATED_ITEM_SEPARATOR);
 
         entities.set(related, {
-          ...(await getGenericRepository(context, uid as UID.Schema).findById(
-            parseInt(id, 10),
+          ...(await getGenericRepository(context, uid as UID.ContentType).findById(
+            documentId,
             isNil(populate) ? config.contentTypesPopulate[uid] || [] : parsePopulateQuery(populate)
           )),
           uid,

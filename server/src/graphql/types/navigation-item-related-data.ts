@@ -3,6 +3,7 @@ export default ({ nexus }: any) =>
     name: 'NavigationItemRelatedData',
     definition(t: any) {
       t.nonNull.int('id');
+      t.nonNull.string('documentId');
       t.field('attributes', { type: 'NavigationItemRelated' });
     },
   });

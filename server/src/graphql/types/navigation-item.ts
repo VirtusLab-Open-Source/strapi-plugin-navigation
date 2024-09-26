@@ -5,6 +5,7 @@ export default ({ nexus, config }: any) =>
     name: 'NavigationItem',
     definition(t: any) {
       t.nonNull.int('id');
+      t.nonNull.string('documentId');
       t.nonNull.string('title');
       t.nonNull.string('type');
       t.string('path');

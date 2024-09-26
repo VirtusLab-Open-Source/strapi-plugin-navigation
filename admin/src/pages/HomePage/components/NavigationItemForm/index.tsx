@@ -143,6 +143,8 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
     autoSyncEnabled,
   ] = watch(['relatedType', 'related', 'path', 'type', 'title', 'autoSync']);
 
+  console.log(currentPath);
+
   const isExternal = currentType === 'EXTERNAL';
 
   const pathSourceName = isExternal ? 'externalPath' : 'path';
@@ -537,11 +539,14 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
 
           )}
 
-          <Grid.Item alignItems="flex-start" key="path" col={12}>
+          <Grid.Item alignItems="flex-start" key={pathSourceName} col={12}>
             <Controller
               control={control}
               name={pathSourceName}
               render={({ field: { value, onChange, name }, fieldState }) => {
+                console.log('pathSourceName', pathSourceName);
+                console.log('fieldState', fieldState);
+                console.log('value', value);
                 const pathDefault = generatePreviewPath({
                   currentPath,
                   isExternal,

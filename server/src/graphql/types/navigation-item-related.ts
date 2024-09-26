@@ -18,6 +18,7 @@ export default ({ strapi, nexus, config }: any) => {
 		name,
 		definition(t: any) {
 			t.int("id")
+			t.string("documentId")
 			t.string("title")
 			t.string("name")
 		}

@@ -1,16 +1,14 @@
-import { Core, UID } from '@strapi/strapi';
+import { Core } from '@strapi/strapi';
 import { errors } from '@strapi/utils';
-import { cloneDeep, find, first, flatten, get, isArray, isEmpty, isNil, last, pick } from 'lodash';
+import { cloneDeep, first, get, isArray, isEmpty, isNil, last, pick } from 'lodash';
 import { NavigationError } from '../../app-errors';
 import { NavigationItemDTO, RFRNavigationItemDTO, RFRPageDTO } from '../../dtos';
 import {
-  getGenericRepository,
   getNavigationItemRepository,
   getNavigationRepository,
 } from '../../repositories';
 import { NavigationItemAdditionalField, NavigationItemCustomField } from '../../schemas';
-import { StrapiContentTypeFullSchema } from '../../types';
-import { TEMPLATE_DEFAULT, assertNotEmpty, getPluginService } from '../../utils';
+import { assertNotEmpty, getPluginService } from '../../utils';
 import {
   ReadAllInput,
   RenderChildrenInput,
@@ -37,8 +35,8 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
     const navigations = repository.find({
       where: locale
         ? {
-            localeCode: locale,
-          }
+          localeCode: locale,
+        }
         : {},
       orderBy: { [orderBy]: orderDirection },
     });
@@ -84,17 +82,18 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
   },
 
   renderRFRPage({ item, parent, enabledCustomFieldsNames }: RenderRFRPageInput): RFRPageDTO {
-    const { uiRouterKey, title, path, related, type, audience, menuAttached } = item;
+    const { documentId, uiRouterKey, title, path, related, type, audience, menuAttached } = item;
 
     return {
       id: uiRouterKey,
+      documentId,
       title,
       related:
-        type === 'INTERNAL' && related?.id && related?.uid
+        type === 'INTERNAL' && related?.documentId && related?.uid
           ? {
-              contentType: related.uid,
-              id: related.id,
-            }
+            contentType: related.uid,
+            documentId: related.documentId,
+          }
           : undefined,
       path,
       parent,
@@ -134,7 +133,7 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
       if (item.type !== 'EXTERNAL') {
         pages = {
           ...pages,
-          [itemPage.id]: {
+          [itemPage.documentId]: {
             ...itemPage,
           },
         };
@@ -162,14 +161,14 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
       if (!isEmpty(itemChildren)) {
         const { nav: nestedNavs } = this.renderRFR({
           items: itemChildren ?? [],
-          parent: itemPage.id,
+          parent: itemPage.documentId,
           parentNavItem: itemNav,
           contentTypes,
           enabledCustomFieldsNames,
         });
         const { pages: nestedPages } = this.renderRFR({
           items: itemChildren?.filter((child) => child.type !== 'EXTERNAL') || [],
-          parent: itemPage.id,
+          parent: itemPage.documentId,
           parentNavItem: itemNav,
           contentTypes,
           enabledCustomFieldsNames,
@@ -193,13 +192,13 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
 
   renderTree({
     items = [],
-    id,
+    documentId,
     path = '',
     itemParser = (i: NavigationItemDTO) => Promise.resolve(i),
   }: RenderTreeInput): Promise<NavigationItemDTO[]> {
     return Promise.all(
       items.reduce((acc, item) => {
-        if (item.parent?.id === id && filterOutUnpublished(item)) {
+        if (item.parent?.documentId === documentId && filterOutUnpublished(item)) {
           acc.push(itemParser(cloneDeep(item), path));
         }
 
@@ -226,69 +225,6 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
     }, []);
   },
 
-  async templateNameFactory(
-    items: NavigationItemDTO[] = [],
-    contentTypes: StrapiContentTypeFullSchema[] = []
-  ) {
-    const flatRelated = flatten(items.map((i) => i.related)).filter(Boolean);
-
-    const relatedMap = flatRelated.reduce<{ [key: string]: number[] }>((acc, curr) => {
-      const [contentType, id] = [curr?.uid, curr?.id];
-
-      if (isNil(curr) || !contentType || !id) return acc;
-
-      if (isNil(acc[contentType])) acc[contentType] = [];
-
-      return { ...acc, [contentType]: [...acc[contentType], id] };
-    }, {});
-
-    const relatedResponseMap = await Promise.all(
-      Object.entries(relatedMap).map(async ([contentType, ids]) => {
-        assertNotEmpty(find(contentTypes, ({ uid }) => uid === contentType));
-
-        const repository = getGenericRepository(context, contentType as UID.Schema);
-        const relatedItems = await repository.findManyById(ids, ['template']);
-
-        return { [contentType]: relatedItems };
-      })
-    ).then((res) => {
-      return res.reduce((acc, curr) => ({ ...acc, ...curr }), {});
-    });
-
-    const singleTypes = new Map(
-      contentTypes
-        .filter((x) => x.isSingle)
-        .map(({ contentTypeName, templateName }) => [
-          contentTypeName,
-          templateName || contentTypeName,
-        ])
-    );
-
-    const getTemplateComponentFromTemplate = (template: any[] = []) => {
-      const componentName = get(first(template), '__component');
-      return !!componentName ? context.strapi.components[componentName] : null;
-    };
-
-    return (contentType: string, id: number) => {
-      const template = get(
-        relatedResponseMap[contentType].find((data) => data.id === id),
-        'template'
-      );
-
-      if (template && template instanceof Array) {
-        const templateComponent = getTemplateComponentFromTemplate(template);
-
-        return get(templateComponent, 'options.templateName', TEMPLATE_DEFAULT);
-      }
-
-      if (singleTypes.get(contentType)) {
-        return singleTypes.get(contentType);
-      }
-
-      return TEMPLATE_DEFAULT;
-    };
-  },
-
   async renderType({
     criteria = {},
     filter,
@@ -311,23 +247,23 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
 
     let navigation = await navigationRepository.findOne({
       where: entityWhereClause,
-      populate: true,
     });
 
     if (locale && locale !== navigation.localeCode) {
       navigation = await navigationRepository.findOne({
         where: {
-          documentId: navigation.documentId,
+          ...entityWhereClause,
           localeCode: locale,
         },
-        populate: true,
       });
     }
 
-    if (navigation && navigation.id) {
+    console.log('navigation', navigation);
+
+    if (navigation && navigation.documentId) {
       const navigationItems = await navigationItemRepository.find({
         where: {
-          master: navigation.id,
+          master: navigation,
           ...itemCriteria,
         },
         limit: Number.MAX_SAFE_INTEGER,
@@ -335,11 +271,15 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
         populate: ['related', 'audience', 'parent'],
       });
 
+      console.log('navigationItems', navigationItems);
+
       const mappedItems = await commonService.mapToNavigationItemDTO({
         navigationItems,
         populate,
         master: navigation,
       });
+
+      console.log('mappedItems', mappedItems);
 
       const { contentTypes, contentTypesNameFields, additionalFields } = await adminService.config({
         viaSettingsPage: false,
@@ -353,9 +293,9 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
       const wrapContentType = (itemContentType: any) =>
         wrapRelated && itemContentType
           ? {
-              id: itemContentType.id,
-              attributes: { ...itemContentType },
-            }
+            documentId: itemContentType.documentId,
+            attributes: { ...itemContentType },
+          }
           : itemContentType;
 
       const mediaFields = ['name', 'url', 'mime', 'width', 'height', 'previewUrl'] as const;
@@ -366,8 +306,6 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
       switch (type) {
         case 'TREE':
         case 'RFR':
-          const getTemplateName = await this.templateNameFactory(mappedItems, contentTypes);
-
           const itemParser = async (
             item: NavigationItemDTO,
             path = ''
@@ -375,17 +313,16 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
             const isExternal = item.type === 'EXTERNAL';
             const parentPath = isExternal
               ? undefined
-              : `${path === '/' ? '' : path}/${
-                  first(item.path) === '/' ? item.path!.substring(1) : item.path
-                }`;
+              : `${path === '/' ? '' : path}/${first(item.path) === '/' ? item.path!.substring(1) : item.path
+              }`;
             const slug =
               typeof parentPath === 'string'
                 ? await commonService.getSlug({
-                    query: (first(parentPath) === '/'
-                      ? parentPath.substring(1)
-                      : parentPath
-                    ).replace(/\//g, '-'),
-                  })
+                  query: (first(parentPath) === '/'
+                    ? parentPath.substring(1)
+                    : parentPath
+                  ).replace(/\//g, '-'),
+                })
                 : undefined;
             const lastRelated = isArray(item.related) ? last(item.related) : item.related;
             const relatedContentType = wrapContentType(lastRelated);
@@ -401,6 +338,7 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
 
             return {
               id: item.id,
+              documentId: item.documentId,
               title:
                 composeItemTitle(item, contentTypesNameFields, contentTypes) ?? 'Title missing',
               menuAttached: item.menuAttached,
@@ -416,41 +354,47 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
                 isExternal || !lastRelated
                   ? undefined
                   : {
-                      ...relatedContentType,
-                      __templateName: getTemplateName(
-                        lastRelated.relatedType || lastRelated.uid,
-                        lastRelated.id
-                      ),
-                    },
+                    ...relatedContentType,
+                  },
               audience: !isEmpty(item.audience) ? item.audience : undefined,
               items: isExternal
                 ? []
                 : await this.renderTree({
-                    itemParser,
-                    path: parentPath,
-                    id: item.id,
-                    items: mappedItems,
-                  }),
+                  itemParser,
+                  path: parentPath,
+                  documentId: item.documentId,
+                  items: mappedItems,
+                }),
               collapsed: item.collapsed,
               ...customFields,
             };
           };
+
+          console.log('rootPath', rootPath);
+          console.log('mappedItems', mappedItems);
 
           const { items: itemsFilteredByPath, root: rootElement } = filterByPath(
             mappedItems,
             rootPath
           );
 
+          console.log('itemsFilteredByPath', itemsFilteredByPath);
+          console.log('rootElement', rootElement);
+
           const treeStructure = (await this.renderTree({
             itemParser,
             items: isNil(rootPath) ? mappedItems : itemsFilteredByPath,
             path: rootElement?.parent?.path,
-            id: rootElement?.parent?.id,
+            documentId: rootElement?.parent?.documentId,
           })) as NavigationItemDTO[];
+
+          console.log('treeStructure', treeStructure);
 
           const filteredStructure = filter
             ? treeStructure.filter((item: NavigationItemDTO) => item.uiRouterKey === filter)
             : treeStructure;
+
+          console.log('filteredStructure', filteredStructure);
 
           if (type === 'RFR') {
             return this.renderRFR({
@@ -466,23 +410,23 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
             ? mappedItems
             : filterByPath(publishedItems, rootPath).items;
 
-          const defaultCache = new Map<number, Array<number>>();
+          const defaultCache = new Map<string, Array<number>>();
           const getNestedOrders = (
-            id: number,
-            cache: Map<number, Array<number>> = defaultCache
+            documentId: string,
+            cache: Map<string, Array<number>> = defaultCache
           ): Array<number> => {
-            const cached = cache.get(id);
+            const cached = cache.get(documentId);
             if (!isNil(cached)) return cached;
 
-            const item = result.find((item) => item.id === id);
+            const item = result.find((item) => item.documentId === documentId);
 
-            if (isNil(item)) return [0];
+            if (isNil(item)) return [null];
 
             const { order, parent } = item;
 
-            const nestedOrders = parent ? getNestedOrders(parent.id, cache).concat(order) : [order];
+            const nestedOrders = parent ? getNestedOrders(parent.documentId, cache).concat(order) : [order];
 
-            cache.set(id, nestedOrders);
+            cache.set(documentId, nestedOrders);
 
             return nestedOrders;
           };
@@ -518,7 +462,7 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
                 ...customFields,
               };
             })
-            .sort((a, b) => compareArraysOfNumbers(getNestedOrders(a.id), getNestedOrders(b.id)));
+            .sort((a, b) => compareArraysOfNumbers(getNestedOrders(a.documentId), getNestedOrders(b.documentId)));
       }
     }
 
@@ -533,8 +477,7 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
     type = 'FLAT',
     wrapRelated,
   }: RenderChildrenInput) {
-    const findById = typeof idOrSlug === 'number';
-    const criteria = findById ? { id: idOrSlug } : { slug: idOrSlug };
+    const criteria = { $or: [{ documentId: idOrSlug }, { slug: idOrSlug }] };
     const filter = type === 'FLAT' ? undefined : childUIKey;
     const itemCriteria = {
       ...(menuOnly && { menuAttached: true }),
@@ -560,8 +503,7 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
     type = 'FLAT',
     wrapRelated,
   }: RenderInput) {
-    const findById = typeof idOrSlug === 'number';
-    const criteria = findById ? { id: idOrSlug } : { slug: idOrSlug };
+    const criteria = { $or: [{ documentId: idOrSlug }, { slug: idOrSlug }] };
     const itemCriteria = menuOnly ? { menuAttached: true } : {};
 
     return this.renderType({

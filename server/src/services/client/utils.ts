@@ -36,51 +36,54 @@ export const extractItemRelationTitle = (
   );
 };
 
-export const filterByPath = <T extends Pick<NavigationItemDTO, 'parent' | 'id' | 'path'>>(
+export const filterByPath = <T extends Pick<NavigationItemDTO, 'parent' | 'documentId' | 'path'>>(
   items: T[],
   path?: string
 ): { root?: NestedPath; items: T[] } => {
+  const parsedItems = buildNestedPaths(items);
   const itemsWithPaths = path
-    ? buildNestedPaths(items).filter(({ path: itemPath }) => itemPath.includes(path))
-    : [];
+    ? parsedItems.filter(({ path: itemPath }) => itemPath.includes(path))
+    : parsedItems;
+  console.log('itemsWithPaths', itemsWithPaths);
   const root = itemsWithPaths.find(({ path: itemPath }) => itemPath === path);
 
   return {
     root,
-    items: isNil(root) ? [] : items.filter(({ id }) => itemsWithPaths.find((v) => v.id === id)),
+    items: isNil(root) ? [] : items.filter(({ documentId }) => itemsWithPaths.find((v) => v.documentId === documentId)),
   };
 };
 
-export const buildNestedPaths = <T extends Pick<NavigationItemDTO, 'parent' | 'id' | 'path'>>(
+export const buildNestedPaths = <T extends Pick<NavigationItemDTO, 'parent' | 'documentId' | 'path'>>(
   items: T[],
-  id?: number,
+  documentId?: string,
   parentPath: string | null = null
 ): NestedPath[] => {
   return items
     .filter((entity) => {
       let data: NavigationItemDTO | undefined | null = entity.parent;
 
-      if (!data == null && !id) {
+      if (!data == null && !documentId) {
         return true;
       }
 
-      return entity.parent?.id === id;
+      return entity.parent?.documentId === documentId;
     })
     .reduce<NestedPath[]>((acc, entity): NestedPath[] => {
       const path = `${parentPath || ''}/${entity.path}`.replace('//', '/');
 
       return [
         {
-          id: entity.id,
-          parent: parentPath && entity.parent?.id
+          documentId: entity.documentId,
+          parent: parentPath && entity.parent?.documentId
             ? {
                 id: entity.parent?.id,
+                documentId: entity.parent?.documentId,
                 path: parentPath,
               }
             : undefined,
           path,
         },
-        ...buildNestedPaths(items, entity.id, path),
+        ...buildNestedPaths(items, entity.documentId, path),
         ...acc,
       ];
     }, []);

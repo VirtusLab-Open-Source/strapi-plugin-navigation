@@ -13,6 +13,7 @@ export const navigationItemType = z.enum(['INTERNAL', 'EXTERNAL', 'WRAPPER']);
 
 const navigationItemDBBaseSchema = z.object({
   id: z.number(),
+  documentId: z.string(),
   title: z.string(),
   type: navigationItemType,
   path: z.string().or(z.null()).optional(),

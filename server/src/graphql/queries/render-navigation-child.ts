@@ -9,15 +9,15 @@ export const renderNavigationChild = ({ strapi, nexus }: any) => {
     type: nonNull(list('NavigationItem')),
 
     args: {
-      id: nonNull(stringArg()),
+      documentId: nonNull(stringArg()),
       childUiKey: nonNull(stringArg()),
       type: 'NavigationRenderType',
       menuOnly: booleanArg(),
     },
 
     resolve(_: any, args: any) {
-      const { id, childUIKey, type, menuOnly } = args;
-      const idOrSlug = parseId(z.string().parse(id));
+      const { documentId, childUIKey, type, menuOnly } = args;
+      const idOrSlug = parseId(z.string().parse(documentId));
 
       return getPluginService({ strapi }, 'client').renderChildren({
         idOrSlug,
