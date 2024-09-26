@@ -14,7 +14,7 @@ export default ({ nexus, config }: any) =>
       t.nonNull.boolean('menuAttached');
       t.nonNull.int('order');
       t.field('parent', { type: 'NavigationItem' });
-      t.int('master');
+      t.string('master');
       t.list.field('items', { type: 'NavigationItem' });
       t.field('related', { type: 'NavigationItemRelatedData' });
 

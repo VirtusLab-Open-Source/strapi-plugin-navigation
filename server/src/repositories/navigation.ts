@@ -55,11 +55,11 @@ export const getNavigationRepository = once((context: { strapi: Core.Strapi }) =
   ) {
     const { masterModel } = getPluginModels(context);
 
-    if (navigation.id) {
+    if (navigation.documentId) {
       return context.strapi
         .query(masterModel.uid)
         .update({
-          where: { id: navigation.id },
+          where: { documentId: navigation.documentId },
           data: omit(navigation, ['id', 'documentId']),
           populate: ['items'],
         })

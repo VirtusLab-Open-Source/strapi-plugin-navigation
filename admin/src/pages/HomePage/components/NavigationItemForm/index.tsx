@@ -51,6 +51,8 @@ type NavigationItemFormProps = {
   currentNavigation: Pick<NavigationSchema, 'id' | 'localeCode'>;
 };
 
+const FALLBACK_ADDITIONAL_FIELDS: Array<NavigationItemAdditionalField> = [];
+
 export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   availableLocale,
   isLoading: isPreloading,
@@ -81,7 +83,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   const { control, watch, handleSubmit, setValue } = useNavigationItemForm({
     input: {
       isSingleSelected,
-      additionalFields: configQuery.data?.additionalFields ?? [],
+      additionalFields: configQuery.data?.additionalFields ?? FALLBACK_ADDITIONAL_FIELDS,
     },
     current: current as NavigationItemFormSchema,
   });

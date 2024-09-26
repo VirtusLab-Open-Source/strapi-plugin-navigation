@@ -33,7 +33,7 @@ export type SanitizedFormPayload = {
   menuAttached: boolean;
   path?: string | null;
   externalPath?: string | null;
-  related: number | undefined;
+  related: string | undefined;
   relatedType: string | undefined;
   isSingle: boolean;
   singleRelatedItem: ContentTypeEntity | undefined;

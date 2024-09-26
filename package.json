@@ -59,6 +59,7 @@
   "devDependencies": {
     "@jest/types": "29.5.x",
     "@koa/router": "^12.0.1",
+    "@sensinum/strapi-utils": "workspace:*",
     "@strapi/design-system": "2.0.0-rc.10",
     "@strapi/icons": "2.0.0-rc.10",
     "@strapi/plugin-graphql": "5.0.0",
@@ -78,7 +79,6 @@
     "@types/react-router-dom": "5.3.3",
     "@types/styled-components": "5.1.34",
     "@types/uuid": "^10.0.0",
-    "@virtuslab/strapi-utils": "workspace:*",
     "codecov": "^3.7.2",
     "formik": "^2.2.9",
     "generate-lockfile": "0.0.12",

@@ -36,7 +36,7 @@ export default function adminController(context: { strapi: Core.Strapi }) {
 
     put(ctx: KoaContext & KoaContextExtension) {
       const {
-        params: { id },
+        params: { documentId },
         auditLog,
       } = ctx;
       const body = z.record(z.string(), z.unknown()).parse(ctx.request.body);
@@ -45,7 +45,7 @@ export default function adminController(context: { strapi: Core.Strapi }) {
         auditLog,
         payload: updateNavigationSchema.parse({
           ...body,
-          id: parseInt(id, 10),
+          documentId,
         }),
       });
     },
@@ -53,11 +53,11 @@ export default function adminController(context: { strapi: Core.Strapi }) {
     async delete(ctx: KoaContext) {
       const {
         auditLog,
-        params: { id },
+        params: { documentId },
       } = ctx;
 
       await this.getAdminService().delete({
-        id: idSchema.parse(parseInt(id, 10)),
+        documentId: idSchema.parse(documentId),
         auditLog,
       });
 
@@ -94,10 +94,10 @@ export default function adminController(context: { strapi: Core.Strapi }) {
 
     getById(ctx: KoaContext) {
       const {
-        params: { id },
+        params: { documentId },
       } = ctx;
 
-      return this.getAdminService().getById({ id: idSchema.parse(parseInt(id, 10)) });
+      return this.getAdminService().getById({ documentId: idSchema.parse(documentId) });
     },
 
     getContentTypeItems(ctx: KoaContext) {
@@ -119,8 +119,8 @@ export default function adminController(context: { strapi: Core.Strapi }) {
       } = ctx;
 
       return this.getAdminService().fillFromOtherLocale({
-        source: idSchema.parse(parseInt(source, 10)),
-        target: idSchema.parse(parseInt(target, 10)),
+        source: idSchema.parse(source),
+        target,
         auditLog,
       });
     },
@@ -133,8 +133,8 @@ export default function adminController(context: { strapi: Core.Strapi }) {
 
       return this.getAdminService().readNavigationItemFromLocale({
         path: z.string().parse(path),
-        source: idSchema.parse(parseInt(source)),
-        target: idSchema.parse(parseInt(target)),
+        source: idSchema.parse(source),
+        target: idSchema.parse(target),
       });
     },
 

@@ -4,7 +4,7 @@ import App from './pages/App';
 import SettingsPage from './pages/SettingsPage';
 import { PLUGIN_ID } from './pluginId';
 import pluginPermissions from './utils/permissions';
-import { flattenObject, prefixPluginTranslations } from '@virtuslab/strapi-utils';
+import { flattenObject, prefixPluginTranslations } from '@sensinum/strapi-utils';
 import trads from "./translations";
 
 const name = "navigation";

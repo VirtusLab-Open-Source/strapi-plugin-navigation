@@ -285,7 +285,7 @@ export const Item: React.FC<Props> = ({
                           isParentAttachedToMenu,
                           isSearchActive: false,
                           relatedType,
-                          related: related ? parseInt(related, 10) : undefined,
+                          related,
                           additionalFields: item.additionalFields ?? {},
                           items: item.items ?? [],
                           autoSync: item.autoSync ?? true,

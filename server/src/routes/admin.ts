@@ -88,7 +88,7 @@ const routes = {
     },
     {
       method: 'GET',
-      path: '/:id',
+      path: '/:documentId',
       handler: 'admin.getById',
       config: {
         policies: [
@@ -103,7 +103,7 @@ const routes = {
     },
     {
       method: 'PUT',
-      path: '/:id',
+      path: '/:documentId',
       handler: 'admin.put',
       config: {
         policies: [
@@ -118,7 +118,7 @@ const routes = {
     },
     {
       method: 'DELETE',
-      path: '/:id',
+      path: '/:documentId',
       handler: 'admin.delete',
       config: {
         policies: [

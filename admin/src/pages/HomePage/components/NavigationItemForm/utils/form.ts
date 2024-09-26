@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { NavigationItemAdditionalField } from '../../../../../schemas';
+import { useMemo } from 'react';
 
 const externalPathRegexps = [
   /^mailto:[\w-\.]+@([\w-]+\.)+[\w-]{2,}$/,
@@ -93,7 +94,7 @@ const navigationInternalItemFormSchema = ({
     path: z.string(),
     externalPath: z.string().optional(),
     relatedType: z.string(),
-    related: isSingleSelected ? z.number().or(z.string()).optional() : z.number().or(z.string()),
+    related: isSingleSelected ? z.string().optional() : z.string(),
   });
 
 const navigationExternalItemFormSchema = ({
@@ -111,7 +112,7 @@ const navigationExternalItemFormSchema = ({
       .min(1)
       .refine((path) => externalPathRegexps.some((re) => re.test(path))),
     relatedType: z.string().optional(),
-    related: z.number().optional(),
+    related: z.string().optional(),
   });
 
 export type NavigationItemFormSchema = z.infer<ReturnType<typeof navigationItemFormSchema>>;
@@ -139,10 +140,16 @@ export const useNavigationItemForm = ({
       }),
     [current]
   );
+  
+  const memoedCurrent = useMemo(() => current, [])
 
-  return useForm<NavigationItemFormSchema>({
-    resolver: zodResolver(navigationItemFormSchema(input)),
-    defaultValues,
+  return useForm({
+    resolver: zodResolver(navigationItemFormSchema(input) as any),
+    values: {
+      ...defaultValues,
+      ...memoedCurrent,
+      updated: !!current.documentId,
+    },
   });
 };
 

@@ -38,7 +38,7 @@ import {
   transformItemToViewPayload,
 } from './utils';
 import { ListPlus, Plus } from '@strapi/icons';
-import { usePluginTheme } from '@virtuslab/strapi-utils';
+import { usePluginTheme } from '@sensinum/strapi-utils';
 
 const queryClient = new QueryClient();
 

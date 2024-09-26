@@ -316,11 +316,11 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
     }));
   },
 
-  async getById({ id }: GetByIdInput): Promise<NavigationDBSchema> {
+  async getById({ documentId }: GetByIdInput): Promise<NavigationDBSchema> {
     const commonService = getPluginService(context, 'common');
 
     const navigation = await getNavigationRepository(context).findOne({
-      where: { id },
+      where: { documentId },
     });
 
     const dbNavigationItems = await getNavigationItemRepository(context).find({
@@ -361,7 +361,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       slug,
     });
 
-    navigationSummary.push(await this.getById({ id: mainNavigation.id }));
+    navigationSummary.push(await this.getById({ documentId: mainNavigation.documentId }));
 
     for (const localeCode of restLocale) {
       const newLocaleNavigation = await repository.save({
@@ -372,7 +372,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
         documentId: mainNavigation.documentId,
       });
 
-      navigationSummary.push(await this.getById({ id: newLocaleNavigation.id }));
+      navigationSummary.push(await this.getById({ documentId: newLocaleNavigation.documentId }));
     }
 
     navigationSummary.map((navigation) => {
@@ -406,10 +406,10 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
     const { name, visible, items } = payload;
 
     const currentNavigation = await repository.findOne({
-      where: { id: payload.id },
+      where: { documentId: payload.documentId },
       populate: true,
     });
-    const currentNavigationAsDTO = await this.getById({ id: payload.id });
+    const currentNavigationAsDTO = await this.getById({ documentId: payload.documentId });
 
     const detailsHaveChanged =
       currentNavigation.name !== name || currentNavigation.visible !== visible;
@@ -427,7 +427,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
           : currentNavigation.slug;
 
         await repository.save({
-          id: navigation.id,
+          documentId: navigation.documentId,
           slug: newSlug,
           name,
           visible,
@@ -443,7 +443,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       })
       .then(prepareAuditLog)
       .then(async (actionType) => {
-        const newEntity = await this.getById({ id: currentNavigation.id });
+        const newEntity = await this.getById({ documentId: currentNavigation.documentId });
 
         sendAuditLog(auditLog, 'onChangeNavigation', {
           actionType,
@@ -455,7 +455,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       });
 
     await commonService.emitEvent({
-      entity: await repository.findOne({ where: { id: payload.id }, populate: true }),
+      entity: await repository.findOne({ where: { documentId: payload.documentId }, populate: true }),
       event: 'entry.update',
       uid: masterModel.uid,
     });
@@ -463,24 +463,24 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
     return updatedNavigationAsDTO;
   },
 
-  async delete({ auditLog, id }: DeleteInput): Promise<void> {
+  async delete({ auditLog, documentId }: DeleteInput): Promise<void> {
     const navigationRepository = getNavigationRepository(context);
     const navigationItemRepository = getNavigationItemRepository(context);
 
-    const navigationAsDTO = await this.getById({ id });
+    const navigationAsDTO = await this.getById({ documentId });
 
     // TODO: remove when cascade deletion is present
     // NOTE: Delete many with relation `where` crashes ORM
-    const cleanNavigationItems = async (masterIds: Array<number>) => {
+    const cleanNavigationItems = async (masterIds: Array<string>) => {
       if (masterIds.length < 1) {
         return;
       }
 
       await navigationItemRepository.removeForIds(
         await navigationItemRepository.findForMasterIds(masterIds).then((_) =>
-          _.reduce<Array<number>>((acc, { id }) => {
-            if (id) {
-              acc.push(id);
+          _.reduce<Array<string>>((acc, { documentId }) => {
+            if (documentId) {
+              acc.push(documentId);
             }
 
             return acc;
@@ -489,13 +489,13 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       );
     };
 
-    const navigation = await navigationRepository.findOne({ where: { id }, populate: true });
+    const navigation = await navigationRepository.findOne({ where: { documentId }, populate: true });
     const allNavigations = await navigationRepository.find({
       where: { documentId: navigation.documentId },
       populate: true,
     });
 
-    await cleanNavigationItems(allNavigations.map(({ id }) => id));
+    await cleanNavigationItems(allNavigations.map(({ documentId }) => documentId));
     await navigationRepository.remove({ documentId: navigation.documentId });
 
     sendAuditLog(auditLog, 'onNavigationDeletion', {
@@ -555,13 +555,13 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
     source,
     target,
   }: FillFromOtherLocaleInput): Promise<NavigationDBSchema> {
-    const targetEntity = await this.getById({ id: target });
+    const targetEntity = await this.getById({ documentId: target });
 
     return await this.i18nNavigationContentsCopy({
-      source: await this.getById({ id: source }),
+      source: await this.getById({ documentId: source }),
       target: targetEntity,
     })
-      .then(() => this.getById({ id: target }))
+      .then(() => this.getById({ documentId: target }))
       .then((newEntity) => {
         sendAuditLog(auditLog, 'onChangeNavigation', {
           actionType: 'UPDATE',
@@ -605,7 +605,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
     await commonService.createBranch({
       action: { create: true },
       masterEntity: await navigationRepository.findOne({
-        where: { id: target.id },
+        where: { documentId: target.documentId },
         populate: true,
       }),
       navigationItems: await Promise.all(sourceItems.map(itemProcessor)),
@@ -618,8 +618,8 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
     source,
     target,
   }: ReadNavigationItemFromLocaleInput): Promise<ReadNavigationItemFromLocaleSchema> {
-    const sourceNavigation = await this.getById({ id: source });
-    const targetNavigation = await this.getById({ id: target });
+    const sourceNavigation = await this.getById({ documentId: source });
+    const targetNavigation = await this.getById({ documentId: target });
 
     if (!sourceNavigation) {
       throw new errors.NotFoundError('Unable to find source navigation for specified query');
@@ -655,7 +655,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
     return readNavigationItemFromLocaleSchema.parse(pick(result, requiredFields));
   },
 
-  async getContentTypeItems({ query, uid }: GetContentTypeItemsInput): Promise<{ id: number }[]> {
+  async getContentTypeItems({ query, uid }: GetContentTypeItemsInput): Promise<{ documentId: string }[]> {
     const commonService = getPluginService(context, 'common');
     const pluginStore = await commonService.getPluginStore();
     const config = await pluginStore.get({ key: 'config' }).then(configSchema.parse);
@@ -682,21 +682,23 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
 
       return contentTypeItems;
     } catch (err) {
+      console.error(err);
+
       return [];
     }
   },
 
-  async purgeNavigationCache(id: number, clearLocalisations?: boolean) {
+  async purgeNavigationCache(documentId: string, clearLocalisations?: boolean) {
     const navigationRepository = getNavigationRepository(context);
-    const entity = await navigationRepository.findOne({ where: { id } });
+    const entity = await navigationRepository.findOne({ where: { documentId } });
 
     if (!entity) {
       throw new errors.NotFoundError('Navigation is not defined');
     }
 
-    const mapToRegExp = (id: number) => new RegExp(`/api/navigation/render/${id}`);
+    const mapToRegExp = (documentId: string) => new RegExp(`/api/navigation/render/${documentId}`);
 
-    let regexps = [mapToRegExp(entity.id)];
+    let regexps = [mapToRegExp(entity.documentId)];
 
     if (clearLocalisations) {
       const navigations = await navigationRepository.find({
@@ -705,13 +707,13 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
         },
       });
 
-      regexps = navigations.map(({ id }) => mapToRegExp(id));
+      regexps = navigations.map(({ documentId }) => mapToRegExp(documentId));
     }
 
     const restCachePlugin = strapi.plugin('rest-cache');
     const cacheStore = restCachePlugin.service('cacheStore');
 
-    regexps.push(mapToRegExp(id));
+    regexps.push(mapToRegExp(documentId));
 
     await cacheStore.clearByRegexp(regexps);
 
