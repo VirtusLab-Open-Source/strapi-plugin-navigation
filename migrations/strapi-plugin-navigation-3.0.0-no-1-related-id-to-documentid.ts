@@ -10,9 +10,11 @@ export default {
 
     // Get all entries and rewrite directly to the navigation_items table
     const all = await knex.from(SOURCE_TABLE_NAME).columns('id', 'related_id', 'related_type').select();
+    
     await Promise.all(
       all.map(async (item) => {
         const { related_id, related_type, id: row_id} = item;
+        
         if (related_id && related_type && !isNaN(parseInt(related_id, 10))) {
           const newRelatedId = `${related_type}${RELATED_ITEM_SEPARATOR}${related_id}`;
           const link = await knex.from(SOURCE_LINK_TABLE_NAME).columns('navigation_item_id', 'navigations_items_related_id').select().where({ navigations_items_related_id: row_id });
