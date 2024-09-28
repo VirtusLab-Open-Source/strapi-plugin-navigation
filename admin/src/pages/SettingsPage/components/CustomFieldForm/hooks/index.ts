@@ -5,7 +5,9 @@ import { NavigationItemCustomField, navigationItemCustomField } from '../../../.
 export const useCustomFieldForm = (customField: Partial<NavigationItemCustomField>) => {
   const form = useForm({
     resolver: zodResolver(navigationItemCustomField),
-    values: customField,
+    // TODO: Update on proper fix
+    // @ts-expect-error
+    defaultValues: customField,
   });
 
   return form;
