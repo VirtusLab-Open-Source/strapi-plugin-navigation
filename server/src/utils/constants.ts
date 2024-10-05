@@ -39,3 +39,19 @@ export const KIND_TYPES = { SINGLE: 'singleType', COLLECTION: 'collectionType' }
 export const DEFAULT_POPULATE = [];
 
 export const TEMPLATE_DEFAULT = 'Generic' as const;
+
+export const FORBIDDEN_CUSTOM_FIELD_NAMES = [
+  'title',
+  'type',
+  'path',
+  'externalPath',
+  'uiRouterKey',
+  'menuAttached',
+  'order',
+  'collapsed',
+  'related',
+  'parent',
+  'master',
+  'audience',
+  'additionalFields',
+];

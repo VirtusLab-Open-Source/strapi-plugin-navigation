@@ -4,7 +4,6 @@ import * as z from 'zod';
 import { getPluginService } from '../utils';
 import { parseId, sanitizePopulateField } from './utils';
 import {
-  idSchema,
   populateSchema,
   readAllQuerySchema,
   renderChildQueryParams,
@@ -18,10 +17,10 @@ export default function clientController(context: { strapi: Core.Strapi }) {
     },
 
     async readAll(ctx: KoaContext) {
-      const { query = {} } = ctx;
-      const { locale, orderBy, orderDirection } = readAllQuerySchema.parse(query);
-
       try {
+        const { query = {} } = ctx;
+        const { locale, orderBy, orderDirection } = readAllQuerySchema.parse(query);
+
         return await this.getService().readAll({
           locale,
           orderBy,
@@ -72,7 +71,7 @@ export default function clientController(context: { strapi: Core.Strapi }) {
       const { type, menu: menuOnly, locale } = renderChildQueryParams.parse(query);
 
       const idOrSlug = parseId(z.string().parse(params.id));
-      const childUIKey = z.string().parse(params);
+      const childUIKey = z.string().parse(params.childUIKey);
 
       return await this.getService().renderChildren({
         idOrSlug,

@@ -5,6 +5,12 @@ import { configSchema, createNavigationSchema, updateNavigationSchema } from '..
 import { getPluginService } from '../utils';
 import { idSchema } from './validators';
 
+export type KoaContextExtension = {
+  request: KoaContext['request'] & {
+    body: unknown;
+  };
+};
+
 export default function adminController(context: { strapi: Core.Strapi }) {
   return {
     getAdminService() {
@@ -19,7 +25,7 @@ export default function adminController(context: { strapi: Core.Strapi }) {
       return await this.getAdminService().get({});
     },
 
-    post(ctx: KoaContext & { request: KoaContext['request'] & { body: unknown } }) {
+    post(ctx: KoaContext & KoaContextExtension) {
       const { auditLog } = ctx;
 
       return this.getAdminService().post({
@@ -28,7 +34,7 @@ export default function adminController(context: { strapi: Core.Strapi }) {
       });
     },
 
-    put(ctx: KoaContext & { request: KoaContext['request'] & { body: unknown } }) {
+    put(ctx: KoaContext & KoaContextExtension) {
       const {
         params: { id },
         auditLog,
@@ -62,7 +68,7 @@ export default function adminController(context: { strapi: Core.Strapi }) {
       return this.getAdminService().config({ viaSettingsPage: false });
     },
 
-    async updateConfig(ctx: KoaContext & { request: KoaContext['request'] & { body: unknown } }) {
+    async updateConfig(ctx: KoaContext & KoaContextExtension) {
       await this.getAdminService().updateConfig({
         config: configSchema.parse(ctx.request.body),
       });
@@ -114,7 +120,7 @@ export default function adminController(context: { strapi: Core.Strapi }) {
 
       return this.getAdminService().fillFromOtherLocale({
         source: idSchema.parse(parseInt(source, 10)),
-        target: parseInt(target, 10),
+        target: idSchema.parse(parseInt(target, 10)),
         auditLog,
       });
     },

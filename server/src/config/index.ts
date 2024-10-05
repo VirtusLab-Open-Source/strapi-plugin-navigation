@@ -1,5 +1,3 @@
-import { assertConfig } from '../utils';
-
 export * from './setup';
 
 export default {
@@ -18,8 +16,5 @@ export default {
     cascadeMenuAttached: true,
     preferCustomContentTypes: false,
     isCacheEnabled: false,
-  },
-  validator(config: unknown) {
-    assertConfig(config);
   },
 };
