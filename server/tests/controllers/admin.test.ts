@@ -1,5 +1,5 @@
-import { faker } from '@faker-js/faker/.';
-import { Core } from '@strapi/types';
+import { faker } from '@faker-js/faker';
+import { Core } from '@strapi/strapi';
 import { Context as KoaContext } from 'koa';
 import { omit } from 'lodash';
 

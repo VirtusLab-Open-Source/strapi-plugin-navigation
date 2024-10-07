@@ -97,6 +97,7 @@ node_modules
 .node_history
 yarn.lock
 package-lock.json
+.yarnrc.yml
 
 
 ############################
@@ -105,6 +106,7 @@ package-lock.json
 
 testApp
 coverage
+junit.xml
 
 ############################
 # Strapi

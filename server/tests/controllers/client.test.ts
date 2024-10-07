@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { Core } from '@strapi/strapi';
 import { Context as KoaContext } from 'koa';
+
 import buildClientController from '../../src/controllers/client';
 import { NavigationDTO, NavigationItemDTO } from '../../src/dtos';
 import { ClientService } from '../../src/services';

@@ -1,4 +1,4 @@
-import { faker } from '@faker-js/faker/.';
+import { faker } from '@faker-js/faker';
 import { Core } from '@strapi/strapi';
 import { ZodError } from 'zod';
 
