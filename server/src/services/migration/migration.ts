@@ -22,7 +22,7 @@ const migrationService = (context: { strapi: Core.Strapi }) => ({
 
             if (relatedItem) {
               await navigationItemRepository.save({
-                id: item.id,
+                documentId: item.documentId,
                 related: `${uid}${RELATED_ITEM_SEPARATOR}${relatedItem.documentId}`,
               });
             }

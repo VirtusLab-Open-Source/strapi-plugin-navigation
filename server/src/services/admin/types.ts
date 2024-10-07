@@ -1,4 +1,3 @@
-import { NavigationDTO } from '../../dtos';
 import {
   CreateNavigationSchema,
   NavigationDBSchema,

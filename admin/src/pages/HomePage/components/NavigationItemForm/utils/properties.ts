@@ -53,6 +53,7 @@ export const generateUiRouterKey = async ({
       {
         ...(contentTypeItems?.find((_) => _.documentId === related.toString()) ?? {
           documentId: '',
+          id: 0,
         }),
         __collectionUid: relatedType,
       },
@@ -120,7 +121,9 @@ export const generatePreviewPath = ({
           })
         : currentPath || '';
 
-    return `${current.levelPath !== '/' ? `${current.levelPath}` : ''}/${itemPath}`;
+    const result = `${current.levelPath !== '/' ? `${current.levelPath}` : ''}/${itemPath}`;
+
+    return result.replace('//', '/');
   }
 
   return undefined;

@@ -4,6 +4,7 @@ import { isEmpty, isNil, sortBy } from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Controller } from 'react-hook-form';
 import { useIntl } from 'react-intl';
+import { AnyEntity } from '@sensinum/strapi-utils';
 
 import {
   Box,
@@ -48,7 +49,7 @@ type NavigationItemFormProps = {
   onSubmit: SubmitEffect;
   availableLocale: string[];
   permissions?: Partial<{ canUpdate: boolean }>;
-  currentNavigation: Pick<NavigationSchema, 'id' | 'localeCode'>;
+  currentNavigation: Pick<NavigationSchema, 'id' | 'documentId' | 'localeCode'>;
 };
 
 const FALLBACK_ADDITIONAL_FIELDS: Array<NavigationItemAdditionalField> = [];
@@ -145,8 +146,6 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
     autoSyncEnabled,
   ] = watch(['relatedType', 'related', 'path', 'type', 'title', 'autoSync']);
 
-  console.log(currentPath);
-
   const isExternal = currentType === 'EXTERNAL';
 
   const pathSourceName = isExternal ? 'externalPath' : 'path';
@@ -173,7 +172,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   const audienceOptions = useMemo(
     () =>
       availableAudiences.map((item) => ({
-        value: item.id ?? 0,
+        value: item.documentId ?? 0,
         label: item.name ?? ' ',
       })),
     [availableAudiences]
@@ -196,12 +195,12 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
 
         selectedEntity = {
           ...(entity || {
-            documentId: -1,
+            documentId: null,
           }),
           __collectionUid: relatedType,
         };
       }
-      return extractRelatedItemLabel(selectedEntity, configQuery.data);
+      return extractRelatedItemLabel(selectedEntity as AnyEntity, configQuery.data);
     },
     [contentTypeItemsQuery.data, configQuery.data, contentTypes]
   );
@@ -229,8 +228,8 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
       );
 
       return {
-        key: item?.documentId.toString(),
-        value: item.documentId.toString(),
+        key: item?.documentId?.toString(),
+        value: item?.documentId?.toString(),
         label: label,
       };
     }) ?? [],
@@ -279,16 +278,16 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
 
         copyItemFromLocaleMutation.mutate(
           {
-            target: currentNavigation.id,
+            target: currentNavigation.documentId,
             structureId: current.structureId,
-            source: source.id,
+            source: source.documentId,
           },
           {
             onSuccess(data) {
               copyItemFromLocaleMutation.reset();
 
               const { type, externalPath, path, related, title, uiRouterKey } = data;
-              const [contentType, id] = related?.split(RELATED_ITEM_SEPARATOR) ?? [];
+              const [contentType, documentId] = related?.split(RELATED_ITEM_SEPARATOR) ?? [];
 
               setValue('type', type);
               setValue('externalPath', externalPath ?? undefined);
@@ -296,8 +295,8 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
               setValue('title', title);
               setValue('uiRouterKey', uiRouterKey);
 
-              if (contentType && id) {
-                setValue('related', id);
+              if (contentType && documentId) {
+                setValue('related', documentId);
                 setValue('relatedType', contentType);
               }
             },
@@ -407,7 +406,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
 
                   <TextInput
                     type="string"
-                    disabled={!canUpdate}
+                    disabled={!canUpdate || (autoSyncEnabled && currentType === 'INTERNAL')}
                     name={name}
                     onChange={onChange}
                     value={value}
@@ -546,9 +545,6 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
               control={control}
               name={pathSourceName}
               render={({ field: { value, onChange, name }, fieldState }) => {
-                console.log('pathSourceName', pathSourceName);
-                console.log('fieldState', fieldState);
-                console.log('value', value);
                 const pathDefault = generatePreviewPath({
                   currentPath,
                   isExternal,

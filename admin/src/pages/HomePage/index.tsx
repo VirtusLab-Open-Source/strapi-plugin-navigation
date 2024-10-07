@@ -183,9 +183,9 @@ const Inner = () => {
         );
 
         if (source) {
-          if (source.id && currentNavigation?.id) {
+          if (source.documentId && currentNavigation?.documentId) {
             copyNavigationI18nMutation.mutate(
-              { source: source.id, target: currentNavigation.id },
+              { source: source.documentId, target: currentNavigation.documentId },
               {
                 onSuccess(res) {
                   copyNavigationI18nMutation.reset();
@@ -382,7 +382,7 @@ const Inner = () => {
           navigation.localeCode === currentLocale
       );
 
-      if (nextNavigation && nextNavigation.id !== currentNavigation.id) {
+      if (nextNavigation && nextNavigation.documentId !== currentNavigation.documentId) {
         setCurrentNavigation(nextNavigation);
       }
     }

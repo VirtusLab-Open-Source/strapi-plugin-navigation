@@ -3,7 +3,6 @@ import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { NavigationItemAdditionalField } from '../../../../../schemas';
-import { useMemo } from 'react';
 
 const externalPathRegexps = [
   /^mailto:[\w-\.]+@([\w-]+\.)+[\w-]{2,}$/,
@@ -35,7 +34,7 @@ const navigationItemCommon = ({ additionalFields }: FormSchemaBuilderInput) =>
     viewParentId: z.number().optional(),
     id: z.number().optional(),
     documentId: z.string().optional(),
-    audience: z.number().array().optional(),
+    audience: z.string().array().optional(),
     order: z.number().optional(),
     items: z.any().array().optional(),
     additionalFields: z.object(
@@ -132,7 +131,6 @@ export const useNavigationItemForm = ({
   const defaultValues = useMemo(
     (): NavigationItemFormSchema =>
       // TODO: Update after migration
-      // @ts-expect-error
       ({
         ...fallbackDefaultValues,
         ...current,

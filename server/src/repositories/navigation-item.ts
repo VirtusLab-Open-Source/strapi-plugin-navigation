@@ -17,7 +17,7 @@ interface FindInput {
 export const getNavigationItemRepository = once((context: { strapi: Core.Strapi }) => ({
   save(
     item:
-      | (Partial<NavigationItemDBSchema> & { id: undefined })
+      | (Partial<NavigationItemDBSchema> & { documentId: undefined })
       | ({ documentId: string } & Partial<Omit<NavigationItemDBSchema, 'documentId'>>)
   ) {
     const { itemModel } = getPluginModels(context);

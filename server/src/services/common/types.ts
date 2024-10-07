@@ -53,9 +53,10 @@ export interface UpdateBranchInput {
 }
 
 export interface AnalyzeBranchInput {
-  navigationItems: (Omit<NavigationItemDBSchema, 'id'> & {
+  navigationItems: (Omit<NavigationItemDBSchema, 'id' | 'documentId'> & {
     removed?: boolean;
     id?: number;
+    documentId?: string;
   })[];
   masterEntity?: NavigationDBSchema;
   parentItem?: NavigationItemDBSchema;
@@ -69,8 +70,9 @@ export interface EmitEventInput<TEvent, TEntity> {
 }
 
 export interface GetBranchNameInput {
-  item: Omit<NavigationItemDBSchema, 'id'> & {
+  item: Omit<NavigationItemDBSchema, 'id' | 'documentId'> & {
     removed?: boolean;
+    documentId?: string;
     id?: number;
   };
 }

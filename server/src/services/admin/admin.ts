@@ -428,6 +428,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
 
         await repository.save({
           documentId: navigation.documentId,
+          id: navigation.id,
           slug: newSlug,
           name,
           visible,
@@ -664,8 +665,9 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
         $notNull: true,
       },
     };
-    const { draftAndPublish } = context.strapi.contentTypes[uid].options;
-    const { localized = false } = context.strapi.contentTypes[uid]?.pluginOptions?.i18n || {};
+    const contentType = get(context.strapi.contentTypes, uid);
+    const { draftAndPublish } = contentType.options;
+    const { localized = false } = contentType?.pluginOptions?.i18n || {};
 
     if (localized && query.locale) {
       where.locale = query.locale;

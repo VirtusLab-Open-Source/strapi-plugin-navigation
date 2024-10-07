@@ -4,6 +4,8 @@ import { sanitize } from '@strapi/utils';
 
 import slugify from '@sindresorhus/slugify';
 
+import { AnyEntity } from '@sensinum/strapi-utils';
+
 import { isNil, omit } from 'lodash';
 
 import { configSetup } from '../../config';
@@ -79,11 +81,13 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
       if (related && !entities.has(related)) {
         const [uid, documentId] = related.split(RELATED_ITEM_SEPARATOR);
 
+        const relatedItem = await getGenericRepository(context, uid as UID.ContentType).findById(
+          documentId,
+          isNil(populate) ? config.contentTypesPopulate[uid] || [] : parsePopulateQuery(populate)
+        );
+
         entities.set(related, {
-          ...(await getGenericRepository(context, uid as UID.ContentType).findById(
-            documentId,
-            isNil(populate) ? config.contentTypesPopulate[uid] || [] : parsePopulateQuery(populate)
-          )),
+          ...relatedItem as AnyEntity, 
           uid,
         });
       }
@@ -115,7 +119,7 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
   },
 
   getBranchName({ item }: GetBranchNameInput): NavigationActionsCategories | void {
-    const hasId = !!item.id;
+    const hasId = !!item.documentId;
     const toRemove = item.removed;
 
     if (hasId && !toRemove) {
@@ -151,6 +155,8 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
         toUpdate: [] as NavigationItemsDBSchema,
       }
     );
+
+    console.log({ toCreate, toRemove, toUpdate });
 
     const action = {
       create: prevAction.create || toCreate.length > 0,
@@ -347,7 +353,7 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
 
     for (const item of navigationItemsToUpdate) {
       await getNavigationItemRepository(context).save({
-        id: item.id,
+        documentId: item.documentId,
         additionalFields: item.additionalFields,
       });
     }

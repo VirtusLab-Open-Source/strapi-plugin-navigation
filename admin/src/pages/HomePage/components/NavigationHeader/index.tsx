@@ -92,21 +92,21 @@ export const NavigationHeader: React.FC<Props> = ({
                       type="select"
                       placeholder="Change navigation"
                       name="navigationSelect"
-                      onChange={(nextId: number) => {
-                        const nextNavigation = availableNavigations.find(({ id }) => nextId === id);
-
+                      onChange={(nextDocumentId: string) => {
+                        const nextNavigation = availableNavigations.find(({ documentId }) => nextDocumentId === documentId);
+                        
                         if (nextNavigation) {
                           handleChangeSelection(nextNavigation);
                         }
                       }}
-                      value={activeNavigation?.id}
+                      value={activeNavigation?.documentId}
                       size="S"
                       style={null}
                     >
                       {availableNavigations
                         .filter(({ localeCode }) => localeCode === currentLocale)
-                        .map(({ id, name }) => (
-                          <SingleSelectOption key={id} value={id}>
+                        .map(({ documentId, name }) => (
+                          <SingleSelectOption key={documentId} value={documentId}>
                             {name}
                           </SingleSelectOption>
                         ))}
@@ -170,7 +170,7 @@ export const NavigationHeader: React.FC<Props> = ({
           <Tag icon={<Information aria-hidden={true} />}>
             {activeNavigation
               ? formatMessage(getTrad('header.meta'), {
-                id: activeNavigation?.id,
+                id: activeNavigation?.documentId,
                 key: activeNavigation?.slug,
               })
               : null}

@@ -118,7 +118,7 @@ export const Item: React.FC<Props> = ({
   const hasChildren = !isEmpty(item.items) && !isExternal && !displayChildren;
   const absolutePath = isExternal
     ? undefined
-    : `${levelPath === '/' ? '' : levelPath}/${path === '/' ? '' : path}`;
+    : `${levelPath === '/' ? '' : levelPath}/${path === '/' ? '' : path}`.replace('//', '/');
 
   const contentTypeItemsQuery = useContentTypeItems({
     uid: relatedType ?? '',
@@ -130,7 +130,7 @@ export const Item: React.FC<Props> = ({
 
   const relatedItem = contentTypeItemsQuery.data?.find(
     (contentTypeItem) => contentTypeItem.documentId === related
-  ) ?? { documentId: '' };
+  ) ?? { documentId: '', id: 0 };
 
   const isPublished = !!relatedItem?.publishedAt;
 
@@ -291,7 +291,7 @@ export const Item: React.FC<Props> = ({
                           autoSync: item.autoSync ?? true,
                           externalPath: undefined,
                           viewParentId,
-                          audience: item.audience?.map(({ id }) => id) ?? [],
+                          audience: item.audience?.map(({ documentId }) => documentId) ?? [],
                         }
                       : {
                           ...item,
@@ -306,7 +306,7 @@ export const Item: React.FC<Props> = ({
                           autoSync: item.autoSync ?? true,
                           externalPath: item.externalPath ?? '',
                           viewParentId,
-                          audience: item.audience?.map(({ id }) => id) ?? [],
+                          audience: item.audience?.map(({ documentId }) => documentId) ?? [],
                         },
                   levelPath,
                   isParentAttachedToMenu,

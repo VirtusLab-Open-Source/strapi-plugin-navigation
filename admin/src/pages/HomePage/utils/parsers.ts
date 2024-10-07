@@ -28,6 +28,7 @@ const toNavigationItem = (
         type: 'INTERNAL',
         collapsed: !!payload.collapsed,
         id: payload.id!,
+        documentId: payload.documentId!,
         menuAttached: !!payload.menuAttached,
         order: payload.order ?? 0,
         path: payload.path,
@@ -36,7 +37,7 @@ const toNavigationItem = (
         additionalFields: payload.additionalFields,
         audience:
           payload.audience?.map(
-            (id) => config.availableAudience.find((audience) => audience.id === id)!
+            (documentId) => config.availableAudience.find((audience) => audience.documentId === documentId)!
           ) ?? [],
         autoSync: payload.autoSync,
         items: payload.items?.length
@@ -53,6 +54,7 @@ const toNavigationItem = (
         type: 'EXTERNAL',
         collapsed: !!payload.collapsed,
         id: payload.id!,
+        documentId: payload.documentId!,
         menuAttached: !!payload.menuAttached,
         order: payload.order ?? 0,
         title: payload.title,
@@ -71,7 +73,7 @@ const toNavigationItem = (
         externalPath: payload.externalPath ?? '',
         audience:
           payload.audience?.map(
-            (id) => config.availableAudience.find((audience) => audience.id === id)!
+            (documentId) => config.availableAudience.find((audience) => audience.documentId === documentId)!
           ) ?? [],
       };
 };
@@ -211,6 +213,7 @@ export const mapServerNavigationItem = (
     ? {
         type: 'INTERNAL',
         id: item.id,
+        documentId: item.documentId,
         additionalFields: item.additionalFields ?? {},
         path: item.path ?? '',
         relatedType,
@@ -234,6 +237,7 @@ export const mapServerNavigationItem = (
     : {
         type: 'EXTERNAL',
         id: item.id,
+        documentId: item.documentId,
         additionalFields: item.additionalFields ?? {},
         title: item.title,
         uiRouterKey: item.uiRouterKey,

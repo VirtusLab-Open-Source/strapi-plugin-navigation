@@ -62,7 +62,7 @@ export const processItems =
         true
       );
 
-      if (!context.entities.has(related)) {
+      if (!context.entities.has(related) && entity) {
         context.entities.set(related, {
           ...entity,
           uid,

@@ -45,13 +45,13 @@ export const AllNavigations = ({ navigations, selected, setState }: Props) => {
     [setState, navigations, hasAnySelected]
   );
 
-  const currentlySelectedSet = useMemo(() => new Set(selected.map(prop('id'))), [selected]);
+  const currentlySelectedSet = useMemo(() => new Set(selected.map(prop('documentId'))), [selected]);
 
   const handleSelect = (navigation: Navigation, isSelected: boolean) => () => {
     setState({
       navigations,
       selected: isSelected
-        ? selected.filter(({ id }) => id !== navigation.id)
+        ? selected.filter(({ documentId }) => documentId !== navigation.documentId)
         : selected.concat([navigation]),
       view: 'LIST',
     });
@@ -90,7 +90,7 @@ export const AllNavigations = ({ navigations, selected, setState }: Props) => {
   const getLocalizations = (focused: Navigation) =>
     [focused].concat(
       navigations.filter(
-        (navigation) => navigation.documentId === focused.documentId && navigation.id !== focused.id
+        (navigation) => navigation.documentId === focused.documentId && navigation.documentId !== focused.documentId
       )
     );
 
@@ -163,18 +163,18 @@ export const AllNavigations = ({ navigations, selected, setState }: Props) => {
           {navigations
             .filter(({ localeCode }) => localeCode === localeQuery.data?.defaultLocale)
             .map((navigation) => (
-              <Tr key={navigation.id}>
+              <Tr key={navigation.documentId}>
                 <Td>
                   <Checkbox
                     onCheckedChange={handleSelect(
                       navigation,
-                      currentlySelectedSet.has(navigation.id)
+                      currentlySelectedSet.has(navigation.documentId)
                     )}
-                    checked={currentlySelectedSet.has(navigation.id)}
+                    checked={currentlySelectedSet.has(navigation.documentId)}
                   />
                 </Td>
                 <Td>
-                  <Typography textColor="neutral800">{navigation.id}</Typography>
+                  <Typography textColor="neutral800">{navigation.documentId}</Typography>
                 </Td>
                 <Td>
                   <Typography textColor="neutral800">{navigation.name}</Typography>

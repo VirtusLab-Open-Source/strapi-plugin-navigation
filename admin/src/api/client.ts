@@ -151,7 +151,7 @@ export const getApiClient = once((fetch: ReturnType<typeof getFetchClient>) => (
     return [URL_PREFIX, 'locale'];
   },
 
-  copyNavigationLocale({ source, target }: { source: number; target: number }) {
+  copyNavigationLocale({ source, target }: { source: string; target: string }) {
     return fetch.put(`/${URL_PREFIX}/i18n/copy/${source}/${target}`);
   },
 
@@ -160,8 +160,8 @@ export const getApiClient = once((fetch: ReturnType<typeof getFetchClient>) => (
     structureId = '',
     target,
   }: {
-    source: number;
-    target: number;
+    source: string;
+    target: string;
     structureId?: string;
   }) {
     return fetch

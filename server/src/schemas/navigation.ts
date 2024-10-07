@@ -3,7 +3,7 @@ import * as z from 'zod';
 export type AudienceDBSchema = z.infer<typeof audienceDBSchema>;
 export const audienceDBSchema = z.object({
   id: z.number(),
-  documentId: z.string().optional(),
+  documentId: z.string(),
   name: z.string(),
   key: z.string(),
 });
@@ -13,8 +13,7 @@ export const navigationItemType = z.enum(['INTERNAL', 'EXTERNAL', 'WRAPPER']);
 
 const navigationItemDBBaseSchema = z.object({
   id: z.number(),
-  // TODO: handle in creation flow
-  documentId: z.string().optional(),
+  documentId: z.string(),
   title: z.string(),
   type: navigationItemType,
   path: z.string().or(z.null()).optional(),
@@ -87,17 +86,19 @@ export const createNavigationSchema = navigationDBSchema(false)
   });
 
 export type UpdateNavigationItemSchema = z.ZodType<
-  Omit<z.infer<typeof navigationItemDBSchema>, 'id' | 'parent' | 'items'>
+  Omit<z.infer<typeof navigationItemDBSchema>, 'id' | 'documentId' | 'parent' | 'items'>
 > & {
   items?: UpdateNavigationItemsSchema | null;
   id?: number;
+  documentId?: string;
   updated?: boolean;
   removed?: boolean;
 };
 export const updateNavigationItemSchema: UpdateNavigationItemSchema = navigationItemDBBaseSchema
-  .omit({ id: true })
+  .omit({ id: true, documentId: true })
   .extend({
     id: z.number().optional(),
+    documentId: z.string().optional(),
     items: z.lazy(() => updateNavigationItemsSchema).or(z.null()).optional(),
     updated: z.boolean().optional(),
     removed: z.boolean().optional(),
@@ -114,4 +115,5 @@ export const updateNavigationSchema = navigationDBSchema(false)
   .partial()
   .required({
     id: true,
+    documentId: true,
   });

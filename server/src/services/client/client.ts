@@ -420,7 +420,7 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
 
             const item = result.find((item) => item.documentId === documentId);
 
-            if (isNil(item)) return [null];
+            if (isNil(item)) return [];
 
             const { order, parent } = item;
 
