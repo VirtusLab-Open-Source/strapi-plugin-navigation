@@ -49,6 +49,7 @@ export const configSchema = z.object({
   availableAudience: z
     .object({
       id: z.number(),
+      documentId: z.string(),
       name: z.string(),
       key: z.string(),
     })

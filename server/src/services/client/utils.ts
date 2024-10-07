@@ -44,7 +44,6 @@ export const filterByPath = <T extends Pick<NavigationItemDTO, 'parent' | 'docum
   const itemsWithPaths = path
     ? parsedItems.filter(({ path: itemPath }) => itemPath.includes(path))
     : parsedItems;
-  console.log('itemsWithPaths', itemsWithPaths);
   const root = itemsWithPaths.find(({ path: itemPath }) => itemPath === path);
 
   return {

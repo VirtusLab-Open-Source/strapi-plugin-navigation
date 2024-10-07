@@ -258,8 +258,6 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
       });
     }
 
-    console.log('navigation', navigation);
-
     if (navigation && navigation.documentId) {
       const navigationItems = await navigationItemRepository.find({
         where: {
@@ -271,15 +269,11 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
         populate: ['related', 'audience', 'parent'],
       });
 
-      console.log('navigationItems', navigationItems);
-
       const mappedItems = await commonService.mapToNavigationItemDTO({
         navigationItems,
         populate,
         master: navigation,
       });
-
-      console.log('mappedItems', mappedItems);
 
       const { contentTypes, contentTypesNameFields, additionalFields } = await adminService.config({
         viaSettingsPage: false,
@@ -294,7 +288,7 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
         wrapRelated && itemContentType
           ? {
             documentId: itemContentType.documentId,
-            attributes: { ...itemContentType },
+            ...itemContentType,
           }
           : itemContentType;
 
@@ -370,16 +364,10 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
             };
           };
 
-          console.log('rootPath', rootPath);
-          console.log('mappedItems', mappedItems);
-
           const { items: itemsFilteredByPath, root: rootElement } = filterByPath(
             mappedItems,
             rootPath
           );
-
-          console.log('itemsFilteredByPath', itemsFilteredByPath);
-          console.log('rootElement', rootElement);
 
           const treeStructure = (await this.renderTree({
             itemParser,
@@ -388,13 +376,9 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
             documentId: rootElement?.parent?.documentId,
           })) as NavigationItemDTO[];
 
-          console.log('treeStructure', treeStructure);
-
           const filteredStructure = filter
             ? treeStructure.filter((item: NavigationItemDTO) => item.uiRouterKey === filter)
             : treeStructure;
-
-          console.log('filteredStructure', filteredStructure);
 
           if (type === 'RFR') {
             return this.renderRFR({

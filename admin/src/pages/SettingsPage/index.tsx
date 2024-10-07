@@ -72,6 +72,11 @@ const Inner = () => {
     'preferCustomContentTypes',
   ]);
 
+  console.log(control);
+  console.log('contentTypesCurrent', contentTypesCurrent);
+  console.log('contentTypesNameFields', contentTypeNameFieldsCurrent);
+  console.log('additionalFields', additionalFields);
+
   const [restartStatus, setRestartStatus] = useState<RestartStatus>({ required: false });
 
   const readPermissions = useAuth('SettingsPage', (state) => state.permissions);
@@ -345,7 +350,7 @@ const Inner = () => {
                                   const {
                                     contentTypesNameFields = [],
                                     contentTypesPopulate = [],
-                                    pathDefaultFields,
+                                    pathDefaultFields = [],
                                   } = getValues();
 
                                   const missingKeys =
