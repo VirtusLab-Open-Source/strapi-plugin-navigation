@@ -28,6 +28,9 @@ export const RELATED_ITEM_SEPARATOR = '$';
 
 export const ALLOWED_CONTENT_TYPES = ['api::', 'plugin::'] as const;
 export const RESTRICTED_CONTENT_TYPES = [
+  'admin::',
+  'plugin::review-workflows',
+  'plugin::content-releases',
   'plugin::users-permissions',
   'plugin::i18n.locale',
   'plugin::navigation',
