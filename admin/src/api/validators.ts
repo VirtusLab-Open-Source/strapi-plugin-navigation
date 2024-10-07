@@ -56,7 +56,8 @@ export const navigationSchema = z.object({
 });
 
 const navigationCustomFieldBase = z.object({
-  name: z.string(),
+  // TODO: Proper message translation
+  name: z.string().refine((current) => !current.includes(' '), { message: 'No space allowed' }),
   label: z.string(),
   required: z.boolean().optional(),
   enabled: z.boolean().optional(),
