@@ -109,7 +109,7 @@ export const useSettingsForm = (config?: ConfigSchema) => {
   console.log(config);
   const form = useForm({
     resolver: zodResolver(uiFormSchema),
-    defaultValues: config
+    values: config
       ? {
           ...config,
           additionalFields: config.additionalFields.filter((field) => typeof field !== 'string'),
