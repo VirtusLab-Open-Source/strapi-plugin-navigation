@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-import { parseId } from '../../controllers/utils';
 import { getPluginService } from '../../utils';
 
 export const renderNavigationChild = ({ strapi, nexus }: any) => {
@@ -17,7 +16,7 @@ export const renderNavigationChild = ({ strapi, nexus }: any) => {
 
     resolve(_: any, args: any) {
       const { documentId, childUIKey, type, menuOnly } = args;
-      const idOrSlug = parseId(z.string().parse(documentId));
+      const idOrSlug = z.string().parse(documentId);
 
       return getPluginService({ strapi }, 'client').renderChildren({
         idOrSlug,
