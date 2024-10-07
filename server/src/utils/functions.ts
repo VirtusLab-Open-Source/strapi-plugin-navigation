@@ -15,6 +15,7 @@ import {
 } from '../types';
 import {
   ALLOWED_CONTENT_TYPES,
+  FORBIDDEN_CUSTOM_FIELD_NAMES,
   RESTRICTED_CONTENT_TYPES,
   UID_REGEX,
   allLifecycleHooks,
@@ -31,21 +32,6 @@ export const getCustomFields = (
 ): NavigationItemAdditionalField[] => additionalFields.filter((field) => field !== 'audience');
 
 export const validateAdditionalFields = (additionalFields: NavigationItemAdditionalField[]) => {
-  const forbiddenNames = [
-    'title',
-    'type',
-    'path',
-    'externalPath',
-    'uiRouterKey',
-    'menuAttached',
-    'order',
-    'collapsed',
-    'related',
-    'parent',
-    'master',
-    'audience',
-    'additionalFields',
-  ];
   const customFields = getCustomFields(additionalFields);
 
   if (customFields.length !== uniqBy(customFields, 'name').length) {
@@ -56,11 +42,11 @@ export const validateAdditionalFields = (additionalFields: NavigationItemAdditio
     !isNil(
       find(
         customFields,
-        (field) => typeof field === 'object' && includes(forbiddenNames, field.name)
+        (field) => typeof field === 'object' && includes(FORBIDDEN_CUSTOM_FIELD_NAMES, field.name)
       )
     )
   ) {
-    throw new Error(`Name of custom field cannot be one of: ${forbiddenNames.join(', ')}`);
+    throw new Error(`Name of custom field cannot be one of: ${FORBIDDEN_CUSTOM_FIELD_NAMES.join(', ')}`);
   }
 };
 
@@ -87,6 +73,7 @@ export const resolveGlobalLikeId = (uid = '') => {
   if (type === 'api') {
     return parse(contentTypeName);
   }
+
   return `${parse(scope)}${parse(contentTypeName)}`;
 };
 

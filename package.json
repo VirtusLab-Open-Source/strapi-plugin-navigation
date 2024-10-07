@@ -40,6 +40,7 @@
     }
   ],
   "dependencies": {
+    "@faker-js/faker": "^9.0.3",
     "@hookform/resolvers": "3.4.2",
     "@paralleldrive/cuid2": "2.2.2",
     "@sindresorhus/slugify": "1.1.0",

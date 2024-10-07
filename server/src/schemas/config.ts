@@ -40,8 +40,12 @@ export const navigationItemCustomField = z.union([
 ]);
 
 export type NavigationItemAdditionalField = z.infer<typeof navigationItemAdditionalField>;
-export const navigationItemAdditionalField = z.union([z.literal('audience'), navigationItemCustomField]);
+export const navigationItemAdditionalField = z.union([
+  z.literal('audience'),
+  navigationItemCustomField,
+]);
 
+export type ConfigSchema = z.infer<typeof configSchema>;
 export const configSchema = z.object({
   additionalFields: z.array(navigationItemAdditionalField),
   allowedLevels: z.number(),
