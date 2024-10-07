@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { NavigationItemAdditionalField } from '../../../../../schemas';
@@ -122,22 +123,30 @@ const navigationItemFormSchema = (input: FormSchemaBuilderInput) =>
 
 export const useNavigationItemForm = ({
   input,
-  current = defaultValues,
+  current = fallbackDefaultValues,
 }: {
   input: FormSchemaBuilderInput;
   current?: NavigationItemFormSchema;
 }) => {
-  return useForm({
+  const defaultValues = useMemo(
+    (): NavigationItemFormSchema =>
+      // TODO: Update after migration
+      // @ts-expect-error
+      ({
+        ...fallbackDefaultValues,
+        ...current,
+        updated: !!current.documentId,
+      }),
+    [current]
+  );
+
+  return useForm<NavigationItemFormSchema>({
     resolver: zodResolver(navigationItemFormSchema(input)),
-    values: {
-      ...defaultValues,
-      ...current,
-      updated: !!current.id,
-    },
+    defaultValues,
   });
 };
 
-export const defaultValues: NavigationItemFormSchema = {
+export const fallbackDefaultValues: NavigationItemFormSchema = {
   autoSync: true,
   type: 'INTERNAL',
   relatedType: '',

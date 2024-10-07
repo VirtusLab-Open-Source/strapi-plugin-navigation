@@ -108,7 +108,7 @@ export const uiFormSchema = configSchema.omit({ contentTypesNameFields: true }).
 export const useSettingsForm = (config?: ConfigSchema) => {
   const form = useForm({
     resolver: zodResolver(uiFormSchema),
-    values: config
+    defaultValues: config
       ? {
           ...config,
           additionalFields: config.additionalFields.filter((field) => typeof field !== 'string'),
