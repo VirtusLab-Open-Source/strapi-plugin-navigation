@@ -344,6 +344,7 @@ const fr = {
             },
             type: {
               label: "Type de champ personnalisé",
+              description: "Le type de champ personnalisé détermine le type de données que le champ peut contenir",
             },
             required: {
               label: "Champ requis",
@@ -351,10 +352,11 @@ const fr = {
             },
             options: {
               label: "Options pour l'entrée de sélection",
-              description: "Activer ce champ ne changera pas les éléments de navigation déjà existants",
+              description: "Fournir des options séparées par \";\"",
             },
             multi: {
               label: "Activer l'entrée de plusieurs options",
+              description: "Autoriser la sélection simple ou multiple",
             },
           },
         },

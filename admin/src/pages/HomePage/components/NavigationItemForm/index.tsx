@@ -1,13 +1,16 @@
-import { Button, Field, Grid, Modal } from '@strapi/design-system';
 import { useNotification } from '@strapi/strapi/admin';
 import { isEmpty, isNil, sortBy } from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Controller } from 'react-hook-form';
 import { useIntl } from 'react-intl';
-import { AnyEntity } from '@sensinum/strapi-utils';
+import { AnyEntity, Field } from '@sensinum/strapi-utils';
 
 import {
   Box,
+  Button,
+  Divider,
+  Grid,
+  Modal,
   MultiSelect,
   MultiSelectOption,
   SingleSelect,
@@ -15,6 +18,7 @@ import {
   TextInput,
   Toggle,
 } from '@strapi/design-system';
+
 import { NavigationSchema } from '../../../../api/validators';
 import { NavigationItemAdditionalField } from '../../../../schemas';
 import { getTrad } from '../../../../translations';
@@ -33,7 +37,6 @@ import { ContentTypeEntity } from './types';
 import { NavigationItemFormSchema, useNavigationItemForm } from './utils/form';
 import { useSlug } from './utils/hooks';
 import { generatePreviewPath, generateUiRouterKey } from './utils/properties';
-import { Divider } from '@strapi/design-system';
 
 export { ContentTypeEntity, GetContentTypeEntitiesPayload } from './types';
 export { NavigationItemFormSchema } from './utils/form';
@@ -144,7 +147,8 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
     currentType,
     currentTitle,
     autoSyncEnabled,
-  ] = watch(['relatedType', 'related', 'path', 'type', 'title', 'autoSync']);
+    currentAdditionalFields,
+  ] = watch(['relatedType', 'related', 'path', 'type', 'title', 'autoSync', 'additionalFields']);
 
   const isExternal = currentType === 'EXTERNAL';
 
@@ -395,15 +399,12 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
               control={control}
               name="title"
               render={({ field: { value, onChange, name }, fieldState }) => (
-                <Field.Root
-                  width="100%"
+                <Field
+                  name={name}
+                  label={formatMessage(getTrad('popup.item.form.title.label', 'Title'))}
                   error={fieldState.error?.message}
                   hint={formatMessage(getTrad('popup.item.form.title.placeholder', 'e.g. Blog'))}
                 >
-                  <Field.Label>
-                    {formatMessage(getTrad('popup.item.form.title.label', 'Title'))}
-                  </Field.Label>
-
                   <TextInput
                     type="string"
                     disabled={!canUpdate || (autoSyncEnabled && currentType === 'INTERNAL')}
@@ -411,11 +412,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                     onChange={onChange}
                     value={value}
                   />
-
-                  <Field.Hint />
-
-                  <Field.Error />
-                </Field.Root>
+                </Field>
               )}
             />
           </Grid.Item>
@@ -425,15 +422,11 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
               control={control}
               name="type"
               render={({ field: { value, onChange, name }, fieldState }) => (
-                <Field.Root
+                <Field
+                  name={name}
+                  label={formatMessage(getTrad('popup.item.form.type.label', 'Internal link'))}
                   error={fieldState.error?.message}
-                  hint={formatMessage(getTrad('popup.item.form.title.placeholder', 'e.g. Blog'))}
-                  width="100%"
-                >
-                  <Field.Label>
-                    {formatMessage(getTrad('popup.item.form.type.label', 'Internal link'))}
-                  </Field.Label>
-
+                  hint={formatMessage(getTrad('popup.item.form.title.placeholder', 'e.g. Blog'))}>
                   <SingleSelect
                     onChange={onChange}
                     value={value}
@@ -447,11 +440,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                       </SingleSelectOption>
                     ))}
                   </SingleSelect>
-
-                  <Field.Hint />
-
-                  <Field.Error />
-                </Field.Root>
+                </Field>
               )}
             />
           </Grid.Item>
@@ -461,20 +450,16 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
               control={control}
               name="menuAttached"
               render={({ field: { value, onChange, name }, fieldState }) => (
-                <Field.Root
-                  width="100%"
+                <Field
+                  name={name}
+                  label={formatMessage(getTrad('popup.item.form.menuAttached.label', 'MenuAttached'))}
                   error={fieldState.error?.message}
                   hint={formatMessage(
                     getTrad(
                       'popup.item.form.menuAttached.placeholder',
                       'is menu item attached to menu'
                     )
-                  )}
-                >
-                  <Field.Label>
-                    {formatMessage(getTrad('popup.item.form.menuAttached.label', 'MenuAttached'))}
-                  </Field.Label>
-
+                  )}>
                   <Toggle
                     name={name}
                     checked={value}
@@ -496,11 +481,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                     }
                     width="100%"
                   />
-
-                  <Field.Hint />
-
-                  <Field.Error />
-                </Field.Root>
+                </Field>
               )}
             />
           </Grid.Item>
@@ -511,13 +492,12 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                 control={control}
                 name="autoSync"
                 render={({ field: { value, onChange, name }, fieldState }) => (
-                  <Field.Root error={fieldState.error?.message} width="230px">
-                    <Field.Label>
-                      {formatMessage(
-                        getTrad('popup.item.form.autoSync.label', 'Read fields from related')
-                      )}
-                    </Field.Label>
-
+                  <Field
+                    name={name}
+                    label={formatMessage(
+                      getTrad('popup.item.form.autoSync.label', 'Read fields from related')
+                    )}
+                    error={fieldState.error?.message}>
                     <Toggle
                       name={name}
                       checked={value}
@@ -531,9 +511,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                       onLabel="Enabled"
                       offLabel="Disabled"
                     />
-
-                    <Field.Error />
-                  </Field.Root>
+                  </Field>
                 )}
               />
             </Grid.Item>
@@ -558,7 +536,9 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                 });
 
                 return (
-                  <Field.Root
+                  <Field
+                    name={name}
+                    label={formatMessage(getTrad(`popup.item.form.${pathSourceName}.label`, 'Path'))}
                     error={fieldState.error?.message}
                     hint={[
                       formatMessage(
@@ -569,13 +549,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                           value: pathDefault,
                         })
                         : '',
-                    ].join(' ')}
-                    width="100%"
-                  >
-                    <Field.Label>
-                      {formatMessage(getTrad(`popup.item.form.${pathSourceName}.label`, 'Path'))}
-                    </Field.Label>
-
+                    ].join(' ')}>
                     <TextInput
                       disabled={!canUpdate}
                       name={name}
@@ -583,11 +557,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                       value={value}
                       width="100%"
                     />
-
-                    <Field.Hint />
-
-                    <Field.Error />
-                  </Field.Root>
+                  </Field>
                 );
               }}
             />
@@ -600,8 +570,9 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                   control={control}
                   name="relatedType"
                   render={({ field: { value, onChange, name }, fieldState }) => (
-                    <Field.Root
-                      width="100%"
+                    <Field
+                      name={name}
+                      label={formatMessage(getTrad('popup.item.form.relatedType.label', 'Related Type'))}
                       error={fieldState.error?.message}
                       hint={
                         !isLoading && isEmpty(relatedTypeSelectOptions)
@@ -612,14 +583,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                             )
                           )
                           : undefined
-                      }
-                    >
-                      <Field.Label>
-                        {formatMessage(
-                          getTrad('popup.item.form.relatedType.label', 'Related Type')
-                        )}
-                      </Field.Label>
-
+                      }>
                       <SingleSelect
                         name={name}
                         onChange={(nextType: string) => {
@@ -637,11 +601,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                           </SingleSelectOption>
                         ))}
                       </SingleSelect>
-
-                      <Field.Hint />
-
-                      <Field.Error />
-                    </Field.Root>
+                    </Field>
                   )}
                 />
               </Grid.Item>
@@ -652,7 +612,9 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                     control={control}
                     name="related"
                     render={({ field: { value, onChange, name }, fieldState }) => (
-                      <Field.Root
+                      <Field
+                        name={name}
+                        label={formatMessage(getTrad('popup.item.form.related.label', 'Related'))}
                         error={fieldState.error?.message}
                         hint={
                           !isLoading && thereAreNoMoreContentTypes
@@ -664,13 +626,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                               { contentTypeName: currentRelatedType }
                             )
                             : undefined
-                        }
-                        width="100%"
-                      >
-                        <Field.Label>
-                          {formatMessage(getTrad('popup.item.form.related.label', 'Related'))}
-                        </Field.Label>
-
+                        }>
                         <SingleSelect
                           name={name}
                           onChange={onChange}
@@ -685,19 +641,20 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                             </SingleSelectOption>
                           ))}
                         </SingleSelect>
-
-                        <Field.Hint />
-
-                        <Field.Error />
-                      </Field.Root>
+                      </Field>
                     )}
                   />
                 </Grid.Item>
               )}
             </>
           )}
+
+          {!isEmpty(configQuery.data?.additionalFields) && (<Grid.Item col={12} lg={12}>
+            <Divider width="100%" />
+          </Grid.Item>)}
+
           {configQuery.data?.additionalFields.map(
-            (additionalField: NavigationItemAdditionalField) => {
+            (additionalField: NavigationItemAdditionalField, index: number) => {
               if (additionalField === 'audience') {
                 return (
                   <Grid.Item alignItems="flex-start" key="audience" col={6} lg={12}>
@@ -705,7 +662,9 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                       control={control}
                       name="audience"
                       render={({ field: { value, onChange, name }, fieldState }) => (
-                        <Field.Root
+                        <Field
+                          name={name}
+                          label={formatMessage(getTrad('popup.item.form.audience.label'))}
                           error={fieldState.error?.message}
                           hint={
                             !isLoading && isEmpty(audienceOptions)
@@ -713,30 +672,20 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                                 getTrad('popup.item.form.title.placeholder', 'e.g. Blog')
                               )
                               : undefined
-                          }
-                          width="100%"
-                        >
-                          <Field.Label>
-                            {formatMessage(getTrad('popup.item.form.audience.label'))}
-                          </Field.Label>
-
+                          }>
                           <MultiSelect
                             name={name}
-                            value={value?.map((x) => x.toString())}
-                            onChange={(next: Array<string>) => onChange(next.map(Number))}
+                            value={value}
+                            onChange={onChange}
                             width="100%"
                           >
                             {audienceOptions.map(({ value, label }) => (
-                              <MultiSelectOption key={value} value={value.toString()}>
+                              <MultiSelectOption key={value} value={value}>
                                 {label}
                               </MultiSelectOption>
                             ))}
                           </MultiSelect>
-
-                          <Field.Hint />
-
-                          <Field.Error />
-                        </Field.Root>
+                        </Field>
                       )}
                     />
                   </Grid.Item>
@@ -744,23 +693,25 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
               } else {
                 return (
                   <Grid.Item alignItems="flex-start" key={additionalField.name} col={6} lg={12}>
-                    {additionalField.name}
                     <Controller
                       control={control}
                       name={`additionalFields.${additionalField.name}`}
-                      render={({ field: { value, onChange }, fieldState }) => (
-                        <Field.Root error={fieldState.error?.message}>
-                          <AdditionalFieldInput
-                            field={additionalField}
-                            isLoading={isLoading}
-                            onChange={onChange}
-                            value={value}
-                            disabled={!canUpdate}
-                          />
-
-                          <Field.Error />
-                        </Field.Root>
-                      )}
+                      render={({ field: { value, onChange, name }, fieldState }) => (
+                          <Field
+                            name={name}
+                            label={additionalField.label}
+                            error={fieldState.error?.message}>
+                            <AdditionalFieldInput
+                              name={name}
+                              field={additionalField}
+                              isLoading={isLoading}
+                              onChange={onChange}
+                              value={value}
+                              disabled={!canUpdate}
+                            />
+                          </Field>
+                        )
+                      }
                     />
                   </Grid.Item>
                 );
@@ -775,11 +726,9 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
 
             <Grid.Root gap={5}>
               <Grid.Item alignItems="flex-start" col={6} lg={12}>
-                <Field.Root width="100%">
-                  <Field.Label>
-                    {formatMessage(getTrad('popup.item.form.i18n.locale.label', 'Copy details from'))}
-                  </Field.Label>
-
+                <Field 
+                    name="i18n.locale"
+                    label={formatMessage(getTrad('popup.item.form.i18n.locale.label', 'Copy details from'))}>
                   <SingleSelect
                     name="i18n.locale"
                     onChange={setItemLocaleCopyValue}
@@ -795,7 +744,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                       </SingleSelectOption>
                     ))}
                   </SingleSelect>
-                </Field.Root>
+                </Field>
               </Grid.Item>
 
               {canUpdate && (
