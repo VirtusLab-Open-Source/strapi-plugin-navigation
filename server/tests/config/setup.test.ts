@@ -69,7 +69,7 @@ describe('Navigation', () => {
           getContentTypes.mockReturnValue({});
 
           // Then
-          expect(async () => {
+          await expect(async () => {
             await configSetup({ strapi });
           }).rejects.toThrow(ZodError);
         });
