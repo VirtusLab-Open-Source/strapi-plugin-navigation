@@ -7,13 +7,15 @@ import navigation from './navigation';
 import navigationConfig from './navigation-config';
 import navigationDetails from './navigation-details';
 import navigationItem from './navigation-item';
-import navigationItemAdditionalField from './navigation-item-additional-field-media';
+import navigationItemAdditionalFields from './navigation-item-additional-fields';
+import navigationItemAdditionalFieldMedia from './navigation-item-additional-field-media';
 import navigationItemRelated from './navigation-item-related';
 import navigationItemRelatedData from './navigation-item-related-data';
 import renderType from './navigation-render-type';
 
 const typesFactories = [
-  navigationItemAdditionalField,
+  navigationItemAdditionalFieldMedia,
+  navigationItemAdditionalFields,
   navigationItemRelated,
   navigationItemRelatedData,
   navigationItem,

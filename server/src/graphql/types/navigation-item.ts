@@ -18,6 +18,12 @@ export default ({ nexus, config }: any) =>
       t.list.field('items', { type: 'NavigationItem' });
       t.field('related', { type: 'NavigationItemRelatedData' });
 
+      if (config.additionalFields.find((field: NavigationItemAdditionalField) => field === 'audience')) {
+        t.list.string('audience');
+      }
+
+      t.field('additionalFields', { type: 'NavigationItemAdditionalFields' });
+
       // SQL
       t.string('created_at');
       t.string('updated_at');
@@ -28,34 +34,5 @@ export default ({ nexus, config }: any) =>
       t.string('updatedAt');
       t.string('createdBy');
       t.string('updatedBy');
-
-      // Additional Fields
-      config.additionalFields.forEach((field: NavigationItemAdditionalField) => {
-        if (field !== 'audience') {
-          if (field.enabled) {
-            switch (field.type) {
-              case 'media':
-                t.field(field.name, { type: 'NavigationItemAdditionalFieldMedia' });
-                break;
-              case 'string':
-                t.string(field.name);
-                break;
-              case 'boolean':
-                t.boolean(field.name);
-                break;
-              case 'select':
-                if (field.multi) t.list.string(field.name);
-                else t.string(field.name);
-                break;
-              default:
-                throw new Error(
-                  `Type "${JSON.stringify((field as any).type)}" is unsupported by custom fields`
-                );
-            }
-          }
-        } else {
-          t.list.string('audience');
-        }
-      });
     },
   });

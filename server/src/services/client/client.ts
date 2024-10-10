@@ -297,6 +297,26 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
         (_) => typeof _ !== 'string'
       ) as NavigationItemCustomField[];
 
+      const additionalFieldsMapper = (item: NavigationItemDTO) => (acc: {}, field: string) => {
+        const fieldDefinition = customFieldsDefinitions.find(({ name }) => name === field);
+        let content = get(item, `additionalFields.${field}`);
+
+        if (content) {
+          switch (fieldDefinition?.type) {
+            case 'media':
+              content = pick(JSON.parse(content as string), mediaFields);
+              break;
+            case 'boolean':
+              content = content === 'true';
+              break;
+            default:
+              break;
+          }
+        }
+
+        return { ...acc, [field]: content };
+      };
+
       switch (type) {
         case 'TREE':
         case 'RFR':
@@ -320,15 +340,7 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
                 : undefined;
             const lastRelated = isArray(item.related) ? last(item.related) : item.related;
             const relatedContentType = wrapContentType(lastRelated);
-            const customFields = enabledCustomFieldsNames.reduce((acc, field) => {
-              const mapper =
-                customFieldsDefinitions.find(({ name }) => name === field)?.type === 'media'
-                  ? (_: string) => pick(JSON.parse(_), mediaFields)
-                  : (_: string) => _;
-              const content = get(item, `additionalFields.${field}`);
-
-              return { ...acc, [field]: content ? mapper(content as string) : content };
-            }, {});
+            const customFields = enabledCustomFieldsNames.reduce(additionalFieldsMapper(item), {});
 
             return {
               id: item.id,
@@ -360,7 +372,7 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
                   items: mappedItems,
                 }),
               collapsed: item.collapsed,
-              ...customFields,
+              additionalFields: customFields || {},
             };
           };
 
@@ -417,20 +429,7 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
 
           return result
             .map(({ additionalFields, ...item }: NavigationItemDTO) => {
-              const customFields = enabledCustomFieldsNames.reduce((acc, field) => {
-                const mapper =
-                  customFieldsDefinitions.find(({ name }) => name === field)?.type === 'media'
-                    ? (_: string | boolean) => pick(JSON.parse(_.toString()), mediaFields)
-                    : (_: string | boolean) => _;
-                const content = get(additionalFields, field);
-
-                return {
-                  ...acc,
-                  [field]: content
-                    ? mapper(typeof content === 'boolean' ? content : content.toString())
-                    : content,
-                };
-              }, {});
+              const customFields = enabledCustomFieldsNames.reduce(additionalFieldsMapper(item), {});
 
               return {
                 ...item,
