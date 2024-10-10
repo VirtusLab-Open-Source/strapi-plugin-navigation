@@ -17,7 +17,7 @@ const TextArrayInput: React.FC<IProps> = ({ onChange, initialValue, ...props }) 
   const [value, setValue] = useState(
     isArray(initialValue) ? initialValue.reduce((acc, cur) => `${acc}${cur}; `, '') : ''
   );
-  const handleOnChange = ({ target: { value } }: React.BaseSyntheticEvent) => {
+  const handleOnChange = (value: string) => {
     const newValue: string = value;
     const valuesArray = newValue
       .split(';')

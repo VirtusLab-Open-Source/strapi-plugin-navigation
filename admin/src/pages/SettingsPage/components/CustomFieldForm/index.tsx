@@ -1,15 +1,15 @@
-import React from 'react';
-import { Controller } from 'react-hook-form';
+import React, { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
+import { Form } from '@strapi/strapi/admin';
 import { Button, Grid, Modal, SingleSelect, SingleSelectOption, TextInput, Toggle } from '@strapi/design-system';
 import { Field } from "@sensinum/strapi-utils";
 
 import TextArrayInput from '../../../../components/TextArrayInput';
-import { NavigationItemCustomField } from '../../../../schemas';
+import { navigationItemCustomField, NavigationItemCustomField } from '../../../../schemas';
 import { getTrad } from '../../../../translations';
-import { Effect, ToBeFixed, VoidEffect } from '../../../../types';
+import { Effect, FormChangeEvent, FormItemErrorSchema, ToBeFixed, VoidEffect } from '../../../../types';
 import { customFieldsTypes } from '../../common';
-import { useCustomFieldForm } from './hooks';
+import { get, isNil, isObject, isString, set } from 'lodash';
 
 const tradPrefix = 'pages.settings.form.customFields.popup.';
 
@@ -45,73 +45,118 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({
 
   const { formatMessage } = useIntl();
 
-  const { control, handleSubmit, watch } = useCustomFieldForm(customField);
-  const [type] = watch(['type']);
+  const [formValue, setFormValue] = useState<NavigationItemCustomField>({} as NavigationItemCustomField);
+  const [formError, setFormError] = useState<FormItemErrorSchema<NavigationItemCustomField>>();
 
-  const submit = handleSubmit(onSubmit as any);
+  const { type } = formValue;
+
+  useEffect(() => {
+    if (customField) {
+      setFormValue({
+        ...customField
+      } as NavigationItemCustomField);
+    }
+  }, [customField])
+
+  const handleChange = (eventOrPath: FormChangeEvent, value?: any, nativeOnChange?: (eventOrPath: FormChangeEvent, value?: any) => void) => {
+    if (nativeOnChange) {
+
+      let fieldName = eventOrPath;
+      let fieldValue = value;
+      if (isObject(eventOrPath)) {
+        const { name: targetName, value: targetValue } = eventOrPath.target;
+        fieldName = targetName;
+        fieldValue = isNil(fieldValue) ? targetValue : fieldValue;
+      }
+
+      if (isString(fieldName)) {
+        setFormValueItem(fieldName, fieldValue);
+      }
+
+      return nativeOnChange(eventOrPath, fieldValue);
+    }
+  };
+
+  const setFormValueItem = (path: string, value: any) => {
+    setFormValue(set({
+      ...formValue,
+    }, path, value));
+  };
+
+  const renderError = (error: string): string | undefined => {
+    const errorOccurence = get(formError, error);
+    if (errorOccurence) {
+      return formatMessage(getTrad(error));
+    }
+    return undefined;
+  };
+
+
+  const submit = (e: React.MouseEvent, values: NavigationItemCustomField) => {
+    const { success, data, error } = navigationItemCustomField.safeParse(values);
+    if (success) {
+      onSubmit(values);
+    } else if (error) {
+      setFormError(error.issues.reduce((acc, err) => {
+        return {
+          ...acc,
+          [err.path.join('.')]: err.message
+        }
+      }, {} as FormItemErrorSchema<NavigationItemCustomField>));
+    }
+  }
 
   return (
     <>
       <Modal.Body>
-        <Grid.Root gap={5}>
-          <Grid.Item key="name" col={12}>
-            <Controller
-              control={control}
-              name="name"
-              render={({ field: { name, onChange, value }, fieldState }) => (
+        <Form
+          method="POST"
+          initialValues={formValue}
+        >
+          {({ values, onChange }) => {
+            return (<Grid.Root gap={5}>
+              <Grid.Item key="name" col={12}>
                 <Field
-                  name={name}
+                  name="name"
                   label={formatMessage(getTrad(`${tradPrefix}name.label`))}
                   hint={formatMessage(getTrad(`${tradPrefix}name.description`))}
-                  error={fieldState.error?.message}>
+                  error={renderError('name')}>
                   <TextInput
-                    name={name}
-                    value={value}
-                    onChange={onChange}
+                    name="name"
+                    value={values.name}
+                    onChange={(eventOrPath: FormChangeEvent, value?: any) => handleChange(eventOrPath, value, onChange)}
                     placeholder={formatMessage(getTrad(`${tradPrefix}name.placeholder`))}
                     type="string"
                     disabled={isEditForm}
                     width="100%"
                   />
                 </Field>
-              )}
-            />
-          </Grid.Item>
-          <Grid.Item key="label" col={12}>
-            <Controller
-              control={control}
-              name="label"
-              render={({ field: { name, onChange, value }, fieldState }) => (
+              </Grid.Item>
+              <Grid.Item key="label" col={12}>
                 <Field
-                  name={name}
+                  name="label"
                   label={formatMessage(getTrad(`${tradPrefix}label.label`))}
                   hint={formatMessage(getTrad(`${tradPrefix}label.description`))}
-                  error={fieldState.error?.message}>
+                  error={renderError('label')}>
                   <TextInput
-                    name={name}
-                    value={value}
-                    onChange={onChange}
+                    name="label"
+                    value={values.label}
+                    onChange={(eventOrPath: FormChangeEvent, value?: any) => handleChange(eventOrPath, value, onChange)}
                     placeholder={formatMessage(getTrad(`${tradPrefix}label.placeholder`))}
                     type="string"
                     width="100%"
                   />
                 </Field>
-              )}
-            />
-          </Grid.Item>
-          <Grid.Item key="type" col={12}>
-            <Controller
-              control={control}
-              name="type"
-              render={({ field: { name, onChange, value } }) => (
+              </Grid.Item>
+              <Grid.Item key="type" col={12}>
                 <Field
-                  name={name}
+                  name="type"
                   label={formatMessage(getTrad(`${tradPrefix}type.label`))}
                   hint={formatMessage(getTrad(`${tradPrefix}type.description`))}>
                   <SingleSelect
-                    name={name}
-                    value={value}
-                    onChange={onChange}
+                    name="type"
+                    value={values.type}
+                    onChange={(eventOrPath: FormChangeEvent) => handleChange('type', eventOrPath, onChange)}
                     disabled={isEditForm}
                     width="100%"
                   >
@@ -122,86 +167,59 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({
                     ))}
                   </SingleSelect>
                 </Field>
-              )}
-            />
-          </Grid.Item>
-          {(type as ToBeFixed) === 'select' && (
-            <>
-              <Grid.Item key="multi" col={12}>
-                <Controller
-                  control={control}
-                  name="multi"
-                  render={({ field: { name, onChange, value }, fieldState }) => (
+              </Grid.Item>
+              {(type as ToBeFixed) === 'select' && (
+                <>
+                  <Grid.Item key="multi" col={12}>
                     <Field
-                      name={name}
+                      name="multi"
                       label={formatMessage(getTrad(`${tradPrefix}multi.label`))}
                       hint={formatMessage(getTrad(`${tradPrefix}multi.description`))}
-                      error={fieldState.error?.message}>
+                      error={renderError("multi")}>
                       <Toggle
-                        name={name}
-                        checked={value}
-                        onChange={({
-                          currentTarget: { checked },
-                        }: {
-                          currentTarget: { checked: boolean };
-                        }) => {
-                          onChange(checked);
-                        }}
+                        name="multi"
+                        checked={values.multi}
+                        onChange={(eventOrPath: FormChangeEvent) => handleChange(eventOrPath, !values.multi, onChange)}
                         onLabel="true"
                         offLabel="false"
                         width="100%"
                       />
                     </Field>
-                  )}
-                />
-              </Grid.Item>
-              <Grid.Item key="options" col={12}>
-                <Controller
-                  control={control}
-                  name="options"
-                  render={({ field: { name, onChange, value }, fieldState }) => (
+                  </Grid.Item>
+                  <Grid.Item key="options" col={12}>
                     <Field
-                      name={name}
+                      name="options"
                       label={formatMessage(getTrad(`${tradPrefix}options.label`))}
                       hint={formatMessage(getTrad(`${tradPrefix}options.description`))}
-                      error={fieldState.error?.message}>
-                      <TextArrayInput name={name} onChange={onChange} initialValue={value} />
+                      error={renderError('options')}>
+                      <TextArrayInput
+                        name="options"
+                        onChange={(value: string[]) => handleChange('options', value, onChange)}
+                        initialValue={values.options} />
                     </Field>
-                  )}
-                />
-              </Grid.Item>
-            </>
-          )}
-          <Grid.Item key="required" col={12} >
-            <Controller
-              control={control}
-              name="required"
-              render={({ field: { name, onChange, value }, fieldState }) => (
+                  </Grid.Item>
+                </>
+              )}
+              <Grid.Item key="required" col={12} >
                 <Field
-                  name={name}
+                  name="required"
                   label={formatMessage(getTrad(`${tradPrefix}required.label`))}
                   hint={formatMessage(getTrad(`${tradPrefix}required.description`))}
-                  error={fieldState.error?.message}>
+                  error={renderError('required')}>
                   <Toggle
-                    name={name}
+                    name="required"
                     placeholder={formatMessage(getTrad(`${tradPrefix}required.placeholder`))}
-                    checked={value}
-                    onChange={({
-                      currentTarget: { checked },
-                    }: {
-                      currentTarget: { checked: boolean };
-                    }) => {
-                      onChange(checked);
-                    }}
+                    checked={values.required}
+                    onChange={(eventOrPath: FormChangeEvent) => handleChange(eventOrPath, !values.required, onChange)}
                     onLabel="true"
                     offLabel="false"
                     width="100%"
                   />
                 </Field>
-              )}
-            />
-          </Grid.Item>
-        </Grid.Root>
+              </Grid.Item>
+            </Grid.Root>);
+          }}
+        </Form>
       </Modal.Body>
       <Modal.Footer>
         <Modal.Close>
@@ -209,7 +227,7 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({
             {formatMessage(getTrad('popup.item.form.button.cancel'))}
           </Button>
         </Modal.Close>
-        <Button onClick={submit}>{formatMessage(getTrad(`popup.item.form.button.save`))}</Button>
+        <Button onClick={(e: React.MouseEvent) => submit(e, formValue)}>{formatMessage(getTrad(`popup.item.form.button.save`))}</Button>
       </Modal.Footer>
     </>
   );

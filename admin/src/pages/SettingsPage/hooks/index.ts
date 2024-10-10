@@ -1,11 +1,9 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import { getFetchClient } from '@strapi/strapi/admin';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { getApiClient } from '../../../api';
-import { ConfigSchema, configSchema } from '../../../schemas';
+import { configSchema } from '../../../schemas';
 import { resolveGlobalLikeId } from '../utils';
 
 export const useConfig = () => {
@@ -104,35 +102,3 @@ export const uiFormSchema = configSchema.omit({ contentTypesNameFields: true }).
     })
     .array(),
 });
-
-export const useSettingsForm = (config?: ConfigSchema) => {
-  console.log(config);
-  const form = useForm({
-    resolver: zodResolver(uiFormSchema),
-    values: config
-      ? {
-          ...config,
-          additionalFields: config.additionalFields.filter((field) => typeof field !== 'string'),
-          audienceFieldChecked: config.additionalFields.includes('audience'),
-          contentTypesNameFields: Object.entries(config.contentTypesNameFields).map(
-            ([key, fields]) => ({
-              key,
-              fields,
-            })
-          ),
-          contentTypesPopulate: Object.entries(config.contentTypesPopulate).map(
-            ([key, fields]) => ({
-              key,
-              fields,
-            })
-          ),
-          pathDefaultFields: Object.entries(config.pathDefaultFields).map(([key, fields]) => ({
-            key,
-            fields,
-          })),
-        }
-      : undefined,
-  });
-
-  return { form };
-};
