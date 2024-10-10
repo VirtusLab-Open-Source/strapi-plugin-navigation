@@ -344,6 +344,7 @@ const en = {
             },
             type: {
               label: "Custom field type",
+              description: "Type of the custom field, define how it will be displayed",
             },
             required: {
               label: "Require field",
@@ -351,10 +352,11 @@ const en = {
             },
             options: {
               label: "Options for select input",
-              description: "Enabling this field will not change already exiting navigation items",
+              description: "Provide options separated by \";\"",
             },
             multi: {
               label: "Enable multiple options input",
+              description: "Allow single or multiple options selection",
             },
           },
         },

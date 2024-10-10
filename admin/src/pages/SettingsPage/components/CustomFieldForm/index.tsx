@@ -1,14 +1,13 @@
 import React from 'react';
-
-import { Button, Field, Grid, Modal } from '@strapi/design-system';
-
-import { SingleSelect, SingleSelectOption, TextInput, Toggle } from '@strapi/design-system';
 import { Controller } from 'react-hook-form';
 import { useIntl } from 'react-intl';
+import { Button, Grid, Modal, SingleSelect, SingleSelectOption, TextInput, Toggle } from '@strapi/design-system';
+import { Field } from "@sensinum/strapi-utils";
+
 import TextArrayInput from '../../../../components/TextArrayInput';
 import { NavigationItemCustomField } from '../../../../schemas';
 import { getTrad } from '../../../../translations';
-import { Effect, VoidEffect } from '../../../../types';
+import { Effect, ToBeFixed, VoidEffect } from '../../../../types';
 import { customFieldsTypes } from '../../common';
 import { useCustomFieldForm } from './hooks';
 
@@ -60,9 +59,11 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({
               control={control}
               name="name"
               render={({ field: { name, onChange, value }, fieldState }) => (
-                <Field.Root error={fieldState.error?.message} width="100%">
-                  <Field.Label>{formatMessage(getTrad(`${tradPrefix}name.label`))}</Field.Label>
-
+                <Field
+                  name={name}
+                  label={formatMessage(getTrad(`${tradPrefix}name.label`))}
+                  hint={formatMessage(getTrad(`${tradPrefix}name.description`))}
+                  error={fieldState.error?.message}>
                   <TextInput
                     name={name}
                     value={value}
@@ -72,9 +73,7 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({
                     disabled={isEditForm}
                     width="100%"
                   />
-                  <Field.Hint>{formatMessage(getTrad(`${tradPrefix}name.description`))}</Field.Hint>
-                  <Field.Error />
-                </Field.Root>
+                </Field>
               )}
             />
           </Grid.Item>
@@ -83,9 +82,11 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({
               control={control}
               name="label"
               render={({ field: { name, onChange, value }, fieldState }) => (
-                <Field.Root error={fieldState.error?.message} width="100%">
-                  <Field.Label>{formatMessage(getTrad(`${tradPrefix}label.label`))}</Field.Label>
-
+                <Field
+                  name={name}
+                  label={formatMessage(getTrad(`${tradPrefix}label.label`))}
+                  hint={formatMessage(getTrad(`${tradPrefix}label.description`))}
+                  error={fieldState.error?.message}>
                   <TextInput
                     name={name}
                     value={value}
@@ -94,12 +95,7 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({
                     type="string"
                     width="100%"
                   />
-
-                  <Field.Hint>
-                    {formatMessage(getTrad(`${tradPrefix}label.description`))}
-                  </Field.Hint>
-                  <Field.Error />
-                </Field.Root>
+                </Field>
               )}
             />
           </Grid.Item>
@@ -108,9 +104,10 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({
               control={control}
               name="type"
               render={({ field: { name, onChange, value } }) => (
-                <Field.Root width="100%">
-                  <Field.Label>{formatMessage(getTrad(`${tradPrefix}type.label`))}</Field.Label>
-
+                <Field
+                  name={name}
+                  label={formatMessage(getTrad(`${tradPrefix}type.label`))}
+                  hint={formatMessage(getTrad(`${tradPrefix}type.description`))}>
                   <SingleSelect
                     name={name}
                     value={value}
@@ -124,24 +121,22 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({
                       </SingleSelectOption>
                     ))}
                   </SingleSelect>
-
-                  <Field.Hint>{formatMessage(getTrad(`${tradPrefix}type.description`))}</Field.Hint>
-                </Field.Root>
+                </Field>
               )}
             />
           </Grid.Item>
-          {type === 'select' && (
+          {(type as ToBeFixed) === 'select' && (
             <>
               <Grid.Item key="multi" col={12}>
                 <Controller
                   control={control}
                   name="multi"
                   render={({ field: { name, onChange, value }, fieldState }) => (
-                    <Field.Root error={fieldState.error?.message} width="100%">
-                      <Field.Label>
-                        {formatMessage(getTrad(`${tradPrefix}multi.label`))}
-                      </Field.Label>
-
+                    <Field
+                      name={name}
+                      label={formatMessage(getTrad(`${tradPrefix}multi.label`))}
+                      hint={formatMessage(getTrad(`${tradPrefix}multi.description`))}
+                      error={fieldState.error?.message}>
                       <Toggle
                         name={name}
                         checked={value}
@@ -156,12 +151,7 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({
                         offLabel="false"
                         width="100%"
                       />
-
-                      <Field.Hint>
-                        {formatMessage(getTrad(`${tradPrefix}multi.description`))}
-                      </Field.Hint>
-                      <Field.Error />
-                    </Field.Root>
+                    </Field>
                   )}
                 />
               </Grid.Item>
@@ -170,18 +160,13 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({
                   control={control}
                   name="options"
                   render={({ field: { name, onChange, value }, fieldState }) => (
-                    <Field.Root error={fieldState.error?.message} width="100%">
-                      <Field.Label>
-                        {formatMessage(getTrad(`${tradPrefix}options.label`))}
-                      </Field.Label>
-
+                    <Field
+                      name={name}
+                      label={formatMessage(getTrad(`${tradPrefix}options.label`))}
+                      hint={formatMessage(getTrad(`${tradPrefix}options.description`))}
+                      error={fieldState.error?.message}>
                       <TextArrayInput name={name} onChange={onChange} initialValue={value} />
-
-                      <Field.Hint>
-                        {formatMessage(getTrad(`${tradPrefix}options.description`))}
-                      </Field.Hint>
-                      <Field.Error />
-                    </Field.Root>
+                    </Field>
                   )}
                 />
               </Grid.Item>
@@ -192,9 +177,11 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({
               control={control}
               name="required"
               render={({ field: { name, onChange, value }, fieldState }) => (
-                <Field.Root error={fieldState.error?.message} width="100%">
-                  <Field.Label>{formatMessage(getTrad(`${tradPrefix}required.label`))}</Field.Label>
-
+                <Field
+                  name={name}
+                  label={formatMessage(getTrad(`${tradPrefix}required.label`))}
+                  hint={formatMessage(getTrad(`${tradPrefix}required.description`))}
+                  error={fieldState.error?.message}>
                   <Toggle
                     name={name}
                     placeholder={formatMessage(getTrad(`${tradPrefix}required.placeholder`))}
@@ -210,12 +197,7 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({
                     offLabel="false"
                     width="100%"
                   />
-
-                  <Field.Hint>
-                    {formatMessage(getTrad(`${tradPrefix}required.description`))}
-                  </Field.Hint>
-                  <Field.Error />
-                </Field.Root>
+                </Field>
               )}
             />
           </Grid.Item>

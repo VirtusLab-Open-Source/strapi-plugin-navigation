@@ -2,7 +2,7 @@ import { Core } from '@strapi/strapi';
 import { Context as KoaContext } from 'koa';
 import * as z from 'zod';
 import { getPluginService } from '../utils';
-import { parseId, sanitizePopulateField } from './utils';
+import { sanitizePopulateField } from './utils';
 import {
   populateSchema,
   readAllQuerySchema,
@@ -44,7 +44,7 @@ export default function clientController(context: { strapi: Core.Strapi }) {
         locale,
         populate,
       } = renderQuerySchema.parse(query);
-      const idOrSlug = parseId(z.string().parse(params.idOrSlug));
+      const idOrSlug = z.string().parse(params.idOrSlug);
 
       return await this.getService().render({
         idOrSlug,
@@ -70,7 +70,7 @@ export default function clientController(context: { strapi: Core.Strapi }) {
       const { params, query = {} } = ctx;
       const { type, menu: menuOnly, locale } = renderChildQueryParams.parse(query);
 
-      const idOrSlug = parseId(z.string().parse(params.id));
+      const idOrSlug = z.string().parse(params.documentId);
       const childUIKey = z.string().parse(params.childUIKey);
 
       return await this.getService().renderChildren({

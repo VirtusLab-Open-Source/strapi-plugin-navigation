@@ -1,4 +1,4 @@
-import { faker } from '@faker-js/faker/.';
+import { faker } from '@faker-js/faker';
 import { Core } from '@strapi/strapi';
 import { ZodError } from 'zod';
 
@@ -69,7 +69,7 @@ describe('Navigation', () => {
           getContentTypes.mockReturnValue({});
 
           // Then
-          expect(async () => {
+          await expect(async () => {
             await configSetup({ strapi });
           }).rejects.toThrow(ZodError);
         });

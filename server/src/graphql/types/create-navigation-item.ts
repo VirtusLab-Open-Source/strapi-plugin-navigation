@@ -9,8 +9,8 @@ export default ({ nexus }: any) =>
       t.nonNull.string('uiRouterKey');
       t.nonNull.boolean('menuAttached');
       t.nonNull.int('order');
-      t.int('parent');
-      t.int('master');
+      t.string('parent');
+      t.string('master');
       t.list.field('items', { type: 'CreateNavigationItem' });
       t.list.string('audience');
       t.field('related', { type: 'CreateNavigationRelated' });

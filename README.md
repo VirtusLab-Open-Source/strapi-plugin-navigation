@@ -322,7 +322,6 @@ Is applied for **Public API** both for REST and GraphQL. You can manage is by tw
 {
     "id": "News",
     "title": "News",
-    "templateName": "pages:1",
     "related": {
         "contentType": "page",
         "collectionName": "pages",
@@ -505,7 +504,6 @@ Return a rendered navigation structure depends on passed type (`TREE`, `RFR` or 
         "News": {
             "id": "News",
             "title": "News",
-            "templateName": "pages:1",
             "related": {
                 "contentType": "page",
                 "collectionName": "pages",
@@ -519,7 +517,6 @@ Return a rendered navigation structure depends on passed type (`TREE`, `RFR` or 
         "Community": {
             "id": "Community",
             "title": "Community",
-            "templateName": "pages:2",
             "related": {
                 "contentType": "page",
                 "collectionName": "pages",
@@ -533,7 +530,6 @@ Return a rendered navigation structure depends on passed type (`TREE`, `RFR` or 
         "Highlights": {
             "id": "Highlights",
             "title": "Highlights",
-            "templateName": "pages:3",
             "related": {
                 "contentType": "page",
                 "collectionName": "pages",
@@ -677,14 +673,6 @@ query {
   }
 }
 ```
-
-### Template name
-
-Depending on a content type `templateName` will be resolved differently
-
-For collection types it will be read from content type's attribute name `template` holding a component which definition has option named `templateName`.
-
-For single types a global name of this content type will be used as a template name or it can be set manually with an option named `templateName`.
 
 ## 🔌 Extensions
 

@@ -26,9 +26,6 @@ export const navigationSetup = async (context: { strapi: Core.Strapi }) => {
         slug: `${DEFAULT_NAVIGATION_SLUG}-${defaultLocale}`,
       })
     );
-
-    console.log("");
-    console.log(`Fallback navigation added`);
   }
 
   const defaultLocaleNavigations = navigations.filter(

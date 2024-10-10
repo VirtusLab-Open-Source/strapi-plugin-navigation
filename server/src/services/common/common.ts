@@ -4,6 +4,8 @@ import { sanitize } from '@strapi/utils';
 
 import slugify from '@sindresorhus/slugify';
 
+import { AnyEntity } from '@sensinum/strapi-utils';
+
 import { isNil, omit } from 'lodash';
 
 import { configSetup } from '../../config';
@@ -64,47 +66,47 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
     const config = configSchema.parse(await pluginStore.get({ key: 'config' }));
 
     for (const navigationItem of navigationItems) {
-      const { related, items = [], master: _, parent: __, ...base } = navigationItem;
+      const { related, items = [], ...base } = navigationItem;
 
       if (!related) {
         result.push({
           ...base,
           items: [] as NavigationItemDTO[],
           related: undefined,
-          master,
-          parent,
-        });
+        } as NavigationItemDTO);
+      } else {
+        if (related && !entities.has(related)) {
+          const [uid, documentId] = related.split(RELATED_ITEM_SEPARATOR);
+
+          const relatedItem = await getGenericRepository(context, uid as UID.ContentType).findById(
+            documentId,
+            isNil(populate) ? config.contentTypesPopulate[uid] || [] : parsePopulateQuery(populate),
+            'published'
+          );
+
+          entities.set(related, {
+            ...relatedItem as AnyEntity,
+            uid,
+          });
+
+        }
+
+        const preItem = {
+          ...base,
+          related: related ? entities.get(related) : undefined,
+          items: [],
+        } as NavigationItemDTO;
+
+        result.push({
+          ...preItem,
+          items: await this.mapToNavigationItemDTO({
+            navigationItems: items,
+            populate,
+            master,
+            parent: preItem,
+          }),
+        } as NavigationItemDTO);
       }
-
-      if (related && !entities.has(related)) {
-        const [uid, id] = related.split(RELATED_ITEM_SEPARATOR);
-
-        entities.set(related, {
-          ...(await getGenericRepository(context, uid as UID.Schema).findById(
-            parseInt(id, 10),
-            isNil(populate) ? config.contentTypesPopulate[uid] || [] : parsePopulateQuery(populate)
-          )),
-          uid,
-        });
-      }
-
-      const preItem = {
-        ...base,
-        related: related ? entities.get(related) : undefined,
-        master,
-        parent,
-        items: [],
-      };
-
-      result.push({
-        ...preItem,
-        items: await this.mapToNavigationItemDTO({
-          navigationItems: items,
-          populate,
-          master,
-          parent: preItem,
-        }),
-      });
     }
 
     return result;
@@ -115,7 +117,7 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
   },
 
   getBranchName({ item }: GetBranchNameInput): NavigationActionsCategories | void {
-    const hasId = !!item.id;
+    const hasId = !!item.documentId;
     const toRemove = item.removed;
 
     if (hasId && !toRemove) {
@@ -230,17 +232,17 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
 
       const insertDetails = id
         ? {
-            ...params,
-            id,
-            master: masterEntity ? masterEntity.id : undefined,
-            parent: parentItem ? parentItem.id : undefined,
-          }
+          ...params,
+          id,
+          master: masterEntity ? masterEntity.id : undefined,
+          parent: parentItem ? parentItem.id : undefined,
+        }
         : {
-            ...params,
-            id: undefined,
-            master: masterEntity ? masterEntity.id : undefined,
-            parent: parentItem ? parentItem.id : undefined,
-          };
+          ...params,
+          id: undefined,
+          master: masterEntity ? masterEntity.id : undefined,
+          parent: parentItem ? parentItem.id : undefined,
+        };
 
       const nextParentItem = await getNavigationItemRepository(context).save(insertDetails as any);
 
@@ -347,7 +349,7 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
 
     for (const item of navigationItemsToUpdate) {
       await getNavigationItemRepository(context).save({
-        id: item.id,
+        documentId: item.documentId,
         additionalFields: item.additionalFields,
       });
     }

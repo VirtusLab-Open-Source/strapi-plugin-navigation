@@ -72,9 +72,9 @@ export const NavigationManager = ({ initialState, isOpened, onClose }: Props) =>
       state.view === 'DELETE'
         ? () => {
           deleteNavigationsMutation.mutate(
-            state.navigations.reduce<number[]>((acc, navigation) => {
-              if (navigation.id) {
-                acc.push(navigation.id);
+            state.navigations.reduce<string[]>((acc, navigation) => {
+              if (navigation.documentId) {
+                acc.push(navigation.documentId);
               }
 
               return acc;
@@ -133,9 +133,9 @@ export const NavigationManager = ({ initialState, isOpened, onClose }: Props) =>
             : state.view === 'CACHE_PURGE'
               ? () => {
                 purgeNavigationsMutation.mutate(
-                  state.navigations.reduce<number[]>((acc, navigation) => {
-                    if (navigation.id) {
-                      acc.push(navigation.id);
+                  state.navigations.reduce<string[]>((acc, navigation) => {
+                    if (navigation.documentId) {
+                      acc.push(navigation.documentId);
                     }
 
                     return acc;

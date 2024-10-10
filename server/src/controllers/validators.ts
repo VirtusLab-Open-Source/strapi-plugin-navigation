@@ -2,7 +2,7 @@ import * as z from 'zod';
 
 const booleanStringSchema = z.enum(['true', 'false']);
 
-export const idSchema = z.number().positive();
+export const idSchema = z.string();
 
 export const readAllQuerySchema = z.object({
   locale: z.string().optional(),

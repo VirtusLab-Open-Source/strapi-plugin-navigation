@@ -1,4 +1,3 @@
-import { NavigationDTO } from '../../dtos';
 import {
   CreateNavigationSchema,
   NavigationDBSchema,
@@ -12,12 +11,12 @@ export interface ConfigInput {
 }
 
 export interface GetInput {
-  ids?: number[];
+  ids?: string[];
   localeCode?: string;
 }
 
 export interface GetByIdInput {
-  id: number;
+  documentId: string;
 }
 
 export interface PostInput {
@@ -31,7 +30,7 @@ export interface PutInput {
 }
 
 export interface DeleteInput {
-  id: number;
+  documentId: string;
   auditLog: AuditLogContext;
 }
 
@@ -40,8 +39,8 @@ export interface UpdateConfigInput {
 }
 
 export interface FillFromOtherLocaleInput {
-  source: number;
-  target: number;
+  source: string;
+  target: string;
   auditLog: AuditLogContext;
 }
 
@@ -51,8 +50,8 @@ export interface I18nNavigationContentsCopyInput {
 }
 
 export interface ReadNavigationItemFromLocaleInput {
-  source: number;
-  target: number;
+  source: string;
+  target: string;
   path: string;
 }
 

@@ -84,8 +84,8 @@ export const useDeleteNavigations = () => {
   const apiClient = getApiClient(fetch);
 
   return useMutation({
-    mutationFn(ids: Array<number>) {
-      return Promise.all(ids.map(apiClient.delete));
+    mutationFn(documentIds: Array<string>) {
+      return Promise.all(documentIds.map(apiClient.delete));
     },
   });
 };
@@ -153,12 +153,12 @@ export const usePurgeNavigation = () => {
   const apiClient = getApiClient(fetch);
 
   return useMutation({
-    mutationFn(ids?: Array<number>): Promise<unknown> {
-      if (!ids?.length) {
+    mutationFn(documentIds?: Array<string>): Promise<unknown> {
+      if (!documentIds?.length) {
         return apiClient.purge({});
       }
 
-      return Promise.all(ids.map((id) => apiClient.purge({ id, withLangVersions: true })));
+      return Promise.all(documentIds.map((documentId) => apiClient.purge({ documentId, withLangVersions: true })));
     },
   });
 };

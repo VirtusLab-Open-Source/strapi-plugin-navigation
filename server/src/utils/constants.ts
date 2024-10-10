@@ -28,17 +28,19 @@ export const RELATED_ITEM_SEPARATOR = '$';
 
 export const ALLOWED_CONTENT_TYPES = ['api::', 'plugin::'] as const;
 export const RESTRICTED_CONTENT_TYPES = [
-  'plugin::users-permissions',
+  'admin::',
+  'plugin::content-releases',
   'plugin::i18n.locale',
   'plugin::navigation',
+  'plugin::review-workflows',
+  'plugin::users-permissions',
+  'plugin::upload.folder'
 ] as const;
 export const CONTENT_TYPES_NAME_FIELDS_DEFAULTS = ['title', 'subject', 'name'];
 
 export const KIND_TYPES = { SINGLE: 'singleType', COLLECTION: 'collectionType' } as const;
 
 export const DEFAULT_POPULATE = [];
-
-export const TEMPLATE_DEFAULT = 'Generic' as const;
 
 export const FORBIDDEN_CUSTOM_FIELD_NAMES = [
   'title',

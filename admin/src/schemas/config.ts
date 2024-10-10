@@ -2,7 +2,8 @@ import { z } from 'zod';
 
 export type NavigationItemCustomFieldBase = z.infer<typeof navigationCustomFieldBase>;
 const navigationCustomFieldBase = z.object({
-  name: z.string(),
+  // TODO: Proper message translation
+  name: z.string().refine((current) => !current.includes(' '), { message: 'No space allowed' }),
   label: z.string(),
   required: z.boolean().optional(),
   enabled: z.boolean().optional(),
@@ -49,6 +50,7 @@ export const configSchema = z.object({
   availableAudience: z
     .object({
       id: z.number(),
+      documentId: z.string(),
       name: z.string(),
       key: z.string(),
     })

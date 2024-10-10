@@ -1,6 +1,3 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useMemo } from 'react';
-import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { NavigationItemAdditionalField } from '../../../../../schemas';
 
@@ -34,7 +31,7 @@ const navigationItemCommon = ({ additionalFields }: FormSchemaBuilderInput) =>
     viewParentId: z.number().optional(),
     id: z.number().optional(),
     documentId: z.string().optional(),
-    audience: z.number().array().optional(),
+    audience: z.string().array().optional(),
     order: z.number().optional(),
     items: z.any().array().optional(),
     additionalFields: z.object(
@@ -93,7 +90,7 @@ const navigationInternalItemFormSchema = ({
     path: z.string(),
     externalPath: z.string().optional(),
     relatedType: z.string(),
-    related: isSingleSelected ? z.number().or(z.string()).optional() : z.number().or(z.string()),
+    related: isSingleSelected ? z.string().optional() : z.string(),
   });
 
 const navigationExternalItemFormSchema = ({
@@ -111,42 +108,17 @@ const navigationExternalItemFormSchema = ({
       .min(1)
       .refine((path) => externalPathRegexps.some((re) => re.test(path))),
     relatedType: z.string().optional(),
-    related: z.number().optional(),
+    related: z.string().optional(),
   });
 
 export type NavigationItemFormSchema = z.infer<ReturnType<typeof navigationItemFormSchema>>;
-const navigationItemFormSchema = (input: FormSchemaBuilderInput) =>
+export const navigationItemFormSchema = (input: FormSchemaBuilderInput) =>
   z.discriminatedUnion('type', [
     navigationExternalItemFormSchema(input),
     navigationInternalItemFormSchema(input),
   ]);
 
-export const useNavigationItemForm = ({
-  input,
-  current = fallbackDefaultValues,
-}: {
-  input: FormSchemaBuilderInput;
-  current?: NavigationItemFormSchema;
-}) => {
-  const defaultValues = useMemo(
-    (): NavigationItemFormSchema =>
-      // TODO: Update after migration
-      // @ts-expect-error
-      ({
-        ...fallbackDefaultValues,
-        ...current,
-        updated: !!current.documentId,
-      }),
-    [current]
-  );
-
-  return useForm<NavigationItemFormSchema>({
-    resolver: zodResolver(navigationItemFormSchema(input)),
-    defaultValues,
-  });
-};
-
-export const fallbackDefaultValues: NavigationItemFormSchema = {
+ export const fallbackDefaultValues: NavigationItemFormSchema = {
   autoSync: true,
   type: 'INTERNAL',
   relatedType: '',

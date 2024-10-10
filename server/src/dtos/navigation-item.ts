@@ -12,8 +12,9 @@ export type NavigationItemDTO = Omit<
   order?: number;
 };
 
-export type CreateBranchNavigationItemDTO = Omit<NavigationItemDBSchema, 'id' | 'items'> & {
+export type CreateBranchNavigationItemDTO = Omit<NavigationItemDBSchema, 'id' | 'documentId' | 'items'> & {
   id?: number;
+  documentId?: string;
   items?: CreateBranchNavigationItemDTO[];
   removed?: boolean;
   updated?: boolean;
@@ -43,10 +44,11 @@ export type RFRPageDTO = Pick<
   'title' | 'path' | 'audience' | 'menuAttached'
 > & {
   id: NavigationItemDTO['uiRouterKey'];
+  documentId: string;
   templateName?: string;
   related?: {
     contentType: string;
-    id?: number;
+    documentId?: string;
   };
   parent?: string;
 } & Record<string, unknown>;

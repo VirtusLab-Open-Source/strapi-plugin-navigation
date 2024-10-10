@@ -6,8 +6,10 @@ export type PopulateQueryParam = string | boolean | string[];
 
 export type NestedPath = {
   id?: number;
+  documentId?: string;
   parent?: {
     id: number;
+    documentId: string;
     path: string;
   };
   path: string;
@@ -39,7 +41,7 @@ export interface RenderRFRPageInput {
 
 export interface RenderTreeInput {
   items?: NavigationItemDTO[];
-  id?: number;
+  documentId?: string;
   path: string | undefined;
   itemParser: (_: NavigationItemDTO, path: string) => Promise<NavigationItemDTO>;
 }

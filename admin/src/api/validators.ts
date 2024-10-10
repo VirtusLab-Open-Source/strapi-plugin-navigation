@@ -5,6 +5,7 @@ export type NavigationPluginConfigSchema = z.infer<typeof configSchema>;
 export type AudienceDBSchema = z.infer<typeof audienceDBSchema>;
 export const audienceDBSchema = z.object({
   id: z.number(),
+  documentId: z.string(),
   name: z.string(),
   key: z.string(),
 });
@@ -14,6 +15,7 @@ export const navigationItemTypeSchema = z.enum(['INTERNAL', 'EXTERNAL']);
 
 const navigationItemBaseSchema = z.object({
   id: z.number(),
+  documentId: z.string(),
   title: z.string(),
   type: navigationItemTypeSchema,
   path: z.string(),
@@ -54,7 +56,8 @@ export const navigationSchema = z.object({
 });
 
 const navigationCustomFieldBase = z.object({
-  name: z.string(),
+  // TODO: Proper message translation
+  name: z.string().refine((current) => !current.includes(' '), { message: 'No space allowed' }),
   label: z.string(),
   required: z.boolean().optional(),
   enabled: z.boolean().optional(),
@@ -113,6 +116,7 @@ export const configSchema = z.object({
   availableAudience: z
     .object({
       id: z.number(),
+      documentId: z.string(),
       name: z.string(),
       key: z.string(),
     })
@@ -297,7 +301,7 @@ export const contentTypeSchema = contentTypeFullSchema.pick({
 export type StrapiContentTypeItemSchema = z.infer<typeof strapiContentTypeItemSchema>;
 export const strapiContentTypeItemSchema = z
   .object({
-    id: z.number().optional(),
+    id: z.number(),
     documentId: z.string(),
     locale: z.string().or(z.null()).optional(),
   })

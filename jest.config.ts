@@ -1,23 +1,23 @@
-import type { Config } from '@jest/types';
+import type { JestConfigWithTsJest } from 'ts-jest';
 import type { Core } from '@strapi/strapi';
 import { defaults as tsjPreset } from 'ts-jest/presets';
 
-const config: Config.InitialOptions = {
-  testMatch: ['**/tests/**/?(*.)+(spec|test).ts'],
+const config: JestConfigWithTsJest = {
+  testMatch: ['**/tests/**/?(*.)+(spec|test).(t|j)s'],
   transform: {
-    // TODO: Resolve packages versions
-    ...(tsjPreset.transform as any),
+    ...tsjPreset.transform,
   },
   preset: 'ts-jest',
   coverageDirectory: './coverage/',
   collectCoverage: true,
+  reporters: ['default', 'jest-junit'],
   globals: {
     'ts-jest': {
       diagnostics: {
         warnOnly: true,
       },
     },
-    strapi: {} as unknown as Core.Strapi,
+    strapi: {} as Core.Strapi,
   },
   prettierPath: null,
 };

@@ -5,7 +5,7 @@ import { NavigationItemDBSchema, navigationItemsDBSchema } from '../schemas';
 import { getPluginModels } from '../utils';
 
 type NavigationItemRemoveMinimal = Partial<NavigationItemDBSchema> &
-  Pick<NavigationItemDBSchema, 'id'>;
+  Pick<NavigationItemDBSchema, 'documentId'>;
 
 interface FindInput {
   where: any;
@@ -17,15 +17,15 @@ interface FindInput {
 export const getNavigationItemRepository = once((context: { strapi: Core.Strapi }) => ({
   save(
     item:
-      | (Partial<NavigationItemDBSchema> & { id: undefined })
-      | ({ id: number } & Partial<Omit<NavigationItemDBSchema, 'id'>>)
+      | (Partial<NavigationItemDBSchema> & { documentId: undefined })
+      | ({ documentId: string } & Partial<Omit<NavigationItemDBSchema, 'documentId'>>)
   ) {
     const { itemModel } = getPluginModels(context);
 
-    if (typeof item.id === 'number') {
-      const { id, ...rest } = item;
+    if (typeof item.documentId === 'string') {
+      const { documentId, id, ...rest } = item;
 
-      return context.strapi.query(itemModel.uid).update({ where: { id: item.id }, data: { ...rest } });
+      return context.strapi.query(itemModel.uid).update({ where: { documentId: item.documentId }, data: { ...rest } });
     } else {
       return context.strapi.query(itemModel.uid).create({ data: item });
     }
@@ -49,25 +49,25 @@ export const getNavigationItemRepository = once((context: { strapi: Core.Strapi 
   remove(item: NavigationItemRemoveMinimal) {
     const { itemModel } = getPluginModels(context);
 
-    return context.strapi.query(itemModel.uid).delete({ where: { id: item.id } });
+    return context.strapi.query(itemModel.uid).delete({ where: { documentId: item.documentId } });
   },
 
-  removeForIds(ids: number[]) {
+  removeForIds(ids: string[]) {
     const { itemModel } = getPluginModels(context);
 
     return context.strapi.query(itemModel.uid).deleteMany({
-      where: { id: ids },
+      where: { documentId: ids },
     });
   },
 
-  findForMasterIds(ids: number[]) {
+  findForMasterIds(ids: string[]) {
     const { itemModel } = getPluginModels(context);
 
     return context.strapi
       .query(itemModel.uid)
       .findMany({
         where: {
-          $or: ids.map((id) => ({ master: id })),
+          $or: ids.map((documentId) => ({ master: documentId })),
         },
         limit: Number.MAX_SAFE_INTEGER,
       })

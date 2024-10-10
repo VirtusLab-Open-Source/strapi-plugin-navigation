@@ -38,7 +38,8 @@ import {
   transformItemToViewPayload,
 } from './utils';
 import { ListPlus, Plus } from '@strapi/icons';
-import { usePluginTheme } from '@virtuslab/strapi-utils';
+import { usePluginTheme } from '@sensinum/strapi-utils';
+import { ToBeFixed } from '../../types';
 
 const queryClient = new QueryClient();
 
@@ -183,9 +184,9 @@ const Inner = () => {
         );
 
         if (source) {
-          if (source.id && currentNavigation?.id) {
+          if (source.documentId && currentNavigation?.documentId) {
             copyNavigationI18nMutation.mutate(
-              { source: source.id, target: currentNavigation.id },
+              { source: source.documentId, target: currentNavigation.documentId },
               {
                 onSuccess(res) {
                   copyNavigationI18nMutation.reset();
@@ -349,11 +350,11 @@ const Inner = () => {
       tradId: 'header.action.collapseAll',
       margin: '8px',
     },
-  ];
+  ] as Array<ToBeFixed>;
 
   if (canUpdate) {
     endActions.push({
-        onClick: addNewNavigationItem,
+        onClick: addNewNavigationItem as ToBeFixed,
         type: 'submit',
         variant: 'primary',
         tradId: 'header.action.newItem',
@@ -382,7 +383,7 @@ const Inner = () => {
           navigation.localeCode === currentLocale
       );
 
-      if (nextNavigation && nextNavigation.id !== currentNavigation.id) {
+      if (nextNavigation && nextNavigation.documentId !== currentNavigation.documentId) {
         setCurrentNavigation(nextNavigation);
       }
     }

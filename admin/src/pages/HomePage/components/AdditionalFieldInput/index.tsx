@@ -7,7 +7,7 @@ import {
 } from '@strapi/design-system';
 import { useNotification, useStrapiApp } from '@strapi/strapi/admin';
 import { isNil } from 'lodash';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useIntl } from 'react-intl';
 
 import { Toggle } from '@strapi/design-system';
@@ -15,27 +15,16 @@ import { NavigationItemCustomField } from '../../../../schemas';
 import { getTrad } from '../../../../translations';
 
 export type AdditionalFieldInputProps = {
+  name?: string;
   field: NavigationItemCustomField;
   isLoading: boolean;
-  onChange: (name: string, value: unknown, fieldType: string) => void;
-  value: string | boolean | string[] | null;
+  onChange: (eventOrPath: React.ChangeEvent<any> | string, value?: any) => void;
+  onChangeEnhancer: (eventOrPath: React.ChangeEvent<any> | string, value?: any, nativeOnChange?: (eventOrPath: React.ChangeEvent<any> | string, value?: any) => void) => void;
+  value: string | boolean | string[] | object | null;
   disabled: boolean;
 };
 
 const DEFAULT_STRING_VALUE = '';
-const handlerFactory =
-  ({
-    field,
-    prop,
-    onChange,
-  }: {
-    field: { name: string; type: string };
-    prop: string;
-    onChange: (name: string, value: unknown, fieldType: string) => void;
-  }) =>
-  ({ target }: { target: Record<string, unknown> }) => {
-    onChange(field.name, target[prop], field.type);
-  };
 
 const mediaAttribute = {
   type: 'media',
@@ -50,44 +39,35 @@ const mediaAttribute = {
 };
 
 export const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
+  name,
   field,
   isLoading,
   onChange,
-  value: baseValue,
+  onChangeEnhancer,
+  value,
   disabled,
 }) => {
   const { toggleNotification } = useNotification();
   const { formatMessage } = useIntl();
 
   const fields = useStrapiApp('AdditionalFieldInput', (state) => state.fields);
-  // TODO?: typing
+
   const MediaLibrary = fields.media as React.ComponentType<any>;
 
-  const value = useMemo(
-    () => (field.type === 'media' && baseValue ? JSON.parse(baseValue as string) : baseValue),
-    [baseValue, field.type]
-  );
   const defaultInputProps = useMemo(
     () => ({
       id: field.name,
-      name: field.name,
-      label: field.label,
+      name: name || field.name,
       disabled: isLoading || disabled,
     }),
     [field, isLoading]
   );
-  const handleBoolean = useMemo(
-    () => handlerFactory({ field, onChange, prop: 'checked' }),
-    [onChange, field]
-  );
-  const handleString = useMemo(
-    () => handlerFactory({ field, onChange, prop: 'value' }),
-    [onChange, field]
-  );
-  const handleMedia = useMemo(
-    () => handlerFactory({ field, onChange, prop: 'value' }),
-    [onChange, field]
-  );
+
+  useEffect(() => {
+    if (field.type === 'media') {
+      onChangeEnhancer(defaultInputProps.name, value, onChange)
+    }
+  }, [value]);
 
   switch (field.type) {
     case 'boolean':
@@ -95,9 +75,7 @@ export const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
         <Toggle
           {...defaultInputProps}
           checked={!!value}
-          onChange={({ currentTarget: { checked } }: { currentTarget: { checked: boolean } }) => {
-            onChange(field.name, checked, field.type);
-          }}
+          onChange={(eventOrPath: React.ChangeEvent<any> | string, value?: any) => onChangeEnhancer(eventOrPath, !value, onChange)}
           onLabel="true"
           offLabel="false"
           type="checkbox"
@@ -107,7 +85,7 @@ export const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
       return (
         <TextInput
           {...defaultInputProps}
-          onChange={handleString}
+          onChange={(eventOrPath: React.ChangeEvent<any> | string, value?: any) => onChangeEnhancer(eventOrPath, value, onChange)}
           value={value || DEFAULT_STRING_VALUE}
         />
       );
@@ -115,7 +93,7 @@ export const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
       return field.multi ? (
         <MultiSelect
           {...defaultInputProps}
-          onChange={(v: string) => onChange(field.name, v, 'select')}
+          onChange={(eventOrPath: React.ChangeEvent<any> | string) => onChangeEnhancer(defaultInputProps.name, eventOrPath, onChange)}
           value={isNil(value) ? (field.multi ? [] : null) : value}
           multi={field.multi}
           withTags={field.multi}
@@ -129,7 +107,7 @@ export const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
       ) : (
         <SingleSelect
           {...defaultInputProps}
-          onChange={(v: string) => onChange(field.name, v, 'select')}
+          onChange={(eventOrPath: React.ChangeEvent<any> | string) => onChangeEnhancer(defaultInputProps.name, eventOrPath, onChange)}
           value={isNil(value) ? (field.multi ? [] : null) : value}
           multi={field.multi}
           withTags={field.multi}
@@ -145,10 +123,8 @@ export const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
       return (
         <MediaLibrary
           {...defaultInputProps}
-          onChange={handleMedia}
-          value={value || []}
-          intlLabel={defaultInputProps.label}
-          attribute={mediaAttribute}
+          {...mediaAttribute}
+          value={value}
         />
       );
     default:

@@ -1,12 +1,15 @@
-import { Button, Field, Grid, Modal } from '@strapi/design-system';
-import { useNotification } from '@strapi/strapi/admin';
-import { isEmpty, isNil, sortBy } from 'lodash';
+import { Form, useNotification } from '@strapi/strapi/admin';
+import { add, get, isBoolean, isEmpty, isNil, isObject, isString, set, sortBy } from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Controller } from 'react-hook-form';
 import { useIntl } from 'react-intl';
+import { AnyEntity, Field } from '@sensinum/strapi-utils';
 
 import {
   Box,
+  Button,
+  Divider,
+  Grid,
+  Modal,
   MultiSelect,
   MultiSelectOption,
   SingleSelect,
@@ -14,10 +17,11 @@ import {
   TextInput,
   Toggle,
 } from '@strapi/design-system';
+
 import { NavigationSchema } from '../../../../api/validators';
 import { NavigationItemAdditionalField } from '../../../../schemas';
 import { getTrad } from '../../../../translations';
-import { Effect, VoidEffect } from '../../../../types';
+import { Effect, ToBeFixed, VoidEffect } from '../../../../types';
 import { RELATED_ITEM_SEPARATOR } from '../../../../utils/constants';
 import {
   useConfig,
@@ -29,10 +33,9 @@ import { extractRelatedItemLabel } from '../../utils';
 import { AdditionalFieldInput } from '../AdditionalFieldInput';
 import { NavigationItemPopupFooter } from '../NavigationItemPopup/NavigationItemPopupFooter';
 import { ContentTypeEntity } from './types';
-import { NavigationItemFormSchema, useNavigationItemForm } from './utils/form';
+import { fallbackDefaultValues, navigationItemFormSchema, NavigationItemFormSchema } from './utils/form';
 import { useSlug } from './utils/hooks';
 import { generatePreviewPath, generateUiRouterKey } from './utils/properties';
-import { Divider } from '@strapi/design-system';
 
 export { ContentTypeEntity, GetContentTypeEntitiesPayload } from './types';
 export { NavigationItemFormSchema } from './utils/form';
@@ -48,13 +51,19 @@ type NavigationItemFormProps = {
   onSubmit: SubmitEffect;
   availableLocale: string[];
   permissions?: Partial<{ canUpdate: boolean }>;
-  currentNavigation: Pick<NavigationSchema, 'id' | 'localeCode'>;
+  currentNavigation: Pick<NavigationSchema, 'id' | 'documentId' | 'localeCode'>;
 };
+
+type FormChangeEvent = React.ChangeEvent<any> | string;
+
+type FormItemErrorSchema = Record<keyof NavigationItemFormSchema, string>;
+
+const FALLBACK_ADDITIONAL_FIELDS: Array<NavigationItemAdditionalField> = [];
 
 export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   availableLocale,
   isLoading: isPreloading,
-  current,
+  current = fallbackDefaultValues,
   onSubmit,
   onCancel,
   appendLabelPublicationStatus = appendLabelPublicationStatusFallback,
@@ -72,19 +81,15 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
 
   const [itemLocaleCopyValue, setItemLocaleCopyValue] = useState<string>();
 
+  const [formValue, setFormValue] = useState<NavigationItemFormSchema>({} as NavigationItemFormSchema);
+
+  const [formError, setFormError] = useState<FormItemErrorSchema>();
+
   const configQuery = useConfig();
 
   const availableAudiences = configQuery.data?.availableAudience ?? [];
 
   const contentTypes = configQuery.data?.contentTypes ?? [];
-
-  const { control, watch, handleSubmit, setValue } = useNavigationItemForm({
-    input: {
-      isSingleSelected,
-      additionalFields: configQuery.data?.additionalFields ?? [],
-    },
-    current: current as NavigationItemFormSchema,
-  });
 
   const { toggleNotification } = useNotification();
 
@@ -92,56 +97,169 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
 
   const navigationsQuery = useNavigations();
 
-  const submit = handleSubmit(async (payload): Promise<void> => {
-    const title = !!payload.title.trim()
-      ? payload.title
-      : getDefaultTitle(payload?.related?.toString(), payload.relatedType, isSingleSelected);
+  const handleChange = (eventOrPath: FormChangeEvent, value?: any, nativeOnChange?: (eventOrPath: FormChangeEvent, value?: any) => void) => {
+    if (nativeOnChange) {
 
-    setIsLoading(true);
+      let fieldName = eventOrPath;
+      let fieldValue = value;
+      if (isObject(eventOrPath)) {
+        const { name: targetName, value: targetValue } = eventOrPath.target;
+        fieldName = targetName;
+        fieldValue = isNil(fieldValue) ? targetValue : fieldValue;
+      }
 
-    const uiRouterKey = await generateUiRouterKey({
-      slugify: slugifyMutation.mutateAsync,
-      title,
-      related: payload.related,
-      relatedType: payload.relatedType,
-    });
+      if (isString(fieldName)) {
+        setFormValueItem(fieldName, fieldValue);
+      }
 
-    slugifyMutation.reset();
-
-    setIsLoading(false);
-
-    if (!uiRouterKey) {
-      toggleNotification({
-        type: 'warning',
-        message: formatMessage(getTrad('popup.item.form.uiRouter.unableToRender')),
-      });
-      return;
+      return nativeOnChange(eventOrPath, fieldValue);
     }
+  };
 
-    onSubmit(
-      payload.type === 'INTERNAL'
-        ? {
-          ...payload,
-          title,
-          uiRouterKey,
+  const setFormValueItem = (path: string, value: any) => {
+    setFormValue(set({
+      ...formValue,
+      additionalFields: {
+        ...formValue.additionalFields,
+      },
+      updated: true,
+    }, path, value));
+  };
+
+  const encodePayload = (values: NavigationItemFormSchema): NavigationItemFormSchema => {
+    return {
+      ...values,
+      additionalFields: configQuery.data?.additionalFields.reduce((acc, field: NavigationItemAdditionalField) => {
+        const { name, type } = field as ToBeFixed;
+
+        if (name in (values.additionalFields ?? {})) {
+          let val = values.additionalFields[name];
+
+          switch (type) {
+            case 'boolean':
+              val = isBoolean(val) ? `${val}` : val;
+              break;
+            case 'media':
+              val = val ? JSON.stringify(val) : val;
+              break;
+            default:
+              break;
+          }
+          return {
+            ...acc,
+            [name]: val,
+          };
         }
-        : {
-          ...payload,
-          title,
-          uiRouterKey,
+        return acc;
+      }, {}) || {},
+    };
+  };
+
+  const decodePayload = (values: NavigationItemFormSchema): NavigationItemFormSchema => {
+    return {
+      ...values,
+      additionalFields: configQuery.data?.additionalFields.reduce((acc, field: NavigationItemAdditionalField) => {
+        const { name, type } = field as ToBeFixed;
+
+        if (name in (values.additionalFields ?? {})) {
+          let val = values.additionalFields[name];
+
+          switch (type) {
+            case 'boolean':
+              val = val === 'true' ? true : false;
+              break;
+            case 'media':
+              val = val ? JSON.parse(val) : val;
+              break;
+            default:
+              break;
+          }
+          return {
+            ...acc,
+            [name]: val,
+          };
         }
-    );
-  });
+        return acc;
+      }, {}) || {},
+    };
+  };
+
+  const submit = async (e: React.MouseEvent, values: NavigationItemFormSchema) => {
+    e.preventDefault();
+
+    const sanitizedValues = encodePayload(values);
+    const { success, data: payload, error } = navigationItemFormSchema({
+      isSingleSelected,
+      additionalFields: configQuery.data?.additionalFields ?? FALLBACK_ADDITIONAL_FIELDS,
+    }).safeParse(sanitizedValues);
+
+    if (success) {
+      const title = !!payload.title.trim()
+        ? payload.title
+        : getDefaultTitle(payload?.related?.toString(), payload.relatedType, isSingleSelected);
+
+      setIsLoading(true);
+
+      const uiRouterKey = await generateUiRouterKey({
+        slugify: slugifyMutation.mutateAsync,
+        title,
+        related: payload.related,
+        relatedType: payload.relatedType,
+      });
+
+      slugifyMutation.reset();
+
+      setIsLoading(false);
+
+      if (!uiRouterKey) {
+        toggleNotification({
+          type: 'warning',
+          message: formatMessage(getTrad('popup.item.form.uiRouter.unableToRender')),
+        });
+        return;
+      }
+
+      onSubmit(
+        payload.type === 'INTERNAL'
+          ? {
+            ...payload,
+            title,
+            uiRouterKey,
+          }
+          : {
+            ...payload,
+            title,
+            uiRouterKey,
+          }
+      );
+    } else if (error) {
+      setFormError(error.issues.reduce((acc, err) => {
+        return {
+          ...acc,
+          [err.path.join('.')]: err.message
+        }
+      }, {} as FormItemErrorSchema));
+    }
+  };
+
+  const renderError = (error: string): string | undefined => {
+    const errorOccurence = get(formError, error);
+    if (errorOccurence) {
+      return formatMessage(getTrad(error));
+    }
+    return undefined;
+  };
 
   const initialRelatedTypeSelected = current.relatedType;
-  const [
-    currentRelatedType,
-    currentRelated,
-    currentPath,
-    currentType,
-    currentTitle,
-    autoSyncEnabled,
-  ] = watch(['relatedType', 'related', 'path', 'type', 'title', 'autoSync']);
+  const {
+    relatedType: currentRelatedType,
+    related: currentRelated,
+    path: currentPath,
+    type: currentType,
+    title: currentTitle,
+    autoSync: autoSyncEnabled,
+    additionalFields: currentAdditionalFields,
+  } = formValue;
 
   const isExternal = currentType === 'EXTERNAL';
 
@@ -169,7 +287,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   const audienceOptions = useMemo(
     () =>
       availableAudiences.map((item) => ({
-        value: item.id ?? 0,
+        value: item.documentId ?? 0,
         label: item.name ?? ' ',
       })),
     [availableAudiences]
@@ -192,12 +310,12 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
 
         selectedEntity = {
           ...(entity || {
-            documentId: -1,
+            documentId: null,
           }),
           __collectionUid: relatedType,
         };
       }
-      return extractRelatedItemLabel(selectedEntity, configQuery.data);
+      return extractRelatedItemLabel(selectedEntity as AnyEntity, configQuery.data);
     },
     [contentTypeItemsQuery.data, configQuery.data, contentTypes]
   );
@@ -225,8 +343,8 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
       );
 
       return {
-        key: item?.documentId.toString(),
-        value: item.documentId.toString(),
+        key: item?.documentId?.toString(),
+        value: item?.documentId?.toString(),
         label: label,
       };
     }) ?? [],
@@ -275,26 +393,26 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
 
         copyItemFromLocaleMutation.mutate(
           {
-            target: currentNavigation.id,
+            target: currentNavigation.documentId,
             structureId: current.structureId,
-            source: source.id,
+            source: source.documentId,
           },
           {
             onSuccess(data) {
               copyItemFromLocaleMutation.reset();
 
               const { type, externalPath, path, related, title, uiRouterKey } = data;
-              const [contentType, id] = related?.split(RELATED_ITEM_SEPARATOR) ?? [];
+              const [contentType, documentId] = related?.split(RELATED_ITEM_SEPARATOR) ?? [];
 
-              setValue('type', type);
-              setValue('externalPath', externalPath ?? undefined);
-              setValue('path', path ?? undefined);
-              setValue('title', title);
-              setValue('uiRouterKey', uiRouterKey);
+              setFormValueItem('type', type);
+              setFormValueItem('externalPath', externalPath ?? undefined);
+              setFormValueItem('path', path ?? undefined);
+              setFormValueItem('title', title);
+              setFormValueItem('uiRouterKey', uiRouterKey);
 
-              if (contentType && id) {
-                setValue('related', id);
-                setValue('relatedType', contentType);
+              if (contentType && documentId) {
+                setFormValueItem('related', documentId);
+                setFormValueItem('relatedType', contentType);
               }
             },
             onSettled() {
@@ -306,6 +424,13 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
     },
     [setIsLoading, copyItemFromLocaleMutation, navigationsQuery]
   );
+
+  useEffect(() => {
+    setFormValue(decodePayload({
+      ...fallbackDefaultValues,
+      ...current,
+    } as NavigationItemFormSchema));
+  }, [current]);
 
   useEffect(() => {
     if (currentRelatedType) {
@@ -320,12 +445,12 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
           const nextRelated = contentTypeItemsQuery.data[0];
 
           if (nextRelated) {
-            setValue('related', nextRelated.documentId);
+            setFormValueItem('related', nextRelated.documentId);
           }
         }
       }
     }
-  }, [currentRelatedType, configQuery.data, contentTypeItemsQuery.data, setValue]);
+  }, [currentRelatedType, configQuery.data, contentTypeItemsQuery.data]);
 
   useEffect(() => {
     if (
@@ -367,7 +492,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
 
         setTimeout(() => {
           batch.forEach((next) => {
-            setValue(next.name as any, next.value);
+            setFormValueItem(next.name as any, next.value);
           });
         }, 100);
       }
@@ -383,58 +508,54 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
     contentTypeItemsQuery.data,
   ]);
 
-  return (
-    <>
-      <Modal.Body>
-        <Grid.Root gap={5}>
-          <Grid.Item alignItems="flex-start" key="title" col={12}>
-            <Controller
-              control={control}
-              name="title"
-              render={({ field: { value, onChange, name }, fieldState }) => (
-                <Field.Root
-                  width="100%"
-                  error={fieldState.error?.message}
+  return (<>
+    <Modal.Body>
+      <Form
+        method="POST"
+        initialValues={formValue}
+      >
+        {({ values, onChange }) => {
+          const pathDefault = generatePreviewPath({
+            currentPath: values.path,
+            isExternal: values.type === 'EXTERNAL',
+            current,
+            currentType: values.type,
+            config: configQuery.data,
+            contentTypeItems: contentTypeItemsQuery.data,
+            currentRelated: values.related,
+            currentRelatedType: values.relatedType,
+            isSingleSelected,
+          });
+
+          return (<>
+            <Grid.Root gap={5}>
+              <Grid.Item alignItems="flex-start" key="title" col={12}>
+                <Field
+                  name="title"
+                  label={formatMessage(getTrad('popup.item.form.title.label', 'Title'))}
+                  error={renderError('title')}
                   hint={formatMessage(getTrad('popup.item.form.title.placeholder', 'e.g. Blog'))}
                 >
-                  <Field.Label>
-                    {formatMessage(getTrad('popup.item.form.title.label', 'Title'))}
-                  </Field.Label>
-
                   <TextInput
                     type="string"
-                    disabled={!canUpdate}
-                    name={name}
-                    onChange={onChange}
-                    value={value}
+                    disabled={!canUpdate || (values.autoSync && values.type === 'INTERNAL')}
+                    name="title"
+                    onChange={(eventOrPath: FormChangeEvent, value?: any) => handleChange(eventOrPath, value, onChange)}
+                    value={values.title}
                   />
+                </Field>
+              </Grid.Item>
 
-                  <Field.Hint />
-
-                  <Field.Error />
-                </Field.Root>
-              )}
-            />
-          </Grid.Item>
-
-          <Grid.Item alignItems="flex-start" key="type" col={currentType === 'INTERNAL' ? 4 : 7} lg={12}>
-            <Controller
-              control={control}
-              name="type"
-              render={({ field: { value, onChange, name }, fieldState }) => (
-                <Field.Root
-                  error={fieldState.error?.message}
-                  hint={formatMessage(getTrad('popup.item.form.title.placeholder', 'e.g. Blog'))}
-                  width="100%"
-                >
-                  <Field.Label>
-                    {formatMessage(getTrad('popup.item.form.type.label', 'Internal link'))}
-                  </Field.Label>
-
+              <Grid.Item alignItems="flex-start" key="type" col={values.type === 'INTERNAL' ? 4 : 7} lg={12}>
+                <Field
+                  name="type"
+                  label={formatMessage(getTrad('popup.item.form.type.label', 'Internal link'))}
+                  error={renderError('type')}
+                  hint={formatMessage(getTrad('popup.item.form.title.placeholder', 'e.g. Blog'))}>
                   <SingleSelect
-                    onChange={onChange}
-                    value={value}
-                    name={name}
+                    onChange={(eventOrPath: FormChangeEvent) => handleChange('type', eventOrPath, onChange)}
+                    value={values.type}
+                    name="type"
                     disabled={!configQuery.data?.contentTypes.length || !canUpdate}
                     width="100%"
                   >
@@ -444,45 +565,25 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                       </SingleSelectOption>
                     ))}
                   </SingleSelect>
+                </Field>
+              </Grid.Item>
 
-                  <Field.Hint />
-
-                  <Field.Error />
-                </Field.Root>
-              )}
-            />
-          </Grid.Item>
-
-          <Grid.Item alignItems="flex-start" key="menuAttached" col={currentType === 'INTERNAL' ? 4 : 5} lg={12}>
-            <Controller
-              control={control}
-              name="menuAttached"
-              render={({ field: { value, onChange, name }, fieldState }) => (
-                <Field.Root
-                  width="100%"
-                  error={fieldState.error?.message}
+              <Grid.Item alignItems="flex-start" key="menuAttached" col={values.type === 'INTERNAL' ? 4 : 5} lg={12}>
+                <Field
+                  name="menuAttached"
+                  label={formatMessage(getTrad('popup.item.form.menuAttached.label', 'MenuAttached'))}
+                  error={renderError('menuAttached')}
                   hint={formatMessage(
                     getTrad(
                       'popup.item.form.menuAttached.placeholder',
                       'is menu item attached to menu'
                     )
-                  )}
-                >
-                  <Field.Label>
-                    {formatMessage(getTrad('popup.item.form.menuAttached.label', 'MenuAttached'))}
-                  </Field.Label>
-
+                  )}>
                   <Toggle
-                    name={name}
-                    checked={value}
-                    onChange={({
-                      currentTarget: { checked },
-                    }: {
-                      currentTarget: { checked: boolean };
-                    }) => {
-                      onChange(checked);
-                    }}
-                    value={value}
+                    name="menuAttached"
+                    checked={values.menuAttached}
+                    onChange={(eventOrPath: FormChangeEvent) => handleChange(eventOrPath, !values.menuAttached, onChange)}
+                    value={values.menuAttached}
                     onLabel="true"
                     offLabel="false"
                     disabled={
@@ -493,113 +594,61 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                     }
                     width="100%"
                   />
+                </Field>
+              </Grid.Item>
 
-                  <Field.Hint />
-
-                  <Field.Error />
-                </Field.Root>
-              )}
-            />
-          </Grid.Item>
-
-          {currentType === 'INTERNAL' && (
-            <Grid.Item alignItems="flex-start" key="autoSync" col={4} lg={12}>
-              <Controller
-                control={control}
-                name="autoSync"
-                render={({ field: { value, onChange, name }, fieldState }) => (
-                  <Field.Root error={fieldState.error?.message} width="230px">
-                    <Field.Label>
-                      {formatMessage(
-                        getTrad('popup.item.form.autoSync.label', 'Read fields from related')
-                      )}
-                    </Field.Label>
-
+              {values.type === 'INTERNAL' && (
+                <Grid.Item alignItems="flex-start" key="autoSync" col={4} lg={12}>
+                  <Field
+                    name="autoSync"
+                    label={formatMessage(
+                      getTrad('popup.item.form.autoSync.label', 'Read fields from related')
+                    )}
+                    error={renderError('autoSync')}>
                     <Toggle
-                      name={name}
-                      checked={value}
-                      onChange={({
-                        currentTarget: { checked },
-                      }: {
-                        currentTarget: { checked: boolean };
-                      }) => {
-                        onChange(checked);
-                      }}
+                      name="autoSync"
+                      checked={values.autoSync}
+                      onChange={(eventOrPath: FormChangeEvent) => handleChange(eventOrPath, !values.autoSync, onChange)}
                       onLabel="Enabled"
                       offLabel="Disabled"
                     />
+                  </Field>
+                </Grid.Item>
 
-                    <Field.Error />
-                  </Field.Root>
-                )}
-              />
-            </Grid.Item>
+              )}
 
-          )}
-
-          <Grid.Item alignItems="flex-start" key="path" col={12}>
-            <Controller
-              control={control}
-              name={pathSourceName}
-              render={({ field: { value, onChange, name }, fieldState }) => {
-                const pathDefault = generatePreviewPath({
-                  currentPath,
-                  isExternal,
-                  current,
-                  currentType,
-                  config: configQuery.data,
-                  contentTypeItems: contentTypeItemsQuery.data,
-                  currentRelated,
-                  currentRelatedType,
-                  isSingleSelected,
-                });
-
-                return (
-                  <Field.Root
-                    error={fieldState.error?.message}
-                    hint={[
-                      formatMessage(
-                        getTrad(`popup.item.form.${pathSourceName}.placeholder`, 'e.g. Blog')
-                      ),
-                      pathDefault
-                        ? formatMessage(getTrad('popup.item.form.type.external.description'), {
-                          value: pathDefault,
-                        })
-                        : '',
-                    ].join(' ')}
+              <Grid.Item alignItems="flex-start" key={pathSourceName} col={12}>
+                <Field
+                  name={pathSourceName}
+                  label={formatMessage(getTrad(`popup.item.form.${pathSourceName}.label`, 'Path'))}
+                  error={renderError(pathSourceName)}
+                  hint={[
+                    formatMessage(
+                      getTrad(`popup.item.form.${pathSourceName}.placeholder`, 'e.g. Blog')
+                    ),
+                    pathDefault
+                      ? formatMessage(getTrad('popup.item.form.type.external.description'), {
+                        value: pathDefault,
+                      })
+                      : '',
+                  ].join(' ')}>
+                  <TextInput
+                    disabled={!canUpdate}
+                    name={pathSourceName}
+                    onChange={(eventOrPath: FormChangeEvent, value?: any) => handleChange(eventOrPath, value, onChange)}
+                    value={values[pathSourceName]}
                     width="100%"
-                  >
-                    <Field.Label>
-                      {formatMessage(getTrad(`popup.item.form.${pathSourceName}.label`, 'Path'))}
-                    </Field.Label>
+                  />
+                </Field>
+              </Grid.Item>
 
-                    <TextInput
-                      disabled={!canUpdate}
-                      name={name}
-                      onChange={onChange}
-                      value={value}
-                      width="100%"
-                    />
-
-                    <Field.Hint />
-
-                    <Field.Error />
-                  </Field.Root>
-                );
-              }}
-            />
-          </Grid.Item>
-
-          {currentType === 'INTERNAL' && (
-            <>
-              <Grid.Item alignItems="flex-start" col={6} lg={12}>
-                <Controller
-                  control={control}
-                  name="relatedType"
-                  render={({ field: { value, onChange, name }, fieldState }) => (
-                    <Field.Root
-                      width="100%"
-                      error={fieldState.error?.message}
+              {values.type === 'INTERNAL' && (
+                <>
+                  <Grid.Item alignItems="flex-start" col={6} lg={12}>
+                    <Field
+                      name="relatedType"
+                      label={formatMessage(getTrad('popup.item.form.relatedType.label', 'Related Type'))}
+                      error={renderError('relatedType')}
                       hint={
                         !isLoading && isEmpty(relatedTypeSelectOptions)
                           ? formatMessage(
@@ -609,22 +658,11 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                             )
                           )
                           : undefined
-                      }
-                    >
-                      <Field.Label>
-                        {formatMessage(
-                          getTrad('popup.item.form.relatedType.label', 'Related Type')
-                        )}
-                      </Field.Label>
-
+                      }>
                       <SingleSelect
-                        name={name}
-                        onChange={(nextType: string) => {
-                          onChange(nextType);
-
-                          setValue('related', undefined);
-                        }}
-                        value={value}
+                        name="relatedType"
+                        onChange={(eventOrPath: FormChangeEvent) => handleChange('relatedType', eventOrPath, onChange)}
+                        value={values.relatedType}
                         disabled={!configQuery.data?.contentTypes.length || !canUpdate}
                         width="100%"
                       >
@@ -634,23 +672,15 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                           </SingleSelectOption>
                         ))}
                       </SingleSelect>
+                    </Field>
+                  </Grid.Item>
 
-                      <Field.Hint />
-
-                      <Field.Error />
-                    </Field.Root>
-                  )}
-                />
-              </Grid.Item>
-
-              {currentRelatedType && !isSingleSelected && (
-                <Grid.Item alignItems="flex-start" col={6} lg={12}>
-                  <Controller
-                    control={control}
-                    name="related"
-                    render={({ field: { value, onChange, name }, fieldState }) => (
-                      <Field.Root
-                        error={fieldState.error?.message}
+                  {values.relatedType && !isSingleSelected && (
+                    <Grid.Item alignItems="flex-start" col={6} lg={12}>
+                      <Field
+                        name="related"
+                        label={formatMessage(getTrad('popup.item.form.related.label', 'Related'))}
+                        error={renderError('related')}
                         hint={
                           !isLoading && thereAreNoMoreContentTypes
                             ? formatMessage(
@@ -658,20 +688,14 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                                 'popup.item.form.related.empty',
                                 'There are no more entities'
                               ),
-                              { contentTypeName: currentRelatedType }
+                              { contentTypeName: values.relatedType }
                             )
                             : undefined
-                        }
-                        width="100%"
-                      >
-                        <Field.Label>
-                          {formatMessage(getTrad('popup.item.form.related.label', 'Related'))}
-                        </Field.Label>
-
+                        }>
                         <SingleSelect
-                          name={name}
-                          onChange={onChange}
-                          value={value}
+                          name="related"
+                          onChange={(eventOrPath: FormChangeEvent) => handleChange('related', eventOrPath, onChange)}
+                          value={values.related}
                           options={relatedSelectOptions}
                           disabled={isLoading || thereAreNoMoreContentTypes || !canUpdate}
                           width="100%"
@@ -682,146 +706,127 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                             </SingleSelectOption>
                           ))}
                         </SingleSelect>
-
-                        <Field.Hint />
-
-                        <Field.Error />
-                      </Field.Root>
-                    )}
-                  />
-                </Grid.Item>
+                      </Field>
+                    </Grid.Item>
+                  )}
+                </>
               )}
-            </>
-          )}
-          {configQuery.data?.additionalFields.map(
-            (additionalField: NavigationItemAdditionalField) => {
-              if (additionalField === 'audience') {
-                return (
-                  <Grid.Item alignItems="flex-start" key="audience" col={6} lg={12}>
-                    <Controller
-                      control={control}
-                      name="audience"
-                      render={({ field: { value, onChange, name }, fieldState }) => (
-                        <Field.Root
-                          error={fieldState.error?.message}
+
+              {!isEmpty(configQuery.data?.additionalFields) && (<Grid.Item col={12} lg={12}>
+                <Divider width="100%" />
+              </Grid.Item>)}
+
+              {configQuery.data?.additionalFields.map(
+                (additionalField: NavigationItemAdditionalField, index: number) => {
+                  if (additionalField === 'audience') {
+                    return (
+                      <Grid.Item alignItems="flex-start" key="audience" col={6} lg={12}>
+                        <Field
+                          name="audience"
+                          label={formatMessage(getTrad('popup.item.form.audience.label'))}
+                          error={renderError('audience')}
                           hint={
                             !isLoading && isEmpty(audienceOptions)
                               ? formatMessage(
                                 getTrad('popup.item.form.title.placeholder', 'e.g. Blog')
                               )
                               : undefined
-                          }
-                          width="100%"
-                        >
-                          <Field.Label>
-                            {formatMessage(getTrad('popup.item.form.audience.label'))}
-                          </Field.Label>
-
+                          }>
                           <MultiSelect
-                            name={name}
-                            value={value?.map((x) => x.toString())}
-                            onChange={(next: Array<string>) => onChange(next.map(Number))}
+                            name="audience"
+                            value={values.audience}
+                            onChange={(eventOrPath: FormChangeEvent) => handleChange('audience', eventOrPath, onChange)}
                             width="100%"
                           >
                             {audienceOptions.map(({ value, label }) => (
-                              <MultiSelectOption key={value} value={value.toString()}>
+                              <MultiSelectOption key={value} value={value}>
                                 {label}
                               </MultiSelectOption>
                             ))}
                           </MultiSelect>
-
-                          <Field.Hint />
-
-                          <Field.Error />
-                        </Field.Root>
-                      )}
-                    />
-                  </Grid.Item>
-                );
-              } else {
-                return (
-                  <Grid.Item alignItems="flex-start" key={additionalField.name} col={6} lg={12}>
-                    {additionalField.name}
-                    <Controller
-                      control={control}
-                      name={`additionalFields.${additionalField.name}`}
-                      render={({ field: { value, onChange }, fieldState }) => (
-                        <Field.Root error={fieldState.error?.message}>
+                        </Field>
+                      </Grid.Item>
+                    );
+                  } else {
+                    return (
+                      <Grid.Item alignItems="flex-start" key={additionalField.name} col={6} lg={12}>
+                        <Field
+                          name={`additionalFields.${additionalField.name}`}
+                          label={additionalField.label}
+                          error={renderError(`additionalFields.${additionalField.name}`)}>
                           <AdditionalFieldInput
+                            name={`additionalFields.${additionalField.name}`}
                             field={additionalField}
                             isLoading={isLoading}
                             onChange={onChange}
-                            value={value}
+                            onChangeEnhancer={handleChange}
+                            value={get(values?.additionalFields, additionalField.name)}
                             disabled={!canUpdate}
                           />
-
-                          <Field.Error />
-                        </Field.Root>
-                      )}
-                    />
-                  </Grid.Item>
-                );
-              }
-            }
-          )}
-        </Grid.Root>
-
-        {availableLocaleOptions && (availableLocaleOptions.length > 1) && (
-          <>
-            <Divider marginTop={5} marginBottom={5} />
-
-            <Grid.Root gap={5}>
-              <Grid.Item alignItems="flex-start" col={6} lg={12}>
-                <Field.Root width="100%">
-                  <Field.Label>
-                    {formatMessage(getTrad('popup.item.form.i18n.locale.label', 'Copy details from'))}
-                  </Field.Label>
-
-                  <SingleSelect
-                    name="i18n.locale"
-                    onChange={setItemLocaleCopyValue}
-                    value={itemLocaleCopyValue}
-                    disabled={isLoading || !canUpdate}
-                    placeholder={formatMessage(
-                      getTrad('popup.item.form.i18n.locale.placeholder', 'locale')
-                    )}
-                  >
-                    {availableLocaleOptions.map(({ key, label, value }) => (
-                      <SingleSelectOption key={key} value={value}>
-                        {label}
-                      </SingleSelectOption>
-                    ))}
-                  </SingleSelect>
-                </Field.Root>
-              </Grid.Item>
-
-              {canUpdate && (
-                <Grid.Item alignItems="flex-start" col={6} lg={12} paddingTop={6}>
-                  <Box>
-                    <Button
-                      variant="tertiary"
-                      onClick={onCopyFromLocale}
-                      disabled={isLoading || !itemLocaleCopyValue}
-                    >
-                      {formatMessage(getTrad('popup.item.form.i18n.locale.button'))}
-                    </Button>
-                  </Box>
-                </Grid.Item>
+                        </Field>
+                      </Grid.Item>
+                    );
+                  }
+                }
               )}
             </Grid.Root>
-          </>
-        )}
 
-      </Modal.Body>
+            {
+              availableLocaleOptions && (availableLocaleOptions.length > 1) && (
+                <>
+                  <Divider marginTop={5} marginBottom={5} />
 
-      <NavigationItemPopupFooter
-        handleSubmit={submit}
-        handleCancel={onCancel}
-        submitDisabled={submitDisabled}
-        canUpdate={canUpdate}
-      />
-    </>
-  );
+                  <Grid.Root gap={5}>
+                    <Grid.Item alignItems="flex-start" col={6} lg={12}>
+                      <Field
+                        name="i18n.locale"
+                        label={formatMessage(getTrad('popup.item.form.i18n.locale.label', 'Copy details from'))}>
+                        <SingleSelect
+                          name="i18n.locale"
+                          onChange={setItemLocaleCopyValue}
+                          value={itemLocaleCopyValue}
+                          disabled={isLoading || !canUpdate}
+                          placeholder={formatMessage(
+                            getTrad('popup.item.form.i18n.locale.placeholder', 'locale')
+                          )}
+                        >
+                          {availableLocaleOptions.map(({ key, label, value }) => (
+                            <SingleSelectOption key={key} value={value}>
+                              {label}
+                            </SingleSelectOption>
+                          ))}
+                        </SingleSelect>
+                      </Field>
+                    </Grid.Item>
+
+                    {canUpdate && (
+                      <Grid.Item alignItems="flex-start" col={6} lg={12} paddingTop={6}>
+                        <Box>
+                          <Button
+                            variant="tertiary"
+                            onClick={onCopyFromLocale}
+                            disabled={isLoading || !itemLocaleCopyValue}
+                          >
+                            {formatMessage(getTrad('popup.item.form.i18n.locale.button'))}
+                          </Button>
+                        </Box>
+                      </Grid.Item>
+                    )}
+                  </Grid.Root>
+                </>
+              )
+            }</>);
+        }}
+      </Form>
+    </Modal.Body>
+
+    <NavigationItemPopupFooter
+      handleSubmit={(e: React.MouseEvent) => submit(e, formValue)}
+      handleCancel={onCancel}
+      submitDisabled={submitDisabled}
+      canUpdate={canUpdate}
+    />
+  </>);
 };
 
 const appendLabelPublicationStatusFallback = () => '';

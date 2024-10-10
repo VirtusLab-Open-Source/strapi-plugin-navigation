@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-import { parseId } from '../../controllers/utils';
 import { getPluginService } from '../../utils';
 
 const LOCALE_SCALAR_TYPENAME = 'I18NLocaleCode';
@@ -20,7 +19,7 @@ export const renderNavigation = ({ strapi, nexus }: any) => {
     args,
     type: nonNull(list('NavigationItem')),
     resolve(_: unknown, { navigationIdOrSlug, type, menuOnly, path: rootPath, locale }: any) {
-      const idOrSlug = parseId(z.string().parse(navigationIdOrSlug));
+      const idOrSlug =z.string().parse(navigationIdOrSlug);
 
       return getPluginService({ strapi }, 'client')
         .render({

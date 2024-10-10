@@ -28,8 +28,8 @@ export const getApiClient = once((fetch: ReturnType<typeof getFetchClient>) => (
     return [URL_PREFIX, 'navigations'];
   },
 
-  delete(id: number) {
-    return fetch.del(`/${URL_PREFIX}/${id}`);
+  delete(documentId: string) {
+    return fetch.del(`/${URL_PREFIX}/${documentId}`);
   },
 
   create(body: Omit<NavigationSchema, 'documentId' | 'id' | 'slug'>) {
@@ -37,12 +37,12 @@ export const getApiClient = once((fetch: ReturnType<typeof getFetchClient>) => (
   },
 
   update(body: NavigationSchema) {
-    return fetch.put(`/${URL_PREFIX}/${body.id}`, body);
+    return fetch.put(`/${URL_PREFIX}/${body.documentId}`, body);
   },
 
-  purge({ id, withLangVersions }: { id?: number; withLangVersions?: boolean }) {
+  purge({ documentId, withLangVersions }: { documentId?: string; withLangVersions?: boolean }) {
     return fetch.del(
-      `/${URL_PREFIX}/cache/purge/${id ?? ''}?clearLocalisations=${!!withLangVersions}`
+      `/${URL_PREFIX}/cache/purge/${documentId ?? ''}?clearLocalisations=${!!withLangVersions}`
     );
   },
 
@@ -151,7 +151,7 @@ export const getApiClient = once((fetch: ReturnType<typeof getFetchClient>) => (
     return [URL_PREFIX, 'locale'];
   },
 
-  copyNavigationLocale({ source, target }: { source: number; target: number }) {
+  copyNavigationLocale({ source, target }: { source: string; target: string }) {
     return fetch.put(`/${URL_PREFIX}/i18n/copy/${source}/${target}`);
   },
 
@@ -160,8 +160,8 @@ export const getApiClient = once((fetch: ReturnType<typeof getFetchClient>) => (
     structureId = '',
     target,
   }: {
-    source: number;
-    target: number;
+    source: string;
+    target: string;
     structureId?: string;
   }) {
     return fetch

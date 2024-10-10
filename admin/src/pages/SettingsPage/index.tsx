@@ -4,12 +4,12 @@ import { Layouts, Page, useAuth } from '@strapi/strapi/admin';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
+import { Field } from "@sensinum/strapi-utils";
 
 import {
   Accordion,
   Box,
   Button,
-  Field,
   Flex,
   Grid,
   MultiSelect,
@@ -282,13 +282,14 @@ const Inner = () => {
                           control={control}
                           name="preferCustomContentTypes"
                           render={({ field: { name, value, onChange } }) => (
-                            <Field.Root width="100%">
-                              <Field.Label>
-                                {formatMessage(
-                                  getTrad('pages.settings.form.preferCustomContentTypes.label')
-                                )}
-                              </Field.Label>
-
+                            <Field
+                              name={name}
+                              label={formatMessage(
+                                getTrad('pages.settings.form.preferCustomContentTypes.label')
+                              )}
+                              hint={formatMessage(
+                                getTrad('pages.settings.form.preferCustomContentTypes.hint')
+                              )}>
                               <Toggle
                                 name={name}
                                 checked={value}
@@ -304,13 +305,7 @@ const Inner = () => {
                                 disabled={restartStatus.required}
                                 width="100%"
                               />
-
-                              <Field.Hint>
-                                {formatMessage(
-                                  getTrad('pages.settings.form.preferCustomContentTypes.hint')
-                                )}
-                              </Field.Hint>
-                            </Field.Root>
+                            </Field>
                           )}
                         />
                       </Grid.Item>
@@ -320,10 +315,12 @@ const Inner = () => {
                           control={control}
                           name="contentTypes"
                           render={({ field: { name, value, onChange }, fieldState: { error } }) => (
-                            <Field.Root width="100%">
-                              <Field.Label>
-                                {formatMessage(getTrad('pages.settings.form.contentTypes.label'))}
-                              </Field.Label>
+                            <Field
+                              name={name}
+                              label={formatMessage(getTrad('pages.settings.form.contentTypes.label'))}
+                              hint={formatMessage(
+                                getTrad('pages.settings.form.contentTypes.hint')
+                              )}>
                               <MultiSelect
                                 name={name}
                                 label={formatMessage(
@@ -335,9 +332,6 @@ const Inner = () => {
                                 placeholder={formatMessage(
                                   getTrad('pages.settings.form.contentTypes.placeholder')
                                 )}
-                                hint={formatMessage(
-                                  getTrad('pages.settings.form.contentTypes.hint')
-                                )}
                                 value={value}
                                 onChange={(value: string[]) => {
                                   onChange(value);
@@ -345,7 +339,7 @@ const Inner = () => {
                                   const {
                                     contentTypesNameFields = [],
                                     contentTypesPopulate = [],
-                                    pathDefaultFields,
+                                    pathDefaultFields = [],
                                   } = getValues();
 
                                   const missingKeys =
@@ -411,7 +405,7 @@ const Inner = () => {
                                   </MultiSelectOption>
                                 ))}
                               </MultiSelect>
-                            </Field.Root>
+                            </Field>
                           )}
                         />
                       </Grid.Item>
@@ -445,12 +439,16 @@ const Inner = () => {
                                             field: { name, value, onChange },
                                             fieldState: { error },
                                           }) => (
-                                            <Field.Root width="100%">
-                                              <Field.Label>
-                                                {formatMessage(
-                                                  getTrad('pages.settings.form.nameField.label')
-                                                )}
-                                              </Field.Label>
+                                            <Field
+                                              name={name}
+                                              label={formatMessage(
+                                                getTrad('pages.settings.form.nameField.label')
+                                              )}
+                                              hint={formatMessage(
+                                                getTrad(
+                                                  `pages.settings.form.nameField.${isEmpty(value?.fields) ? 'empty' : 'hint'}`
+                                                )
+                                              )}>
                                               <MultiSelect
                                                 name={name}
                                                 placeholder={formatMessage(
@@ -478,14 +476,7 @@ const Inner = () => {
                                                   </MultiSelectOption>
                                                 ))}
                                               </MultiSelect>
-                                              <Field.Hint>
-                                                {formatMessage(
-                                                  getTrad(
-                                                    `pages.settings.form.nameField.${isEmpty(value?.fields) ? 'empty' : 'hint'}`
-                                                  )
-                                                )}
-                                              </Field.Hint>
-                                            </Field.Root>
+                                            </Field>
                                           )}
                                         />
                                       </Grid.Item>
@@ -497,12 +488,16 @@ const Inner = () => {
                                             field: { name, value, onChange },
                                             fieldState: { error },
                                           }) => (
-                                            <Field.Root width="100%">
-                                              <Field.Label>
-                                                {formatMessage(
-                                                  getTrad('pages.settings.form.populate.label')
-                                                )}
-                                              </Field.Label>
+                                            <Field
+                                              name={name}
+                                              label={formatMessage(
+                                                getTrad('pages.settings.form.populate.label')
+                                              )}
+                                              hint={formatMessage(
+                                                getTrad(
+                                                  `pages.settings.form.populate.${isEmpty(value?.fields) ? 'empty' : 'hint'}`
+                                                )
+                                              )}>
                                               <MultiSelect
                                                 width="100%"
                                                 name={name}
@@ -531,14 +526,7 @@ const Inner = () => {
                                                   </MultiSelectOption>
                                                 ))}
                                               </MultiSelect>
-                                              <Field.Hint>
-                                                {formatMessage(
-                                                  getTrad(
-                                                    `pages.settings.form.populate.${isEmpty(value?.fields) ? 'empty' : 'hint'}`
-                                                  )
-                                                )}
-                                              </Field.Hint>
-                                            </Field.Root>
+                                            </Field>
                                           )}
                                         />
                                       </Grid.Item>
@@ -550,14 +538,18 @@ const Inner = () => {
                                             field: { name, value, onChange },
                                             fieldState: { error },
                                           }) => (
-                                            <Field.Root width="100%">
-                                              <Field.Label>
-                                                {formatMessage(
-                                                  getTrad(
-                                                    'pages.settings.form.pathDefaultFields.label'
-                                                  )
-                                                )}
-                                              </Field.Label>
+                                            <Field
+                                              name={name}
+                                              label={formatMessage(
+                                                getTrad(
+                                                  'pages.settings.form.pathDefaultFields.label'
+                                                )
+                                              )}
+                                              hint={formatMessage(
+                                                getTrad(
+                                                  `pages.settings.form.pathDefaultFields.${isEmpty(value?.fields) ? 'empty' : 'hint'}`
+                                                )
+                                              )}>
                                               <MultiSelect
                                                 name={name}
                                                 width="100%"
@@ -586,14 +578,7 @@ const Inner = () => {
                                                   </MultiSelectOption>
                                                 ))}
                                               </MultiSelect>
-                                              <Field.Hint>
-                                                {formatMessage(
-                                                  getTrad(
-                                                    `pages.settings.form.pathDefaultFields.${isEmpty(value?.fields) ? 'empty' : 'hint'}`
-                                                  )
-                                                )}
-                                              </Field.Hint>
-                                            </Field.Root>
+                                            </Field>
                                           )}
                                         />
                                       </Grid.Item>
@@ -624,11 +609,10 @@ const Inner = () => {
                         control={control}
                         name="allowedLevels"
                         render={({ field: { onChange, value, name } }) => (
-                          <Field.Root width="100%">
-                            <Field.Label>
-                              {formatMessage(getTrad('pages.settings.form.allowedLevels.label'))}
-                            </Field.Label>
-
+                          <Field
+                            name={name}
+                            label={formatMessage(getTrad('pages.settings.form.allowedLevels.label'))}
+                            hint={formatMessage(getTrad('pages.settings.form.allowedLevels.hint'))}>
                             <NumberInput
                               width="100%"
                               name={name}
@@ -639,11 +623,7 @@ const Inner = () => {
                               value={value}
                               disabled={restartStatus.required}
                             />
-
-                            <Field.Hint>
-                              {formatMessage(getTrad('pages.settings.form.allowedLevels.hint'))}
-                            </Field.Hint>
-                          </Field.Root>
+                          </Field>
                         )}
                       />
                     </Box>
@@ -653,13 +633,12 @@ const Inner = () => {
                       control={control}
                       name="cascadeMenuAttached"
                       render={({ field: { name, value, onChange } }) => (
-                        <Field.Root width="100%">
-                          <Field.Label>
-                            {formatMessage(
-                              getTrad('pages.settings.form.cascadeMenuAttached.label')
-                            )}
-                          </Field.Label>
-
+                        <Field
+                          name={name}
+                          label={formatMessage(
+                            getTrad('pages.settings.form.cascadeMenuAttached.label')
+                          )}
+                          hint={formatMessage(getTrad('pages.settings.form.cascadeMenuAttached.hint'))}>
                           <Toggle
                             width="100%"
                             name={name}
@@ -675,11 +654,7 @@ const Inner = () => {
                             offLabel="Disabled"
                             disabled={restartStatus.required}
                           />
-
-                          <Field.Hint>
-                            {formatMessage(getTrad('pages.settings.form.cascadeMenuAttached.hint'))}
-                          </Field.Hint>
-                        </Field.Root>
+                        </Field>
                       )}
                     />
                   </Grid.Item>
@@ -688,11 +663,10 @@ const Inner = () => {
                       control={control}
                       name="audienceFieldChecked"
                       render={({ field: { name, value, onChange } }) => (
-                        <Field.Root width="100%">
-                          <Field.Label>
-                            {formatMessage(getTrad('pages.settings.form.audience.label'))}
-                          </Field.Label>
-
+                        <Field
+                          name={name}
+                          label={formatMessage(getTrad('pages.settings.form.audience.label'))}
+                          hint={formatMessage(getTrad('pages.settings.form.audience.hint'))}>
                           <Toggle
                             name={name}
                             checked={value}
@@ -708,11 +682,7 @@ const Inner = () => {
                             disabled={restartStatus.required}
                             width="100%"
                           />
-
-                          <Field.Hint>
-                            {formatMessage(getTrad('pages.settings.form.audience.hint'))}
-                          </Field.Hint>
-                        </Field.Root>
+                        </Field>
                       )}
                     />
                   </Grid.Item>
@@ -722,11 +692,10 @@ const Inner = () => {
                         control={control}
                         name="isCacheEnabled"
                         render={({ field: { name, value, onChange } }) => (
-                          <Field.Root width="100%">
-                            <Field.Label>
-                              {formatMessage(getTrad('pages.settings.form.cache.label'))}
-                            </Field.Label>
-
+                          <Field
+                            name={name}
+                            label={formatMessage(getTrad('pages.settings.form.cache.label'))}
+                            hint={formatMessage(getTrad('pages.settings.form.cache.hint'))}>
                             <Toggle
                               name={name}
                               checked={value}
@@ -742,11 +711,7 @@ const Inner = () => {
                               disabled={restartStatus.required}
                               width="100%"
                             />
-
-                            <Field.Hint>
-                              {formatMessage(getTrad('pages.settings.form.cache.hint'))}
-                            </Field.Hint>
-                          </Field.Root>
+                          </Field>
                         )}
                       />
                     </Grid.Item>
