@@ -1,10 +1,9 @@
-import { DesignSystemProvider, lightTheme } from '@strapi/design-system';
-import { Check, Play, Typhoon } from '@strapi/icons';
-import { Layouts, Page, useAuth } from '@strapi/strapi/admin';
+
+import { useEffect, useMemo, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
-import { Field } from "@sensinum/strapi-utils";
+import { get, isArray, isEmpty, isNil, isObject, isString, set, sortBy } from 'lodash';
+import { Field, usePluginTheme } from "@sensinum/strapi-utils";
 
 import {
   Accordion,
@@ -17,9 +16,12 @@ import {
   NumberInput,
   Toggle,
   Typography,
+  DesignSystemProvider,
 } from '@strapi/design-system';
-import { isEmpty, sortBy } from 'lodash';
-import { Controller } from 'react-hook-form';
+
+import { Check, Play, Typhoon } from '@strapi/icons';
+import { Form, Layouts, Page, useAuth } from '@strapi/strapi/admin';
+
 import { ConfirmationDialog } from '../../components/ConfirmationDialog';
 import { RestartAlert } from '../../components/RestartAlert';
 import { NavigationItemCustomField } from '../../schemas';
@@ -28,16 +30,17 @@ import pluginPermissions from '../../utils/permissions';
 import CustomFieldModal from './components/CustomFieldModal';
 import CustomFieldTable from './components/CustomFieldTable';
 import {
+  UiFormSchema,
   uiFormSchema,
   useConfig,
   useContentTypes,
   useRestart,
   useRestoreConfig,
   useSaveConfig,
-  useSettingsForm,
 } from './hooks';
 import { RestartStatus } from './types';
 import { isContentTypeEligible } from './utils';
+import { FormChangeEvent, FormItemErrorSchema } from '../../types';
 
 const BOX_DEFAULT_PROPS = {
   background: 'neutral0',
@@ -57,21 +60,6 @@ const Inner = () => {
 
   const { formatMessage } = useIntl();
 
-  const {
-    form: { control, watch, setValue, getValues, handleSubmit },
-  } = useSettingsForm(configQuery.data);
-  const [
-    contentTypeNameFieldsCurrent,
-    contentTypesCurrent,
-    additionalFields,
-    preferCustomContentTypes,
-  ] = watch([
-    'contentTypesNameFields',
-    'contentTypes',
-    'additionalFields',
-    'preferCustomContentTypes',
-  ]);
-
   const [restartStatus, setRestartStatus] = useState<RestartStatus>({ required: false });
 
   const readPermissions = useAuth('SettingsPage', (state) => state.permissions);
@@ -89,11 +77,54 @@ const Inner = () => {
     restartMutation.isPending ||
     restoreMutation.isPending;
 
+  const [formValue, setFormValue] = useState<UiFormSchema>({} as UiFormSchema);
+  const [formError, setFormError] = useState<FormItemErrorSchema<UiFormSchema>>();
   const [isCustomFieldModalOpen, setIsCustomFieldModalOpen] = useState<boolean>(false);
   const [isRestorePopupOpen, setIsRestorePopupOpen] = useState<boolean>(false);
   const [customFieldSelected, setCustomFieldSelected] = useState<NavigationItemCustomField | null>(
     null
   );
+
+  const {
+    contentTypesNameFields: contentTypeNameFieldsCurrent,
+    contentTypes: contentTypesCurrent,
+    additionalFields,
+    preferCustomContentTypes,
+  } = formValue;
+
+  const handleChange = (eventOrPath: FormChangeEvent | Array<string | number>, value?: any, nativeOnChange?: (eventOrPath: FormChangeEvent, value?: any) => void) => {
+    if (nativeOnChange) {
+
+      let fieldName = eventOrPath;
+      let fieldValue = value;
+
+      if (isString(fieldName) || isArray(fieldName)) {
+        setFormValueItem(fieldName, fieldValue);
+      }
+
+      if (isObject(eventOrPath) && !isArray(eventOrPath)) {
+        const { name: targetName, value: targetValue } = eventOrPath.target;
+        fieldName = targetName;
+        fieldValue = isNil(fieldValue) ? targetValue : fieldValue;
+      }
+
+      return nativeOnChange(eventOrPath as FormChangeEvent, fieldValue);
+    }
+  };
+
+  const setFormValueItem = (path: string | Array<string | number>, value: any) => {
+    setFormValue(set({
+      ...formValue,
+    }, path, value));
+  };
+
+  const renderError = (error: string): string | undefined => {
+    const errorOccurence = get(formError, error);
+    if (errorOccurence) {
+      return formatMessage(getTrad(error));
+    }
+    return undefined;
+  };
 
   const handleOpenCustomFieldModal = (field: NavigationItemCustomField | null) => {
     setCustomFieldSelected(field);
@@ -105,7 +136,7 @@ const Inner = () => {
       typeof f !== 'string' ? f.name !== field.name : true
     );
 
-    setValue('additionalFields', filteredFields);
+    setFormValueItem('additionalFields', filteredFields);
 
     setCustomFieldSelected(null);
     setIsCustomFieldModalOpen(false);
@@ -118,7 +149,7 @@ const Inner = () => {
       typeof field !== 'string' && current.name === field.name ? next : field
     );
 
-    setValue('additionalFields', nextAdditionalFields);
+    setFormValueItem('additionalFields', nextAdditionalFields);
   };
 
   const handleSubmitCustomField = (next: NavigationItemCustomField) => {
@@ -131,7 +162,7 @@ const Inner = () => {
       )
       : [...additionalFields, next];
 
-    setValue('additionalFields', nextAdditionalFields);
+    setFormValueItem('additionalFields', nextAdditionalFields);
 
     setCustomFieldSelected(null);
     setIsCustomFieldModalOpen(false);
@@ -167,19 +198,25 @@ const Inner = () => {
     )
     : [];
 
-  const onSubmit = (rawData: unknown) => {
-    const parsed = uiFormSchema.safeParse(rawData);
+  const submit = (e: React.MouseEvent, rawData: unknown) => {
+    const { success, data, error } = uiFormSchema.safeParse(rawData);
 
-    if (parsed.success) {
-      configSaveMutation.mutate(parsed.data, {
+    if (success) {
+      configSaveMutation.mutate(data, {
         onSuccess() {
           setRestartStatus({ required: true });
 
           configSaveMutation.reset();
         },
       });
-    } else {
-      console.warn('Invalid form data', parsed.error);
+    } else if (error) {
+      setFormError(error.issues.reduce((acc, err) => {
+        return {
+          ...acc,
+          [err.path.join('.')]: err.message
+        }
+      }, {} as FormItemErrorSchema<UiFormSchema>));
+      console.warn('Invalid form data', error);
     }
   };
 
@@ -207,6 +244,34 @@ const Inner = () => {
   };
   const handleRestartDiscard = () => setRestartStatus({ required: false });
 
+  useEffect(() => {
+    if (configQuery.data) {
+      setFormValue({
+        ...configQuery.data,
+        additionalFields: configQuery.data.additionalFields.filter((field) => typeof field !== 'string'),
+        audienceFieldChecked: configQuery.data.additionalFields.includes('audience'),
+        contentTypesNameFields: Object.entries(configQuery.data.contentTypesNameFields).map(
+          ([key, fields]) => ({
+            key,
+            fields,
+          })
+        ),
+        contentTypesPopulate: Object.entries(configQuery.data.contentTypesPopulate).map(
+          ([key, fields]) => ({
+            key,
+            fields,
+          })
+        ),
+        pathDefaultFields: Object.entries(configQuery.data.pathDefaultFields).map(([key, fields]) => ({
+          key,
+          fields,
+        })),
+      } as UiFormSchema);
+    }
+  }, [configQuery.data]);
+
+  console.log(formValue);
+
   if (!hasSettingsPermissions) {
     return <Page.NoPermissions />;
   }
@@ -227,7 +292,7 @@ const Inner = () => {
               <Button
                 startIcon={<Check />}
                 disabled={restartStatus.required}
-                onClick={handleSubmit(onSubmit)}
+                onClick={(e: React.MouseEvent) => submit(e, formValue)}
               >
                 {formatMessage(getTrad('pages.settings.actions.submit'))}
               </Button>
@@ -236,54 +301,57 @@ const Inner = () => {
         />
 
         <Layouts.Content>
-          <Flex direction="column" gap={4}>
-            {restartStatus.required && (
-              <Box {...BOX_DEFAULT_PROPS} width="100%">
-                <RestartAlert
-                  closeLabel={formatMessage(getTrad('pages.settings.actions.restart.alert.cancel'))}
-                  title={formatMessage(getTrad('pages.settings.actions.restart.alert.title'))}
-                  action={
-                    <Box>
-                      <Button onClick={handleRestart} startIcon={<Play />}>
-                        {formatMessage(getTrad('pages.settings.actions.restart.label'))}
-                      </Button>
-                    </Box>
-                  }
-                  onClose={handleRestartDiscard}
-                >
-                  <>
-                    <Box paddingBottom={1}>
-                      {formatMessage(getTrad('pages.settings.actions.restart.alert.description'))}
-                    </Box>
-                    {restartStatus.reasons?.map((reason, i) => (
-                      <Box
-                        paddingBottom={1}
-                        key={i}
-                        children={formatMessage(
-                          getTrad(`pages.settings.actions.restart.alert.reason.${reason}`)
-                        )}
-                      />
-                    ))}
-                  </>
-                </RestartAlert>
-              </Box>
-            )}
-            <Box {...BOX_DEFAULT_PROPS} width="100%">
-              <Flex direction="column" alignItems="flex-start" gap={2}>
-                <Typography variant="delta" as="h2">
-                  {formatMessage(getTrad('pages.settings.general.title'))}
-                </Typography>
 
-                <Grid.Root gap={4} width="100%">
-                  <Grid.Item col={12} s={12} xs={12}>
+          <Form
+            method="POST"
+            initialValues={formValue}
+          >
+            {({ values, onChange }) => {
+
+              return (<Flex direction="column" gap={4}>
+                {restartStatus.required && (
+                  <Box {...BOX_DEFAULT_PROPS} width="100%">
+                    <RestartAlert
+                      closeLabel={formatMessage(getTrad('pages.settings.actions.restart.alert.cancel'))}
+                      title={formatMessage(getTrad('pages.settings.actions.restart.alert.title'))}
+                      action={
+                        <Box>
+                          <Button onClick={handleRestart} startIcon={<Play />}>
+                            {formatMessage(getTrad('pages.settings.actions.restart.label'))}
+                          </Button>
+                        </Box>
+                      }
+                      onClose={handleRestartDiscard}
+                    >
+                      <>
+                        <Box paddingBottom={1}>
+                          {formatMessage(getTrad('pages.settings.actions.restart.alert.description'))}
+                        </Box>
+                        {restartStatus.reasons?.map((reason, i) => (
+                          <Box
+                            paddingBottom={1}
+                            key={i}
+                            children={formatMessage(
+                              getTrad(`pages.settings.actions.restart.alert.reason.${reason}`)
+                            )}
+                          />
+                        ))}
+                      </>
+                    </RestartAlert>
+                  </Box>
+                )}
+                <Box {...BOX_DEFAULT_PROPS} width="100%">
+                  <Flex direction="column" alignItems="flex-start" gap={2}>
+                    <Typography variant="delta" as="h2">
+                      {formatMessage(getTrad('pages.settings.general.title'))}
+                    </Typography>
+
                     <Grid.Root gap={4} width="100%">
-                      <Grid.Item col={4} s={12} xs={12}>
-                        <Controller
-                          control={control}
-                          name="preferCustomContentTypes"
-                          render={({ field: { name, value, onChange } }) => (
+                      <Grid.Item col={12} s={12} xs={12}>
+                        <Grid.Root gap={4} width="100%">
+                          <Grid.Item col={4} s={12} xs={12}>
                             <Field
-                              name={name}
+                              name="preferCustomContentTypes"
                               label={formatMessage(
                                 getTrad('pages.settings.form.preferCustomContentTypes.label')
                               )}
@@ -291,38 +359,26 @@ const Inner = () => {
                                 getTrad('pages.settings.form.preferCustomContentTypes.hint')
                               )}>
                               <Toggle
-                                name={name}
-                                checked={value}
-                                onChange={({
-                                  currentTarget: { checked },
-                                }: {
-                                  currentTarget: { checked: boolean };
-                                }) => {
-                                  onChange(checked);
-                                }}
+                                name="preferCustomContentTypes"
+                                checked={values.preferCustomContentTypes}
+                                onChange={(eventOrPath: FormChangeEvent) => handleChange(eventOrPath, !values.preferCustomContentTypes, onChange)}
                                 onLabel="Enabled"
                                 offLabel="Disabled"
                                 disabled={restartStatus.required}
                                 width="100%"
                               />
                             </Field>
-                          )}
-                        />
-                      </Grid.Item>
+                          </Grid.Item>
 
-                      <Grid.Item col={8} s={12} xs={12}>
-                        <Controller
-                          control={control}
-                          name="contentTypes"
-                          render={({ field: { name, value, onChange }, fieldState: { error } }) => (
+                          <Grid.Item col={8} s={12} xs={12}>
                             <Field
-                              name={name}
+                              name="contentTypes"
                               label={formatMessage(getTrad('pages.settings.form.contentTypes.label'))}
                               hint={formatMessage(
                                 getTrad('pages.settings.form.contentTypes.hint')
                               )}>
                               <MultiSelect
-                                name={name}
+                                name="contentTypes"
                                 label={formatMessage(
                                   getTrad('pages.settings.form.contentTypes.label')
                                 )}
@@ -332,15 +388,15 @@ const Inner = () => {
                                 placeholder={formatMessage(
                                   getTrad('pages.settings.form.contentTypes.placeholder')
                                 )}
-                                value={value}
-                                onChange={(value: string[]) => {
-                                  onChange(value);
+                                value={values.contentTypes}
+                                onChange={(value: Array<string>) => {
+                                  handleChange('contentTypes', value, onChange)
 
                                   const {
                                     contentTypesNameFields = [],
                                     contentTypesPopulate = [],
                                     pathDefaultFields = [],
-                                  } = getValues();
+                                  } = values;
 
                                   const missingKeys =
                                     value.filter(
@@ -358,7 +414,7 @@ const Inner = () => {
                                       )
                                       .map(({ key }) => key) ?? [];
 
-                                  setValue(
+                                  setFormValueItem(
                                     'contentTypesNameFields',
                                     [
                                       ...(contentTypesNameFields.filter(
@@ -366,11 +422,10 @@ const Inner = () => {
                                           !redundantKeys.includes(key) || key === 'default'
                                       ) ?? []),
                                       ...missingKeys.map((key) => ({ key, fields: [] })),
-                                    ],
-                                    { shouldDirty: true, shouldTouch: true, shouldValidate: true }
+                                    ]
                                   );
 
-                                  setValue(
+                                  setFormValueItem(
                                     'contentTypesPopulate',
                                     [
                                       ...(contentTypesPopulate.filter(
@@ -378,11 +433,10 @@ const Inner = () => {
                                           !redundantKeys.includes(key) || key === 'default'
                                       ) ?? []),
                                       ...missingKeys.map((key) => ({ key, fields: [] })),
-                                    ],
-                                    { shouldDirty: true, shouldTouch: true, shouldValidate: true }
+                                    ]
                                   );
 
-                                  setValue(
+                                  setFormValueItem(
                                     'pathDefaultFields',
                                     [
                                       ...(pathDefaultFields.filter(
@@ -390,12 +444,11 @@ const Inner = () => {
                                           !redundantKeys.includes(key) || key === 'default'
                                       ) ?? []),
                                       ...missingKeys.map((key) => ({ key, fields: [] })),
-                                    ],
-                                    { shouldDirty: true, shouldTouch: true, shouldValidate: true }
+                                    ]
                                   );
                                 }}
                                 disabled={restartStatus.required}
-                                error={!!error}
+                                error={renderError('contentTypes')}
                                 withTags
                                 width="100%"
                               >
@@ -406,65 +459,57 @@ const Inner = () => {
                                 ))}
                               </MultiSelect>
                             </Field>
-                          )}
-                        />
-                      </Grid.Item>
+                          </Grid.Item>
 
-                      <Grid.Item col={12} s={12} xs={12}>
-                        {contentTypesCurrent?.length ? (
-                          <Accordion.Root style={{ width: '100%' }}>
-                            {contentTypeNameFieldsCurrent.map((nameFields, index) => {
-                              const current = contentTypesQuery.data?.find(
-                                ({ uid }) => uid === nameFields.key
-                              );
-                              const attributeKeys = Object.keys(current?.attributes ?? {}).sort();
+                          <Grid.Item col={12} s={12} xs={12}>
+                            {contentTypesCurrent?.length ? (
+                              <Accordion.Root style={{ width: '100%' }}>
+                                {contentTypeNameFieldsCurrent.map((nameFields, index) => {
+                                  const current = contentTypesQuery.data?.find(
+                                    ({ uid }) => uid === nameFields.key
+                                  );
+                                  const attributeKeys = Object.keys(current?.attributes ?? {}).sort();
 
-                              return current ? (
-                                <Accordion.Item key={nameFields.key} value={nameFields.key}>
-                                  <Accordion.Header>
-                                    <Accordion.Trigger>
-                                      {current?.info.displayName ??
-                                        formatMessage(
-                                          getTrad('pages.settings.form.nameField.default')
-                                        )}
-                                    </Accordion.Trigger>
-                                  </Accordion.Header>
-                                  <Accordion.Content>
-                                    <Grid.Root gap={4} padding={2}>
-                                      <Grid.Item col={12} s={12} xs={12}>
-                                        <Controller
-                                          control={control}
-                                          name={`contentTypesNameFields.${index}`}
-                                          render={({
-                                            field: { name, value, onChange },
-                                            fieldState: { error },
-                                          }) => (
+                                  return current ? (
+                                    <Accordion.Item key={nameFields.key} value={nameFields.key}>
+                                      <Accordion.Header>
+                                        <Accordion.Trigger>
+                                          {current?.info.displayName ??
+                                            formatMessage(
+                                              getTrad('pages.settings.form.nameField.default')
+                                            )}
+                                        </Accordion.Trigger>
+                                      </Accordion.Header>
+                                      <Accordion.Content>
+                                        <Grid.Root gap={4} padding={2}>
+                                          <Grid.Item col={12} s={12} xs={12}>
                                             <Field
-                                              name={name}
+                                              name={`contentTypesNameFields[${index}]`}
                                               label={formatMessage(
                                                 getTrad('pages.settings.form.nameField.label')
                                               )}
                                               hint={formatMessage(
                                                 getTrad(
-                                                  `pages.settings.form.nameField.${isEmpty(value?.fields) ? 'empty' : 'hint'}`
+                                                  `pages.settings.form.nameField.${isEmpty(get(values, `contentTypesNameFields[${index}].fields`, [])) ? 'empty' : 'hint'}`
                                                 )
                                               )}>
                                               <MultiSelect
-                                                name={name}
+                                                name={`contentTypesNameFields[${index}]`}
                                                 placeholder={formatMessage(
                                                   getTrad(
                                                     'pages.settings.form.nameField.placeholder'
                                                   )
                                                 )}
-                                                value={value.fields}
-                                                onChange={(fields: string[]) =>
-                                                  onChange({
-                                                    ...value,
-                                                    fields,
-                                                  })
-                                                }
+                                                value={get(values, `contentTypesNameFields[${index}].fields`)}
+                                                onChange={(value: Array<string>) => {
+                                                  const curr = get(values, `contentTypesNameFields[${index}]`);
+                                                  return handleChange(['contentTypesNameFields', index], {
+                                                    ...curr,
+                                                    fields: value,
+                                                  }, onChange)
+                                                }}
                                                 disabled={restartStatus.required}
-                                                error={!!error}
+                                                error={renderError(`contentTypesNameFields[${index}]`)}
                                                 withTags
                                               >
                                                 {attributeKeys.map((attribute) => (
@@ -477,44 +522,36 @@ const Inner = () => {
                                                 ))}
                                               </MultiSelect>
                                             </Field>
-                                          )}
-                                        />
-                                      </Grid.Item>
-                                      <Grid.Item col={12} s={12} xs={12}>
-                                        <Controller
-                                          control={control}
-                                          name={`contentTypesPopulate.${index - 1}`}
-                                          render={({
-                                            field: { name, value, onChange },
-                                            fieldState: { error },
-                                          }) => (
+                                          </Grid.Item>
+                                          <Grid.Item col={12} s={12} xs={12}>
                                             <Field
-                                              name={name}
+                                              name={`contentTypesPopulate[${index - 1}]`}
                                               label={formatMessage(
                                                 getTrad('pages.settings.form.populate.label')
                                               )}
                                               hint={formatMessage(
                                                 getTrad(
-                                                  `pages.settings.form.populate.${isEmpty(value?.fields) ? 'empty' : 'hint'}`
+                                                  `pages.settings.form.populate.${isEmpty(get(values, `contentTypesPopulate[${index - 1}]fields`, [])) ? 'empty' : 'hint'}`
                                                 )
                                               )}>
                                               <MultiSelect
                                                 width="100%"
-                                                name={name}
+                                                name={`contentTypesPopulate[${index - 1}]`}
                                                 placeholder={formatMessage(
                                                   getTrad(
                                                     'pages.settings.form.populate.placeholder'
                                                   )
                                                 )}
-                                                value={value?.fields ?? []}
-                                                onChange={(fields: string[]) =>
-                                                  onChange({
-                                                    ...value,
-                                                    fields,
-                                                  })
-                                                }
+                                                value={get(values, `contentTypesPopulate[${index - 1}].fields`, [])}
+                                                onChange={(value: Array<string>) => {
+                                                  const curr = get(values, `contentTypesPopulate[${index - 1}]`);
+                                                  return handleChange(['contentTypesPopulate', index - 1], {
+                                                    ...curr,
+                                                    fields: value,
+                                                  }, onChange)
+                                                }}
                                                 disabled={restartStatus.required}
-                                                error={!!error}
+                                                error={renderError(`contentTypesPopulate[${index - 1}]`)}
                                                 withTags
                                               >
                                                 {attributeKeys.map((attribute) => (
@@ -527,19 +564,10 @@ const Inner = () => {
                                                 ))}
                                               </MultiSelect>
                                             </Field>
-                                          )}
-                                        />
-                                      </Grid.Item>
-                                      <Grid.Item col={12} s={12} xs={12}>
-                                        <Controller
-                                          control={control}
-                                          name={`pathDefaultFields.${index - 1}`}
-                                          render={({
-                                            field: { name, value, onChange },
-                                            fieldState: { error },
-                                          }) => (
+                                          </Grid.Item>
+                                          <Grid.Item col={12} s={12} xs={12}>
                                             <Field
-                                              name={name}
+                                              name={`pathDefaultFields[${index - 1}]`}
                                               label={formatMessage(
                                                 getTrad(
                                                   'pages.settings.form.pathDefaultFields.label'
@@ -547,26 +575,27 @@ const Inner = () => {
                                               )}
                                               hint={formatMessage(
                                                 getTrad(
-                                                  `pages.settings.form.pathDefaultFields.${isEmpty(value?.fields) ? 'empty' : 'hint'}`
+                                                  `pages.settings.form.pathDefaultFields.${isEmpty(get(values, `pathDefaultFields[${index - 1}].fields`, [])) ? 'empty' : 'hint'}`
                                                 )
                                               )}>
                                               <MultiSelect
-                                                name={name}
+                                                name={`pathDefaultFields[${index - 1}]`}
                                                 width="100%"
                                                 placeholder={formatMessage(
                                                   getTrad(
                                                     'pages.settings.form.pathDefaultFields.placeholder'
                                                   )
                                                 )}
-                                                value={value?.fields ?? []}
-                                                onChange={(fields: string[]) =>
-                                                  onChange({
-                                                    ...value,
-                                                    fields,
-                                                  })
-                                                }
+                                                value={get(values, `pathDefaultFields[${index - 1}].fields`, [])}
+                                                onChange={(value: Array<string>) => {
+                                                  const curr = get(values, `pathDefaultFields[${index - 1}]`);
+                                                  return handleChange(['pathDefaultFields', index - 1], {
+                                                    ...curr,
+                                                    fields: value,
+                                                  }, onChange)
+                                                }}
                                                 disabled={restartStatus.required}
-                                                error={!!error}
+                                                error={renderError(`pathDefaultFields[${index - 1}]`)}
                                                 withTags
                                               >
                                                 {attributeKeys.map((attribute) => (
@@ -579,202 +608,160 @@ const Inner = () => {
                                                 ))}
                                               </MultiSelect>
                                             </Field>
-                                          )}
-                                        />
-                                      </Grid.Item>
-                                    </Grid.Root>
-                                  </Accordion.Content>
-                                </Accordion.Item>
-                              ) : null;
-                            })}
-                          </Accordion.Root>
-                        ) : null}
+                                          </Grid.Item>
+                                        </Grid.Root>
+                                      </Accordion.Content>
+                                    </Accordion.Item>
+                                  ) : null;
+                                })}
+                              </Accordion.Root>
+                            ) : null}
+                          </Grid.Item>
+                        </Grid.Root>
                       </Grid.Item>
                     </Grid.Root>
-                  </Grid.Item>
-                </Grid.Root>
-              </Flex>
-            </Box>
+                  </Flex>
+                </Box>
 
-            <Box {...BOX_DEFAULT_PROPS} width="100%">
-              <Flex direction="column" alignItems="flex-start" gap={2}>
-                <Typography variant="delta" as="h2">
-                  {formatMessage(getTrad('pages.settings.additional.title'))}
-                </Typography>
+                <Box {...BOX_DEFAULT_PROPS} width="100%">
+                  <Flex direction="column" alignItems="flex-start" gap={2}>
+                    <Typography variant="delta" as="h2">
+                      {formatMessage(getTrad('pages.settings.additional.title'))}
+                    </Typography>
 
-                <Grid.Root gap={4} width="100%">
-                  <Grid.Item col={4} s={12} xs={12}>
-                    <Box width="100%">
-                      <Controller
-                        control={control}
-                        name="allowedLevels"
-                        render={({ field: { onChange, value, name } }) => (
+                    <Grid.Root gap={4} width="100%">
+                      <Grid.Item col={4} s={12} xs={12}>
+                        <Box width="100%">
                           <Field
-                            name={name}
+                            name="allowedLevels"
                             label={formatMessage(getTrad('pages.settings.form.allowedLevels.label'))}
                             hint={formatMessage(getTrad('pages.settings.form.allowedLevels.hint'))}>
                             <NumberInput
                               width="100%"
-                              name={name}
+                              name="allowedLevels"
                               placeholder={formatMessage(
                                 getTrad('pages.settings.form.allowedLevels.placeholder')
                               )}
-                              onValueChange={(nextValue: number) => onChange(nextValue)}
-                              value={value}
+                              onChange={(eventOrPath: FormChangeEvent, value?: any) => handleChange(eventOrPath, value, onChange)}
+                              value={values.allowedLevels}
                               disabled={restartStatus.required}
                             />
                           </Field>
-                        )}
-                      />
-                    </Box>
-                  </Grid.Item>
-                  <Grid.Item col={4} s={12} xs={12}>
-                    <Controller
-                      control={control}
-                      name="cascadeMenuAttached"
-                      render={({ field: { name, value, onChange } }) => (
+                        </Box>
+                      </Grid.Item>
+                      <Grid.Item col={4} s={12} xs={12}>
                         <Field
-                          name={name}
+                          name="cascadeMenuAttached"
                           label={formatMessage(
                             getTrad('pages.settings.form.cascadeMenuAttached.label')
                           )}
                           hint={formatMessage(getTrad('pages.settings.form.cascadeMenuAttached.hint'))}>
                           <Toggle
                             width="100%"
-                            name={name}
-                            checked={value}
-                            onChange={({
-                              currentTarget: { checked },
-                            }: {
-                              currentTarget: { checked: boolean };
-                            }) => {
-                              onChange(checked);
-                            }}
+                            name="cascadeMenuAttached"
+                            checked={values.cascadeMenuAttached}
+                            onChange={(eventOrPath: FormChangeEvent) => handleChange(eventOrPath, !values.cascadeMenuAttached, onChange)}
                             onLabel="Enabled"
                             offLabel="Disabled"
                             disabled={restartStatus.required}
                           />
                         </Field>
-                      )}
-                    />
-                  </Grid.Item>
-                  <Grid.Item col={4} s={12} xs={12}>
-                    <Controller
-                      control={control}
-                      name="audienceFieldChecked"
-                      render={({ field: { name, value, onChange } }) => (
+                      </Grid.Item>
+                      <Grid.Item col={4} s={12} xs={12}>
                         <Field
-                          name={name}
+                          name="audienceFieldChecked"
                           label={formatMessage(getTrad('pages.settings.form.audience.label'))}
                           hint={formatMessage(getTrad('pages.settings.form.audience.hint'))}>
                           <Toggle
-                            name={name}
-                            checked={value}
-                            onChange={({
-                              currentTarget: { checked },
-                            }: {
-                              currentTarget: { checked: boolean };
-                            }) => {
-                              onChange(checked);
-                            }}
+                            name="audienceFieldChecked"
+                            checked={values.audienceFieldChecked}
+                            onChange={(eventOrPath: FormChangeEvent) => handleChange(eventOrPath, !values.audienceFieldChecked, onChange)}
                             onLabel="Enabled"
                             offLabel="Disabled"
                             disabled={restartStatus.required}
                             width="100%"
                           />
                         </Field>
-                      )}
-                    />
-                  </Grid.Item>
-                  {configQuery.data?.isCachePluginEnabled && (
-                    <Grid.Item col={12} s={12} xs={12}>
-                      <Controller
-                        control={control}
-                        name="isCacheEnabled"
-                        render={({ field: { name, value, onChange } }) => (
+                      </Grid.Item>
+                      {configQuery.data?.isCachePluginEnabled && (
+                        <Grid.Item col={12} s={12} xs={12}>
                           <Field
-                            name={name}
+                            name="isCacheEnabled"
                             label={formatMessage(getTrad('pages.settings.form.cache.label'))}
                             hint={formatMessage(getTrad('pages.settings.form.cache.hint'))}>
                             <Toggle
-                              name={name}
-                              checked={value}
-                              onChange={({
-                                currentTarget: { checked },
-                              }: {
-                                currentTarget: { checked: boolean };
-                              }) => {
-                                onChange(checked);
-                              }}
+                              name="isCacheEnabled"
+                              checked={values.isCacheEnabled}
+                              onChange={(eventOrPath: FormChangeEvent) => handleChange(eventOrPath, !values.isCacheEnabled, onChange)}
                               onLabel="Enabled"
                               offLabel="Disabled"
                               disabled={restartStatus.required}
                               width="100%"
                             />
                           </Field>
-                        )}
-                      />
-                    </Grid.Item>
-                  )}
-                </Grid.Root>
-              </Flex>
-            </Box>
+                        </Grid.Item>
+                      )}
+                    </Grid.Root>
+                  </Flex>
+                </Box>
 
-            <Box {...BOX_DEFAULT_PROPS} width="100%" gap={2} direction="column" alignItems="flex-start">
-              <Typography variant="delta" as="h2">
-                {formatMessage(getTrad('pages.settings.customFields.title'))}
-              </Typography>
-              <Box padding={1} />
-              <CustomFieldTable
-                data={additionalFields}
-                onOpenModal={handleOpenCustomFieldModal}
-                onRemoveCustomField={handleRemoveCustomField}
-                onToggleCustomField={handleToggleCustomField}
-              />
-            </Box>
+                <Box {...BOX_DEFAULT_PROPS} width="100%" gap={2} direction="column" alignItems="flex-start">
+                  <Typography variant="delta" as="h2">
+                    {formatMessage(getTrad('pages.settings.customFields.title'))}
+                  </Typography>
+                  <Box padding={1} />
+                  <CustomFieldTable
+                    data={additionalFields}
+                    onOpenModal={handleOpenCustomFieldModal}
+                    onRemoveCustomField={handleRemoveCustomField}
+                    onToggleCustomField={handleToggleCustomField}
+                  />
+                </Box>
 
-            <Box {...BOX_DEFAULT_PROPS} width="100%">
-              <Flex direction="column" alignItems="flex-start" gap={2}>
-                <Typography variant="delta" as="h2">
-                  {formatMessage(getTrad('pages.settings.restoring.title'))}
-                </Typography>
-                <Grid.Root gap={4} width="100%">
-                  <Grid.Item col={12} s={12} xs={12}>
-                    <Typography>
-                      {formatMessage(getTrad('pages.settings.actions.restore.description'))}
+                <Box {...BOX_DEFAULT_PROPS} width="100%">
+                  <Flex direction="column" alignItems="flex-start" gap={2}>
+                    <Typography variant="delta" as="h2">
+                      {formatMessage(getTrad('pages.settings.restoring.title'))}
                     </Typography>
-                  </Grid.Item>
-                  <Grid.Item col={12} s={12} xs={12}>
-                    {hasSettingsReadPermissions ? (
-                      <Button
-                        variant="danger-light"
-                        startIcon={<Check />}
-                        onClick={() => setIsRestorePopupOpen(true)}
-                      >
-                        {formatMessage(getTrad('pages.settings.actions.restore.label'))}
-                      </Button>
-                    ) : null}
-                    <ConfirmationDialog
-                      isVisible={isRestorePopupOpen}
-                      header={formatMessage(
-                        getTrad('pages.settings.actions.restore.confirmation.header')
-                      )}
-                      labelConfirm={formatMessage(
-                        getTrad('pages.settings.actions.restore.confirmation.confirm')
-                      )}
-                      iconConfirm={<Typhoon />}
-                      onConfirm={() => onPopupClose(true)}
-                      onCancel={() => onPopupClose(false)}
-                    >
-                      {formatMessage(
-                        getTrad('pages.settings.actions.restore.confirmation.description')
-                      )}
-                    </ConfirmationDialog>
-                  </Grid.Item>
-                </Grid.Root>
-              </Flex>
-            </Box>
-          </Flex>
+                    <Grid.Root gap={4} width="100%">
+                      <Grid.Item col={12} s={12} xs={12}>
+                        <Typography>
+                          {formatMessage(getTrad('pages.settings.actions.restore.description'))}
+                        </Typography>
+                      </Grid.Item>
+                      <Grid.Item col={12} s={12} xs={12}>
+                        {hasSettingsReadPermissions ? (
+                          <Button
+                            variant="danger-light"
+                            startIcon={<Check />}
+                            onClick={() => setIsRestorePopupOpen(true)}
+                          >
+                            {formatMessage(getTrad('pages.settings.actions.restore.label'))}
+                          </Button>
+                        ) : null}
+                        <ConfirmationDialog
+                          isVisible={isRestorePopupOpen}
+                          header={formatMessage(
+                            getTrad('pages.settings.actions.restore.confirmation.header')
+                          )}
+                          labelConfirm={formatMessage(
+                            getTrad('pages.settings.actions.restore.confirmation.confirm')
+                          )}
+                          iconConfirm={<Typhoon />}
+                          onConfirm={() => onPopupClose(true)}
+                          onCancel={() => onPopupClose(false)}
+                        >
+                          {formatMessage(
+                            getTrad('pages.settings.actions.restore.confirmation.description')
+                          )}
+                        </ConfirmationDialog>
+                      </Grid.Item>
+                    </Grid.Root>
+                  </Flex>
+                </Box>
+              </Flex>)
+            }}
+          </Form>
         </Layouts.Content>
       </Page.Main>
       {isCustomFieldModalOpen && (
@@ -791,10 +778,11 @@ const Inner = () => {
 
 export default function SettingsPage() {
   queryClient.invalidateQueries();
+  const theme = usePluginTheme();
 
   return (
     <QueryClientProvider client={queryClient}>
-      <DesignSystemProvider locale="en-GB" theme={lightTheme}>
+      <DesignSystemProvider theme={theme}>
         <Inner />
       </DesignSystemProvider>
     </QueryClientProvider>

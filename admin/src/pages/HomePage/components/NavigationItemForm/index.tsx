@@ -1,5 +1,5 @@
 import { Form, useNotification } from '@strapi/strapi/admin';
-import { add, get, isBoolean, isEmpty, isNil, isObject, isString, set, sortBy } from 'lodash';
+import { get, isBoolean, isEmpty, isNil, isObject, isString, set, sortBy } from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { AnyEntity, Field } from '@sensinum/strapi-utils';
@@ -21,7 +21,7 @@ import {
 import { NavigationSchema } from '../../../../api/validators';
 import { NavigationItemAdditionalField } from '../../../../schemas';
 import { getTrad } from '../../../../translations';
-import { Effect, ToBeFixed, VoidEffect } from '../../../../types';
+import { Effect, FormChangeEvent, FormItemErrorSchema, ToBeFixed, VoidEffect } from '../../../../types';
 import { RELATED_ITEM_SEPARATOR } from '../../../../utils/constants';
 import {
   useConfig,
@@ -54,10 +54,6 @@ type NavigationItemFormProps = {
   currentNavigation: Pick<NavigationSchema, 'id' | 'documentId' | 'localeCode'>;
 };
 
-type FormChangeEvent = React.ChangeEvent<any> | string;
-
-type FormItemErrorSchema = Record<keyof NavigationItemFormSchema, string>;
-
 const FALLBACK_ADDITIONAL_FIELDS: Array<NavigationItemAdditionalField> = [];
 
 export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
@@ -83,7 +79,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
 
   const [formValue, setFormValue] = useState<NavigationItemFormSchema>({} as NavigationItemFormSchema);
 
-  const [formError, setFormError] = useState<FormItemErrorSchema>();
+  const [formError, setFormError] = useState<FormItemErrorSchema<NavigationItemFormSchema>>();
 
   const configQuery = useConfig();
 
@@ -238,7 +234,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
           ...acc,
           [err.path.join('.')]: err.message
         }
-      }, {} as FormItemErrorSchema));
+      }, {} as FormItemErrorSchema<NavigationItemFormSchema>));
     }
   };
 
@@ -258,7 +254,6 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
     type: currentType,
     title: currentTitle,
     autoSync: autoSyncEnabled,
-    additionalFields: currentAdditionalFields,
   } = formValue;
 
   const isExternal = currentType === 'EXTERNAL';
