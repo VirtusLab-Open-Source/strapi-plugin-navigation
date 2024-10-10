@@ -4686,13 +4686,13 @@ __metadata:
   linkType: hard
 
 "@tanstack/react-query@npm:^5.40.0":
-  version: 5.59.6
-  resolution: "@tanstack/react-query@npm:5.59.6"
+  version: 5.59.8
+  resolution: "@tanstack/react-query@npm:5.59.8"
   dependencies:
     "@tanstack/query-core": "npm:5.59.6"
   peerDependencies:
     react: ^18 || ^19
-  checksum: 10c0/ac2d5821ab2c9484a3236a59087a63b5a4124e1c29a92cdb7097210f77bc7fa0dd1513a643c5e39f024857189fe2c802f9c93c43e9853ce07ee402ada3f7544a
+  checksum: 10c0/c6350c8e0da8c3abbae9957c84cf8ccd6e9fc6e994d463dced27c9d9f35a78e973f37f04b27d532f0f904ed4476a4bb92cfe05abcf2644c9d36fd98ca1b3b81a
   languageName: node
   linkType: hard
 
@@ -8326,9 +8326,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.5.28":
-  version: 1.5.34
-  resolution: "electron-to-chromium@npm:1.5.34"
-  checksum: 10c0/81b3af2d927e118ca0dcff9f502c8c850e981e985c2d19b097a4bb99d7f9d0aff0abcfdcb859aa06003d4d0e036c99580675a57495dbf05c9179c4773fd2f405
+  version: 1.5.35
+  resolution: "electron-to-chromium@npm:1.5.35"
+  checksum: 10c0/49f7921dbdee725284898728a0ba4a786ab27a145a871057b7085f5643df51d7be3ece5374a105cc621417abb1bca780365a058a0531083d0252347b75cf0f3f
   languageName: node
   linkType: hard
 
@@ -9346,13 +9346,13 @@ __metadata:
   linkType: hard
 
 "form-data@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "form-data@npm:4.0.0"
+  version: 4.0.1
+  resolution: "form-data@npm:4.0.1"
   dependencies:
     asynckit: "npm:^0.4.0"
     combined-stream: "npm:^1.0.8"
     mime-types: "npm:^2.1.12"
-  checksum: 10c0/cb6f3ac49180be03ff07ba3ff125f9eba2ff0b277fb33c7fc47569fc5e616882c5b1c69b9904c4c4187e97dd0419dd03b134174756f296dec62041e6527e2c6e
+  checksum: 10c0/bb102d570be8592c23f4ea72d7df9daa50c7792eb0cf1c5d7e506c1706e7426a4e4ae48a35b109e91c85f1c0ec63774a21ae252b66f4eb981cb8efef7d0463c8
   languageName: node
   linkType: hard
 

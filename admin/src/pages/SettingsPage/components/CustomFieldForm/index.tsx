@@ -7,7 +7,7 @@ import { Field } from "@sensinum/strapi-utils";
 import TextArrayInput from '../../../../components/TextArrayInput';
 import { NavigationItemCustomField } from '../../../../schemas';
 import { getTrad } from '../../../../translations';
-import { Effect, VoidEffect } from '../../../../types';
+import { Effect, ToBeFixed, VoidEffect } from '../../../../types';
 import { customFieldsTypes } from '../../common';
 import { useCustomFieldForm } from './hooks';
 
@@ -125,7 +125,7 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({
               )}
             />
           </Grid.Item>
-          {type === 'select' && (
+          {(type as ToBeFixed) === 'select' && (
             <>
               <Grid.Item key="multi" col={12}>
                 <Controller

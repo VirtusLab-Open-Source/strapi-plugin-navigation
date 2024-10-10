@@ -39,6 +39,7 @@ import {
 } from './utils';
 import { ListPlus, Plus } from '@strapi/icons';
 import { usePluginTheme } from '@sensinum/strapi-utils';
+import { ToBeFixed } from '../../types';
 
 const queryClient = new QueryClient();
 
@@ -349,11 +350,11 @@ const Inner = () => {
       tradId: 'header.action.collapseAll',
       margin: '8px',
     },
-  ];
+  ] as Array<ToBeFixed>;
 
   if (canUpdate) {
     endActions.push({
-        onClick: addNewNavigationItem,
+        onClick: addNewNavigationItem as ToBeFixed,
         type: 'submit',
         variant: 'primary',
         tradId: 'header.action.newItem',

@@ -1,6 +1,3 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useMemo } from 'react';
-import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { NavigationItemAdditionalField } from '../../../../../schemas';
 
@@ -115,43 +112,13 @@ const navigationExternalItemFormSchema = ({
   });
 
 export type NavigationItemFormSchema = z.infer<ReturnType<typeof navigationItemFormSchema>>;
-const navigationItemFormSchema = (input: FormSchemaBuilderInput) =>
+export const navigationItemFormSchema = (input: FormSchemaBuilderInput) =>
   z.discriminatedUnion('type', [
     navigationExternalItemFormSchema(input),
     navigationInternalItemFormSchema(input),
   ]);
 
-export const useNavigationItemForm = ({
-  input,
-  current = fallbackDefaultValues,
-}: {
-  input: FormSchemaBuilderInput;
-  current?: NavigationItemFormSchema;
-}) => {
-  const defaultValues = useMemo(
-    (): NavigationItemFormSchema =>
-      // TODO: Update after migration
-      ({
-        ...fallbackDefaultValues,
-        ...current,
-        updated: !!current.documentId,
-      }),
-    [current]
-  );
-  
-  const memoedCurrent = useMemo(() => current, [])
-
-  return useForm({
-    resolver: zodResolver(navigationItemFormSchema(input) as any),
-    values: {
-      ...defaultValues,
-      ...memoedCurrent,
-      updated: !!current.documentId,
-    },
-  });
-};
-
-export const fallbackDefaultValues: NavigationItemFormSchema = {
+ export const fallbackDefaultValues: NavigationItemFormSchema = {
   autoSync: true,
   type: 'INTERNAL',
   relatedType: '',

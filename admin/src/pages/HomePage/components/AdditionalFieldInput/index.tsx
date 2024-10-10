@@ -7,7 +7,7 @@ import {
 } from '@strapi/design-system';
 import { useNotification, useStrapiApp } from '@strapi/strapi/admin';
 import { isNil } from 'lodash';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useIntl } from 'react-intl';
 
 import { Toggle } from '@strapi/design-system';
@@ -18,7 +18,8 @@ export type AdditionalFieldInputProps = {
   name?: string;
   field: NavigationItemCustomField;
   isLoading: boolean;
-  onChange: () => void;
+  onChange: (eventOrPath: React.ChangeEvent<any> | string, value?: any) => void;
+  onChangeEnhancer: (eventOrPath: React.ChangeEvent<any> | string, value?: any, nativeOnChange?: (eventOrPath: React.ChangeEvent<any> | string, value?: any) => void) => void;
   value: string | boolean | string[] | object | null;
   disabled: boolean;
 };
@@ -42,6 +43,7 @@ export const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
   field,
   isLoading,
   onChange,
+  onChangeEnhancer,
   value,
   disabled,
 }) => {
@@ -61,13 +63,19 @@ export const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
     [field, isLoading]
   );
 
+  useEffect(() => {
+    if (field.type === 'media') {
+      onChangeEnhancer(defaultInputProps.name, value, onChange)
+    }
+  }, [value]);
+
   switch (field.type) {
     case 'boolean':
       return (
         <Toggle
           {...defaultInputProps}
           checked={!!value}
-          onChange={onChange}
+          onChange={(eventOrPath: React.ChangeEvent<any> | string, value?: any) => onChangeEnhancer(eventOrPath, !value, onChange)}
           onLabel="true"
           offLabel="false"
           type="checkbox"
@@ -77,7 +85,7 @@ export const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
       return (
         <TextInput
           {...defaultInputProps}
-          onChange={onChange}
+          onChange={(eventOrPath: React.ChangeEvent<any> | string, value?: any) => onChangeEnhancer(eventOrPath, value, onChange)}
           value={value || DEFAULT_STRING_VALUE}
         />
       );
@@ -85,7 +93,7 @@ export const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
       return field.multi ? (
         <MultiSelect
           {...defaultInputProps}
-          onChange={onChange}
+          onChange={(eventOrPath: React.ChangeEvent<any> | string) => onChangeEnhancer(defaultInputProps.name, eventOrPath, onChange)}
           value={isNil(value) ? (field.multi ? [] : null) : value}
           multi={field.multi}
           withTags={field.multi}
@@ -99,7 +107,7 @@ export const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
       ) : (
         <SingleSelect
           {...defaultInputProps}
-          onChange={onChange}
+          onChange={(eventOrPath: React.ChangeEvent<any> | string) => onChangeEnhancer(defaultInputProps.name, eventOrPath, onChange)}
           value={isNil(value) ? (field.multi ? [] : null) : value}
           multi={field.multi}
           withTags={field.multi}
@@ -116,8 +124,7 @@ export const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
         <MediaLibrary
           {...defaultInputProps}
           {...mediaAttribute}
-          onChange={onChange}
-          value={value || undefined}
+          value={value}
         />
       );
     default:

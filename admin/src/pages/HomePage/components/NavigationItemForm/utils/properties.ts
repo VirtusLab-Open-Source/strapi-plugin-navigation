@@ -21,7 +21,7 @@ interface GeneratePreviewPathInput {
   isExternal?: boolean;
   currentPath?: string | null;
   current: Partial<NavigationItemFormSchema>;
-  currentType: NavigationItemTypeSchema;
+  currentType?: NavigationItemTypeSchema;
   currentRelatedType?: string;
   currentRelated?: number | string;
   config?: ConfigFromServerSchema;
@@ -101,7 +101,7 @@ export const generatePreviewPath = ({
   currentPath,
   isExternal,
   current,
-  currentType,
+  currentType = 'INTERNAL',
   config,
   contentTypeItems,
   currentRelated,

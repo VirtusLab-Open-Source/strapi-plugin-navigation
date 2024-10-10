@@ -303,7 +303,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       };
     };
 
-    return dbResults.map((navigation) => ({
+    return dbResults.map((navigation: NavigationDBSchema) => ({
       ...navigation,
       items: navigation.items
         ?.filter((item) => !item.parent)
@@ -478,7 +478,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       }
 
       await navigationItemRepository.removeForIds(
-        await navigationItemRepository.findForMasterIds(masterIds).then((_) =>
+        await navigationItemRepository.findForMasterIds(masterIds).then((_: Array<NavigationItemDBSchema>) =>
           _.reduce<Array<string>>((acc, { documentId }) => {
             if (documentId) {
               acc.push(documentId);
@@ -496,7 +496,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       populate: true,
     });
 
-    await cleanNavigationItems(allNavigations.map(({ documentId }) => documentId));
+    await cleanNavigationItems(allNavigations.map(({ documentId }: NavigationDBSchema) => documentId));
     await navigationRepository.remove({ documentId: navigation.documentId });
 
     sendAuditLog(auditLog, 'onNavigationDeletion', {
@@ -709,7 +709,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
         },
       });
 
-      regexps = navigations.map(({ documentId }) => mapToRegExp(documentId));
+      regexps = navigations.map(({ documentId }: NavigationDBSchema) => mapToRegExp(documentId));
     }
 
     const restCachePlugin = strapi.plugin('rest-cache');
