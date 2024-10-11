@@ -256,7 +256,7 @@ const fr = {
           hint: "Désactiver si vous ne voulez pas que \"Menu attaché\" se propage aux éléments enfants",
         },
         preferCustomContentTypes: {
-          label: "Préférer les types de contenu personnalisés",
+          label: "Préférer les types de contenu API",
           hint: "Préférer utiliser uniquement les types de contenu préfixés par api::",
         },
         contentTypes: {

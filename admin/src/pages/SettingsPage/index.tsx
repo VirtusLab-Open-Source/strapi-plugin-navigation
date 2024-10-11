@@ -92,27 +92,28 @@ const Inner = () => {
     preferCustomContentTypes,
   } = formValue;
 
-  const handleChange = (eventOrPath: FormChangeEvent | Array<string | number>, value?: any, nativeOnChange?: (eventOrPath: FormChangeEvent, value?: any) => void) => {
+  const handleChange = (eventOrPath: FormChangeEvent, value?: any, nativeOnChange?: (eventOrPath: FormChangeEvent, value?: any) => void) => {
     if (nativeOnChange) {
 
       let fieldName = eventOrPath;
       let fieldValue = value;
 
-      if (isString(fieldName) || isArray(fieldName)) {
-        setFormValueItem(fieldName, fieldValue);
-      }
-
-      if (isObject(eventOrPath) && !isArray(eventOrPath)) {
+      if (isObject(eventOrPath)) {
         const { name: targetName, value: targetValue } = eventOrPath.target;
         fieldName = targetName;
         fieldValue = isNil(fieldValue) ? targetValue : fieldValue;
       }
 
+      if (isString(fieldName)) {
+        setFormValueItem(fieldName, fieldValue);
+      }
+
+
       return nativeOnChange(eventOrPath as FormChangeEvent, fieldValue);
     }
   };
 
-  const setFormValueItem = (path: string | Array<string | number>, value: any) => {
+  const setFormValueItem = (path: string, value: any) => {
     setFormValue(set({
       ...formValue,
     }, path, value));
@@ -269,8 +270,6 @@ const Inner = () => {
       } as UiFormSchema);
     }
   }, [configQuery.data]);
-
-  console.log(formValue);
 
   if (!hasSettingsPermissions) {
     return <Page.NoPermissions />;
@@ -502,11 +501,17 @@ const Inner = () => {
                                                 )}
                                                 value={get(values, `contentTypesNameFields[${index}].fields`)}
                                                 onChange={(value: Array<string>) => {
-                                                  const curr = get(values, `contentTypesNameFields[${index}]`);
-                                                  return handleChange(['contentTypesNameFields', index], {
-                                                    ...curr,
-                                                    fields: value,
-                                                  }, onChange)
+                                                  const updated = get(values, 'contentTypesNameFields', []).map((item, i) => {
+                                                    if (i === index) {
+                                                      return {
+                                                        ...item,
+                                                        fields: value,
+                                                      }
+                                                    }
+                                                    return item;
+                                                  });
+
+                                                  return handleChange('contentTypesNameFields', updated, onChange);
                                                 }}
                                                 disabled={restartStatus.required}
                                                 error={renderError(`contentTypesNameFields[${index}]`)}
@@ -544,11 +549,17 @@ const Inner = () => {
                                                 )}
                                                 value={get(values, `contentTypesPopulate[${index - 1}].fields`, [])}
                                                 onChange={(value: Array<string>) => {
-                                                  const curr = get(values, `contentTypesPopulate[${index - 1}]`);
-                                                  return handleChange(['contentTypesPopulate', index - 1], {
-                                                    ...curr,
-                                                    fields: value,
-                                                  }, onChange)
+                                                  const updated = get(values, 'contentTypesPopulate', []).map((item, i) => {
+                                                    if (i === (index - 1)) {
+                                                      return {
+                                                        ...item,
+                                                        fields: value,
+                                                      }
+                                                    }
+                                                    return item;
+                                                  });
+
+                                                  return handleChange('contentTypesPopulate', updated, onChange);
                                                 }}
                                                 disabled={restartStatus.required}
                                                 error={renderError(`contentTypesPopulate[${index - 1}]`)}
@@ -588,11 +599,17 @@ const Inner = () => {
                                                 )}
                                                 value={get(values, `pathDefaultFields[${index - 1}].fields`, [])}
                                                 onChange={(value: Array<string>) => {
-                                                  const curr = get(values, `pathDefaultFields[${index - 1}]`);
-                                                  return handleChange(['pathDefaultFields', index - 1], {
-                                                    ...curr,
-                                                    fields: value,
-                                                  }, onChange)
+                                                  const updated = get(values, 'pathDefaultFields', []).map((item, i) => {
+                                                    if (i === (index - 1)) {
+                                                      return {
+                                                        ...item,
+                                                        fields: value,
+                                                      }
+                                                    }
+                                                    return item;
+                                                  });
+
+                                                  return handleChange('pathDefaultFields', updated, onChange);
                                                 }}
                                                 disabled={restartStatus.required}
                                                 error={renderError(`pathDefaultFields[${index - 1}]`)}

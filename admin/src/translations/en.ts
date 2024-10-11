@@ -256,7 +256,7 @@ const en = {
           hint: "Disable if you don't want \"Menu attached\" to cascade on child items",
         },
         preferCustomContentTypes: {
-          label: "Prefer custom content types",
+          label: "Prefer API Content Types",
           hint: "Prefer if to use only api:: prefixed content types",
         },
         contentTypes: {
