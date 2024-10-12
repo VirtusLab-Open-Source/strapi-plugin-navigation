@@ -41,12 +41,14 @@ export interface EditState extends CommonState {
   view: 'EDIT';
   navigation: Navigation;
   current: Navigation;
+  disabled?: boolean;
   alreadyUsedNames: Array<string>;
 }
 
 export interface CreateState extends CommonState {
   view: 'CREATE';
   current: NewNavigation;
+  disabled?: boolean;
   alreadyUsedNames: Array<string>;
 }
 

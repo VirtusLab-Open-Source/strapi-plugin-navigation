@@ -9,18 +9,19 @@ import { CommonProps, CreateState, Navigation, NewNavigation as NewNavigationTyp
 interface Props extends CreateState, CommonProps {}
 
 export const INITIAL_NAVIGATION = {
-  name: 'Navigation',
+  name: '',
   items: [],
-  visible: true,
+  visible: false,
 } as unknown as Navigation;
 
 export const NewNavigation = ({ setState, current, isLoading, alreadyUsedNames }: Props) => {
   const onSubmit = useCallback(
-    (updated: NewNavigationType) => {
+    ({disabled, ...updated}: NewNavigationType & { disabled?: boolean }) => {
       setState({
         view: 'CREATE',
         current: updated,
         alreadyUsedNames,
+        disabled,
       });
     },
     [setState]
@@ -36,7 +37,7 @@ export const NewNavigation = ({ setState, current, isLoading, alreadyUsedNames }
   );
 };
 
-export const NewNavigationFooter: Footer = ({ onSubmit, onReset, isLoading }) => {
+export const NewNavigationFooter: Footer = ({ onSubmit, onReset, disabled, isLoading }) => {
   const { formatMessage } = useIntl();
 
   return (
@@ -50,7 +51,7 @@ export const NewNavigationFooter: Footer = ({ onSubmit, onReset, isLoading }) =>
       end={{
         children: formatMessage(getTrad('popup.navigation.manage.button.save')),
         variant: 'default',
-        disabled: isLoading,
+        disabled: isLoading || disabled,
         onClick: onSubmit,
       }}
     />

@@ -90,6 +90,10 @@ const en = {
         },
         visible: {
           label: "Visibility",
+          toggle: {
+            visible: "Visible",
+            hidden: "Hidden",
+          }
         },
       },
     },
@@ -434,6 +438,10 @@ const en = {
     },
   },
   components: {
+    toggle: {
+      enabled: "Enabled",
+      disabled: "Disabled",
+    },
     navigationItem: {
       action: {
         newItem: "Add nested item",

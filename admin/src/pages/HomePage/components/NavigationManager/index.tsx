@@ -294,10 +294,10 @@ const renderFooter: Footer = (props) => {
       return <AllNavigationsFooter {...props} />;
     }
     case 'CREATE': {
-      return <NewNavigationFooter {...props} />;
+      return <NewNavigationFooter {...props} disabled={props.state.disabled} />;
     }
     case 'EDIT': {
-      return <NavigationUpdateFooter {...props} />;
+      return <NavigationUpdateFooter {...props} disabled={props.state.disabled} />;
     }
     case 'DELETE': {
       return <DeleteConfirmFooter {...props} />;

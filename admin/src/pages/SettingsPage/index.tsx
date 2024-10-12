@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useIntl } from 'react-intl';
-import { get, isArray, isEmpty, isNil, isObject, isString, set, sortBy } from 'lodash';
+import { get, isEmpty, isNil, isObject, isString, set, sortBy } from 'lodash';
 import { Field, usePluginTheme } from "@sensinum/strapi-utils";
 
 import {
@@ -365,8 +365,8 @@ const Inner = () => {
                                 name="preferCustomContentTypes"
                                 checked={values.preferCustomContentTypes}
                                 onChange={(eventOrPath: FormChangeEvent) => handleChange(eventOrPath, !values.preferCustomContentTypes, onChange)}
-                                onLabel="Enabled"
-                                offLabel="Disabled"
+                                onLabel={formatMessage(getTrad('component.toggle.enabled'))}
+                                offLabel={formatMessage(getTrad('component.toggle.disabled'))}
                                 disabled={restartStatus.required}
                                 width="100%"
                               />
@@ -682,8 +682,8 @@ const Inner = () => {
                             name="cascadeMenuAttached"
                             checked={values.cascadeMenuAttached}
                             onChange={(eventOrPath: FormChangeEvent) => handleChange(eventOrPath, !values.cascadeMenuAttached, onChange)}
-                            onLabel="Enabled"
-                            offLabel="Disabled"
+                            onLabel={formatMessage(getTrad('component.toggle.enabled'))}
+                            offLabel={formatMessage(getTrad('component.toggle.disabled'))}
                             disabled={restartStatus.required}
                           />
                         </Field>
@@ -697,8 +697,8 @@ const Inner = () => {
                             name="audienceFieldChecked"
                             checked={values.audienceFieldChecked}
                             onChange={(eventOrPath: FormChangeEvent) => handleChange(eventOrPath, !values.audienceFieldChecked, onChange)}
-                            onLabel="Enabled"
-                            offLabel="Disabled"
+                            onLabel={formatMessage(getTrad('component.toggle.enabled'))}
+                            offLabel={formatMessage(getTrad('component.toggle.disabled'))}
                             disabled={restartStatus.required}
                             width="100%"
                           />
@@ -714,8 +714,8 @@ const Inner = () => {
                               name="isCacheEnabled"
                               checked={values.isCacheEnabled}
                               onChange={(eventOrPath: FormChangeEvent) => handleChange(eventOrPath, !values.isCacheEnabled, onChange)}
-                              onLabel="Enabled"
-                              offLabel="Disabled"
+                              onLabel={formatMessage(getTrad('component.toggle.enabled'))}
+                              offLabel={formatMessage(getTrad('component.toggle.disabled'))}
                               disabled={restartStatus.required}
                               width="100%"
                             />

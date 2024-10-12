@@ -19,11 +19,12 @@ export const NavigationUpdate = ({
   const navigation: Navigation = useMemo(() => current ?? initialValue, [current]);
 
   const onChange: Effect<Navigation> = useCallback(
-    (updated) => {
+    ({disabled, ...updated}: Navigation & { disabled?: boolean }) => {
       setState({
         view: 'EDIT',
         alreadyUsedNames,
         current: updated,
+        disabled,
         navigation: initialValue,
       });
     },
@@ -40,7 +41,7 @@ export const NavigationUpdate = ({
   );
 };
 
-export const NavigationUpdateFooter: Footer = ({ onSubmit, onReset, isLoading }) => {
+export const NavigationUpdateFooter: Footer = ({ onSubmit, onReset, disabled, isLoading }) => {
   const { formatMessage } = useIntl();
 
   return (
@@ -53,7 +54,7 @@ export const NavigationUpdateFooter: Footer = ({ onSubmit, onReset, isLoading })
       }}
       end={{
         children: formatMessage(getTrad('popup.navigation.manage.button.save')),
-        disabled: isLoading,
+        disabled: isLoading || disabled,
         onClick: onSubmit,
         variant: 'secondary',
       }}

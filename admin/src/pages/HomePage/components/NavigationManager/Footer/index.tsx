@@ -16,6 +16,7 @@ export type Footer = React.FC<{
   onSubmit: VoidEffect;
   setState: SetState;
   state: State;
+  disabled?: boolean;
   isLoading: boolean;
 }>;
 
