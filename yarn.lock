@@ -4392,9 +4392,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@strapi/plugin-graphql@npm:5.0.4":
-  version: 5.0.4
-  resolution: "@strapi/plugin-graphql@npm:5.0.4"
+"@strapi/plugin-graphql@npm:5.0.6":
+  version: 5.0.6
+  resolution: "@strapi/plugin-graphql@npm:5.0.6"
   dependencies:
     "@apollo/server": "npm:4.11.0"
     "@as-integrations/koa": "npm:1.1.1"
@@ -4403,7 +4403,7 @@ __metadata:
     "@koa/cors": "npm:5.0.0"
     "@strapi/design-system": "npm:2.0.0-rc.11"
     "@strapi/icons": "npm:2.0.0-rc.11"
-    "@strapi/utils": "npm:5.0.4"
+    "@strapi/utils": "npm:5.0.6"
     graphql: "npm:^16.8.1"
     graphql-depth-limit: "npm:^1.1.0"
     graphql-playground-middleware-koa: "npm:^1.6.21"
@@ -4419,7 +4419,7 @@ __metadata:
     react-dom: ^17.0.0 || ^18.0.0
     react-router-dom: ^6.0.0
     styled-components: ^6.0.0
-  checksum: 10c0/88972b942fd88befea36aa1d4a3dbe79bc212fbfffc5d5abd022b7bd0d2b18b68d99659efd17d8b0cafbbdab0a56bd157a5d9fa5bbaef80b5687f36159b6fb67
+  checksum: 10c0/c3d0e4afc7855d43d61727d06b13c3a28fdeab61f2b9126f800bb543516b3752f093b0db38669630f248e27e276585bdfa6881c191517da6e688d2b1120d313f
   languageName: node
   linkType: hard
 
@@ -4495,7 +4495,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@strapi/strapi@npm:^5.0.4":
+"@strapi/strapi@npm:^5.0.6":
   version: 5.0.6
   resolution: "@strapi/strapi@npm:5.0.6"
   dependencies:
@@ -4575,7 +4575,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@strapi/types@npm:5.0.6, @strapi/types@npm:^5.0.4":
+"@strapi/types@npm:5.0.6, @strapi/types@npm:^5.0.6":
   version: 5.0.6
   resolution: "@strapi/types@npm:5.0.6"
   dependencies:
@@ -4597,7 +4597,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@strapi/typescript-utils@npm:5.0.6, @strapi/typescript-utils@npm:^5.0.4":
+"@strapi/typescript-utils@npm:5.0.6, @strapi/typescript-utils@npm:^5.0.6":
   version: 5.0.6
   resolution: "@strapi/typescript-utils@npm:5.0.6"
   dependencies:
@@ -4677,24 +4677,6 @@ __metadata:
     react-router-dom: ^6.0.0
     styled-components: ^6.0.0
   checksum: 10c0/eb4cfa2e3031faaea536d478146ceb82346354caefda8c83dc8773dc65611147bdcec169e3c82d467a3fcdf6395566390138cec6ba772d0a93b1a79271d5a442
-  languageName: node
-  linkType: hard
-
-"@strapi/utils@npm:5.0.4":
-  version: 5.0.4
-  resolution: "@strapi/utils@npm:5.0.4"
-  dependencies:
-    "@sindresorhus/slugify": "npm:1.1.0"
-    date-fns: "npm:2.30.0"
-    execa: "npm:5.1.1"
-    http-errors: "npm:2.0.0"
-    lodash: "npm:4.17.21"
-    node-machine-id: "npm:1.1.12"
-    p-map: "npm:4.0.0"
-    preferred-pm: "npm:3.1.2"
-    yup: "npm:0.32.9"
-    zod: "npm:^3.22.4"
-  checksum: 10c0/11d2472120baca75ec8891b432827627506b4f086a94c0bbe8fc3bafcea09a9d9ab5d8d8ad45762efa7b9910c20c39ba0a0e3ed9005e7eac45aed515b6f78378
   languageName: node
   linkType: hard
 
@@ -16699,11 +16681,11 @@ __metadata:
     "@sindresorhus/slugify": "npm:1.1.0"
     "@strapi/design-system": "npm:2.0.0-rc.11"
     "@strapi/icons": "npm:2.0.0-rc.11"
-    "@strapi/plugin-graphql": "npm:5.0.4"
+    "@strapi/plugin-graphql": "npm:5.0.6"
     "@strapi/sdk-plugin": "npm:^5.2.6"
-    "@strapi/strapi": "npm:^5.0.4"
-    "@strapi/types": "npm:^5.0.4"
-    "@strapi/typescript-utils": "npm:^5.0.4"
+    "@strapi/strapi": "npm:^5.0.6"
+    "@strapi/types": "npm:^5.0.6"
+    "@strapi/typescript-utils": "npm:^5.0.6"
     "@tanstack/react-query": "npm:^5.40.0"
     "@types/jest": "npm:^29.5.12"
     "@types/koa": "npm:^2.15.0"
@@ -16746,7 +16728,7 @@ __metadata:
     zod: "npm:^3.22.5"
   peerDependencies:
     "@strapi/sdk-plugin": ^5.2.6
-    "@strapi/strapi": ^5.0.4
+    "@strapi/strapi": ^5.0.6
     react: ^18.3.1
     react-dom: ^18.3.1
     react-router-dom: ^6.26.2
