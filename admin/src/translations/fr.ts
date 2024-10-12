@@ -90,6 +90,10 @@ const fr = {
         },
         visible: {
           label: "Visibilité",
+          toggle: {
+            visible: "Visible",
+            hidden: "Caché",
+          }
         },
       },
     },
@@ -434,6 +438,10 @@ const fr = {
     },
   },
   components: {
+    toggle: {
+      enabled: "Activé",
+      disabled: "Désactivé",
+    },
     navigationItem: {
       action: {
         newItem: "Ajouter un élément imbriqué",
