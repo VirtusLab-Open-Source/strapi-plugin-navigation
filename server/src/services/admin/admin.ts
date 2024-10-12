@@ -161,11 +161,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
 
             if (isSingleTypeWithPublishFlow) {
               const itemsCountOrBypass = isSingleTypeWithPublishFlow
-                ? await repository.count({
-                    publishedAt: {
-                      $notNull: true,
-                    },
-                  })
+                ? await repository.count({}, 'published')
                 : true;
 
               return returnType(itemsCountOrBypass !== 0);
@@ -549,6 +545,8 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       .then(configSchema.parse);
 
     validateAdditionalFields(newConfig.additionalFields);
+
+    console.log({ newConfig });
 
     await pluginStore.set({ key: 'config', value: newConfig });
 

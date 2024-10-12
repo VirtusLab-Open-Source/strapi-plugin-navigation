@@ -94,7 +94,6 @@ const Inner = () => {
 
   const handleChange = (eventOrPath: FormChangeEvent, value?: any, nativeOnChange?: (eventOrPath: FormChangeEvent, value?: any) => void) => {
     if (nativeOnChange) {
-
       let fieldName = eventOrPath;
       let fieldValue = value;
 
@@ -108,15 +107,20 @@ const Inner = () => {
         setFormValueItem(fieldName, fieldValue);
       }
 
-
       return nativeOnChange(eventOrPath as FormChangeEvent, fieldValue);
     }
   };
 
   const setFormValueItem = (path: string, value: any) => {
-    setFormValue(set({
-      ...formValue,
-    }, path, value));
+    setFormValue((current) =>
+      set(
+        {
+          ...current,
+        },
+        path,
+        value
+      )
+    );
   };
 
   const renderError = (error: string): string | undefined => {
