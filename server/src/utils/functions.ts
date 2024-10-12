@@ -46,7 +46,9 @@ export const validateAdditionalFields = (additionalFields: NavigationItemAdditio
       )
     )
   ) {
-    throw new Error(`Name of custom field cannot be one of: ${FORBIDDEN_CUSTOM_FIELD_NAMES.join(', ')}`);
+    throw new Error(
+      `Name of custom field cannot be one of: ${FORBIDDEN_CUSTOM_FIELD_NAMES.join(', ')}`
+    );
   }
 };
 
@@ -138,9 +140,13 @@ export function getPluginService<TName extends keyof ServiceTypeMap>(
 
 export const parsePopulateQuery = (populate: any) => {
   if (populate === '*') {
-    return true;
+    return '*';
   } else if (typeof populate === 'string') {
     return [populate];
+  } else if (populate === false) {
+    return [];
+  } else if (populate === true) {
+    return '*';
   } else {
     return populate;
   }

@@ -70,12 +70,16 @@ export const getApiClient = once((fetch: ReturnType<typeof getFetchClient>) => (
     source,
     structureId,
     target,
+    documentId,
   }: {
-    source: number;
-    target: number;
+    source: string;
+    target: string;
+    documentId: string;
     structureId: string;
   }) {
-    return fetch.get(`/${URL_PREFIX}/i18n/item/read/${source}/${target}?path=${structureId}`);
+    return fetch.get(
+      `/${URL_PREFIX}/i18n/item/read/${documentId}/${source}/${target}?path=${structureId}`
+    );
   },
 
   updateConfig(
@@ -151,8 +155,16 @@ export const getApiClient = once((fetch: ReturnType<typeof getFetchClient>) => (
     return [URL_PREFIX, 'locale'];
   },
 
-  copyNavigationLocale({ source, target }: { source: string; target: string }) {
-    return fetch.put(`/${URL_PREFIX}/i18n/copy/${source}/${target}`);
+  copyNavigationLocale({
+    documentId,
+    source,
+    target,
+  }: {
+    source: string;
+    target: string;
+    documentId: string;
+  }) {
+    return fetch.put(`/${URL_PREFIX}/i18n/copy/${documentId}/${source}/${target}`);
   },
 
   copyNavigationItemLocale({

@@ -3,7 +3,7 @@ import { Context as KoaContext } from 'koa';
 import * as z from 'zod';
 import { configSchema, createNavigationSchema, updateNavigationSchema } from '../schemas';
 import { getPluginService } from '../utils';
-import { idSchema } from './validators';
+import { fillFromOtherLocaleParams, idSchema } from './validators';
 
 export type KoaContextExtension = {
   request: KoaContext['request'] & {
@@ -112,15 +112,14 @@ export default function adminController(context: { strapi: Core.Strapi }) {
       });
     },
 
-    fillFromOtherLocale(ctx: KoaContext) {
-      const {
-        params: { source, target },
-        auditLog,
-      } = ctx;
+    async fillFromOtherLocale(ctx: KoaContext) {
+      const { params, auditLog } = ctx;
+      const { source, target, documentId } = fillFromOtherLocaleParams.parse(params);
 
-      return this.getAdminService().fillFromOtherLocale({
-        source: idSchema.parse(source),
+      return await this.getAdminService().fillFromOtherLocale({
+        source,
         target,
+        documentId,
         auditLog,
       });
     },

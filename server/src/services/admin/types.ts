@@ -17,6 +17,7 @@ export interface GetInput {
 
 export interface GetByIdInput {
   documentId: string;
+  localeCode?: string;
 }
 
 export interface PostInput {
@@ -41,6 +42,7 @@ export interface UpdateConfigInput {
 export interface FillFromOtherLocaleInput {
   source: string;
   target: string;
+  documentId: string;
   auditLog: AuditLogContext;
 }
 

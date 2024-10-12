@@ -514,7 +514,7 @@ describe('Navigation', () => {
         });
       });
 
-      describe.skip('fillFromOtherLocale()', () => {
+      describe('fillFromOtherLocale()', () => {
         it('should copy navigation details from navigation to navigation', async () => {
           // Given
           const navigation = getMockNavigation();
@@ -524,6 +524,7 @@ describe('Navigation', () => {
           });
           const source = faker.string.uuid();
           const target = faker.string.uuid();
+          const documentId = faker.string.uuid();
           const auditLog = jest.fn();
 
           (getPluginService as jest.Mock).mockReturnValue(mockAdminService);
@@ -534,7 +535,7 @@ describe('Navigation', () => {
           // When
           const result = await adminController.fillFromOtherLocale(
             asProxy<KoaContext>({
-              params: { source, target },
+              params: { source, target, documentId },
               auditLog,
             })
           );
@@ -542,20 +543,24 @@ describe('Navigation', () => {
           // Then
           expect(result).toEqual(navigation);
           expect(mockAdminService.fillFromOtherLocale).toHaveBeenCalledWith({
+            documentId,
             source,
             target,
             auditLog,
           });
         });
 
-        it('should validate input', async () => {
+        it.each([
+          [faker.string.sample(), undefined, faker.string.sample()],
+          [undefined, faker.string.sample(), faker.string.sample()],
+          [faker.string.sample(), faker.string.sample(), undefined],
+        ])('should validate input %s', async (documentId, source, target) => {
           // Given
           const navigationItem = getMockNavigation();
           const fillFromOtherLocale = jest.fn();
           const mockAdminService = asProxy<AdminService>({
             fillFromOtherLocale,
           });
-          const [source, target] = faker.helpers.shuffle([faker.string.uuid(), undefined]);
           const auditLog = jest.fn();
 
           (getPluginService as jest.Mock).mockReturnValue(mockAdminService);
@@ -567,7 +572,7 @@ describe('Navigation', () => {
           await expect(async () => {
             await adminController.fillFromOtherLocale(
               asProxy<KoaContext>({
-                params: { source, target },
+                params: { source, target, documentId },
                 auditLog,
               })
             );
@@ -575,7 +580,7 @@ describe('Navigation', () => {
         });
       });
 
-      describe('fillFromOtherLocale()', () => {
+      describe('readNavigationItemFromLocale()', () => {
         it('should copy navigation item from navigation to navigation', async () => {
           // Given
           const navigationItem = asProxy<NavigationItemDBSchema>({
@@ -640,7 +645,7 @@ describe('Navigation', () => {
           // Given
           source = faker.string.uuid();
           target = faker.string.uuid();
-          path = faker.helpers.arrayElement([undefined, undefined, faker.string.uuid(), {}]);
+          path = faker.helpers.arrayElement([undefined, undefined, {}]);
 
           // Then
           await expect(async () => {
@@ -687,13 +692,7 @@ describe('Navigation', () => {
           const mockCommonService = asProxy<CommonService>({
             getSlug,
           });
-          const query: unknown = faker.helpers.arrayElement([
-            undefined,
-            null,
-            {},
-            [],
-            faker.string.uuid(),
-          ]);
+          const query: unknown = faker.helpers.arrayElement([undefined, null, {}, []]);
 
           (getPluginService as jest.Mock).mockReturnValue(mockCommonService);
           getSlug.mockResolvedValue(slug);
@@ -743,7 +742,6 @@ describe('Navigation', () => {
           });
         });
       });
-
     });
   });
 });

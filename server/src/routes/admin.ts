@@ -179,7 +179,7 @@ const routes = {
     },
     {
       method: 'PUT',
-      path: '/i18n/copy/:source/:target',
+      path: '/i18n/copy/:documentId/:source/:target',
       handler: 'admin.fillFromOtherLocale',
       config: {
         policies: [

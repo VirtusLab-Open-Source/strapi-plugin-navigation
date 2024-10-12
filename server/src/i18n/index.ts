@@ -45,7 +45,7 @@ export const navigationSetup = async (context: { strapi: Core.Strapi }) => {
           name: defaultLocaleNavigation.name,
           localeCode: otherLocale,
           visible: defaultLocaleNavigation.visible,
-          slug: `${defaultLocaleNavigation.slug}-${otherLocale}`,
+          slug: `${defaultLocaleNavigation.slug.replace(`-${defaultLocale}`, '')}-${otherLocale}`,
         });
       }
     }

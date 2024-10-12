@@ -447,6 +447,9 @@ const en = {
         draft: "Draft",
         published: "Published",
       },
+      related: {
+        localeMissing: "(Locale version missing)"
+      },
     },
     confirmation: {
       dialog: {

@@ -13,8 +13,11 @@ import { isEmpty } from 'lodash';
 import { SyntheticEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 
+import { usePluginTheme } from '@sensinum/strapi-utils';
+import { ListPlus, Plus } from '@strapi/icons';
 import { NavigationItemSchema, NavigationSchema } from '../../api/validators';
 import { getTrad } from '../../translations';
+import { ToBeFixed } from '../../types';
 import pluginPermissions from '../../utils/permissions';
 import { NavigationHeader } from './components';
 import { NavigationContentHeader } from './components/NavigationContentHeader';
@@ -37,9 +40,6 @@ import {
   mapServerNavigationItem,
   transformItemToViewPayload,
 } from './utils';
-import { ListPlus, Plus } from '@strapi/icons';
-import { usePluginTheme } from '@sensinum/strapi-utils';
-import { ToBeFixed } from '../../types';
 
 const queryClient = new QueryClient();
 
@@ -118,10 +118,10 @@ const Inner = () => {
 
   const filteredList = !isSearchEmpty
     ? filteredListFactory(
-      currentNavigation?.items.map((_) => ({ ..._ })) ?? [],
-      (item) => (item?.title || '').toLowerCase().includes(normalisedSearchValue),
-      normalisedSearchValue ? searchIndex : undefined
-    )
+        currentNavigation?.items.map((_) => ({ ..._ })) ?? [],
+        (item) => (item?.title || '').toLowerCase().includes(normalisedSearchValue),
+        normalisedSearchValue ? searchIndex : undefined
+      )
     : [];
 
   const changeNavigationItemPopupState = useCallback(
@@ -186,7 +186,11 @@ const Inner = () => {
         if (source) {
           if (source.documentId && currentNavigation?.documentId) {
             copyNavigationI18nMutation.mutate(
-              { source: source.documentId, target: currentNavigation.documentId },
+              {
+                source: source.localeCode,
+                target: currentNavigation.localeCode,
+                documentId: source.documentId,
+              },
               {
                 onSuccess(res) {
                   copyNavigationI18nMutation.reset();
@@ -315,7 +319,7 @@ const Inner = () => {
     }
   };
 
-  const listItems = isSearchEmpty ? currentNavigation?.items ?? [] : filteredList;
+  const listItems = isSearchEmpty ? (currentNavigation?.items ?? []) : filteredList;
 
   const handleExpandAll = useCallback(() => {
     if (currentNavigation) {
@@ -354,13 +358,13 @@ const Inner = () => {
 
   if (canUpdate) {
     endActions.push({
-        onClick: addNewNavigationItem as ToBeFixed,
-        type: 'submit',
-        variant: 'primary',
-        tradId: 'header.action.newItem',
-        startIcon: <Plus />,
-        margin: '8px',
-      });
+      onClick: addNewNavigationItem as ToBeFixed,
+      type: 'submit',
+      variant: 'primary',
+      tradId: 'header.action.newItem',
+      startIcon: <Plus />,
+      margin: '8px',
+    });
   }
 
   useEffect(() => {
@@ -383,7 +387,11 @@ const Inner = () => {
           navigation.localeCode === currentLocale
       );
 
-      if (nextNavigation && nextNavigation.documentId !== currentNavigation.documentId) {
+      if (
+        nextNavigation &&
+        nextNavigation.documentId === currentNavigation.documentId &&
+        nextNavigation.localeCode !== currentNavigation.localeCode
+      ) {
         setCurrentNavigation(nextNavigation);
       }
     }
@@ -490,6 +498,7 @@ const Inner = () => {
               isParentAttachedToMenu
               permissions={{ canUpdate, canAccess }}
               structurePrefix=""
+              locale={currentLocale ?? ''}
             />
           )}
 

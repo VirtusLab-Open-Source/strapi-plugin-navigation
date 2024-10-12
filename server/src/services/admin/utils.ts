@@ -80,7 +80,7 @@ export const processItems =
       });
 
       if (localeVersion) {
-        nextRelated = [entity.uid, localeVersion.id].join(RELATED_ITEM_SEPARATOR);
+        nextRelated = [entity.uid, localeVersion.documentId].join(RELATED_ITEM_SEPARATOR);
       }
     }
 

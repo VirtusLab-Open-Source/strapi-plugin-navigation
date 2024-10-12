@@ -27,3 +27,9 @@ export const renderChildQueryParams = z.object({
   menu: booleanStringSchema.optional(),
   locale: z.string().optional(),
 });
+
+export const fillFromOtherLocaleParams = z.object({
+  source: z.string().min(1),
+  target: z.string().min(1),
+  documentId: z.string().min(1),
+});

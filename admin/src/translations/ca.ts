@@ -445,6 +445,9 @@ const ca = {
         draft: "Brouillon",
         published: "Publié",
       },
+      related: {
+        localeMissing: "(Falta la versió local)"
+      },
     },
     confirmation: {
       dialog: {

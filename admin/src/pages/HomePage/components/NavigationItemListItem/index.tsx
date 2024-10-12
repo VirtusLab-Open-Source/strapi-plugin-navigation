@@ -67,6 +67,7 @@ interface Props {
   displayChildren?: boolean;
   structureId: string;
   viewParentId?: number;
+  locale: string;
 }
 
 export const Item: React.FC<Props> = ({
@@ -85,6 +86,7 @@ export const Item: React.FC<Props> = ({
   permissions,
   structureId,
   viewParentId,
+  locale,
 }) => {
   const {
     viewId,
@@ -122,6 +124,7 @@ export const Item: React.FC<Props> = ({
 
   const contentTypeItemsQuery = useContentTypeItems({
     uid: relatedType ?? '',
+    locale,
   });
 
   const contentTypesQuery = useContentTypes();
@@ -348,6 +351,16 @@ export const Item: React.FC<Props> = ({
                     </TextButton>
                   )}
                 </Flex>
+                {related && !relatedItem.id ? (
+                  <Flex justifyContent="center" alignItems="center">
+                    <Typography variant="omega" textColor="neutral600">
+                      {relatedTypeLabel}&nbsp;/&nbsp;
+                    </Typography>
+                    <Typography variant="omega" textColor="neutral800">
+                      {formatMessage(getTrad('components.navigationItem.related.localeMissing'))}
+                    </Typography>
+                  </Flex>
+                ) : null}
                 {relatedItemLabel && (
                   <Flex justifyContent="center" alignItems="center">
                     {isHandledByPublishFlow && (
@@ -399,6 +412,7 @@ export const Item: React.FC<Props> = ({
           permissions={permissions}
           structurePrefix={structureId}
           viewParentId={viewId}
+          locale={locale}
         />
       )}
     </Wrapper>

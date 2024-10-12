@@ -24,7 +24,7 @@ import { INITIAL_NAVIGATION } from '../NewNavigation';
 import { CommonProps, ListState, Navigation } from '../types';
 import * as icons from './icons';
 
-interface Props extends ListState, CommonProps { }
+interface Props extends ListState, CommonProps {}
 
 export const AllNavigations = ({ navigations, selected, setState }: Props) => {
   const configQuery = useConfig();
@@ -90,7 +90,9 @@ export const AllNavigations = ({ navigations, selected, setState }: Props) => {
   const getLocalizations = (focused: Navigation) =>
     [focused].concat(
       navigations.filter(
-        (navigation) => navigation.documentId === focused.documentId && navigation.documentId !== focused.documentId
+        (navigation) =>
+          navigation.documentId === focused.documentId &&
+          navigation.localeCode !== focused.localeCode
       )
     );
 

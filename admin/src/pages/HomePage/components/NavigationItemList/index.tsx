@@ -27,6 +27,7 @@ interface Props {
   permissions: { canUpdate: boolean; canAccess: boolean };
   structurePrefix: string;
   viewParentId?: number;
+  locale: string;
 }
 
 export const List: FC<Props> = ({
@@ -44,6 +45,7 @@ export const List: FC<Props> = ({
   permissions,
   structurePrefix,
   viewParentId,
+  locale,
 }) => (
   <Wrapper data-level={level}>
     {items?.map((item, index) => {
@@ -65,6 +67,7 @@ export const List: FC<Props> = ({
           permissions={permissions}
           structureId={structurePrefix ? `${structurePrefix}.${index}` : index.toString()}
           viewParentId={viewParentId}
+          locale={locale}
         />
       );
     })}

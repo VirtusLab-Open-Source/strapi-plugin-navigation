@@ -81,13 +81,16 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
           const relatedItem = await getGenericRepository(context, uid as UID.ContentType).findById(
             documentId,
             isNil(populate) ? config.contentTypesPopulate[uid] || [] : parsePopulateQuery(populate),
-            'published'
+            'published',
+            { locale: master?.localeCode }
           );
 
-          entities.set(related, {
-            ...relatedItem as AnyEntity,
-            uid,
-          });
+          if (relatedItem) {
+            entities.set(related, {
+              ...relatedItem as AnyEntity,
+              uid,
+            });
+          }
 
         }
 

@@ -447,6 +447,9 @@ const fr = {
         draft: "Brouillon",
         published: "Publié",
       },
+      related: {
+        localeMissing: "(Version locale manquante)"
+      },
     },
     confirmation: {
       dialog: {
