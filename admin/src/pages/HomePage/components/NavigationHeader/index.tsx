@@ -104,7 +104,7 @@ export const NavigationHeader: React.FC<Props> = ({
                       style={null}
                     >
                       {availableNavigations
-                        .filter(({ localeCode }) => localeCode === currentLocale)
+                        .filter(({ locale }) => locale === currentLocale)
                         .map(({ documentId, name }) => (
                           <SingleSelectOption key={documentId} value={documentId}>
                             {name}

@@ -373,7 +373,7 @@ NOTE: All params are optional
     "visible": true,
     "createdAt": "2023-09-29T12:45:54.399Z",
     "updatedAt": "2023-09-29T13:44:08.702Z",
-    "localeCode": "pl"
+    "locale": "pl"
   },
   {
     "id": 384,
@@ -382,7 +382,7 @@ NOTE: All params are optional
     "visible": true,
     "createdAt": "2023-09-29T12:45:54.399Z",
     "updatedAt": "2023-09-29T13:44:08.725Z",
-    "localeCode": "fr"
+    "locale": "fr"
   },
   {
     "id": 382,
@@ -391,7 +391,7 @@ NOTE: All params are optional
     "visible": true,
     "createdAt": "2023-09-29T12:45:54.173Z",
     "updatedAt": "2023-09-29T13:44:08.747Z",
-    "localeCode": "en"
+    "locale": "en"
   },
   {
     "id": 374,
@@ -400,7 +400,7 @@ NOTE: All params are optional
     "visible": true,
     "createdAt": "2023-09-29T12:22:30.373Z",
     "updatedAt": "2023-09-29T13:44:08.631Z",
-    "localeCode": "pl"
+    "locale": "pl"
   },
   {
     "id": 375,
@@ -409,7 +409,7 @@ NOTE: All params are optional
     "visible": true,
     "createdAt": "2023-09-29T12:22:30.373Z",
     "updatedAt": "2023-09-29T13:44:08.658Z",
-    "localeCode": "fr"
+    "locale": "fr"
   },
   {
     "id": 373,
@@ -418,7 +418,7 @@ NOTE: All params are optional
     "visible": true,
     "createdAt": "2023-09-29T12:22:30.356Z",
     "updatedAt": "2023-09-29T13:44:08.680Z",
-    "localeCode": "en"
+    "locale": "en"
   }
 ]
 ```

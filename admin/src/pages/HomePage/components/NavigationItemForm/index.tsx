@@ -51,7 +51,7 @@ type NavigationItemFormProps = {
   onSubmit: SubmitEffect;
   availableLocale: string[];
   permissions?: Partial<{ canUpdate: boolean }>;
-  currentNavigation: Pick<NavigationSchema, 'id' | 'documentId' | 'localeCode'>;
+  currentNavigation: Pick<NavigationSchema, 'id' | 'documentId' | 'locale'>;
 };
 
 const FALLBACK_ADDITIONAL_FIELDS: Array<NavigationItemAdditionalField> = [];
@@ -380,7 +380,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
       event.stopPropagation();
 
       const source = navigationsQuery.data?.find(
-        ({ localeCode }) => localeCode === itemLocaleCopyValue
+        ({ locale }) => locale === itemLocaleCopyValue
       );
 
       if (source) {

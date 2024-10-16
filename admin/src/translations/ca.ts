@@ -432,6 +432,10 @@ const ca = {
     },
   },
   components: {
+    toggle: {
+      enabled: "Activé",
+      disabled: "Désactivé",
+    },
     navigationItem: {
       action: {
         newItem: "Ajouter un élément imbriqué",

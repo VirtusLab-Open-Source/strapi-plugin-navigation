@@ -44,7 +44,7 @@ export const prepareAuditLog = (actions: NavigationAction[]): string => {
 type FillCopyContext = {
   master: NavigationDBSchema;
   strapi: Core.Strapi;
-  localeCode: string;
+  locale: string;
   entities: Map<string, NavigationItemDTO['related']>;
 };
 
@@ -75,7 +75,7 @@ export const processItems =
 
       const localeVersion = await strapi.documents(entity.uid as UID.ContentType).findOne({
         documentId: entity.documentId,
-        locale: context.localeCode,
+        locale: context.locale,
         status: 'published',
       });
 

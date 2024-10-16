@@ -18,7 +18,7 @@ interface Props {
   availableLocale: Array<string>;
   locale: string;
   permissions?: { canUpdate?: boolean };
-  currentNavigation: Pick<NavigationSchema, 'id' | 'documentId' | 'localeCode'>;
+  currentNavigation: Pick<NavigationSchema, 'id' | 'documentId' | 'locale'>;
 }
 
 const NavigationItemPopUp: FC<Props> = ({

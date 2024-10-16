@@ -365,8 +365,8 @@ const Inner = () => {
                                 name="preferCustomContentTypes"
                                 checked={values.preferCustomContentTypes}
                                 onChange={(eventOrPath: FormChangeEvent) => handleChange(eventOrPath, !values.preferCustomContentTypes, onChange)}
-                                onLabel={formatMessage(getTrad('component.toggle.enabled'))}
-                                offLabel={formatMessage(getTrad('component.toggle.disabled'))}
+                                onLabel={formatMessage(getTrad('components.toggle.enabled'))}
+                                offLabel={formatMessage(getTrad('components.toggle.disabled'))}
                                 disabled={restartStatus.required}
                                 width="100%"
                               />
@@ -682,8 +682,8 @@ const Inner = () => {
                             name="cascadeMenuAttached"
                             checked={values.cascadeMenuAttached}
                             onChange={(eventOrPath: FormChangeEvent) => handleChange(eventOrPath, !values.cascadeMenuAttached, onChange)}
-                            onLabel={formatMessage(getTrad('component.toggle.enabled'))}
-                            offLabel={formatMessage(getTrad('component.toggle.disabled'))}
+                            onLabel={formatMessage(getTrad('components.toggle.enabled'))}
+                            offLabel={formatMessage(getTrad('components.toggle.disabled'))}
                             disabled={restartStatus.required}
                           />
                         </Field>
@@ -697,8 +697,8 @@ const Inner = () => {
                             name="audienceFieldChecked"
                             checked={values.audienceFieldChecked}
                             onChange={(eventOrPath: FormChangeEvent) => handleChange(eventOrPath, !values.audienceFieldChecked, onChange)}
-                            onLabel={formatMessage(getTrad('component.toggle.enabled'))}
-                            offLabel={formatMessage(getTrad('component.toggle.disabled'))}
+                            onLabel={formatMessage(getTrad('components.toggle.enabled'))}
+                            offLabel={formatMessage(getTrad('components.toggle.disabled'))}
                             disabled={restartStatus.required}
                             width="100%"
                           />
@@ -714,8 +714,8 @@ const Inner = () => {
                               name="isCacheEnabled"
                               checked={values.isCacheEnabled}
                               onChange={(eventOrPath: FormChangeEvent) => handleChange(eventOrPath, !values.isCacheEnabled, onChange)}
-                              onLabel={formatMessage(getTrad('component.toggle.enabled'))}
-                              offLabel={formatMessage(getTrad('component.toggle.disabled'))}
+                              onLabel={formatMessage(getTrad('components.toggle.enabled'))}
+                              offLabel={formatMessage(getTrad('components.toggle.disabled'))}
                               disabled={restartStatus.required}
                               width="100%"
                             />

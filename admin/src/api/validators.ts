@@ -50,7 +50,7 @@ export const navigationSchema = z.object({
   documentId: z.string(),
   name: z.string(),
   slug: z.string(),
-  localeCode: z.string(),
+  locale: z.string(),
   visible: z.boolean(),
   items: z.array(navigationItemSchema),
 });

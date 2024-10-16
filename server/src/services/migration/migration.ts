@@ -10,7 +10,7 @@ const migrationService = (context: { strapi: Core.Strapi }) => ({
     console.log("Navigation plugin :: Migrations :: Relared id to document id - START");
 
     const navigationItemRepository = getNavigationItemRepository(context);
-    const all = await navigationItemRepository.find({ where: {}, limit: Number.MAX_SAFE_INTEGER });
+    const all = await navigationItemRepository.find({ filters: {}, limit: Number.MAX_SAFE_INTEGER });
 
     await Promise.all(
       all.map(async (item) => {

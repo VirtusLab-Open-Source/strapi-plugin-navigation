@@ -179,16 +179,16 @@ const Inner = () => {
     useCallback(
       (sourceLocale) => {
         const source = navigationsQuery.data?.find(
-          ({ localeCode, documentId }) =>
-            localeCode === sourceLocale && documentId === currentNavigation?.documentId
+          ({ locale, documentId }) =>
+            locale === sourceLocale && documentId === currentNavigation?.documentId
         );
 
         if (source) {
           if (source.documentId && currentNavigation?.documentId) {
             copyNavigationI18nMutation.mutate(
               {
-                source: source.localeCode,
-                target: currentNavigation.localeCode,
+                source: source.locale,
+                target: currentNavigation.locale,
                 documentId: source.documentId,
               },
               {
@@ -380,17 +380,17 @@ const Inner = () => {
   }, [navigationsQuery.data]);
 
   useEffect(() => {
-    if (currentNavigation && currentLocale !== currentNavigation.localeCode) {
+    if (currentNavigation && currentLocale !== currentNavigation.locale) {
       const nextNavigation = navigationsQuery.data?.find(
         (navigation) =>
           navigation.documentId === currentNavigation.documentId &&
-          navigation.localeCode === currentLocale
+          navigation.locale === currentLocale
       );
 
       if (
         nextNavigation &&
         nextNavigation.documentId === currentNavigation.documentId &&
-        nextNavigation.localeCode !== currentNavigation.localeCode
+        nextNavigation.locale !== currentNavigation.locale
       ) {
         setCurrentNavigation(nextNavigation);
       }

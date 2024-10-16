@@ -33,11 +33,7 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
     const repository = getNavigationRepository(context);
 
     const navigations = repository.find({
-      where: locale
-        ? {
-          localeCode: locale,
-        }
-        : {},
+      locale,
       orderBy: { [orderBy]: orderDirection },
     });
 
@@ -246,21 +242,21 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
     const navigationItemRepository = getNavigationItemRepository(context);
 
     let navigation = await navigationRepository.findOne({
-      where: entityWhereClause,
+      filters: entityWhereClause,
     });
 
-    if (locale && locale !== navigation.localeCode) {
+    if (locale && locale !== navigation.locale) {
       navigation = await navigationRepository.findOne({
-        where: {
+        filters: {
           ...entityWhereClause,
-          localeCode: locale,
         },
+        locale,
       });
     }
 
     if (navigation && navigation.documentId) {
       const navigationItems = await navigationItemRepository.find({
-        where: {
+        filters: {
           master: navigation,
           ...itemCriteria,
         },

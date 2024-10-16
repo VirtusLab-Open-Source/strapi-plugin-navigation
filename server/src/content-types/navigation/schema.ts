@@ -44,9 +44,5 @@ export default {
       configurable: false,
       mappedBy: 'master',
     },
-    localeCode: {
-      type: 'string',
-      configurable: false,
-    },
   },
 };

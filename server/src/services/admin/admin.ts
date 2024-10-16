@@ -256,19 +256,16 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
     }, [] as ConfigContentTypeDTO[]);
   },
 
-  async get({ ids, localeCode }: GetInput): Promise<NavigationDBSchema[]> {
-    let where: Record<string, unknown> = {};
+  async get({ ids, locale }: GetInput): Promise<NavigationDBSchema[]> {
+    let filters: Record<string, unknown> = {};
 
     if (ids && ids.length) {
-      where.id = { $in: ids };
-    }
-
-    if (localeCode) {
-      where.localeCode = localeCode;
+      filters.id = { $in: ids };
     }
 
     const dbResults = await getNavigationRepository(context).find({
-      where,
+      filters,
+      locale,
       limit: Number.MAX_SAFE_INTEGER,
       populate: ['items', 'items.parent', 'items.audience'],
     });
@@ -312,22 +309,19 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
     }));
   },
 
-  async getById({ documentId, localeCode }: GetByIdInput): Promise<NavigationDBSchema> {
+  async getById({ documentId, locale }: GetByIdInput): Promise<NavigationDBSchema> {
     const commonService = getPluginService(context, 'common');
-    const where: Record<string, any> = {
+    const filters: Record<string, any> = {
       documentId,
     };
 
-    if (localeCode) {
-      where.localeCode = localeCode;
-    }
-
     const navigation = await getNavigationRepository(context).findOne({
-      where,
+      filters,
     });
 
     const dbNavigationItems = await getNavigationItemRepository(context).find({
-      where: { master: navigation.id },
+      filters: { master: navigation.id },
+      locale,
       limit: Number.MAX_SAFE_INTEGER,
       order: [{ order: 'asc' }],
       populate: ['parent', 'audience'],
@@ -360,8 +354,8 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
     const mainNavigation = await repository.save({
       name,
       visible,
-      localeCode: defaultLocale,
-      slug,
+      locale: defaultLocale,
+      slug: `${slug}-${defaultLocale}`,
     });
 
     navigationSummary.push(await this.getById({ documentId: mainNavigation.documentId }));
@@ -370,7 +364,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       const newLocaleNavigation = await repository.save({
         name,
         visible,
-        localeCode,
+        locale: localeCode,
         slug: `${slug}-${localeCode}`,
         documentId: mainNavigation.documentId,
       });
@@ -409,12 +403,13 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
     const { name, visible, items } = payload;
 
     const currentNavigation = await repository.findOne({
-      where: { documentId: payload.documentId, localeCode: payload.localeCode },
-      populate: true,
+      filters: { documentId: payload.documentId},
+      locale: payload.locale,
+      populate: "*",
     });
     const currentNavigationAsDTO = await this.getById({
       documentId: payload.documentId,
-      localeCode: payload.localeCode,
+      locale: payload.locale,
     });
 
     const detailsHaveChanged =
@@ -422,13 +417,13 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
 
     if (detailsHaveChanged) {
       const allNavigations = await repository.find({
-        where: { documentId: currentNavigation.documentId },
+        filters: { documentId: currentNavigation.documentId },
       });
 
       for (const navigation of allNavigations) {
         const newSlug = name
           ? await commonService.getSlug({
-              query: `${name}${navigation.localeCode !== defaultLocale ? ` ${navigation.localeCode}` : ''}`,
+              query: `${name}${navigation.locale !== defaultLocale ? ` ${navigation.locale}` : ''}`,
             })
           : currentNavigation.slug;
 
@@ -436,6 +431,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
           documentId: navigation.documentId,
           id: navigation.id,
           slug: newSlug,
+          locale: navigation.locale,
           name,
           visible,
         });
@@ -463,8 +459,8 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
 
     await commonService.emitEvent({
       entity: await repository.findOne({
-        where: { documentId: payload.documentId },
-        populate: true,
+        filters: { documentId: payload.documentId },
+        populate: "*",
       }),
       event: 'entry.update',
       uid: masterModel.uid,
@@ -502,12 +498,12 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
     };
 
     const navigation = await navigationRepository.findOne({
-      where: { documentId },
-      populate: true,
+      filters: { documentId },
+      populate: "*",
     });
     const allNavigations = await navigationRepository.find({
-      where: { documentId: navigation.documentId },
-      populate: true,
+      filters: { documentId: navigation.documentId },
+      populate: "*",
     });
 
     await cleanNavigationItems(
@@ -546,8 +542,6 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
 
     validateAdditionalFields(newConfig.additionalFields);
 
-    console.log({ newConfig });
-
     await pluginStore.set({ key: 'config', value: newConfig });
 
     const removedFields = differenceBy(
@@ -575,13 +569,13 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
     target,
     documentId,
   }: FillFromOtherLocaleInput): Promise<NavigationDBSchema> {
-    const targetEntity = await this.getById({ documentId, localeCode: target });
+    const targetEntity = await this.getById({ documentId, locale: target });
 
     return await this.i18nNavigationContentsCopy({
-      source: await this.getById({ documentId, localeCode: source }),
+      source: await this.getById({ documentId, locale: source }),
       target: targetEntity,
     })
-      .then(() => this.getById({ documentId, localeCode: target }))
+      .then(() => this.getById({ documentId, locale: target }))
       .then((newEntity) => {
         sendAuditLog(auditLog, 'onChangeNavigation', {
           actionType: 'UPDATE',
@@ -605,7 +599,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       throw new FillNavigationError('Current navigation is non-empty');
     }
 
-    if (!target.localeCode) {
+    if (!target.locale) {
       throw new FillNavigationError('Current navigation does not have specified locale');
     }
 
@@ -617,7 +611,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
 
     const itemProcessor = processItems({
       master: target,
-      localeCode: target.localeCode,
+      locale: target.locale,
       strapi,
       entities,
     });
@@ -625,8 +619,9 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
     await commonService.createBranch({
       action: { create: true },
       masterEntity: await navigationRepository.findOne({
-        where: { documentId: target.documentId, localeCode: target.localeCode },
-        populate: true,
+        filters: { documentId: target.documentId },
+        locale: target.locale,
+        populate: "*",
       }),
       navigationItems: await Promise.all(sourceItems.map(itemProcessor)),
       parentItem: undefined,
@@ -714,7 +709,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
 
   async purgeNavigationCache(documentId: string, clearLocalisations?: boolean) {
     const navigationRepository = getNavigationRepository(context);
-    const entity = await navigationRepository.findOne({ where: { documentId } });
+    const entity = await navigationRepository.findOne({ filters: { documentId } });
 
     if (!entity) {
       throw new errors.NotFoundError('Navigation is not defined');
@@ -726,7 +721,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
 
     if (clearLocalisations) {
       const navigations = await navigationRepository.find({
-        where: {
+        filters: {
           documentId: entity.documentId,
         },
       });

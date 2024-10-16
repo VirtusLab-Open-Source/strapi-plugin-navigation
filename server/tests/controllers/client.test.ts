@@ -32,7 +32,7 @@ describe('Navigation', () => {
       const getMockNavigation = (extend: Partial<NavigationDTO> = {}): NavigationDTO => ({
         documentId: faker.string.uuid(),
         id: faker.number.int(),
-        localeCode: 'en',
+        locale: 'en',
         name: faker.internet.domainWord(),
         slug: faker.internet.domainWord(),
         visible: faker.datatype.boolean(),
