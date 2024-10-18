@@ -92,7 +92,7 @@ export const AllNavigations = ({ navigations, selected, setState }: Props) => {
       navigations.filter(
         (navigation) =>
           navigation.documentId === focused.documentId &&
-          navigation.localeCode !== focused.localeCode
+          navigation.locale !== focused.locale
       )
     );
 
@@ -163,7 +163,7 @@ export const AllNavigations = ({ navigations, selected, setState }: Props) => {
         </Thead>
         <Tbody>
           {navigations
-            .filter(({ localeCode }) => localeCode === localeQuery.data?.defaultLocale)
+            .filter(({ locale }) => locale === localeQuery.data?.defaultLocale)
             .map((navigation) => (
               <Tr key={navigation.documentId}>
                 <Td>
@@ -183,7 +183,7 @@ export const AllNavigations = ({ navigations, selected, setState }: Props) => {
                 </Td>
                 <Td>
                   <Typography textColor="neutral800">
-                    {getLocalizations(navigation).map(prop('localeCode')).join(', ')}
+                    {getLocalizations(navigation).map(prop('locale')).join(', ')}
                   </Typography>
                 </Td>
                 <Td>

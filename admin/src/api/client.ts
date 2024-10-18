@@ -66,6 +66,15 @@ export const getApiClient = once((fetch: ReturnType<typeof getFetchClient>) => (
     return [URL_PREFIX, 'config'];
   },
 
+  healthCheck() {
+    return fetch
+      .get(`/_health`);
+  },
+
+  healthCheckIndex() {
+    return ['health'];
+  },
+
   readNavigationItemFromLocale({
     source,
     structureId,

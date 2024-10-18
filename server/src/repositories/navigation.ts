@@ -1,4 +1,3 @@
-import { createId } from '@paralleldrive/cuid2';
 import { Core } from '@strapi/strapi';
 import { omit, once } from 'lodash';
 
@@ -12,14 +11,16 @@ import {
 import { getPluginModels } from '../utils';
 
 interface FindInput {
-  where: any;
+  filters?: any;
   limit?: number;
+  locale?: string;
   populate?: any;
   orderBy?: Record<string, string>;
 }
 
 interface FindOneInput {
-  where: any;
+  filters?: any;
+  locale?: string;
   populate?: any;
 }
 
@@ -28,49 +29,51 @@ const calculateItemsRequirement = (populate: any) => {
 };
 
 export const getNavigationRepository = once((context: { strapi: Core.Strapi }) => ({
-  find({ where, limit, orderBy, populate }: FindInput) {
+  find({ filters, locale, limit, orderBy, populate }: FindInput) {
     const { masterModel } = getPluginModels(context);
 
     return context.strapi
-      .query(masterModel.uid)
-      .findMany({ where, limit, populate, orderBy })
+      .documents(masterModel.uid)
+      .findMany({ filters, locale, limit, populate, orderBy })
       .then((data) => {
         return navigationDBSchema(calculateItemsRequirement(populate)).array().parse(data);
       });
   },
 
-  findOne({ where, populate }: FindOneInput) {
+  findOne({ locale, filters, populate }: FindOneInput) {
     const { masterModel } = getPluginModels(context);
 
     return context.strapi
-      .query(masterModel.uid)
-      .findOne({ where, populate })
+      .documents(masterModel.uid)
+      .findOne({ documentId: filters.documentId, locale, populate })
       .then((data) => {
         return navigationDBSchema(calculateItemsRequirement(populate)).parse(data);
       });
   },
 
-  save(
-    navigation: CreateNavigationSchema | (Omit<UpdateNavigationSchema, 'items'> & { items?: never })
+  async save(
+    navigation: (CreateNavigationSchema & { locale?: string}) | (Omit<UpdateNavigationSchema, 'items'> & { items?: never }) 
   ) {
     const { masterModel } = getPluginModels(context);
-
-    if (navigation.documentId) {
+    const { documentId, locale, ...rest } = navigation;
+      
+    if (documentId) {
       return context.strapi
-        .query(masterModel.uid)
+        .documents(masterModel.uid)
         .update({
-          where: { documentId: navigation.documentId },
-          data: omit(navigation, ['id', 'documentId']),
+          locale,
+          documentId: documentId,
+          data: omit(rest, ['id', 'documentId']),
           populate: ['items'],
         })
         .then(navigationDBSchema(false).parse);
     } else {
       return context.strapi
-        .query(masterModel.uid)
+        .documents(masterModel.uid)
         .create({
+          locale,
           data: {
-            ...navigation,
-            documentId: navigation.documentId ?? createId(),
+            ...rest,
             populate: ['items'],
           },
         })

@@ -17,10 +17,6 @@ describe('Navigation', () => {
       "target": "plugin::navigation.navigation-item",
       "type": "relation",
     },
-    "localeCode": {
-      "configurable": false,
-      "type": "string",
-    },
     "name": {
       "configurable": false,
       "required": true,

@@ -66,7 +66,7 @@ export const navigationDBSchema = (withItems: boolean) =>
     documentId: z.string(),
     name: z.string(),
     slug: z.string(),
-    localeCode: z.string(),
+    locale: z.string(),
     visible: z.boolean(),
     items: withItems ? z.array(navigationItemDBSchema) : navigationItemDBSchema.array().optional(),
   });
@@ -78,7 +78,7 @@ export const createNavigationSchema = navigationDBSchema(false)
     id: true,
     documentId: true,
     slug: true,
-    localeCode: true,
+    locale: true,
   })
   .extend({
     documentId: z.string().optional(),

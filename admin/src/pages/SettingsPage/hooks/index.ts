@@ -24,8 +24,19 @@ export const useRestart = () => {
   const fetch = getFetchClient();
   const apiClient = getApiClient(fetch);
 
+  const healthCheck = useQuery({
+    queryKey: apiClient.healthCheckIndex(),
+    queryFn: () => apiClient.healthCheck(),
+    retry: true,
+    retryDelay: 1000 * 5,
+    enabled: false,
+  });
+
   return useMutation({
-    mutationFn: () => apiClient.restart(),
+    mutationFn: () => {
+      return apiClient.restart()
+        .then(() => healthCheck.refetch());
+    },
   });
 };
 
@@ -78,6 +89,7 @@ export const useSaveConfig = () => {
     },
   });
 };
+
 
 export type UiFormSchema = z.infer<typeof uiFormSchema>;
 

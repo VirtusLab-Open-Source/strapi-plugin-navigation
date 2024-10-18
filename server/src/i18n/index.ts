@@ -14,36 +14,37 @@ export const navigationSetup = async (context: { strapi: Core.Strapi }) => {
 
   const navigations = await navigationRepository.find({
     limit: Number.MAX_SAFE_INTEGER,
-    where: {},
+    filters: {},
+    locale: '*',
   });
 
   if (navigations.length === 0) {
     navigations.push(
       await navigationRepository.save({
         name: DEFAULT_NAVIGATION_NAME,
-        localeCode: defaultLocale,
         visible: true,
+        locale: defaultLocale,
         slug: `${DEFAULT_NAVIGATION_SLUG}-${defaultLocale}`,
       })
     );
   }
 
   const defaultLocaleNavigations = navigations.filter(
-    ({ localeCode }) => localeCode === defaultLocale
+    ({ locale }) => locale === defaultLocale
   );
 
   for (const defaultLocaleNavigation of defaultLocaleNavigations) {
     for (const otherLocale of restLocale) {
       const otherLocaleMissing = !navigations.find(
-        ({ localeCode, documentId }) =>
-          documentId === defaultLocaleNavigation.documentId && otherLocale === localeCode
+        ({ locale, documentId }) =>
+          documentId === defaultLocaleNavigation.documentId && otherLocale === locale
       );
 
       if (otherLocaleMissing) {
         await navigationRepository.save({
           documentId: defaultLocaleNavigation.documentId,
           name: defaultLocaleNavigation.name,
-          localeCode: otherLocale,
+          locale: otherLocale,
           visible: defaultLocaleNavigation.visible,
           slug: `${defaultLocaleNavigation.slug.replace(`-${defaultLocale}`, '')}-${otherLocale}`,
         });

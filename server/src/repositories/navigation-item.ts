@@ -8,9 +8,10 @@ type NavigationItemRemoveMinimal = Partial<NavigationItemDBSchema> &
   Pick<NavigationItemDBSchema, 'documentId'>;
 
 interface FindInput {
-  where: any;
+  filters: any;
+  locale?: string;
   limit?: number;
-  populate?: unknown;
+  populate?: any;
   order?: Record<string, 'asc' | 'desc'>[];
 }
 
@@ -23,20 +24,20 @@ export const getNavigationItemRepository = once((context: { strapi: Core.Strapi 
     const { itemModel } = getPluginModels(context);
 
     if (typeof item.documentId === 'string') {
-      const { documentId, id, ...rest } = item;
+      const { documentId, ...rest } = item;
 
-      return context.strapi.query(itemModel.uid).update({ where: { documentId: item.documentId }, data: { ...rest } });
+      return context.strapi.documents(itemModel.uid).update({ documentId: item.documentId, data: { ...rest } as  NavigationItemDBSchema});
     } else {
-      return context.strapi.query(itemModel.uid).create({ data: item });
+      return context.strapi.documents(itemModel.uid).create({ data: item });
     }
   },
 
-  find({ where, limit, order, populate }: FindInput) {
+  find({ filters, locale, limit, order, populate }: FindInput) {
     const { itemModel } = getPluginModels(context);
 
     return context.strapi
-      .query(itemModel.uid)
-      .findMany({ where, limit, populate, orderBy: order })
+      .documents(itemModel.uid)
+      .findMany({ filters, locale, limit, populate, orderBy: order })
       .then(navigationItemsDBSchema.parse);
   },
 

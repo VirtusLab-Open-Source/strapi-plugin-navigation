@@ -82,7 +82,7 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
             documentId,
             isNil(populate) ? config.contentTypesPopulate[uid] || [] : parsePopulateQuery(populate),
             'published',
-            { locale: master?.localeCode }
+            { locale: master?.locale }
           );
 
           if (relatedItem) {
@@ -197,7 +197,7 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
     const navigationActions: NavigationAction[] = [];
 
     for (const navigationItem of navigationItems) {
-      if (!navigationItem.id) {
+      if (!navigationItem.documentId) {
         continue;
       }
       action.remove = true;
@@ -231,17 +231,19 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
     for (const navigationItem of navigationItems) {
       action.create = true;
 
-      const { parent, master, items, id, ...params } = navigationItem;
+      const { parent, master, items, documentId, id, ...params } = navigationItem;
 
-      const insertDetails = id
+      const insertDetails = documentId && id
         ? {
           ...params,
+          documentId,
           id,
           master: masterEntity ? masterEntity.id : undefined,
           parent: parentItem ? parentItem.id : undefined,
         }
         : {
           ...params,
+          documentId: undefined,
           id: undefined,
           master: masterEntity ? masterEntity.id : undefined,
           parent: parentItem ? parentItem.id : undefined,
@@ -254,7 +256,7 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
           action: {},
           masterEntity,
           navigationItems: navigationItem.items,
-          parentItem: nextParentItem,
+          parentItem: nextParentItem as NavigationItemDBSchema,
         });
 
         navigationActions = navigationActions.concat(innerActions).concat([action]);
@@ -277,13 +279,13 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
     for (const updateDetails of navigationItems) {
       action.update = true;
 
-      const { id, updated, parent, master, items, ...params } = updateDetails;
+      const { documentId, updated, parent, master, items, ...params } = updateDetails;
 
       let currentItem;
 
       if (updated) {
         currentItem = await getNavigationItemRepository(context).save({
-          id,
+          documentId,
           ...params,
         });
       } else {
@@ -295,7 +297,7 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
           navigationItems: items,
           prevAction: {},
           masterEntity,
-          parentItem: currentItem,
+          parentItem: currentItem as NavigationItemDBSchema,
         });
 
         innerResult.forEach((_) => {
@@ -338,7 +340,7 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
     const removedFieldsNames = removedFields.map(({ name }) => name);
 
     const navigationItems = await getNavigationItemRepository(context).find({
-      where: {
+      filters: {
         additionalFields: {
           $contains: [removedFieldsNames],
         },

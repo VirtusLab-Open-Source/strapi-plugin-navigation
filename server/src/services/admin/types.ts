@@ -12,12 +12,12 @@ export interface ConfigInput {
 
 export interface GetInput {
   ids?: string[];
-  localeCode?: string;
+  locale?: string;
 }
 
 export interface GetByIdInput {
   documentId: string;
-  localeCode?: string;
+  locale?: string;
 }
 
 export interface PostInput {
