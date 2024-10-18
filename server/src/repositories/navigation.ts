@@ -29,7 +29,7 @@ const calculateItemsRequirement = (populate: any) => {
 };
 
 export const getNavigationRepository = once((context: { strapi: Core.Strapi }) => ({
-  find({ filters, locale = '*', limit, orderBy, populate }: FindInput) {
+  find({ filters, locale, limit, orderBy, populate }: FindInput) {
     const { masterModel } = getPluginModels(context);
 
     return context.strapi

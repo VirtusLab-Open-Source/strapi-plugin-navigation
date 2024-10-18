@@ -32,7 +32,7 @@ export const getNavigationItemRepository = once((context: { strapi: Core.Strapi 
     }
   },
 
-  find({ filters, locale = '*', limit, order, populate }: FindInput) {
+  find({ filters, locale, limit, order, populate }: FindInput) {
     const { itemModel } = getPluginModels(context);
 
     return context.strapi

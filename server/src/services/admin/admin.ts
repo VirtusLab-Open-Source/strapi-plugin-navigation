@@ -265,7 +265,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
 
     const dbResults = await getNavigationRepository(context).find({
       filters,
-      locale,
+      locale: locale || '*',
       limit: Number.MAX_SAFE_INTEGER,
       populate: ['items', 'items.parent', 'items.audience'],
     });
@@ -279,7 +279,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       parent?: NavigationItemDBSchema;
       allItems: Array<NavigationItemDBSchema>;
     }): NavigationItemDBSchema => {
-      const children = allItems.filter((child) => child.parent?.id === item.id);
+      const children = allItems.filter((child) => child.parent?.documentId === item.documentId);
 
       return {
         ...item,
@@ -305,23 +305,26 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
             allItems: navigation.items ?? [],
             item,
           })
-        ),
+        )
+        .sort((a, b) => a.order - b.order),
     }));
   },
 
   async getById({ documentId, locale }: GetByIdInput): Promise<NavigationDBSchema> {
     const commonService = getPluginService(context, 'common');
+    const { defaultLocale } = await commonService.readLocale();
     const filters: Record<string, any> = {
       documentId,
     };
 
     const navigation = await getNavigationRepository(context).findOne({
       filters,
+      locale: locale || defaultLocale,
     });
 
     const dbNavigationItems = await getNavigationItemRepository(context).find({
       filters: { master: navigation.id },
-      locale,
+      locale: locale || defaultLocale,
       limit: Number.MAX_SAFE_INTEGER,
       order: [{ order: 'asc' }],
       populate: ['parent', 'audience'],

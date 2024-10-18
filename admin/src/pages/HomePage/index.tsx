@@ -1,3 +1,4 @@
+import { Data } from '@strapi/strapi';
 import {
   Box,
   Button,
@@ -9,7 +10,7 @@ import {
 } from '@strapi/design-system';
 import { Layouts, Page, useRBAC } from '@strapi/strapi/admin';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { isEmpty } from 'lodash';
+import { first, isEmpty } from 'lodash';
 import { SyntheticEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 
@@ -48,6 +49,7 @@ const Inner = () => {
 
   const localeQuery = useLocale();
 
+  const [recentNavigation, setRecentNavigation] = useState<{ documentId?: string, id?: Data.ID }>();
   const [currentNavigation, setCurrentNavigation] = useState<NavigationSchema>();
 
   const [activeNavigationItem, setActiveNavigationItemState] = useState<
@@ -210,6 +212,10 @@ const Inner = () => {
   }, [setI18nCopyModalOpened, i18nCopySourceLocale]);
 
   const updateNavigationMutation = useUpdateNavigation(() => {
+    setRecentNavigation({
+      documentId: currentNavigation?.documentId,
+      id: currentNavigation?.id,
+    });
     setCurrentNavigation(undefined);
   });
 
@@ -369,7 +375,17 @@ const Inner = () => {
 
   useEffect(() => {
     if (!currentNavigation && navigationsQuery.data?.[0]) {
-      setCurrentNavigation(navigationsQuery.data[0]);
+
+      let navigation;
+      if (recentNavigation?.documentId) {
+        navigation = navigationsQuery.data.find((nav) => 
+          (nav.documentId === recentNavigation.documentId) &&
+          (nav.id === recentNavigation.id)
+        )
+      }
+
+      setRecentNavigation(undefined);
+      setCurrentNavigation(navigation ? navigation : first(navigationsQuery.data));
     }
   }, [navigationsQuery.data]);
 
@@ -381,6 +397,8 @@ const Inner = () => {
 
   useEffect(() => {
     if (currentNavigation && currentLocale !== currentNavigation.locale) {
+      setRecentNavigation(undefined);
+      
       const nextNavigation = navigationsQuery.data?.find(
         (navigation) =>
           navigation.documentId === currentNavigation.documentId &&

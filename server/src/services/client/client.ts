@@ -241,17 +241,24 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
     const navigationRepository = getNavigationRepository(context);
     const navigationItemRepository = getNavigationItemRepository(context);
 
-    let navigation = await navigationRepository.findOne({
-      filters: entityWhereClause,
-    });
-
-    if (locale && locale !== navigation.locale) {
-      navigation = await navigationRepository.findOne({
+    let navigation;
+    if (locale) {
+      navigation = await navigationRepository.find({
         filters: {
           ...entityWhereClause,
         },
         locale,
+        limit: 1,
       });
+    } else {
+      navigation = await navigationRepository.find({
+        filters: entityWhereClause,
+        limit: 1,
+      });
+    }
+
+    if (isArray(navigation)) {
+      navigation = first(navigation);
     }
 
     if (navigation && navigation.documentId) {
@@ -260,9 +267,10 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
           master: navigation,
           ...itemCriteria,
         },
+        locale,
         limit: Number.MAX_SAFE_INTEGER,
         order: [{ order: 'asc' }],
-        populate: ['related', 'audience', 'parent'],
+        populate: ['audience', 'parent'],
       });
 
       const mappedItems = await commonService.mapToNavigationItemDTO({

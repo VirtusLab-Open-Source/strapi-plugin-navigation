@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useIntl } from 'react-intl';
-import { get, isEmpty, isNil, isObject, isString, set, sortBy } from 'lodash';
+import { get, isEmpty, isNaN, isNil, isObject, isString, set, sortBy } from 'lodash';
 import { Field, usePluginTheme } from "@sensinum/strapi-utils";
 
 import {
@@ -239,13 +239,13 @@ const Inner = () => {
     restartMutation.mutate(undefined, {
       onSuccess() {
         setRestartStatus({ required: false });
+        window.location.reload();
       },
       onError() {
         setRestartStatus({ required: false });
+        window.location.reload();
       },
     });
-    // TODO: Reload
-    window.location.reload();
   };
   const handleRestartDiscard = () => setRestartStatus({ required: false });
 
@@ -660,10 +660,17 @@ const Inner = () => {
                             <NumberInput
                               width="100%"
                               name="allowedLevels"
+                              type="number"
                               placeholder={formatMessage(
                                 getTrad('pages.settings.form.allowedLevels.placeholder')
                               )}
-                              onChange={(eventOrPath: FormChangeEvent, value?: any) => handleChange(eventOrPath, value, onChange)}
+                              onChange={(eventOrPath: FormChangeEvent, value?: any) => {
+                                if (isObject(eventOrPath)) {
+                                  const parsedVal = parseInt(eventOrPath.target.value);
+                                  return handleChange(eventOrPath.target.name, isNaN(parsedVal) ? 0 : parsedVal, onChange);
+                                }
+                                return handleChange(eventOrPath, value, onChange);
+                              }}
                               value={values.allowedLevels}
                               disabled={restartStatus.required}
                             />
