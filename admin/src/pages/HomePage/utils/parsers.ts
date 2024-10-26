@@ -37,7 +37,8 @@ const toNavigationItem = (
         additionalFields: payload.additionalFields,
         audience:
           payload.audience?.map(
-            (documentId) => config.availableAudience.find((audience) => audience.documentId === documentId)!
+            (documentId) =>
+              config.availableAudience.find((audience) => audience.documentId === documentId)!
           ) ?? [],
         autoSync: payload.autoSync,
         items: payload.items?.length
@@ -50,32 +51,60 @@ const toNavigationItem = (
         removed: payload.removed,
         updated: payload.updated,
       }
-    : {
-        type: 'EXTERNAL',
-        collapsed: !!payload.collapsed,
-        id: payload.id!,
-        documentId: payload.documentId!,
-        menuAttached: !!payload.menuAttached,
-        order: payload.order ?? 0,
-        title: payload.title,
-        uiRouterKey: payload.uiRouterKey,
-        additionalFields: payload.additionalFields,
-        autoSync: payload.autoSync,
-        items: payload.items?.length
-          ? transformItemToViewPayload(payload, payload.items, config)
-          : payload.items,
-        path: '',
-        viewId: payload.viewId,
-        structureId: payload.structureId,
-        viewParentId: payload.viewParentId,
-        removed: payload.removed,
-        updated: payload.updated,
-        externalPath: payload.externalPath ?? '',
-        audience:
-          payload.audience?.map(
-            (documentId) => config.availableAudience.find((audience) => audience.documentId === documentId)!
-          ) ?? [],
-      };
+    : payload.type === 'EXTERNAL'
+      ? {
+          type: 'EXTERNAL',
+          collapsed: !!payload.collapsed,
+          id: payload.id!,
+          documentId: payload.documentId!,
+          menuAttached: !!payload.menuAttached,
+          order: payload.order ?? 0,
+          title: payload.title,
+          uiRouterKey: payload.uiRouterKey,
+          additionalFields: payload.additionalFields,
+          autoSync: payload.autoSync,
+          items: payload.items?.length
+            ? transformItemToViewPayload(payload, payload.items, config)
+            : payload.items,
+          path: '',
+          viewId: payload.viewId,
+          structureId: payload.structureId,
+          viewParentId: payload.viewParentId,
+          removed: payload.removed,
+          updated: payload.updated,
+          externalPath: payload.externalPath ?? '',
+          audience:
+            payload.audience?.map(
+              (documentId) =>
+                config.availableAudience.find((audience) => audience.documentId === documentId)!
+            ) ?? [],
+        }
+      : {
+          type: 'WRAPPER',
+          collapsed: !!payload.collapsed,
+          id: payload.id!,
+          documentId: payload.documentId!,
+          menuAttached: !!payload.menuAttached,
+          order: payload.order ?? 0,
+          path: payload.path ?? '',
+          title: payload.title,
+          uiRouterKey: payload.uiRouterKey,
+          additionalFields: payload.additionalFields,
+          audience:
+            payload.audience?.map(
+              (documentId) =>
+                config.availableAudience.find((audience) => audience.documentId === documentId)!
+            ) ?? [],
+          autoSync: payload.autoSync,
+          items: payload.items?.length
+            ? transformItemToViewPayload(payload, payload.items, config)
+            : payload.items,
+          viewId: payload.viewId,
+          viewParentId: payload.viewParentId,
+          structureId: payload.structureId,
+          removed: payload.removed,
+          updated: payload.updated,
+        };
 };
 
 export const transformItemToViewPayload = (
@@ -163,8 +192,15 @@ export const extractRelatedItemLabel = (
     return contentType.labelSingular;
   }
 
-  const defaultFieldsWithCapitalizedOptions = [...defaultFields, ...defaultFields.map((_) => capitalize(_))];
-  const labelFields = get(fields, `${contentType ? contentType.uid : __collectionUid}`, defaultFieldsWithCapitalizedOptions);
+  const defaultFieldsWithCapitalizedOptions = [
+    ...defaultFields,
+    ...defaultFields.map((_) => capitalize(_)),
+  ];
+  const labelFields = get(
+    fields,
+    `${contentType ? contentType.uid : __collectionUid}`,
+    defaultFieldsWithCapitalizedOptions
+  );
   const itemLabels = (isEmpty(labelFields) ? defaultFieldsWithCapitalizedOptions : labelFields)
     .map((_) => item[_])
     .filter((_) => _);
@@ -172,10 +208,14 @@ export const extractRelatedItemLabel = (
   return first(itemLabels) || '';
 };
 
-export const isRelationCorrect = ({ related, type }: Partial<NavigationItemFormSchema>) => {
-  const isRelationDefined = !!related;
-
-  return type !== 'INTERNAL' || (type === 'INTERNAL' && isRelationDefined);
+export const isRelationCorrect = (item: Partial<NavigationItemFormSchema>) => {
+  switch (item.type) {
+    case 'EXTERNAL':
+    case 'WRAPPER':
+      return true;
+    case 'INTERNAL':
+      return !!item.related;
+  }
 };
 
 export const isRelationPublished = ({
@@ -229,30 +269,52 @@ export const mapServerNavigationItem = (
         viewParentId: item.viewParentId,
         items: stopAtFirstLevel
           ? (item.items as unknown as NavigationItemFormSchema[])
-          : item.items?.map((_) => mapServerNavigationItem(_)) ?? undefined,
+          : (item.items?.map((_) => mapServerNavigationItem(_)) ?? undefined),
         removed: item.removed,
         updated: item.updated,
         isSearchActive: item.isSearchActive,
       }
-    : {
-        type: 'EXTERNAL',
-        id: item.id,
-        documentId: item.documentId,
-        additionalFields: item.additionalFields ?? {},
-        title: item.title,
-        uiRouterKey: item.uiRouterKey,
-        autoSync: item.autoSync ?? undefined,
-        collapsed: item.collapsed,
-        externalPath: item.externalPath!,
-        order: item.order ?? 0,
-        menuAttached: item.menuAttached,
-        viewId: item.viewId,
-        viewParentId: item.viewParentId,
-        items: stopAtFirstLevel
-          ? (item.items as unknown as NavigationItemFormSchema[])
-          : item.items?.map((_) => mapServerNavigationItem(_)) ?? undefined,
-        removed: item.removed,
-        updated: item.updated,
-        isSearchActive: item.isSearchActive,
-      };
+    : item.type === 'EXTERNAL'
+      ? {
+          type: 'EXTERNAL',
+          id: item.id,
+          documentId: item.documentId,
+          additionalFields: item.additionalFields ?? {},
+          title: item.title,
+          uiRouterKey: item.uiRouterKey,
+          autoSync: item.autoSync ?? undefined,
+          collapsed: item.collapsed,
+          externalPath: item.externalPath!,
+          order: item.order ?? 0,
+          menuAttached: item.menuAttached,
+          viewId: item.viewId,
+          viewParentId: item.viewParentId,
+          items: stopAtFirstLevel
+            ? (item.items as unknown as NavigationItemFormSchema[])
+            : (item.items?.map((_) => mapServerNavigationItem(_)) ?? undefined),
+          removed: item.removed,
+          updated: item.updated,
+          isSearchActive: item.isSearchActive,
+        }
+      : {
+          type: 'WRAPPER',
+          id: item.id,
+          documentId: item.documentId,
+          additionalFields: item.additionalFields ?? {},
+          title: item.title,
+          uiRouterKey: item.uiRouterKey,
+          autoSync: item.autoSync ?? undefined,
+          collapsed: item.collapsed,
+          order: item.order ?? 0,
+          menuAttached: item.menuAttached,
+          viewId: item.viewId,
+          viewParentId: item.viewParentId,
+          items: stopAtFirstLevel
+            ? (item.items as unknown as NavigationItemFormSchema[])
+            : (item.items?.map((_) => mapServerNavigationItem(_)) ?? undefined),
+          removed: item.removed,
+          updated: item.updated,
+          isSearchActive: item.isSearchActive,
+          path: item.path ?? '',
+        };
 };
