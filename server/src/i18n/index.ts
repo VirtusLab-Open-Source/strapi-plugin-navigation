@@ -24,14 +24,12 @@ export const navigationSetup = async (context: { strapi: Core.Strapi }) => {
         name: DEFAULT_NAVIGATION_NAME,
         visible: true,
         locale: defaultLocale,
-        slug: `${DEFAULT_NAVIGATION_SLUG}-${defaultLocale}`,
+        slug: DEFAULT_NAVIGATION_SLUG,
       })
     );
   }
 
-  const defaultLocaleNavigations = navigations.filter(
-    ({ locale }) => locale === defaultLocale
-  );
+  const defaultLocaleNavigations = navigations.filter(({ locale }) => locale === defaultLocale);
 
   for (const defaultLocaleNavigation of defaultLocaleNavigations) {
     for (const otherLocale of restLocale) {
@@ -46,7 +44,7 @@ export const navigationSetup = async (context: { strapi: Core.Strapi }) => {
           name: defaultLocaleNavigation.name,
           locale: otherLocale,
           visible: defaultLocaleNavigation.visible,
-          slug: `${defaultLocaleNavigation.slug.replace(`-${defaultLocale}`, '')}-${otherLocale}`,
+          slug: defaultLocaleNavigation.slug,
         });
       }
     }
