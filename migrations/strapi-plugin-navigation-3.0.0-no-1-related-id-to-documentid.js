@@ -3,7 +3,8 @@ const SOURCE_LINK_TABLE_NAME = 'navigations_items_related_links';
 const TARGET_TABLE_NAME = 'navigations_items';
 const RELATED_ITEM_SEPARATOR = '$';
 
-export default {
+
+module.exports = {
   async up(knex) {
 
     console.log("Navigation plugin :: Migrations :: Backup navigation item related table - START");
