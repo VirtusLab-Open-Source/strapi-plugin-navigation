@@ -49,6 +49,10 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
       audience: audience?.map(({ key }) => key),
     };
 
+    if (type === 'WRAPPER') {
+      return { ...itemCommon };
+    }
+
     if (type === 'EXTERNAL') {
       assertNotEmpty(
         path,

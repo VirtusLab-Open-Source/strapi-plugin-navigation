@@ -111,14 +111,27 @@ const navigationExternalItemFormSchema = ({
     related: z.string().optional(),
   });
 
+const navigationWrapperItemFormSchema = ({
+  isSingleSelected,
+  additionalFields,
+}: FormSchemaBuilderInput) =>
+  navigationItemCommon({
+    additionalFields,
+    isSingleSelected,
+  }).extend({
+    type: z.literal('WRAPPER'),
+    path: z.string().or(z.null()).optional(),
+  });
+
 export type NavigationItemFormSchema = z.infer<ReturnType<typeof navigationItemFormSchema>>;
 export const navigationItemFormSchema = (input: FormSchemaBuilderInput) =>
   z.discriminatedUnion('type', [
     navigationExternalItemFormSchema(input),
     navigationInternalItemFormSchema(input),
+    navigationWrapperItemFormSchema(input),
   ]);
 
- export const fallbackDefaultValues: NavigationItemFormSchema = {
+export const fallbackDefaultValues: NavigationItemFormSchema = {
   autoSync: true,
   type: 'INTERNAL',
   relatedType: '',

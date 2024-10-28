@@ -11,7 +11,7 @@ export const audienceDBSchema = z.object({
 });
 
 export type NavigationItemTypeSchema = z.infer<typeof navigationItemTypeSchema>;
-export const navigationItemTypeSchema = z.enum(['INTERNAL', 'EXTERNAL']);
+export const navigationItemTypeSchema = z.enum(['INTERNAL', 'EXTERNAL', 'WRAPPER']);
 
 const navigationItemBaseSchema = z.object({
   id: z.number(),

@@ -1,5 +1,5 @@
 import { Card, CardBody, Divider, Flex, Link, TextButton, Typography } from '@strapi/design-system';
-import { ArrowRight, Earth, Link as LinkIcon, Plus } from '@strapi/icons';
+import { ArrowRight, Cog, Earth, Link as LinkIcon, Plus } from '@strapi/icons';
 import { isEmpty, isNumber } from 'lodash';
 import { useCallback, useEffect, useRef } from 'react';
 import { DropTargetMonitor, useDrag, useDrop } from 'react-dnd';
@@ -88,25 +88,14 @@ export const Item: React.FC<Props> = ({
   viewParentId,
   locale,
 }) => {
-  const {
-    viewId,
-    type,
-    path,
-    removed,
-    externalPath,
-    menuAttached,
-    collapsed,
-    items = [],
-    isSearchActive,
-    related,
-    relatedType,
-  } = mapServerNavigationItem(item, true);
+  const mappedItem = mapServerNavigationItem(item, true);
 
   const { formatMessage } = useIntl();
 
   const configQuery = useConfig();
 
-  const isExternal = type === 'EXTERNAL';
+  const isExternal = mappedItem.type === 'EXTERNAL';
+  const isWrapper = mappedItem.type === 'WRAPPER';
   // TODO: is handled by publish flow
   const isHandledByPublishFlow = true;
 
@@ -120,19 +109,24 @@ export const Item: React.FC<Props> = ({
   const hasChildren = !isEmpty(item.items) && !isExternal && !displayChildren;
   const absolutePath = isExternal
     ? undefined
-    : `${levelPath === '/' ? '' : levelPath}/${path === '/' ? '' : path}`.replace('//', '/');
+    : `${levelPath === '/' ? '' : levelPath}/${mappedItem.path === '/' ? '' : mappedItem.path}`.replace(
+        '//',
+        '/'
+      );
 
   const contentTypeItemsQuery = useContentTypeItems({
-    uid: relatedType ?? '',
+    uid: mappedItem.type === 'INTERNAL' ? (mappedItem.relatedType ?? '') : '',
     locale,
   });
 
   const contentTypesQuery = useContentTypes();
 
-  const contentType = contentTypesQuery.data?.find((_) => _.uid === relatedType);
+  const contentType = contentTypesQuery.data?.find((_) =>
+    mappedItem.type === 'INTERNAL' ? _.uid === mappedItem.relatedType : false
+  );
 
-  const relatedItem = contentTypeItemsQuery.data?.find(
-    (contentTypeItem) => contentTypeItem.documentId === related
+  const relatedItem = contentTypeItemsQuery.data?.find((contentTypeItem) =>
+    mappedItem.type === 'INTERNAL' ? contentTypeItem.documentId === mappedItem.related : false
   ) ?? { documentId: '', id: 0 };
 
   const isPublished = !!relatedItem?.publishedAt;
@@ -223,25 +217,33 @@ export const Item: React.FC<Props> = ({
       canUpdate &&
       onItemLevelAdd(
         event,
-        viewId,
+        mappedItem.viewId,
         isNextMenuAllowedLevel,
         absolutePath,
-        menuAttached,
-        `${structureId}.${items.length}`,
-        Math.max(...items.map(({ order }) => order))
+        mappedItem.menuAttached,
+        `${structureId}.${mappedItem.items?.length ?? 0}`,
+        Math.max(...(mappedItem.items?.map(({ order }) => order) ?? []))
       ),
-    [viewId, isNextMenuAllowedLevel, absolutePath, menuAttached, structureId, items, canUpdate]
+    [
+      mappedItem.viewId,
+      isNextMenuAllowedLevel,
+      absolutePath,
+      mappedItem.menuAttached,
+      structureId,
+      mappedItem.items,
+      canUpdate,
+    ]
   );
 
   useEffect(() => {
-    if (isSearchActive) {
+    if (mappedItem.isSearchActive) {
       refs.dropRef?.current?.scrollIntoView?.({
         behavior: 'smooth',
         block: 'center',
         inline: 'center',
       });
     }
-  }, [isSearchActive, refs.dropRef.current]);
+  }, [mappedItem.isSearchActive, refs.dropRef.current]);
 
   const theme = useTheme();
 
@@ -258,23 +260,27 @@ export const Item: React.FC<Props> = ({
           zIndex: 1,
           position: 'relative',
           overflow: 'hidden',
-          backgroundColor: isSearchActive ? theme.colors.secondary100 : undefined,
-          borderColor: isSearchActive ? theme.colors.secondary200 : undefined,
+          backgroundColor: mappedItem.isSearchActive ? theme.colors.secondary100 : undefined,
+          borderColor: mappedItem.isSearchActive ? theme.colors.secondary200 : undefined,
           transition: 'background-color 0.3s ease-in',
         }}
       >
-        {removed && <ItemCardRemovedOverlay />}
+        {mappedItem.removed && <ItemCardRemovedOverlay />}
         <div ref={refs.previewRef}>
           <CardBody>
             <ItemCardHeader
               title={item.title ?? ''}
-              path={isExternal ? externalPath : absolutePath}
-              icon={isExternal ? <Earth /> : <LinkIcon />}
+              path={isExternal ? mappedItem.externalPath : absolutePath}
+              icon={isExternal ? <Earth /> : isWrapper ? <Cog /> : <LinkIcon />}
               onItemRemove={() => onItemRemove({ ...item, viewParentId })}
               onItemEdit={() => {
                 const [relatedType, related] = item.related?.split(RELATED_ITEM_SEPARATOR) ?? [];
 
-                if (item.type !== 'EXTERNAL' && item.type !== 'INTERNAL') {
+                if (
+                  item.type !== 'EXTERNAL' &&
+                  item.type !== 'INTERNAL' &&
+                  item.type !== 'WRAPPER'
+                ) {
                   return;
                 }
 
@@ -296,30 +302,43 @@ export const Item: React.FC<Props> = ({
                           viewParentId,
                           audience: item.audience?.map(({ documentId }) => documentId) ?? [],
                         }
-                      : {
-                          ...item,
-                          type: 'EXTERNAL',
-                          isMenuAllowedLevel,
-                          isParentAttachedToMenu,
-                          isSearchActive: false,
-                          relatedType: undefined,
-                          related: undefined,
-                          additionalFields: item.additionalFields ?? {},
-                          items: item.items ?? [],
-                          autoSync: item.autoSync ?? true,
-                          externalPath: item.externalPath ?? '',
-                          viewParentId,
-                          audience: item.audience?.map(({ documentId }) => documentId) ?? [],
-                        },
+                      : item.type === 'EXTERNAL'
+                        ? {
+                            ...item,
+                            type: 'EXTERNAL',
+                            isMenuAllowedLevel,
+                            isParentAttachedToMenu,
+                            isSearchActive: false,
+                            relatedType: undefined,
+                            related: undefined,
+                            additionalFields: item.additionalFields ?? {},
+                            items: item.items ?? [],
+                            autoSync: item.autoSync ?? true,
+                            externalPath: item.externalPath ?? '',
+                            viewParentId,
+                            audience: item.audience?.map(({ documentId }) => documentId) ?? [],
+                          }
+                        : {
+                            ...item,
+                            type: 'WRAPPER',
+                            isMenuAllowedLevel,
+                            isParentAttachedToMenu,
+                            isSearchActive: false,
+                            additionalFields: item.additionalFields ?? {},
+                            items: item.items ?? [],
+                            autoSync: item.autoSync ?? true,
+                            viewParentId,
+                            audience: item.audience?.map(({ documentId }) => documentId) ?? [],
+                          },
                   levelPath,
                   isParentAttachedToMenu,
                 });
               }}
               onItemRestore={() => onItemRestore({ ...item, viewParentId })}
               dragRef={refs.dragRef}
-              removed={removed}
+              removed={mappedItem.removed}
               canUpdate={canUpdate}
-              isSearchActive={isSearchActive}
+              isSearchActive={mappedItem.isSearchActive}
             />
           </CardBody>
           <Divider />
@@ -335,23 +354,27 @@ export const Item: React.FC<Props> = ({
                   {!isEmpty(item.items) && (
                     <CollapseButton
                       toggle={() => onItemToggleCollapse({ ...item, viewParentId })}
-                      collapsed={collapsed}
+                      collapsed={mappedItem.collapsed}
                       itemsCount={item.items?.length ?? 0}
                     />
                   )}
                   {canUpdate && isNextMenuAllowedLevel && (
-                    <TextButton disabled={removed} startIcon={<Plus />} onClick={onNewItemClick}>
+                    <TextButton
+                      disabled={mappedItem.removed}
+                      startIcon={<Plus />}
+                      onClick={onNewItemClick}
+                    >
                       <Typography
                         variant="pi"
                         fontWeight="bold"
-                        textColor={removed ? 'neutral600' : 'primary600'}
+                        textColor={mappedItem.removed ? 'neutral600' : 'primary600'}
                       >
                         {formatMessage(getTrad('components.navigationItem.action.newItem'))}
                       </Typography>
                     </TextButton>
                   )}
                 </Flex>
-                {related && !relatedItem.id ? (
+                {mappedItem.type === 'INTERNAL' && mappedItem.related && !relatedItem.id ? (
                   <Flex justifyContent="center" alignItems="center">
                     <Typography variant="omega" textColor="neutral600">
                       {relatedTypeLabel}&nbsp;/&nbsp;
@@ -397,7 +420,7 @@ export const Item: React.FC<Props> = ({
           )}
         </div>
       </Card>
-      {hasChildren && !removed && !collapsed && (
+      {hasChildren && !mappedItem.removed && !mappedItem.collapsed && (
         <List
           onItemLevelAdd={onItemLevelAdd}
           onItemRemove={onItemRemove}
@@ -405,13 +428,13 @@ export const Item: React.FC<Props> = ({
           onItemRestore={onItemRestore}
           onItemReOrder={onItemReOrder}
           onItemToggleCollapse={onItemToggleCollapse}
-          isParentAttachedToMenu={menuAttached}
+          isParentAttachedToMenu={mappedItem.menuAttached}
           items={item.items ?? []}
           level={level + 1}
           levelPath={absolutePath}
           permissions={permissions}
           structurePrefix={structureId}
-          viewParentId={viewId}
+          viewParentId={mappedItem.viewId}
           locale={locale}
         />
       )}
