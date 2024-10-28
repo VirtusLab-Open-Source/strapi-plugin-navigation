@@ -358,7 +358,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       name,
       visible,
       locale: defaultLocale,
-      slug: `${slug}-${defaultLocale}`,
+      slug,
     });
 
     navigationSummary.push(await this.getById({ documentId: mainNavigation.documentId }));
@@ -368,7 +368,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
         name,
         visible,
         locale: localeCode,
-        slug: `${slug}-${localeCode}`,
+        slug,
         documentId: mainNavigation.documentId,
       });
 
@@ -399,16 +399,16 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
     const { masterModel } = getPluginModels(context);
 
     const commonService = getPluginService(context, 'common');
-    const { defaultLocale } = await commonService.readLocale();
+    const { defaultLocale, restLocale } = await commonService.readLocale();
 
     const repository = getNavigationRepository(context);
 
     const { name, visible, items } = payload;
 
     const currentNavigation = await repository.findOne({
-      filters: { documentId: payload.documentId},
+      filters: { documentId: payload.documentId },
       locale: payload.locale,
-      populate: "*",
+      populate: '*',
     });
     const currentNavigationAsDTO = await this.getById({
       documentId: payload.documentId,
@@ -419,17 +419,22 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       currentNavigation.name !== name || currentNavigation.visible !== visible;
 
     if (detailsHaveChanged) {
-      const allNavigations = await repository.find({
-        filters: { documentId: currentNavigation.documentId },
-      });
+      const newSlug = name
+        ? await commonService.getSlug({
+            query: name,
+          })
+        : currentNavigation.slug;
+
+      const allNavigations = await Promise.all(
+        [defaultLocale, ...restLocale].map((locale) =>
+          repository.findOne({
+            filters: { documentId: currentNavigation.documentId },
+            locale,
+          })
+        )
+      );
 
       for (const navigation of allNavigations) {
-        const newSlug = name
-          ? await commonService.getSlug({
-              query: `${name}${navigation.locale !== defaultLocale ? ` ${navigation.locale}` : ''}`,
-            })
-          : currentNavigation.slug;
-
         await repository.save({
           documentId: navigation.documentId,
           id: navigation.id,
@@ -463,7 +468,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
     await commonService.emitEvent({
       entity: await repository.findOne({
         filters: { documentId: payload.documentId },
-        populate: "*",
+        populate: '*',
       }),
       event: 'entry.update',
       uid: masterModel.uid,
@@ -502,11 +507,11 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
 
     const navigation = await navigationRepository.findOne({
       filters: { documentId },
-      populate: "*",
+      populate: '*',
     });
     const allNavigations = await navigationRepository.find({
       filters: { documentId: navigation.documentId },
-      populate: "*",
+      populate: '*',
     });
 
     await cleanNavigationItems(
@@ -624,7 +629,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       masterEntity: await navigationRepository.findOne({
         filters: { documentId: target.documentId },
         locale: target.locale,
-        populate: "*",
+        populate: '*',
       }),
       navigationItems: await Promise.all(sourceItems.map(itemProcessor)),
       parentItem: undefined,
