@@ -75,7 +75,7 @@ export const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
         <Toggle
           {...defaultInputProps}
           checked={!!value}
-          onChange={(eventOrPath: React.ChangeEvent<any> | string, value?: any) => onChangeEnhancer(eventOrPath, !value, onChange)}
+          onChange={(eventOrPath: React.ChangeEvent<any> | string) => onChangeEnhancer(eventOrPath, !value, onChange)}
           onLabel="true"
           offLabel="false"
           type="checkbox"
