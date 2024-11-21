@@ -267,7 +267,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       filters,
       locale: locale || '*',
       limit: Number.MAX_SAFE_INTEGER,
-      populate: ['items', 'items.parent', 'items.audience'],
+      populate: ['items', 'items.parent', 'items.audience', 'items.related'],
     });
 
     const buildItemsStructure = ({

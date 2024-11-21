@@ -6,7 +6,6 @@ import {
   NavigationItemTypeSchema,
   StrapiContentTypeItemSchema,
 } from '../../../api/validators';
-import { RELATED_ITEM_SEPARATOR } from '../../../utils/constants';
 import { NavigationItemFormSchema } from '../components/NavigationItemForm';
 
 const reOrderItems = (items: NavigationItemSchema[] = []) =>
@@ -44,7 +43,10 @@ const toNavigationItem = (
         items: payload.items?.length
           ? transformItemToViewPayload(payload, payload.items, config)
           : payload.items,
-        related: [payload.relatedType, payload.related].join(RELATED_ITEM_SEPARATOR),
+        related: {
+          __type: payload.relatedType,
+          documentId: payload.related,
+        },
         viewId: payload.viewId,
         viewParentId: payload.viewParentId,
         structureId: payload.structureId,
@@ -246,8 +248,13 @@ export const mapServerNavigationItem = (
   item: NavigationItemSchema,
   stopAtFirstLevel = false
 ): NavigationItemFormSchema => {
-  const [relatedType, related] =
-    item.type === 'INTERNAL' && item.related ? item.related.split(RELATED_ITEM_SEPARATOR) : [];
+  const { __type: relatedType, documentId: related } =
+    item.type === 'INTERNAL' && item.related
+      ? item.related
+      : {
+          __type: "",
+          documentId: "",
+        };
 
   return item.type === 'INTERNAL'
     ? {

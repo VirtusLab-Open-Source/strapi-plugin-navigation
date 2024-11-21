@@ -3,10 +3,7 @@ import { errors } from '@strapi/utils';
 import { cloneDeep, first, get, isArray, isEmpty, isNil, last, pick } from 'lodash';
 import { NavigationError } from '../../app-errors';
 import { NavigationItemDTO, RFRNavigationItemDTO, RFRPageDTO } from '../../dtos';
-import {
-  getNavigationItemRepository,
-  getNavigationRepository,
-} from '../../repositories';
+import { getNavigationItemRepository, getNavigationRepository } from '../../repositories';
 import { NavigationItemAdditionalField, NavigationItemCustomField } from '../../schemas';
 import { assertNotEmpty, getPluginService } from '../../utils';
 import {
@@ -89,11 +86,11 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
       documentId,
       title,
       related:
-        type === 'INTERNAL' && related?.documentId && related?.uid
+        type === 'INTERNAL' && related?.documentId && related?.__type
           ? {
-            contentType: related.uid,
-            documentId: related.documentId,
-          }
+              contentType: related.__type,
+              documentId: related.documentId,
+            }
           : undefined,
       path,
       parent,
@@ -246,6 +243,7 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
     const navigationItemRepository = getNavigationItemRepository(context);
 
     let navigation;
+
     if (locale) {
       navigation = await navigationRepository.find({
         filters: {
@@ -253,11 +251,13 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
         },
         locale,
         limit: 1,
+        populate: ['items', 'items.audience', 'items.parent', 'items.related'],
       });
     } else {
       navigation = await navigationRepository.find({
         filters: entityWhereClause,
         limit: 1,
+        populate: ['items', 'items.audience', 'items.parent', 'items.related'],
       });
     }
 
@@ -266,16 +266,9 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
     }
 
     if (navigation && navigation.documentId) {
-      const navigationItems = await navigationItemRepository.find({
-        filters: {
-          master: navigation,
-          ...itemCriteria,
-        },
-        locale,
-        limit: Number.MAX_SAFE_INTEGER,
-        order: [{ order: 'asc' }],
-        populate: ['audience', 'parent'],
-      });
+      const navigationItems = (navigation.items ?? [])
+        .map((_) => _)
+        .sort((a, b) => a.order - b.order);
 
       const mappedItems = await commonService.mapToNavigationItemDTO({
         navigationItems,
@@ -295,9 +288,9 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
       const wrapContentType = (itemContentType: any) =>
         wrapRelated && itemContentType
           ? {
-            documentId: itemContentType.documentId,
-            ...itemContentType,
-          }
+              documentId: itemContentType.documentId,
+              ...itemContentType,
+            }
           : itemContentType;
 
       const mediaFields = ['name', 'url', 'mime', 'width', 'height', 'previewUrl'] as const;
@@ -335,16 +328,17 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
             const isExternal = item.type === 'EXTERNAL';
             const parentPath = isExternal
               ? undefined
-              : `${path === '/' ? '' : path}/${first(item.path) === '/' ? item.path!.substring(1) : item.path
-              }`;
+              : `${path === '/' ? '' : path}/${
+                  first(item.path) === '/' ? item.path!.substring(1) : item.path
+                }`;
             const slug =
               typeof parentPath === 'string'
                 ? await commonService.getSlug({
-                  query: (first(parentPath) === '/'
-                    ? parentPath.substring(1)
-                    : parentPath
-                  ).replace(/\//g, '-'),
-                })
+                    query: (first(parentPath) === '/'
+                      ? parentPath.substring(1)
+                      : parentPath
+                    ).replace(/\//g, '-'),
+                  })
                 : undefined;
             const lastRelated = isArray(item.related) ? last(item.related) : item.related;
             const relatedContentType = wrapContentType(lastRelated);
@@ -368,17 +362,17 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
                 isExternal || !lastRelated
                   ? undefined
                   : {
-                    ...relatedContentType,
-                  },
+                      ...relatedContentType,
+                    },
               audience: !isEmpty(item.audience) ? item.audience : undefined,
               items: isExternal
                 ? []
                 : await this.renderTree({
-                  itemParser,
-                  path: parentPath,
-                  documentId: item.documentId,
-                  items: mappedItems,
-                }),
+                    itemParser,
+                    path: parentPath,
+                    documentId: item.documentId,
+                    items: mappedItems,
+                  }),
               collapsed: item.collapsed,
               additionalFields: customFields || {},
             };
@@ -428,7 +422,9 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
 
             const { order, parent } = item;
 
-            const nestedOrders = parent ? getNestedOrders(parent.documentId, cache).concat(order) : [order];
+            const nestedOrders = parent
+              ? getNestedOrders(parent.documentId, cache).concat(order)
+              : [order];
 
             cache.set(documentId, nestedOrders);
 
@@ -437,7 +433,10 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
 
           return result
             .map(({ additionalFields, ...item }: NavigationItemDTO) => {
-              const customFields = enabledCustomFieldsNames.reduce(additionalFieldsMapper(item), {});
+              const customFields = enabledCustomFieldsNames.reduce(
+                additionalFieldsMapper(item),
+                {}
+              );
 
               return {
                 ...item,
@@ -453,7 +452,9 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
                 ...customFields,
               };
             })
-            .sort((a, b) => compareArraysOfNumbers(getNestedOrders(a.documentId), getNestedOrders(b.documentId)));
+            .sort((a, b) =>
+              compareArraysOfNumbers(getNestedOrders(a.documentId), getNestedOrders(b.documentId))
+            );
       }
     }
 

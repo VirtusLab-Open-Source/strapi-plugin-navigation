@@ -23,7 +23,10 @@ const navigationItemDBBaseSchema = z.object({
   menuAttached: z.boolean(),
   order: z.number().int(),
   collapsed: z.boolean(),
-  related: z.string().or(z.null()).optional(),
+  related: z
+    .object({ documentId: z.string().optional(), __type: z.string() })
+    .catchall(z.unknown())
+    .nullish(),
   additionalFields: z.record(z.string(), z.unknown()).or(z.null()).optional(),
   audience: z.array(audienceDBSchema).or(z.null()).optional(),
   autoSync: z.boolean().or(z.null()).optional(),
@@ -99,7 +102,10 @@ export const updateNavigationItemSchema: UpdateNavigationItemSchema = navigation
   .extend({
     id: z.number().optional(),
     documentId: z.string().optional(),
-    items: z.lazy(() => updateNavigationItemsSchema).or(z.null()).optional(),
+    items: z
+      .lazy(() => updateNavigationItemsSchema)
+      .or(z.null())
+      .optional(),
     updated: z.boolean().optional(),
     removed: z.boolean().optional(),
   });

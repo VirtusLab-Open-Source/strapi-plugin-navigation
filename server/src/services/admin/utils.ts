@@ -1,9 +1,7 @@
-import { Core, UID } from '@strapi/strapi';
+import { Core } from '@strapi/strapi';
 import { CreateBranchNavigationItemDTO, NavigationItemDTO } from '../../dtos';
-import { getGenericRepository } from '../../repositories';
 import { NavigationDBSchema, configSchema } from '../../schemas';
 import { NavigationAction } from '../../types';
-import { RELATED_ITEM_SEPARATOR } from '../../utils';
 
 export type AuditLogContext = { emit: (e: string, d: AuditLogParams) => void };
 export type AuditLogParams =
@@ -51,39 +49,6 @@ type FillCopyContext = {
 export const processItems =
   (context: FillCopyContext) =>
   async (item: CreateBranchNavigationItemDTO): Promise<CreateBranchNavigationItemDTO> => {
-    const { related } = item;
-    let nextRelated = related;
-
-    if (related && !context.entities.has(related)) {
-      const [uid, documentId] = related.split(RELATED_ITEM_SEPARATOR);
-
-      const entity = await getGenericRepository(context, uid as UID.ContentType).findById(
-        documentId,
-        true
-      );
-
-      if (!context.entities.has(related) && entity) {
-        context.entities.set(related, {
-          ...entity,
-          uid,
-        });
-      }
-    }
-
-    if (related && context.entities.has(related)) {
-      const entity = context.entities.get(related)!;
-
-      const localeVersion = await strapi.documents(entity.uid as UID.ContentType).findOne({
-        documentId: entity.documentId,
-        locale: context.locale,
-        status: 'published',
-      });
-
-      if (localeVersion) {
-        nextRelated = [entity.uid, localeVersion.documentId].join(RELATED_ITEM_SEPARATOR);
-      }
-    }
-
     return {
       title: item.title,
       path: item.path,
@@ -101,7 +66,7 @@ export const processItems =
         : ([] as CreateBranchNavigationItemDTO[]),
       master: context.master,
       parent: undefined,
-      related: nextRelated,
+      related: item.related,
     };
   };
 

@@ -5,7 +5,7 @@ export type NavigationItemDTO = Omit<
   NavigationItemDBSchema,
   'related' | 'items' | 'master' | 'parent'
 > & {
-  related?: { id: number; uid: string; documentId: string, locale?: string } | null;
+  related?: { __type: string; documentId: string } | null;
   items?: NavigationItemDTO[];
   master?: NavigationDTO;
   parent?: NavigationItemDTO | null;
