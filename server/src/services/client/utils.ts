@@ -98,17 +98,5 @@ export const compareArraysOfNumbers = (arrA: number[], arrB: number[]) => {
 };
 
 export const filterOutUnpublished = (item: NavigationItemDTO) => {
-  const relatedItem = item.related && (isArray(item.related) ? last(item.related) : item.related);
-
-  const isHandledByPublishFlow = relatedItem ? 'publishedAt' in relatedItem : false;
-
-  if (isHandledByPublishFlow) {
-    const isRelatedDefinedAndPublished = relatedItem
-      ? isHandledByPublishFlow && !!get(relatedItem, 'publishedAt')
-      : false;
-
-    return item.type === 'INTERNAL' ? isRelatedDefinedAndPublished : true;
-  }
-
-  return item.type !== 'INTERNAL' || relatedItem;
+  return item.type !== 'INTERNAL' || !!item.related;
 };

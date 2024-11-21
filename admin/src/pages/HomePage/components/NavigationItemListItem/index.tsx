@@ -9,7 +9,6 @@ import { useTheme } from 'styled-components';
 import { NavigationItemSchema, StrapiContentTypeItemSchema } from '../../../../api/validators';
 import { getTrad } from '../../../../translations';
 import { Effect } from '../../../../types';
-import { RELATED_ITEM_SEPARATOR } from '../../../../utils/constants';
 import { useConfig, useContentTypeItems, useContentTypes } from '../../hooks';
 import { extractRelatedItemLabel, mapServerNavigationItem } from '../../utils';
 import { CollapseButton } from '../CollapseButton';
@@ -274,7 +273,7 @@ export const Item: React.FC<Props> = ({
               icon={isExternal ? <Earth /> : isWrapper ? <Cog /> : <LinkIcon />}
               onItemRemove={() => onItemRemove({ ...item, viewParentId })}
               onItemEdit={() => {
-                const [relatedType, related] = item.related?.split(RELATED_ITEM_SEPARATOR) ?? [];
+                const { __type: relatedType, documentId: related } = item.related ?? {};
 
                 if (
                   item.type !== 'EXTERNAL' &&
@@ -293,8 +292,8 @@ export const Item: React.FC<Props> = ({
                           isMenuAllowedLevel,
                           isParentAttachedToMenu,
                           isSearchActive: false,
-                          relatedType,
-                          related,
+                          relatedType: relatedType ?? '',
+                          related: related ?? '',
                           additionalFields: item.additionalFields ?? {},
                           items: item.items ?? [],
                           autoSync: item.autoSync ?? true,

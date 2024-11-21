@@ -28,7 +28,6 @@ import {
   ToBeFixed,
   VoidEffect,
 } from '../../../../types';
-import { RELATED_ITEM_SEPARATOR } from '../../../../utils/constants';
 import {
   useConfig,
   useContentTypeItems,
@@ -251,15 +250,15 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
       onSubmit(
         payload.type === 'INTERNAL'
           ? {
-            ...payload,
-            title,
-            uiRouterKey,
-          }
+              ...payload,
+              title,
+              uiRouterKey,
+            }
           : {
-            ...payload,
-            title,
-            uiRouterKey,
-          }
+              ...payload,
+              title,
+              uiRouterKey,
+            }
       );
     } else if (error) {
       setFormError(
@@ -437,7 +436,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
               copyItemFromLocaleMutation.reset();
 
               const { type, externalPath, path, related, title, uiRouterKey } = data;
-              const [contentType, documentId] = related?.split(RELATED_ITEM_SEPARATOR) ?? [];
+              const { __type, documentId } = related ?? {};
 
               setFormValueItem('type', type);
               setFormValueItem('externalPath', externalPath ?? undefined);
@@ -445,9 +444,9 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
               setFormValueItem('title', title);
               setFormValueItem('uiRouterKey', uiRouterKey);
 
-              if (contentType && documentId) {
+              if (__type && documentId) {
                 setFormValueItem('related', documentId);
-                setFormValueItem('relatedType', contentType);
+                setFormValueItem('relatedType', __type);
               }
             },
             onSettled() {

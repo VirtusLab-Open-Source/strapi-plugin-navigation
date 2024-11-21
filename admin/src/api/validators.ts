@@ -25,7 +25,10 @@ const navigationItemBaseSchema = z.object({
   order: z.number().int(),
   collapsed: z.boolean(),
   autoSync: z.boolean().or(z.null()).optional(),
-  related: z.string().or(z.null()).optional(),
+  related: z
+    .object({ documentId: z.string().optional(), __type: z.string() })
+    .catchall(z.unknown())
+    .nullish(),
   additionalFields: z.record(z.string(), z.unknown()).or(z.null()).optional(),
   audience: z.array(audienceDBSchema).or(z.null()).optional(),
   viewId: z.number().optional(),
@@ -312,7 +315,10 @@ export const slugifyResult = z.object({ slug: z.string() });
 export const i18nCopyItemDetails = z.object({
   externalPath: z.string().or(z.null()).optional(),
   path: z.string().or(z.null()).optional(),
-  related: z.string().or(z.null()).optional(),
+  related: z
+    .object({ documentId: z.string().optional(), __type: z.string() })
+    .catchall(z.unknown())
+    .nullish(),
   title: z.string(),
   type: navigationItemTypeSchema,
   uiRouterKey: z.string(),

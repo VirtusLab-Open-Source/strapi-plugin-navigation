@@ -9,6 +9,7 @@ import {
   navigationDBSchema,
 } from '../schemas';
 import { getPluginModels } from '../utils';
+import { flattenRelated, removeSensitiveFields } from './navigation-item';
 
 interface FindInput {
   filters?: any;
@@ -35,9 +36,21 @@ export const getNavigationRepository = once((context: { strapi: Core.Strapi }) =
     return context.strapi
       .documents(masterModel.uid)
       .findMany({ filters, locale, limit, populate, orderBy })
+      .then((data) =>
+        data.map(({ items, ...navigation }) => ({
+          ...navigation,
+          items: items?.map(flattenRelated),
+        }))
+      )
       .then((data) => {
         return navigationDBSchema(calculateItemsRequirement(populate)).array().parse(data);
-      });
+      })
+      .then((data) =>
+        data.map(({ items, ...navigation }) => ({
+          ...navigation,
+          items: items?.map(removeSensitiveFields),
+        }))
+      );
   },
 
   findOne({ locale, filters, populate }: FindOneInput) {
@@ -46,17 +59,24 @@ export const getNavigationRepository = once((context: { strapi: Core.Strapi }) =
     return context.strapi
       .documents(masterModel.uid)
       .findOne({ documentId: filters.documentId, locale, populate })
+      .then((data) => (data ? { ...data, items: data.items?.map(flattenRelated) } : data))
       .then((data) => {
         return navigationDBSchema(calculateItemsRequirement(populate)).parse(data);
-      });
+      })
+      .then((navigation) => ({
+        ...navigation,
+        items: navigation.items?.map(removeSensitiveFields),
+      }));
   },
 
   async save(
-    navigation: (CreateNavigationSchema & { locale?: string}) | (Omit<UpdateNavigationSchema, 'items'> & { items?: never }) 
+    navigation:
+      | (CreateNavigationSchema & { locale?: string, items?: unknown })
+      | (Omit<UpdateNavigationSchema, 'items'> & { items?: never })
   ) {
     const { masterModel } = getPluginModels(context);
     const { documentId, locale, ...rest } = navigation;
-      
+
     if (documentId) {
       return context.strapi
         .documents(masterModel.uid)
@@ -77,9 +97,7 @@ export const getNavigationRepository = once((context: { strapi: Core.Strapi }) =
             populate: ['items'],
           },
         })
-        .then((x) => {
-          return navigationDBSchema(false).parse(x);
-        });
+        .then(navigationDBSchema(false).parse);
     }
   },
 

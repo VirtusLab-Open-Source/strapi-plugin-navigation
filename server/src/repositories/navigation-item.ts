@@ -1,8 +1,9 @@
-import { Core } from '@strapi/strapi';
+import { Core, UID } from '@strapi/strapi';
 
-import { once } from 'lodash';
+import { omit, once } from 'lodash';
 import { NavigationItemDBSchema, navigationItemsDBSchema } from '../schemas';
 import { getPluginModels } from '../utils';
+import { getGenericRepository } from './generic';
 
 type NavigationItemRemoveMinimal = Partial<NavigationItemDBSchema> &
   Pick<NavigationItemDBSchema, 'documentId'>;
@@ -15,20 +16,51 @@ interface FindInput {
   order?: Record<string, 'asc' | 'desc'>[];
 }
 
+interface SaveInput {
+  item:
+    | (Partial<NavigationItemDBSchema> & {
+        documentId: undefined;
+      })
+    | ({
+        documentId: string;
+      } & Partial<Omit<NavigationItemDBSchema, 'documentId'>>);
+  locale?: string;
+}
+
 export const getNavigationItemRepository = once((context: { strapi: Core.Strapi }) => ({
-  save(
-    item:
-      | (Partial<NavigationItemDBSchema> & { documentId: undefined })
-      | ({ documentId: string } & Partial<Omit<NavigationItemDBSchema, 'documentId'>>)
-  ) {
+  async save({ item, locale }: SaveInput) {
     const { itemModel } = getPluginModels(context);
+
+    const { __type, documentId } = item?.related ?? {};
+    const repository = __type
+      ? getGenericRepository(context, __type as UID.ContentType)
+      : undefined;
+    const related =
+      __type && repository
+        ? documentId
+          ? await repository.findById(documentId, undefined, undefined, { locale })
+          : await repository.findFirst(undefined, undefined, { locale })
+        : undefined;
 
     if (typeof item.documentId === 'string') {
       const { documentId, ...rest } = item;
 
-      return context.strapi.documents(itemModel.uid).update({ documentId: item.documentId, data: { ...rest } as  NavigationItemDBSchema});
+      return context.strapi.documents(itemModel.uid).update({
+        documentId: item.documentId,
+        data: {
+          ...rest,
+          related: related ? { ...related, __type } : undefined,
+        },
+        locale,
+      });
     } else {
-      return context.strapi.documents(itemModel.uid).create({ data: item });
+      return context.strapi.documents(itemModel.uid).create({
+        data: {
+          ...item,
+          related: related ? { ...related, __type } : undefined,
+        },
+        locale,
+      });
     }
   },
 
@@ -38,7 +70,9 @@ export const getNavigationItemRepository = once((context: { strapi: Core.Strapi 
     return context.strapi
       .documents(itemModel.uid)
       .findMany({ filters, locale, limit, populate, orderBy: order })
-      .then(navigationItemsDBSchema.parse);
+      .then((items) => items.map(flattenRelated))
+      .then(navigationItemsDBSchema.parse)
+      .then((items) => items.map(removeSensitiveFields));
   },
 
   count(where: any) {
@@ -75,3 +109,22 @@ export const getNavigationItemRepository = once((context: { strapi: Core.Strapi 
       .then(navigationItemsDBSchema.parse);
   },
 }));
+
+const sensitiveFields = ['id', 'publishedAt', 'createdAt', 'updatedAt', 'locale'];
+
+export const removeSensitiveFields = ({
+  related,
+  items = [],
+  ...item
+}: NavigationItemDBSchema): NavigationItemDBSchema => ({
+  ...item,
+  items: items.map(removeSensitiveFields),
+  related: related
+    ? (omit(related, sensitiveFields) as NavigationItemDBSchema['related'])
+    : undefined,
+});
+
+export const flattenRelated = ({ related, ...item }: any) => ({
+  ...item,
+  related: related?.[0],
+});

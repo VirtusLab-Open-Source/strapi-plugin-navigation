@@ -1,22 +1,19 @@
-import type { Core, UID } from '@strapi/strapi';
+import type { Core } from '@strapi/strapi';
 
 import { sanitize } from '@strapi/utils';
 
 import slugify from '@sindresorhus/slugify';
 
-import { AnyEntity } from '@sensinum/strapi-utils';
-
-import { isNil, omit } from 'lodash';
+import { omit } from 'lodash';
 
 import { configSetup } from '../../config';
 import { CreateBranchNavigationItemDTO, NavigationItemDTO } from '../../dtos';
-import { getGenericRepository, getNavigationItemRepository } from '../../repositories';
+import { getNavigationItemRepository } from '../../repositories';
 import {
   NavigationItemCustomField,
   NavigationItemDBSchema,
   NavigationItemsDBSchema,
   NavigationPluginConfigDBSchema,
-  configSchema,
 } from '../../schemas';
 import {
   ContentType,
@@ -24,7 +21,6 @@ import {
   NavigationActionsCategories,
   NavigationActionsPerItem,
 } from '../../types';
-import { RELATED_ITEM_SEPARATOR, parsePopulateQuery } from '../../utils';
 import {
   AnalyzeBranchInput,
   BuildNestedStructureInput,
@@ -59,57 +55,21 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
     master,
     parent,
   }: MapToNavigationItemDTOInput): Promise<NavigationItemDTO[]> {
-    const entities: Map<string, NavigationItemDTO['related']> = new Map();
     const result: NavigationItemDTO[] = [];
 
-    const pluginStore = await this.getPluginStore();
-    const config = configSchema.parse(await pluginStore.get({ key: 'config' }));
-
     for (const navigationItem of navigationItems) {
-      const { related, items = [], ...base } = navigationItem;
+      const { items = [], ...base } = navigationItem;
 
-      if (!related) {
-        result.push({
-          ...base,
-          items: [] as NavigationItemDTO[],
-          related: undefined,
-        } as NavigationItemDTO);
-      } else {
-        if (related && !entities.has(related)) {
-          const [uid, documentId] = related.split(RELATED_ITEM_SEPARATOR);
-
-          const relatedItem = await getGenericRepository(context, uid as UID.ContentType).findById(
-            documentId,
-            isNil(populate) ? config.contentTypesPopulate[uid] || [] : parsePopulateQuery(populate),
-            'published',
-            { locale: master?.locale }
-          );
-
-          if (relatedItem) {
-            entities.set(related, {
-              ...relatedItem as AnyEntity,
-              uid,
-            });
-          }
-
-        }
-
-        const preItem = {
-          ...base,
-          related: related ? entities.get(related) : undefined,
-          items: [],
-        } as NavigationItemDTO;
-
-        result.push({
-          ...preItem,
-          items: await this.mapToNavigationItemDTO({
-            navigationItems: items,
-            populate,
-            master,
-            parent: preItem,
-          }),
-        } as NavigationItemDTO);
-      }
+      result.push({
+        ...base,
+        parent: parent ?? base.parent,
+        items: await this.mapToNavigationItemDTO({
+          navigationItems: items,
+          populate,
+          master,
+          parent: base as NavigationItemDTO,
+        }),
+      } as NavigationItemDTO);
     }
 
     return result;
@@ -233,23 +193,27 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
 
       const { parent, master, items, documentId, id, ...params } = navigationItem;
 
-      const insertDetails = documentId && id
-        ? {
-          ...params,
-          documentId,
-          id,
-          master: masterEntity ? masterEntity.id : undefined,
-          parent: parentItem ? parentItem.id : undefined,
-        }
-        : {
-          ...params,
-          documentId: undefined,
-          id: undefined,
-          master: masterEntity ? masterEntity.id : undefined,
-          parent: parentItem ? parentItem.id : undefined,
-        };
+      const insertDetails =
+        documentId && id
+          ? {
+              ...params,
+              documentId,
+              id,
+              master: masterEntity ? masterEntity.id : undefined,
+              parent: parentItem ? parentItem.id : undefined,
+            }
+          : {
+              ...params,
+              documentId: undefined,
+              id: undefined,
+              master: masterEntity ? masterEntity.id : undefined,
+              parent: parentItem ? parentItem.id : undefined,
+            };
 
-      const nextParentItem = await getNavigationItemRepository(context).save(insertDetails as any);
+      const nextParentItem = await getNavigationItemRepository(context).save({
+        item: insertDetails as any,
+        locale: masterEntity?.locale,
+      });
 
       if (!!navigationItem.items?.length) {
         const innerActions = await this.createBranch({
@@ -285,8 +249,11 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
 
       if (updated) {
         currentItem = await getNavigationItemRepository(context).save({
-          documentId,
-          ...params,
+          item: {
+            documentId,
+            ...params,
+          },
+          locale: masterEntity?.locale,
         });
       } else {
         currentItem = updateDetails;
@@ -354,8 +321,10 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
 
     for (const item of navigationItemsToUpdate) {
       await getNavigationItemRepository(context).save({
-        documentId: item.documentId,
-        additionalFields: item.additionalFields,
+        item: {
+          documentId: item.documentId,
+          additionalFields: item.additionalFields,
+        },
       });
     }
   },
