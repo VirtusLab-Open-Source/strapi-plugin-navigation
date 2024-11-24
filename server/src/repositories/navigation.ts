@@ -42,15 +42,15 @@ export const getNavigationRepository = once((context: { strapi: Core.Strapi }) =
           items: items?.map(flattenRelated),
         }))
       )
-      .then((data) => {
-        return navigationDBSchema(calculateItemsRequirement(populate)).array().parse(data);
-      })
       .then((data) =>
         data.map(({ items, ...navigation }) => ({
           ...navigation,
           items: items?.map(removeSensitiveFields),
         }))
-      );
+      )
+      .then((data) => {
+        return navigationDBSchema(calculateItemsRequirement(populate)).array().parse(data);
+      });
   },
 
   findOne({ locale, filters, populate }: FindOneInput) {
