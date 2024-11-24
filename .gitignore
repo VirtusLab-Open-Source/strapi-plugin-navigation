@@ -95,7 +95,6 @@ logs
 results
 node_modules
 .node_history
-yarn.lock
 package-lock.json
 .yarnrc.yml
 
