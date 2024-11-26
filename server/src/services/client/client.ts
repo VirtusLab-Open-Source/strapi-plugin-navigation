@@ -16,12 +16,7 @@ import {
   RenderTreeInput,
   RenderTypeInput,
 } from './types';
-import {
-  compareArraysOfNumbers,
-  composeItemTitle,
-  filterByPath,
-  filterOutUnpublished,
-} from './utils';
+import { compareArraysOfNumbers, composeItemTitle, filterByPath } from './utils';
 
 export type ClientService = ReturnType<typeof clientService>;
 
@@ -195,7 +190,7 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
   }: RenderTreeInput): Promise<NavigationItemDTO[]> {
     return Promise.all(
       items.reduce((acc, item) => {
-        if (item.parent?.documentId === documentId && filterOutUnpublished(item)) {
+        if (item.parent?.documentId === documentId) {
           acc.push(itemParser(cloneDeep(item), path));
         }
 
@@ -251,13 +246,11 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
         },
         locale,
         limit: 1,
-        populate: ['items', 'items.audience', 'items.parent', 'items.related'],
       });
     } else {
       navigation = await navigationRepository.find({
         filters: entityWhereClause,
         limit: 1,
-        populate: ['items', 'items.audience', 'items.parent', 'items.related'],
       });
     }
 
@@ -266,9 +259,16 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
     }
 
     if (navigation && navigation.documentId) {
-      const navigationItems = (navigation.items ?? [])
-        .map((_) => _)
-        .sort((a, b) => a.order - b.order);
+      const navigationItems = await navigationItemRepository.find({
+        filters: {
+          master: pick(navigation, ['slug', 'id']),
+          ...itemCriteria,
+        },
+        locale,
+        limit: Number.MAX_SAFE_INTEGER,
+        order: [{ order: 'asc' }],
+        populate: ['audience', 'parent', 'related'],
+      });
 
       const mappedItems = await commonService.mapToNavigationItemDTO({
         navigationItems,
@@ -403,10 +403,7 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
           }
           return filteredStructure;
         default:
-          const publishedItems = mappedItems.filter(filterOutUnpublished);
-          const result = isNil(rootPath)
-            ? mappedItems
-            : filterByPath(publishedItems, rootPath).items;
+          const result = isNil(rootPath) ? mappedItems : filterByPath(mappedItems, rootPath).items;
 
           const defaultCache = new Map<string, Array<number>>();
           const getNestedOrders = (
