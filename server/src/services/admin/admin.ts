@@ -526,6 +526,8 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
   },
 
   async restart(): Promise<void> {
+    context.strapi.reload.isWatching = false;
+
     setImmediate(() => context.strapi.reload());
   },
 
