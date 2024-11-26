@@ -46,3 +46,38 @@ export const resolveGlobalLikeId = (uid = '') => {
 const splitTypeUid = (uid = '') => {
   return uid.split(UID_REGEX).filter((s) => s && s.length > 0);
 };
+
+const SERVER_OFFLINE_MESSAGE = "SERVER OFFLINE";
+
+export const waitForServerRestart = (response: any, didShutDownServer?: boolean) => {
+  return new Promise((resolve) => {
+    // @ts-ignore
+    fetch(`${window.strapi.backendURL}/_health`, {
+      method: 'HEAD',
+      mode: 'no-cors',
+      headers: {
+        'Content-Type': 'application/json',
+        'Keep-Alive': 'false',
+      },
+    })
+      .then((res) => {
+        if (res.status >= 400) {
+          throw new Error();
+        }
+
+        if (!didShutDownServer) {
+          throw new Error(SERVER_OFFLINE_MESSAGE);
+        }
+
+        resolve(response);
+      })
+      .catch((err) => {
+        setTimeout(() => {
+          return waitForServerRestart(
+            response,
+            err.message !== SERVER_OFFLINE_MESSAGE
+          ).then(resolve);
+        }, 100);
+      });
+  });
+}

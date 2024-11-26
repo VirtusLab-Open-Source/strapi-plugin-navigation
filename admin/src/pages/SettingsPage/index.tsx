@@ -1,14 +1,15 @@
 
-import { useEffect, useMemo, useState } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useIntl } from 'react-intl';
-import { get, isEmpty, isNaN, isNil, isObject, isString, set, sortBy } from 'lodash';
 import { Field, usePluginTheme } from "@sensinum/strapi-utils";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { get, isEmpty, isNaN, isNil, isObject, isString, set, sortBy } from 'lodash';
+import { useEffect, useMemo, useState } from 'react';
+import { useIntl } from 'react-intl';
 
 import {
   Accordion,
   Box,
   Button,
+  DesignSystemProvider,
   Flex,
   Grid,
   MultiSelect,
@@ -16,7 +17,6 @@ import {
   NumberInput,
   Toggle,
   Typography,
-  DesignSystemProvider,
 } from '@strapi/design-system';
 
 import { Check, Play, Typhoon } from '@strapi/icons';
@@ -25,6 +25,7 @@ import { Form, Layouts, Page, useAuth } from '@strapi/strapi/admin';
 import { ConfirmationDialog } from '../../components/ConfirmationDialog';
 import { RestartAlert } from '../../components/RestartAlert';
 import { NavigationItemCustomField } from '../../schemas';
+import { FormChangeEvent, FormItemErrorSchema } from '../../types';
 import { getTrad } from '../../utils/getTranslation';
 import pluginPermissions from '../../utils/permissions';
 import CustomFieldModal from './components/CustomFieldModal';
@@ -39,8 +40,7 @@ import {
   useSaveConfig,
 } from './hooks';
 import { RestartStatus } from './types';
-import { isContentTypeEligible } from './utils';
-import { FormChangeEvent, FormItemErrorSchema } from '../../types';
+import { isContentTypeEligible, waitForServerRestart } from './utils';
 
 const BOX_DEFAULT_PROPS = {
   background: 'neutral0',
@@ -61,6 +61,7 @@ const Inner = () => {
   const { formatMessage } = useIntl();
 
   const [restartStatus, setRestartStatus] = useState<RestartStatus>({ required: false });
+  const [isReloading, setIsReloading] = useState(false);
 
   const readPermissions = useAuth('SettingsPage', (state) => state.permissions);
   const hasSettingsPermissions = useMemo(() => {
@@ -238,15 +239,21 @@ const Inner = () => {
   const handleRestart = async () => {
     restartMutation.mutate(undefined, {
       onSuccess() {
-        setRestartStatus({ required: false });
-        window.location.reload();
+        setIsReloading(true);
+
+        waitForServerRestart(true).then((isReady) => {
+          if (isReady) {
+            window.location.reload();
+          }
+        });
       },
       onError() {
         setRestartStatus({ required: false });
-        window.location.reload();
       },
     });
+
   };
+
   const handleRestartDiscard = () => setRestartStatus({ required: false });
 
   useEffect(() => {
@@ -279,7 +286,7 @@ const Inner = () => {
     return <Page.NoPermissions />;
   }
 
-  if (isLoading) {
+  if (isLoading || isReloading) {
     return <Page.Loading />;
   }
 
