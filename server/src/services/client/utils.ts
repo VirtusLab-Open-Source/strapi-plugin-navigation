@@ -96,7 +96,3 @@ export const compareArraysOfNumbers = (arrA: number[], arrB: number[]) => {
   });
   return find(diff, (a) => a !== 0) || 0;
 };
-
-export const filterOutUnpublished = (item: NavigationItemDTO) => {
-  return item.type !== 'INTERNAL' || !!item.related;
-};
