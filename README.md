@@ -5,16 +5,16 @@
   <h1>Strapi v4 - Navigation plugin</h1>
   <p>Create consumable navigation with a simple and straightforward visual builder</p>
   <a href="https://www.npmjs.org/package/strapi-plugin-navigation">
-    <img alt="GitHub package.json version" src="https://img.shields.io/github/package-json/v/VirtusLab-Open-Source/strapi-plugin-navigation?label=npm&logo=npm">
+    <img alt="GitHub package.json version" src="https://img.shields.io/github/package-json/v/VirtusLab-Open-Source/strapi-plugin-navigation/strapi-v4?label=npm&logo=npm">
   </a>
   <a href="https://www.npmjs.org/package/strapi-plugin-navigation">
     <img src="https://img.shields.io/npm/dm/strapi-plugin-navigation.svg" alt="Monthly download on NPM" />
   </a>
   <a href="https://circleci.com/gh/VirtusLab/strapi-plugin-navigation">
-    <img src="https://circleci.com/gh/VirtusLab-Open-Source/strapi-plugin-navigation.svg?style=shield" alt="CircleCI" />
+    <img src="https://circleci.com/gh/VirtusLab-Open-Source/strapi-plugin-navigation/tree/strapi-v4.svg?style=shield" alt="CircleCI" />
   </a>
   <a href="https://codecov.io/gh/VirtusLab/strapi-plugin-navigation">
-    <img src="https://codecov.io/gh/VirtusLab/strapi-plugin-navigation/coverage.svg?branch=master" alt="codecov.io" />
+    <img src="https://codecov.io/gh/VirtusLab/strapi-plugin-navigation/coverage.svg?branch=strapi-v4" alt="codecov.io" />
   </a>
 </div>
 
@@ -54,8 +54,8 @@ Strapi Navigation Plugin provides a website navigation / menu builder feature fo
 17. [👨‍💻 Community support](#-community-support)
 
 ## 💎 Versions
-- **Strapi v5** - [v3.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/v5)
-- **Strapi v4** - (current) [v2.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation)
+- **Strapi v5** - [v3.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation)
+- **Strapi v4** - (current) [v2.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/strapi-v4)
 - **Strapi v3** - [v1.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/strapi-v3)
 
 ## ✨ Features
@@ -69,11 +69,6 @@ Strapi Navigation Plugin provides a website navigation / menu builder feature fo
 - **Webhooks integration:** Changes to navigation will trigger 'entry.update' or 'entry.create' webhook events. 
 - **Customizable:** Possibility to customize the options like: available Content Types, Maximum level for "attach to menu", Additional fields (audience)
 - **[Audit log](https://github.com/VirtusLab/strapi-molecules/tree/master/packages/strapi-plugin-audit-log):** integration with Strapi Molecules Audit Log plugin that provides changes track record
-
-## ⚙️ Versions
-
-- **Strapi v4** - (current) - [v2.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation)
-- **Strapi v3** - [v1.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/strapi-v3)
 
 ## ⏳ Installation
 
@@ -124,7 +119,7 @@ Complete installation requirements are exact same as for Strapi itself and can b
 
 **Supported Strapi versions**:
 
-- Strapi v4.25.11 (recently tested)
+- Strapi v4.25.17 (recently tested)
 - Strapi v4.x
 
 > This plugin is designed for **Strapi v4** and is not working with v3.x. To get version for **Strapi v3** install version [v1.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/strapi-v3).
