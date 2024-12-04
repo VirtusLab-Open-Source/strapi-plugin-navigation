@@ -128,7 +128,7 @@ const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
           id="navigation-item-media"
           onChange={handleMedia}
           value={value || []}
-          intlLabel={defaultInputProps.label}
+          intlLabel={{ id: defaultInputProps.label, defaultMessage: defaultInputProps.label }}
           attribute={mediaAttribute}
         />
       );
