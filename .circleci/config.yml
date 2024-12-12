@@ -6,7 +6,7 @@ jobs:
     environment:
       CODECOV_TOKEN: c803c20c-c45d-4a63-9ba9-58c7d5d05bbf
     docker:
-      - image: cimg/node:20.12.2
+      - image: cimg/node:20.18.1
     working_directory: ~/repo
     resource_class: large
     steps:
@@ -39,7 +39,7 @@ jobs:
       - run:
           name: Test
           command: |
-            yarn test:unit:ci
+            yarn test:clean && yarn test:unit:ci
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
@@ -58,7 +58,7 @@ jobs:
     environment:
       CODECOV_TOKEN: c803c20c-c45d-4a63-9ba9-58c7d5d05bbf
     docker:
-      - image: cimg/node:20.12.2
+      - image: cimg/node:20.18.1
     working_directory: ~/repo
     resource_class: large
     steps:
