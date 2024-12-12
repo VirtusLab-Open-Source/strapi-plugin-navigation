@@ -86,7 +86,7 @@ describe('Navigation', () => {
           });
         });
 
-        it('should validate input', async () => {
+        it('should validate input', () => {
           // Given
           const auditLogMock = jest.fn();
           const mockAdminService = asProxy<AdminService>({
@@ -106,8 +106,8 @@ describe('Navigation', () => {
           const adminController = buildAdminController({ strapi });
 
           // Then
-          await expect(async () => {
-            await adminController.post(
+          expect(() => {
+            adminController.post(
               asProxy<KoaContext & KoaContextExtension>({
                 auditLog: auditLogMock,
                 request: asProxy<KoaContextExtension['request']>({
@@ -155,7 +155,7 @@ describe('Navigation', () => {
           });
         });
 
-        it('should validate input', async () => {
+        it('should validate input', () => {
           // Given
           const auditLogMock = jest.fn();
           const mockAdminService = asProxy<AdminService>({
@@ -173,8 +173,8 @@ describe('Navigation', () => {
           const adminController = buildAdminController({ strapi });
 
           // Then
-          await expect(async () => {
-            await adminController.put(
+          expect(() => {
+            adminController.put(
               asProxy<KoaContext & KoaContextExtension>({
                 auditLog: auditLogMock,
                 params: { documentId },

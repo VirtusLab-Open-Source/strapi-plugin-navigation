@@ -3,6 +3,7 @@
   "include": ["./src", "tests"],
   "compilerOptions": {
     "rootDir": "../",
-    "baseUrl": "."
+    "baseUrl": ".",
+    "strict": true
   }
 }
