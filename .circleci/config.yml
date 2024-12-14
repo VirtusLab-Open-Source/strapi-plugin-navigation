@@ -21,8 +21,8 @@ jobs:
       - restore_cache:
           keys:
             # when lock file changes, use increasingly general patterns to restore cache
-            - strapi-plugin-navigation-v3-{{ checksum "yarn.lock" }}
-            - strapi-plugin-navigation-
+            - strapi-plugin-navigation-v4-{{ checksum "yarn.lock" }}
+            - strapi-plugin-navigation-v4
       - run:
           name: Echo versions
           command: |
