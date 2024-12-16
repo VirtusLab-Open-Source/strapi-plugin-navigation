@@ -37,15 +37,15 @@ Strapi Navigation Plugin provides a website navigation / menu builder feature fo
 3. [⏳ Installation](#-installation)
 4. [🖐 Requirements](#-requirements)
 5. [🔧 Basic Configuration](#-configuration)
-   - [Settings page](#in-v203-and-newer)
-   - [Plugin file](#in-v202-and-older--default-configuration-state-for-v203-and-newer)
+    - [Settings page](#in-v203-and-newer)
+    - [Plugin file](#in-v202-and-older--default-configuration-state-for-v203-and-newer)
 6. [🔧 GraphQL Configuration](#-gql-configuration)
-7. [🌍 i18n Internationalization](#-i18n-internationalization)
+7. [🌍 i18n](#-i18n)
 8. [👤 RBAC](#-rbac)
 9. [🔐 Authorization strategy](#-authorization-strategy)
 10. [🕸️ Public API specification](#%EF%B8%8F-public-api-specification)
-   - [REST API](#rest-api) 
-   - [GraphQL API](#graphql-api)
+    - [REST API](#rest-api) 
+    - [GraphQL API](#graphql-api)
 11. [🔌 Extensions](#-extensions)
 12. [🌿 Model lifecycle hooks](#model-life-cycle-hooks)
 13. [🧹 REST Cache](#rest-cache)
@@ -69,7 +69,6 @@ Strapi Navigation Plugin provides a website navigation / menu builder feature fo
 - **Light / Dark mode compatible:** By design we're supporting Strapi ☀️ Light / 🌙 Dark modes 
 - **Webhooks integration:** Changes to navigation will trigger 'entry.update' or 'entry.create' webhook events. 
 - **Customizable:** Possibility to customize the options like: available Content Types, Maximum level for "attach to menu", Additional fields (audience)
-- **[Audit log](https://github.com/VirtusLab/strapi-molecules/tree/master/packages/strapi-plugin-audit-log):** integration with Strapi Molecules Audit Log plugin that provides changes track record
 
 ## ⏳ Installation
 
@@ -86,7 +85,7 @@ As a ✅ **verified** plugin by Strapi team we're available on the [**Strapi Mar
 It's recommended to use **yarn** to install this plugin within your Strapi project. [You can install yarn with these docs](https://yarnpkg.com/lang/en/docs/install/).
 
 ```bash
-yarn add strapi-plugin-navigation@beta
+yarn add strapi-plugin-navigation@latest
 ```
 
 After successful installation you've to re-build your Strapi instance. To archive that simply use:
@@ -110,7 +109,7 @@ All done. Enjoy 🎉
 
 ## 🖐 Requirements
 
-Complete installation requirements are exact same as for Strapi itself and can be found in the documentation under <a href="https://docs.strapi.io/developer-docs/latest/setup-deployment-guides/installation/cli.html#preparing-the-installation">Installation Requirements</a>.
+Complete installation requirements are exact same as for Strapi itself and can be found in the documentation under <a href="https://docs.strapi.io/dev-docs/installation/cli#preparing-the-installation">Installation Requirements</a>.
 
 **Supported Strapi versions**:
 
@@ -123,7 +122,7 @@ Complete installation requirements are exact same as for Strapi itself and can b
 
 ## 🔧 Configuration
 
-To start your journey with **Navigation plugin** you must first setup it using the dedicated Settings page or for any version, put your configuration in `config/plugins.js`. Anyway we're recommending the click-through option where your configuration is going to be properly validated.
+To start your journey with **Navigation plugin** you must first setup it using the dedicated Settings page or for any version, put your configuration in `config/plugins.{js,ts}`. Anyway we're recommending the click-through option where your configuration is going to be properly validated.
 
 ### Settings page
 
@@ -138,10 +137,10 @@ On the dedicated page, you will be able to set up all crucial properties which d
 
 ### File
 
-Config for this plugin is stored as a part of the `config/plugins.js` or `config/<env>/plugins.js` file. You can use the following snippet to make sure that the config structure is correct. If you've got already configurations for other plugins stores by this way, you can use the `navigation` along with them. 
+Config for this plugin is stored as a part of the `config/plugins.{js, ts}` or `config/<env>/plugins.{js,ts}` file. You can use the following snippet to make sure that the config structure is correct. If you've got already configurations for other plugins stores by this way, you can use the `navigation` along with them. 
 
 
-```js
+```ts
     module.exports = ({ env }) => ({
         // ...
         navigation: {
@@ -169,7 +168,7 @@ Config for this plugin is stored as a part of the `config/plugins.js` or `config
 - `contentTypesNameFields` - Definition of content type title fields like `'api::<collection name>.<content type name>': ['field_name_1', 'field_name_2']`, if not set titles are pulled from fields like `['title', 'subject', 'name']`. **TIP** - Proper content type uid you can find in the URL of Content Manager where you're managing relevant entities like: `admin/content-manager/collectionType/< THE UID HERE >?page=1&pageSize=10&sort=Title:ASC&plugins[i18n][locale]=en`
 - `pathDefaultFields` - The attribute to copy the default path from per content type. Syntax: `'api::<collection name>.<content type name>': ['url_slug', 'path']`
 - `gql` - If you're using GraphQL that's the right place to put all necessary settings. More **[ here ](#gql-configuration)**
-- `i18nEnabled` - should you want to manage multi-locale content via navigation set this value `Enabled`. More **[ here ](#i18n-internationalization)**
+- `i18nEnabled` - should you want to manage multi-locale content via navigation set this value `Enabled`. More **[ here ](#i18n)**
 - `cascadeMenuAttached` - If you don't want "Menu attached" to cascade on child items set this value `Disabled`.
 
 ### Properties
@@ -180,7 +179,7 @@ It is advised to configure additional fields through the plugin's Settings Page.
 Creating configuration for additional fields with the `config.(js|ts)` file should be done with caution. Config object contains the `additionalFields` property of type `Array<CustomField | 'audience'>`, where CustomField is of type `{ type: 'string' | 'boolean' | { "name": string, "url": string, "mime": string, "width": number, "height": number, "previewUrl": string }, name: string, label: string }`. When creating custom fields be advised that the `name` property has to be unique. When editing a custom field it is advised not to edit its `name` and `type` properties. After config has been restored the custom fields that are not present in `config.js` file will be deleted and their values in navigation items will be lost.
 
 ## 🔧 GQL Configuration
-Using navigation with GraphQL requires both plugins to be installed and working. You can find installation guide for GraphQL plugin **[here](https://docs.strapi.io/developer-docs/latest/plugins/graphql.html#graphql)**.  To properly configure GQL to work with navigation you should provide `gql` prop. This should contain union types that will be used to define GQL response format for your data while fetching:
+Using navigation with GraphQL requires both plugins to be installed and working. You can find installation guide for GraphQL plugin **[here](https://docs.strapi.io/dev-docs/plugins/graphql#graphql)**.  To properly configure GQL to work with navigation you should provide `gql` prop. This should contain union types that will be used to define GQL response format for your data while fetching:
 
 > **Important!**
 > If you're using `config/plugins.js` to configure your plugins , please put `navigation` property before `graphql`. Otherwise types are not going to be properly added to GraphQL Schema. That's because of dynamic types which base on plugin configuration which are added on `bootstrap` stage, not `register`. This is not valid if you're using `graphql` plugin without any custom configuration, so most of cases in real.
@@ -193,7 +192,7 @@ related: NavigationRelated
 
 This prop should look as follows:   
 
-```js
+```ts
 gql: {
     navigationItemRelated: ['<your GQL related content types>'],
 },
@@ -201,36 +200,16 @@ gql: {
 
 for example:   
 
-```js
+```ts
 gql: {
     navigationItemRelated: ['Page', 'UploadFile'],
 },
 ```
 where `Page` and `UploadFile` are your type names for the **Content Types** you're referring by navigation items relations. 
 
-## 🌍 i18n Internationalization
+## 🌍 i18n
 
-On server startup missing navigations for other locales will be created. From then you can manage navigation's localizations just like before.
-
-If your newly created navigation localization is empty you can copy contents of one version's to the empty one. If related item is localized and locale version exists localization will be used as a related item. Otherwise plugin will fallback to an original item.
-
-### Rendering
-
-Shape of the rendered navigation will not change. Querying stays almost the same. To query for specific locale version just add `locale` query param. For example:
-
-```https://yourdomain.cool/api/navigation/render/1?locale=fr```
-
-or
-
-```https://yourdomain.cool/api/navigation/render/main-navigation?locale=fr```
-
-If `locale` is not specified whatever version used to be at id `1` will be returned.
-
-Of course if you know that `fr` version is present at id `2` you can just query for that.
-
-### GraphQL
-
-If feature is enabled GQL render navigation query is expanded to handle `locale` param(it will work the same as regular requests). Checkout schema provided by GraphQL plugin.
+Fully integrated and follows the **[official i18n Strapi patterns](https://docs.strapi.io/dev-docs/i18n)**.
 
 ## 👤 RBAC
 Plugin provides granular permissions based on **Strapi RBAC** functionality within the editorial interface &amp; **Admin API**. Those settings are editable via the _Setings_ -> _Administration Panel_ -> _Roles_.
@@ -268,6 +247,7 @@ Is applied for **Public API** both for REST and GraphQL. You can manage is by tw
 ```json
 {
     "id": 1,
+    "documentId": "njx99iv4p4txuqp307ye8625",
     "title": "News",
     "type": "INTERNAL",
     "path": "news",
@@ -335,17 +315,17 @@ Plugin supports both **REST API** and **GraphQL API** exposed by Strapi.
 
 - `navigationIdOrSlug` - ID or slug for which your navigation structure is generated like for REST API:
 
-  > `https://localhost:1337/api/navigation/render/1`
+  > `https://localhost:1337/api/navigation/render/njx99iv4p4txuqp307ye8625`
   > `https://localhost:1337/api/navigation/render/main-menu`
 
 - `type` - Enum value representing structure type of returned navigation:
-  > `https://localhost:1337/api/navigation/render/1?type=FLAT`
+  > `https://localhost:1337/api/navigation/render/njx99iv4p4txuqp307ye8625?type=FLAT`
 
 - `menu` (`menuOnly` for GQL) - Boolean value for querying only navigation items that are attached to menu should be rendered eg.
-  > `https://localhost:1337/api/navigation/render/1?menu=true`
+  > `https://localhost:1337/api/navigation/render/njx99iv4p4txuqp307ye8625?menu=true`
 
 - `path` - String value for querying navigation items by its path:
-  > `https://localhost:1337/api/navigation/render/1?path=/home/about-us`
+  > `https://localhost:1337/api/navigation/render/njx99iv4p4txuqp307ye8625?path=/home/about-us`
 
 ### REST API
 
@@ -361,6 +341,7 @@ NOTE: All params are optional
 [
   {
     "id": 383,
+    "documentId": "njx99iv4p4txuqp307ye8625",
     "name": "Floor",
     "slug": "floor-pl",
     "visible": true,
@@ -370,6 +351,7 @@ NOTE: All params are optional
   },
   {
     "id": 384,
+    "documentId": "njx99iv4p4txuqp307ye8625",
     "name": "Floor",
     "slug": "floor-fr",
     "visible": true,
@@ -379,6 +361,7 @@ NOTE: All params are optional
   },
   {
     "id": 382,
+    "documentId": "njx99iv4p4txuqp307ye8625",
     "name": "Floor",
     "slug": "floor",
     "visible": true,
@@ -388,6 +371,7 @@ NOTE: All params are optional
   },
   {
     "id": 374,
+    "documentId": "njx99iv4p4txuqp307ye8625",
     "name": "Main navigation",
     "slug": "main-navigation-pl",
     "visible": true,
@@ -397,6 +381,7 @@ NOTE: All params are optional
   },
   {
     "id": 375,
+    "documentId": "njx99iv4p4txuqp307ye8625",
     "name": "Main navigation",
     "slug": "main-navigation-fr",
     "visible": true,
@@ -406,6 +391,7 @@ NOTE: All params are optional
   },
   {
     "id": 373,
+    "documentId": "njx99iv4p4txuqp307ye8625",
     "name": "Main navigation",
     "slug": "main-navigation",
     "visible": true,
@@ -420,9 +406,7 @@ NOTE: All params are optional
 
 Return a rendered navigation structure depends on passed type (`TREE`, `RFR` or nothing to render as `FLAT`).
 
-> The ID of navigation by default is `1`, if you've got defined multiple navigations you must work with their IDs or Slugs to fetch.
-
-**Example URL**: `https://localhost:1337/api/navigation/render/1`
+**Example URL**: `https://localhost:1337/api/navigation/render/njx99iv4p4txuqp307ye8625`
 
 **Example response body**
 
@@ -430,6 +414,7 @@ Return a rendered navigation structure depends on passed type (`TREE`, `RFR` or 
 [
     {
         "id": 1,
+        "documentId": "njx99iv4p4txuqp307ye8625",
         "title": "News",
         "type": "INTERNAL",
         "path": "news",
@@ -443,6 +428,7 @@ Return a rendered navigation structure depends on passed type (`TREE`, `RFR` or 
         "related": {
             "__contentType": "Page",
             "id": 1,
+            "documentId": "njx99iv4p4txuqp307ye8625",
             "title": "News",
             // ...
         }
@@ -451,7 +437,7 @@ Return a rendered navigation structure depends on passed type (`TREE`, `RFR` or 
 ]
 ```
 
-**Example URL**: `https://localhost:1337/api/navigation/render/1?type=TREE`
+**Example URL**: `https://localhost:1337/api/navigation/render/njx99iv4p4txuqp307ye8625?type=TREE`
 
 **Example response body**
 
@@ -487,7 +473,7 @@ Return a rendered navigation structure depends on passed type (`TREE`, `RFR` or 
 ]
 ```
 
-**Example URL**: `https://localhost:1337/api/navigation/render/1?type=RFR`
+**Example URL**: `https://localhost:1337/api/navigation/render/njx99iv4p4txuqp307ye8625?type=RFR`
 
 **Example response body**
 
@@ -736,11 +722,13 @@ Example:
 
 ## 🧹 REST Cache
 
+> Note: Yet using the `4.x` compatible version of the plugin. Integration migration expected once the maintenance team release their `5.x` compatible version.
+
 If your strapi server uses [REST Cache plugin](https://strapi-community.github.io/strapi-plugin-rest-cache/) this plugin can take integrate with it. All you need to do is to enable it in configuration of Navigation plugin. After integration is enabled all client calls will be wrapped with caching middleware.
 
 In admin panel new controls will be available. Cache clearing is done manually or after cache will timeout(`rest-cache` plugin's settings are used).
 
-Navigation edit screen will have "Clear cache" button.
+Navigation edit screen will have **"Clear cache"** button.
 
 Navigation management modal items will also have icon button for clearing the cache.
 
@@ -752,11 +740,11 @@ Live example of plugin usage can be found in the [VirtusLab Strapi Examples](htt
 
 ### GraphQL tricks
 
-**Q:** I would like to use GraphQL schemas but I'm not getting renderNavigation query or even proper types as Navigation, NavigationItem etc. What should I do?
+**Q:** I would like to use GraphQL schemas but I'm not getting `renderNavigation` query or even proper types as Navigation, NavigationItem etc. What should I do?
 
-**A:** There is a one trick you might try. Strapi by default is ordering plugins by the way which takes `strapi-plugin-graphql` to initialize earlier than other plugins so types might not be injected. If you don't have it yet, please create `config/plugins.js` file and put there following lines (put `graphql` at the end):
+**A:** There is a one trick you might try. Strapi by default is ordering plugins by the way which takes `strapi-plugin-graphql` to initialize earlier than other plugins so types might not be injected. If you don't have it yet, please create `config/plugins.{js,ts}` file and put there following lines (put `graphql` at the end):
 
-```js
+```ts
 module.exports = {
   'navigation': { enabled: true },
   'graphql': { enabled: true },
