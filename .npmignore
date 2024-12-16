@@ -10,3 +10,4 @@ codecov.yml
 setup-package.*
 **/__tests__/**
 **/__mocks__/**
+migrations/**

@@ -1,602 +1,825 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { isEmpty, capitalize, isEqual, orderBy, get, sortBy } from 'lodash';
-import { Formik, Form } from 'formik';
+
+import { Field, usePluginTheme } from "@sensinum/strapi-utils";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { get, isEmpty, isNaN, isNil, isObject, isString, set, sortBy } from 'lodash';
+import { useEffect, useMemo, useState } from 'react';
+import { useIntl } from 'react-intl';
+
 import {
-  CheckPermissions,
-  LoadingIndicatorPage,
-  useOverlayBlocker,
-  useAutoReloadOverlayBlocker,
-  SettingsPageTitle,
-  useRBAC,
-  //@ts-ignore
-} from '@strapi/helper-plugin';
-//@ts-ignore
-import { Main } from '@strapi/design-system/Main';
-//@ts-ignore
-import { ContentLayout, HeaderLayout } from '@strapi/design-system/Layout';
-//@ts-ignore
-import { Accordion, AccordionToggle, AccordionContent, AccordionGroup } from '@strapi/design-system/Accordion';
-//@ts-ignore
-import { Button } from '@strapi/design-system/Button';
-//@ts-ignore
-import { Box } from '@strapi/design-system/Box';
-//@ts-ignore
-import { Divider } from '@strapi/design-system/Divider';
-//@ts-ignore
-import { Stack } from '@strapi/design-system/Stack';
-//@ts-ignore
-import { Typography } from '@strapi/design-system/Typography';
-//@ts-ignore
-import { Grid, GridItem } from '@strapi/design-system/Grid';
-//@ts-ignore
-import { ToggleInput } from '@strapi/design-system/ToggleInput';
-//@ts-ignore
-import { NumberInput } from '@strapi/design-system/NumberInput';
-//@ts-ignore
-import { Select, Option } from '@strapi/design-system/Select';
-//@ts-ignore
-import { Tooltip } from '@strapi/design-system/Tooltip';
-//@ts-ignore
-import { Check, Refresh, Play, Information, ExclamationMarkCircle } from '@strapi/icons';
+  Accordion,
+  Box,
+  Button,
+  DesignSystemProvider,
+  Flex,
+  Grid,
+  MultiSelect,
+  MultiSelectOption,
+  NumberInput,
+  Toggle,
+  Typography,
+} from '@strapi/design-system';
 
-import permissions from '../../permissions';
-import useNavigationConfig from '../../hooks/useNavigationConfig';
-import useAllContentTypes from '../../hooks/useAllContentTypes';
-import { navigationItemAdditionalFields, prepareNewValueForRecord } from '../../utils';
-import ConfirmationDialog from '../../components/ConfirmationDialog';
-import RestartAlert from '../../components/RestartAlert';
-import { getMessage } from '../../utils';
-import { isContentTypeEligible, resolveGlobalLikeId } from './utils/functions';
-import { PermanentAlert } from '../../components/Alert/styles';
-import { useDisableI18nModal } from './components/DisableI18nModal';
+import { Check, Play, Typhoon } from '@strapi/icons';
+import { Form, Layouts, Page, useAuth } from '@strapi/strapi/admin';
 
-import { NavigationItemAdditionalField, NavigationItemCustomField, ToBeFixed } from '../../../../types';
+import { ConfirmationDialog } from '../../components/ConfirmationDialog';
+import { RestartAlert } from '../../components/RestartAlert';
+import { NavigationItemCustomField } from '../../schemas';
+import { FormChangeEvent, FormItemErrorSchema } from '../../types';
+import { getTrad } from '../../utils/getTranslation';
+import pluginPermissions from '../../utils/permissions';
 import CustomFieldModal from './components/CustomFieldModal';
 import CustomFieldTable from './components/CustomFieldTable';
-import { HandleSetContentTypeExpanded, OnPopupClose, OnSave, PreparePayload, RawPayload, RestartReasons, RestartStatus, StrapiContentTypeSchema } from './types';
-import pluginPermissions from '../../permissions';
-import NoAcccessPage from '../NoAccessPage';
+import {
+  UiFormSchema,
+  uiFormSchema,
+  useConfig,
+  useContentTypes,
+  useRestart,
+  useRestoreConfig,
+  useSaveConfig,
+} from './hooks';
+import { RestartStatus } from './types';
+import { isContentTypeEligible, waitForServerRestart } from './utils';
 
-const RESTART_NOT_REQUIRED: RestartStatus = { required: false }
-const RESTART_REQUIRED: RestartStatus = { required: true, reasons: [] }
-const RELATION_ATTRIBUTE_TYPES = ['relation', 'media', 'component'];
-const STRING_ATTRIBUTE_TYPES = ['string', 'uid'];
 const BOX_DEFAULT_PROPS = {
-  background: "neutral0",
+  background: 'neutral0',
   hasRadius: true,
-  shadow: "filterShadow",
+  shadow: 'filterShadow',
   padding: 6,
 };
 
-const noopFallback = () => {}
+const queryClient = new QueryClient();
 
-const SettingsPage = () => {
-  const { lockApp = noopFallback, unlockApp = noopFallback } = useOverlayBlocker();
-  const { lockAppWithAutoreload = noopFallback, unlockAppWithAutoreload = noopFallback } = useAutoReloadOverlayBlocker();
-  const [restartStatus, setRestartStatus] = useState<RestartStatus>(RESTART_NOT_REQUIRED);
-  const [pruneObsoleteI18nNavigations, setPruneObsoleteI18nNavigations] = useState<boolean>(false);
+const Inner = () => {
+  const configQuery = useConfig();
+  const contentTypesQuery = useContentTypes();
+  const configSaveMutation = useSaveConfig();
+  const restoreMutation = useRestoreConfig();
+  const restartMutation = useRestart();
+
+  const { formatMessage } = useIntl();
+
+  const [restartStatus, setRestartStatus] = useState<RestartStatus>({ required: false });
+  const [isReloading, setIsReloading] = useState(false);
+
+  const readPermissions = useAuth('SettingsPage', (state) => state.permissions);
+  const hasSettingsPermissions = useMemo(() => {
+    return !!readPermissions.find(({ action }) => action === pluginPermissions.settings[0].action);
+  }, [readPermissions]);
+  const hasSettingsReadPermissions = useMemo(() => {
+    return !!readPermissions.find(({ action }) => action === pluginPermissions.access[0].action);
+  }, [readPermissions]);
+
+  const isLoading =
+    configQuery.isPending ||
+    contentTypesQuery.isPending ||
+    configSaveMutation.isPending ||
+    restartMutation.isPending ||
+    restoreMutation.isPending;
+
+  const [formValue, setFormValue] = useState<UiFormSchema>({} as UiFormSchema);
+  const [formError, setFormError] = useState<FormItemErrorSchema<UiFormSchema>>();
   const [isCustomFieldModalOpen, setIsCustomFieldModalOpen] = useState<boolean>(false);
-  const [customFieldSelected, setCustomFieldSelected] = useState<NavigationItemCustomField | null>(null);
-  const [customFields, setCustomFields] = useState<NavigationItemCustomField[]>([]);
   const [isRestorePopupOpen, setIsRestorePopupOpen] = useState<boolean>(false);
-  const [contentTypeExpanded, setContentTypeExpanded] = useState<string | undefined>(undefined);
-  const { data: navigationConfigData, isLoading: isConfigLoading, error: configErr, submitMutation, restoreMutation, restartMutation }: ToBeFixed = useNavigationConfig();
-  const { data: allContentTypesData, isLoading: isContentTypesLoading, error: contentTypesErr }: ToBeFixed = useAllContentTypes();
-
-  const viewPermissions: ToBeFixed = useMemo(
-    () => ({
-      settings: pluginPermissions.settings
-    }),
-    [],
+  const [customFieldSelected, setCustomFieldSelected] = useState<NavigationItemCustomField | null>(
+    null
   );
 
   const {
-    isLoading: isLoadingForPermissions,
-    allowedActions: {
-      canSettings: canManageSettings,
-    },
-  } = useRBAC(viewPermissions);
-
-  const isLoading = isConfigLoading || isContentTypesLoading;
-  const isError = configErr || contentTypesErr;
-  const configContentTypes: StrapiContentTypeSchema[] = navigationConfigData?.contentTypes || [];
-
-  const formikInitialValues = useMemo<RawPayload>(() => ({
-    allowedLevels: get(navigationConfigData, "allowedLevels", 2),
-    audienceFieldChecked: get(navigationConfigData, "additionalFields", []).includes(navigationItemAdditionalFields.AUDIENCE),
-    cascadeMenuAttachedChecked: get(navigationConfigData, "cascadeMenuAttached", true),
-    i18nEnabled: get(navigationConfigData, "i18nEnabled", false),
-    nameFields: get(navigationConfigData, "contentTypesNameFields", {}),
-    pathDefaultFields: get(navigationConfigData, "pathDefaultFields", {}),
-    populate: get(navigationConfigData, "contentTypesPopulate", {}),
-    selectedContentTypes: configContentTypes.map(item => item.uid),
-    isCacheEnabled: get(navigationConfigData, "isCacheEnabled", false),
-    preferCustomContentTypes: get(navigationConfigData, "preferCustomContentTypes", true) ?? true,
-  }), [configContentTypes, navigationConfigData, navigationItemAdditionalFields]);
-
-  const {
-    disableI18nModal,
-    setDisableI18nModalOpened,
-    setI18nModalOnCancel,
-  } = useDisableI18nModal(({ pruneNavigations }) => {
-    setPruneObsoleteI18nNavigations(pruneNavigations)
-  });
-
-  useEffect(() => {
-    const additionalFields = navigationConfigData?.additionalFields
-      ?.filter((field: NavigationItemAdditionalField) => field !== navigationItemAdditionalFields.AUDIENCE);
-    setCustomFields(additionalFields || []);
-  }, [navigationConfigData]);
-
-  const preparePayload = useCallback<PreparePayload>(({
-    form: {
-      allowedLevels,
-      audienceFieldChecked,
-      cascadeMenuAttachedChecked,
-      i18nEnabled,
-      nameFields,
-      pathDefaultFields,
-      populate,
-      selectedContentTypes,
-      isCacheEnabled,
-      preferCustomContentTypes,
-    },
-    pruneObsoleteI18nNavigations
-  }) => ({
-    additionalFields: audienceFieldChecked ? ['audience', ...customFields] : [...customFields],
-    allowedLevels,
-    cascadeMenuAttached: cascadeMenuAttachedChecked,
-    contentTypes: selectedContentTypes,
-    contentTypesNameFields: nameFields,
-    contentTypesPopulate: populate,
-    i18nEnabled,
-    pathDefaultFields,
-    pruneObsoleteI18nNavigations,
-    gql: {
-      navigationItemRelated: selectedContentTypes.map((uid: string) => resolveGlobalLikeId(uid)),
-    },
-    isCacheEnabled,
+    contentTypesNameFields: contentTypeNameFieldsCurrent,
+    contentTypes: contentTypesCurrent,
+    additionalFields,
     preferCustomContentTypes,
-  }), [customFields]);
+  } = formValue;
 
-  const onSave: OnSave = async (form) => {
-    lockApp();
-    const payload = preparePayload({ form, pruneObsoleteI18nNavigations });
-    await submitMutation({ body: payload });
-    const isContentTypesChanged = !isEqual(payload.contentTypes, navigationConfigData.contentTypes);
-    const isI18nChanged = !isEqual(payload.i18nEnabled, navigationConfigData.i18nEnabled);
-    const isCacheChanged = !isEqual(payload.isCacheEnabled, navigationConfigData.isCacheEnabled);
-    const restartReasons: RestartReasons[] = []
-    if (isI18nChanged) {
-      restartReasons.push('I18N');
-    }
-    if (isCacheChanged) {
-      restartReasons.push('CACHE');
-    }
-    if (isContentTypesChanged && navigationConfigData.isGQLPluginEnabled) {
-      restartReasons.push('GRAPH_QL');
-    }
-    if (pruneObsoleteI18nNavigations) {
-      restartReasons.push('I18N_NAVIGATIONS_PRUNE')
-    }
-    if (restartReasons.length) {
-      setRestartStatus({
-        ...RESTART_REQUIRED,
-        reasons: restartReasons,
-      });
-    }
-    setDisableI18nModalOpened(false);
-    setPruneObsoleteI18nNavigations(false);
-    unlockApp();
-  }
+  const handleChange = (eventOrPath: FormChangeEvent, value?: any, nativeOnChange?: (eventOrPath: FormChangeEvent, value?: any) => void) => {
+    if (nativeOnChange) {
+      let fieldName = eventOrPath;
+      let fieldValue = value;
 
-  const onPopupClose: OnPopupClose = async (isConfirmed) => {
-    setIsRestorePopupOpen(false);
-    if (isConfirmed) {
-      lockApp();
-      await restoreMutation();
-      unlockApp();
-      setRestartStatus(RESTART_REQUIRED);
-    }
-  }
+      if (isObject(eventOrPath)) {
+        const { name: targetName, value: targetValue } = eventOrPath.target;
+        fieldName = targetName;
+        fieldValue = isNil(fieldValue) ? targetValue : fieldValue;
+      }
 
-  const handleRestart = async () => {
-    lockAppWithAutoreload();
-    await restartMutation();
-    unlockAppWithAutoreload();
-    setRestartStatus(RESTART_NOT_REQUIRED);
+      if (isString(fieldName)) {
+        setFormValueItem(fieldName, fieldValue);
+      }
+
+      return nativeOnChange(eventOrPath as FormChangeEvent, fieldValue);
+    }
   };
-  const handleRestartDiscard = () => setRestartStatus(RESTART_NOT_REQUIRED);
-  const handleSetContentTypeExpanded: HandleSetContentTypeExpanded = key => setContentTypeExpanded(key === contentTypeExpanded ? undefined : key);
 
-  if (!(isLoadingForPermissions || canManageSettings)) {
-    return (<NoAcccessPage />)
-  }
+  const setFormValueItem = (path: string, value: any) => {
+    setFormValue((current) =>
+      set(
+        {
+          ...current,
+        },
+        path,
+        value
+      )
+    );
+  };
 
-  if (isLoading || isError) {
-    return (
-      <>
-        <SettingsPageTitle
-          name={getMessage('Settings.email.plugin.title', 'Configuration')}
-        />
-        <LoadingIndicatorPage>
-          {/* TODO: use translation */}
-          Fetching plugin config...
-        </LoadingIndicatorPage>
-      </>
-    )
-  }
-
-  const isI18NPluginEnabled = navigationConfigData?.isI18NPluginEnabled;
-  const isCachePluginEnabled = navigationConfigData?.isCachePluginEnabled;
-  const defaultLocale = navigationConfigData?.defaultLocale;
-
-  const handleSubmitCustomField = (field: NavigationItemCustomField) => {
-    const filteredFields = customFields.filter(f => f.name !== field.name);
-    setCustomFields([...filteredFields, field]);
-    setCustomFieldSelected(null);
-    setIsCustomFieldModalOpen(false);
-  }
+  const renderError = (error: string): string | undefined => {
+    const errorOccurence = get(formError, error);
+    if (errorOccurence) {
+      return formatMessage(getTrad(error));
+    }
+    return undefined;
+  };
 
   const handleOpenCustomFieldModal = (field: NavigationItemCustomField | null) => {
     setCustomFieldSelected(field);
     setIsCustomFieldModalOpen(true);
-  }
+  };
 
   const handleRemoveCustomField = (field: NavigationItemCustomField) => {
-    const filteredFields = customFields.filter(f => f.name !== field.name);
-    setCustomFields(filteredFields);
+    const filteredFields = additionalFields.filter((f) =>
+      typeof f !== 'string' ? f.name !== field.name : true
+    );
+
+    setFormValueItem('additionalFields', filteredFields);
+
     setCustomFieldSelected(null);
     setIsCustomFieldModalOpen(false);
+  };
+
+  const handleToggleCustomField = (current: NavigationItemCustomField) => {
+    const next = { ...current, enabled: !current.enabled };
+
+    const nextAdditionalFields = additionalFields.map((field) =>
+      typeof field !== 'string' && current.name === field.name ? next : field
+    );
+
+    setFormValueItem('additionalFields', nextAdditionalFields);
+  };
+
+  const handleSubmitCustomField = (next: NavigationItemCustomField) => {
+    const hasFieldAlready = !!additionalFields.find((field) =>
+      typeof field !== 'string' ? field.name === next.name : false
+    );
+    const nextAdditionalFields = hasFieldAlready
+      ? additionalFields.map((field) =>
+        typeof field !== 'string' && next.name === field.name ? next : field
+      )
+      : [...additionalFields, next];
+
+    setFormValueItem('additionalFields', nextAdditionalFields);
+
+    setCustomFieldSelected(null);
+    setIsCustomFieldModalOpen(false);
+  };
+
+  const allContentTypes = !isLoading
+    ? sortBy(
+      Object.values(contentTypesQuery.data ?? [])
+        .filter(({ uid }) =>
+          isContentTypeEligible(uid, {
+            allowedContentTypes: configQuery.data?.allowedContentTypes,
+            restrictedContentTypes: configQuery.data?.restrictedContentTypes,
+            preferCustomContentTypes,
+            contentTypes: contentTypesCurrent,
+          })
+        )
+        .map((ct) => {
+          const type = contentTypesQuery.data?.find((_) => _.uid === ct.uid);
+
+          if (type) {
+            const { isDisplayed: available, kind } = type;
+            const isSingle = kind === 'singleType';
+
+            return {
+              ...ct,
+              available,
+              isSingle,
+            };
+          }
+          return ct;
+        }),
+      (ct) => ct.info.displayName
+    )
+    : [];
+
+  const submit = (e: React.MouseEvent, rawData: unknown) => {
+    const { success, data, error } = uiFormSchema.safeParse(rawData);
+
+    if (success) {
+      configSaveMutation.mutate(data, {
+        onSuccess() {
+          setRestartStatus({ required: true });
+
+          configSaveMutation.reset();
+        },
+      });
+    } else if (error) {
+      setFormError(error.issues.reduce((acc, err) => {
+        return {
+          ...acc,
+          [err.path.join('.')]: err.message
+        }
+      }, {} as FormItemErrorSchema<UiFormSchema>));
+      console.warn('Invalid form data', error);
+    }
+  };
+
+  const onPopupClose = async (isConfirmed: boolean) => {
+    setIsRestorePopupOpen(false);
+
+    if (isConfirmed) {
+      restoreMutation.mutate();
+
+      setRestartStatus({ required: true });
+    }
+  };
+
+  const handleRestart = async () => {
+    restartMutation.mutate(undefined, {
+      onSuccess() {
+        setIsReloading(true);
+
+        waitForServerRestart(true).then((isReady) => {
+          if (isReady) {
+            window.location.reload();
+          }
+        });
+      },
+      onError() {
+        setRestartStatus({ required: false });
+      },
+    });
+
+  };
+
+  const handleRestartDiscard = () => setRestartStatus({ required: false });
+
+  useEffect(() => {
+    if (configQuery.data) {
+      setFormValue({
+        ...configQuery.data,
+        additionalFields: configQuery.data.additionalFields.filter((field) => typeof field !== 'string'),
+        audienceFieldChecked: configQuery.data.additionalFields.includes('audience'),
+        contentTypesNameFields: Object.entries(configQuery.data.contentTypesNameFields).map(
+          ([key, fields]) => ({
+            key,
+            fields,
+          })
+        ),
+        contentTypesPopulate: Object.entries(configQuery.data.contentTypesPopulate).map(
+          ([key, fields]) => ({
+            key,
+            fields,
+          })
+        ),
+        pathDefaultFields: Object.entries(configQuery.data.pathDefaultFields).map(([key, fields]) => ({
+          key,
+          fields,
+        })),
+      } as UiFormSchema);
+    }
+  }, [configQuery.data]);
+
+  if (!hasSettingsPermissions) {
+    return <Page.NoPermissions />;
   }
 
-  const handleToggleCustomField = (field: NavigationItemCustomField) => {
-    const updatedField = { ...field, enabled: !get(field, 'enabled', false) }
-    const filteredFields = customFields.filter(f => f.name !== field.name);
-    setCustomFields([...filteredFields, updatedField]);
+  if (isLoading || isReloading) {
+    return <Page.Loading />;
   }
 
   return (
-    <>
-      <SettingsPageTitle
-        name={getMessage('Settings.email.plugin.title', 'Configuration')}
-      />
-      <Main labelledBy="title">
-        <Formik
-          initialValues={formikInitialValues}
-          onSubmit={onSave}
-        >
-          {({ handleSubmit, setFieldValue, values }) => {
-            const allContentTypes: StrapiContentTypeSchema[] = !isLoading ? sortBy(Object.values<StrapiContentTypeSchema>(allContentTypesData).filter(({ uid }) => isContentTypeEligible(uid, {
-              allowedContentTypes: navigationConfigData?.allowedContentTypes,
-              restrictedContentTypes: navigationConfigData?.restrictedContentTypes,
-              selectedContentTypes: values?.selectedContentTypes,
-              preferCustomContentTypes: values?.preferCustomContentTypes,
-            })).map(ct => {
-              const type = configContentTypes.find(_ => _.uid === ct.uid);
-              if (type) {
-                const { available, isSingle } = type;
-                return {
-                  ...ct,
-                  available,
-                  isSingle,
-                };
-              }
-              return ct;
-            }), ct => ct.info.displayName) : [];
+    <Layouts.Root>
+      <Page.Main>
+        <Page.Title children={formatMessage(getTrad('pages.settings.header.title'))} />
+        <Layouts.Header
+          title={formatMessage(getTrad('pages.settings.header.title'))}
+          subtitle={formatMessage(getTrad('pages.settings.header.description'))}
+          primaryAction={
+            hasSettingsReadPermissions ? (
+              <Button
+                startIcon={<Check />}
+                disabled={restartStatus.required}
+                onClick={(e: React.MouseEvent) => submit(e, formValue)}
+              >
+                {formatMessage(getTrad('pages.settings.actions.submit'))}
+              </Button>
+            ) : null
+          }
+        />
 
-            return (
-              <Form noValidate onSubmit={handleSubmit}>
-                <HeaderLayout
-                  title={getMessage('pages.settings.header.title')}
-                  subtitle={getMessage('pages.settings.header.description')}
-                  primaryAction={
-                    <CheckPermissions permissions={permissions.access}>
-                      <Button type="submit" startIcon={<Check />} disabled={restartStatus.required}>
-                        {getMessage('pages.settings.actions.submit')}
-                      </Button>
-                    </CheckPermissions>
-                  }
-                />
-                <ContentLayout>
-                  <Stack spacing={7}>
-                    {restartStatus.required && (
-                      <RestartAlert
-                        closeLabel={getMessage('pages.settings.actions.restart.alert.cancel')}
-                        title={getMessage('pages.settings.actions.restart.alert.title')}
-                        action={<Box><Button onClick={handleRestart} startIcon={<Play />}>{getMessage('pages.settings.actions.restart')}</Button></Box>}
-                        onClose={handleRestartDiscard}>
-                        <>
-                          <Box paddingBottom={1}>
-                            {getMessage('pages.settings.actions.restart.alert.description')}
-                          </Box>
-                          {
-                            restartStatus.reasons?.map((reason, i) => <Box
-                              paddingBottom={1}
-                              key={i}
-                              children={getMessage(`pages.settings.actions.restart.alert.reason.${reason}`)}
-                            />)
-                          }
-                        </>
-                      </RestartAlert>)}
-                    <Box {...BOX_DEFAULT_PROPS} >
-                      <Stack size={4}>
-                        <Typography variant="delta" as="h2">
-                          {getMessage('pages.settings.general.title')}
-                        </Typography>
-                        <Grid gap={4}>
-                          <GridItem col={12} s={12} xs={12}>
-                            <ToggleInput
+        <Layouts.Content>
+
+          <Form
+            method="POST"
+            initialValues={formValue}
+          >
+            {({ values, onChange }) => {
+
+              return (<Flex direction="column" gap={4}>
+                {restartStatus.required && (
+                  <Box {...BOX_DEFAULT_PROPS} width="100%">
+                    <RestartAlert
+                      closeLabel={formatMessage(getTrad('pages.settings.actions.restart.alert.cancel'))}
+                      title={formatMessage(getTrad('pages.settings.actions.restart.alert.title'))}
+                      action={
+                        <Box>
+                          <Button onClick={handleRestart} startIcon={<Play />}>
+                            {formatMessage(getTrad('pages.settings.actions.restart.label'))}
+                          </Button>
+                        </Box>
+                      }
+                      onClose={handleRestartDiscard}
+                    >
+                      <>
+                        <Box paddingBottom={1}>
+                          {formatMessage(getTrad('pages.settings.actions.restart.alert.description'))}
+                        </Box>
+                        {restartStatus.reasons?.map((reason, i) => (
+                          <Box
+                            paddingBottom={1}
+                            key={i}
+                            children={formatMessage(
+                              getTrad(`pages.settings.actions.restart.alert.reason.${reason}`)
+                            )}
+                          />
+                        ))}
+                      </>
+                    </RestartAlert>
+                  </Box>
+                )}
+                <Box {...BOX_DEFAULT_PROPS} width="100%">
+                  <Flex direction="column" alignItems="flex-start" gap={2}>
+                    <Typography variant="delta" as="h2">
+                      {formatMessage(getTrad('pages.settings.general.title'))}
+                    </Typography>
+
+                    <Grid.Root gap={4} width="100%">
+                      <Grid.Item col={12} s={12} xs={12}>
+                        <Grid.Root gap={4} width="100%">
+                          <Grid.Item col={4} s={12} xs={12}>
+                            <Field
                               name="preferCustomContentTypes"
-                              label={getMessage('pages.settings.form.preferCustomContentTypes.label', 'Prefer custom content types')}
-                              hint={getMessage('pages.settings.form.preferCustomContentTypes.hint', 'Prefer if to use only api:: prefixed content types')}
-                              checked={values.preferCustomContentTypes}
-                              onChange={({ target: { checked } }: { target: { checked: boolean } }) => {
-                                setFieldValue('preferCustomContentTypes', checked, true);
-                              }}
-                              onLabel="Enabled"
-                              offLabel="Disabled"
-                              disabled={restartStatus.required}
-                            />
-                          </GridItem>
+                              label={formatMessage(
+                                getTrad('pages.settings.form.preferCustomContentTypes.label')
+                              )}
+                              hint={formatMessage(
+                                getTrad('pages.settings.form.preferCustomContentTypes.hint')
+                              )}>
+                              <Toggle
+                                name="preferCustomContentTypes"
+                                checked={values.preferCustomContentTypes}
+                                onChange={(eventOrPath: FormChangeEvent) => handleChange(eventOrPath, !values.preferCustomContentTypes, onChange)}
+                                onLabel={formatMessage(getTrad('components.toggle.enabled'))}
+                                offLabel={formatMessage(getTrad('components.toggle.disabled'))}
+                                disabled={restartStatus.required}
+                                width="100%"
+                              />
+                            </Field>
+                          </Grid.Item>
 
-                          <GridItem col={12} s={12} xs={12}>
-                            <Select
-                              name="selectedContentTypes"
-                              label={getMessage('pages.settings.form.contentTypes.label')}
-                              placeholder={getMessage('pages.settings.form.contentTypes.placeholder')}
-                              hint={getMessage('pages.settings.form.contentTypes.hint')}
-                              onClear={() => setFieldValue('selectedContentTypes', [], false)}
-                              value={values.selectedContentTypes}
-                              onChange={(value: string[]) => setFieldValue('selectedContentTypes', value, false)}
-                              multi
-                              withTags
-                              disabled={restartStatus.required}
-                            >
-                              {allContentTypes.map((item) => <Option key={item.uid} value={item.uid}>{item.info.displayName}</Option>)}
-                            </Select>
-                          </GridItem>
-                          {!isEmpty(values.selectedContentTypes) && (
-                            <GridItem col={12}>
-                              <AccordionGroup
-                                label={getMessage('pages.settings.form.contentTypesSettings.label')}
-                                labelAction={<Tooltip description={getMessage('pages.settings.form.contentTypesSettings.tooltip')}>
-                                  <Information aria-hidden={true} />
-                                </Tooltip>}>
-                                {orderBy(values.selectedContentTypes).map(uid => {
-                                  const contentType = allContentTypes.find(item => item.uid == uid);
-                                  if (!contentType) return;
-                                  const { info: { displayName }, available, isSingle } = contentType;
-                                  const attributeKeys = Object.keys(contentType.attributes).sort();
-                                  const stringAttributes = attributeKeys.filter(key => STRING_ATTRIBUTE_TYPES.includes(contentType.attributes[key].type));
-                                  const relationAttributes = attributeKeys.filter(key => RELATION_ATTRIBUTE_TYPES.includes(contentType.attributes[key].type));
-                                  const key = `collectionSettings-${uid}`;
-                                  return (<Accordion
-                                    expanded={contentTypeExpanded === key}
-                                    toggle={() => handleSetContentTypeExpanded(key)}
-                                    key={key}
-                                    id={key}
-                                    size="S">
-                                    <AccordionToggle title={displayName} togglePosition="left" startIcon={(isSingle && !available) ? (<ExclamationMarkCircle aria-hidden={true} />) : null} />
-                                    <AccordionContent>
-                                      <Box padding={6}>
-                                        <Stack size={4}>
-                                          {(isSingle && !available) && (
-                                            <PermanentAlert title={getMessage('pages.settings.form.contentTypesSettings.initializationWarning.title')} variant="danger" onClose={(e: React.FormEvent) => e.preventDefault()}>
-                                              {getMessage('pages.settings.form.contentTypesSettings.initializationWarning.content')}
-                                            </PermanentAlert>)}
-                                          <Select
-                                            name={`collectionSettings-${uid}-entryLabel`}
-                                            label={getMessage('pages.settings.form.nameField.label')}
-                                            hint={getMessage(`pages.settings.form.nameField.${isEmpty(stringAttributes) ? 'empty' : 'hint'}`)}
-                                            placeholder={getMessage('pages.settings.form.nameField.placeholder')}
-                                            onClear={() => setFieldValue('nameFields', prepareNewValueForRecord(uid, values.nameFields, []))}
-                                            value={values.nameFields[uid] || []}
-                                            onChange={(value: string[]) => setFieldValue('nameFields', prepareNewValueForRecord(uid, values.nameFields, value))}
-                                            multi
-                                            withTags
-                                            disabled={restartStatus.required || isEmpty(stringAttributes)}
-                                          >
-                                            {stringAttributes.map(key =>
-                                              (<Option key={uid + key} value={key}>{capitalize(key.split('_').join(' '))}</Option>))}
-                                          </Select>
-                                          <Select
-                                            name={`collectionSettings-${uid}-populate`}
-                                            label={getMessage('pages.settings.form.populate.label')}
-                                            hint={getMessage(`pages.settings.form.populate.${isEmpty(relationAttributes) ? 'empty' : 'hint'}`)}
-                                            placeholder={getMessage('pages.settings.form.populate.placeholder')}
-                                            onClear={() => setFieldValue('populate', prepareNewValueForRecord(uid, values.populate, []))}
-                                            value={values.populate[uid] || []}
-                                            onChange={(value: string[]) => setFieldValue('populate', prepareNewValueForRecord(uid, values.populate, value))}
-                                            multi
-                                            withTags
-                                            disabled={restartStatus.required || isEmpty(relationAttributes)}
-                                          >
-                                            {relationAttributes.map(key =>
-                                              (<Option key={uid + key} value={key}>{capitalize(key.split('_').join(' '))}</Option>))}
-                                          </Select>
-                                          <Select
-                                            name={`collectionSettings-${uid}-pathDefaultFields`}
-                                            label={getMessage('pages.settings.form.pathDefaultFields.label')}
-                                            hint={getMessage(`pages.settings.form.pathDefaultFields.${isEmpty(stringAttributes) ? 'empty' : 'hint'}`)}
-                                            placeholder={getMessage('pages.settings.form.pathDefaultFields.placeholder')}
-                                            onClear={() => setFieldValue('pathDefaultFields', prepareNewValueForRecord(uid, values.pathDefaultFields, []))}
-                                            value={values.pathDefaultFields[uid] || []}
-                                            onChange={(value: string[]) => setFieldValue('pathDefaultFields', prepareNewValueForRecord(uid, values.pathDefaultFields, value))}
-                                            multi
-                                            withTags
-                                            disabled={restartStatus.required || isEmpty(stringAttributes)}
-                                          >
-                                            {stringAttributes.map(key =>
-                                              (<Option key={uid + key} value={key}>{capitalize(key.split('_').join(' '))}</Option>))}
-                                          </Select>
-                                        </Stack>
-                                      </Box>
-                                    </AccordionContent>
-                                  </Accordion>);
+                          <Grid.Item col={8} s={12} xs={12}>
+                            <Field
+                              name="contentTypes"
+                              label={formatMessage(getTrad('pages.settings.form.contentTypes.label'))}
+                              hint={formatMessage(
+                                getTrad('pages.settings.form.contentTypes.hint')
+                              )}>
+                              <MultiSelect
+                                name="contentTypes"
+                                label={formatMessage(
+                                  getTrad('pages.settings.form.contentTypes.label')
+                                )}
+                                aria-label={formatMessage(
+                                  getTrad('pages.settings.form.contentTypes.label')
+                                )}
+                                placeholder={formatMessage(
+                                  getTrad('pages.settings.form.contentTypes.placeholder')
+                                )}
+                                value={values.contentTypes}
+                                onChange={(value: Array<string>) => {
+                                  handleChange('contentTypes', value, onChange)
+
+                                  const {
+                                    contentTypesNameFields = [],
+                                    contentTypesPopulate = [],
+                                    pathDefaultFields = [],
+                                  } = values;
+
+                                  const missingKeys =
+                                    value.filter(
+                                      (key) =>
+                                        !contentTypesNameFields.find(
+                                          (nameFields) => nameFields.key === key
+                                        )
+                                    ) ?? [];
+                                  const redundantKeys =
+                                    contentTypesNameFields
+                                      .filter(
+                                        (nameFields) =>
+                                          !value.includes(nameFields.key) ||
+                                          nameFields.key === 'default'
+                                      )
+                                      .map(({ key }) => key) ?? [];
+
+                                  setFormValueItem(
+                                    'contentTypesNameFields',
+                                    [
+                                      ...(contentTypesNameFields.filter(
+                                        ({ key }) =>
+                                          !redundantKeys.includes(key) || key === 'default'
+                                      ) ?? []),
+                                      ...missingKeys.map((key) => ({ key, fields: [] })),
+                                    ]
+                                  );
+
+                                  setFormValueItem(
+                                    'contentTypesPopulate',
+                                    [
+                                      ...(contentTypesPopulate.filter(
+                                        ({ key }) =>
+                                          !redundantKeys.includes(key) || key === 'default'
+                                      ) ?? []),
+                                      ...missingKeys.map((key) => ({ key, fields: [] })),
+                                    ]
+                                  );
+
+                                  setFormValueItem(
+                                    'pathDefaultFields',
+                                    [
+                                      ...(pathDefaultFields.filter(
+                                        ({ key }) =>
+                                          !redundantKeys.includes(key) || key === 'default'
+                                      ) ?? []),
+                                      ...missingKeys.map((key) => ({ key, fields: [] })),
+                                    ]
+                                  );
+                                }}
+                                disabled={restartStatus.required}
+                                error={renderError('contentTypes')}
+                                withTags
+                                width="100%"
+                              >
+                                {allContentTypes.map((item) => (
+                                  <MultiSelectOption key={item.uid} value={item.uid}>
+                                    {item.info.displayName}
+                                  </MultiSelectOption>
+                                ))}
+                              </MultiSelect>
+                            </Field>
+                          </Grid.Item>
+
+                          <Grid.Item col={12} s={12} xs={12}>
+                            {contentTypesCurrent?.length ? (
+                              <Accordion.Root style={{ width: '100%' }}>
+                                {contentTypeNameFieldsCurrent.map((nameFields, index) => {
+                                  const current = contentTypesQuery.data?.find(
+                                    ({ uid }) => uid === nameFields.key
+                                  );
+                                  const attributeKeys = Object.keys(current?.attributes ?? {}).sort();
+
+                                  return current ? (
+                                    <Accordion.Item key={nameFields.key} value={nameFields.key}>
+                                      <Accordion.Header>
+                                        <Accordion.Trigger>
+                                          {current?.info.displayName ??
+                                            formatMessage(
+                                              getTrad('pages.settings.form.nameField.default')
+                                            )}
+                                        </Accordion.Trigger>
+                                      </Accordion.Header>
+                                      <Accordion.Content>
+                                        <Grid.Root gap={4} padding={2}>
+                                          <Grid.Item col={12} s={12} xs={12}>
+                                            <Field
+                                              name={`contentTypesNameFields[${index}]`}
+                                              label={formatMessage(
+                                                getTrad('pages.settings.form.nameField.label')
+                                              )}
+                                              hint={formatMessage(
+                                                getTrad(
+                                                  `pages.settings.form.nameField.${isEmpty(get(values, `contentTypesNameFields[${index}].fields`, [])) ? 'empty' : 'hint'}`
+                                                )
+                                              )}>
+                                              <MultiSelect
+                                                name={`contentTypesNameFields[${index}]`}
+                                                placeholder={formatMessage(
+                                                  getTrad(
+                                                    'pages.settings.form.nameField.placeholder'
+                                                  )
+                                                )}
+                                                value={get(values, `contentTypesNameFields[${index}].fields`)}
+                                                onChange={(value: Array<string>) => {
+                                                  const updated = get(values, 'contentTypesNameFields', []).map((item, i) => {
+                                                    if (i === index) {
+                                                      return {
+                                                        ...item,
+                                                        fields: value,
+                                                      }
+                                                    }
+                                                    return item;
+                                                  });
+
+                                                  return handleChange('contentTypesNameFields', updated, onChange);
+                                                }}
+                                                disabled={restartStatus.required}
+                                                error={renderError(`contentTypesNameFields[${index}]`)}
+                                                withTags
+                                              >
+                                                {attributeKeys.map((attribute) => (
+                                                  <MultiSelectOption
+                                                    key={attribute}
+                                                    value={attribute}
+                                                  >
+                                                    {attribute}
+                                                  </MultiSelectOption>
+                                                ))}
+                                              </MultiSelect>
+                                            </Field>
+                                          </Grid.Item>
+                                          <Grid.Item col={12} s={12} xs={12}>
+                                            <Field
+                                              name={`contentTypesPopulate[${index - 1}]`}
+                                              label={formatMessage(
+                                                getTrad('pages.settings.form.populate.label')
+                                              )}
+                                              hint={formatMessage(
+                                                getTrad(
+                                                  `pages.settings.form.populate.${isEmpty(get(values, `contentTypesPopulate[${index - 1}]fields`, [])) ? 'empty' : 'hint'}`
+                                                )
+                                              )}>
+                                              <MultiSelect
+                                                width="100%"
+                                                name={`contentTypesPopulate[${index - 1}]`}
+                                                placeholder={formatMessage(
+                                                  getTrad(
+                                                    'pages.settings.form.populate.placeholder'
+                                                  )
+                                                )}
+                                                value={get(values, `contentTypesPopulate[${index - 1}].fields`, [])}
+                                                onChange={(value: Array<string>) => {
+                                                  const updated = get(values, 'contentTypesPopulate', []).map((item, i) => {
+                                                    if (i === (index - 1)) {
+                                                      return {
+                                                        ...item,
+                                                        fields: value,
+                                                      }
+                                                    }
+                                                    return item;
+                                                  });
+
+                                                  return handleChange('contentTypesPopulate', updated, onChange);
+                                                }}
+                                                disabled={restartStatus.required}
+                                                error={renderError(`contentTypesPopulate[${index - 1}]`)}
+                                                withTags
+                                              >
+                                                {attributeKeys.map((attribute) => (
+                                                  <MultiSelectOption
+                                                    key={attribute}
+                                                    value={attribute}
+                                                  >
+                                                    {attribute}
+                                                  </MultiSelectOption>
+                                                ))}
+                                              </MultiSelect>
+                                            </Field>
+                                          </Grid.Item>
+                                          <Grid.Item col={12} s={12} xs={12}>
+                                            <Field
+                                              name={`pathDefaultFields[${index - 1}]`}
+                                              label={formatMessage(
+                                                getTrad(
+                                                  'pages.settings.form.pathDefaultFields.label'
+                                                )
+                                              )}
+                                              hint={formatMessage(
+                                                getTrad(
+                                                  `pages.settings.form.pathDefaultFields.${isEmpty(get(values, `pathDefaultFields[${index - 1}].fields`, [])) ? 'empty' : 'hint'}`
+                                                )
+                                              )}>
+                                              <MultiSelect
+                                                name={`pathDefaultFields[${index - 1}]`}
+                                                width="100%"
+                                                placeholder={formatMessage(
+                                                  getTrad(
+                                                    'pages.settings.form.pathDefaultFields.placeholder'
+                                                  )
+                                                )}
+                                                value={get(values, `pathDefaultFields[${index - 1}].fields`, [])}
+                                                onChange={(value: Array<string>) => {
+                                                  const updated = get(values, 'pathDefaultFields', []).map((item, i) => {
+                                                    if (i === (index - 1)) {
+                                                      return {
+                                                        ...item,
+                                                        fields: value,
+                                                      }
+                                                    }
+                                                    return item;
+                                                  });
+
+                                                  return handleChange('pathDefaultFields', updated, onChange);
+                                                }}
+                                                disabled={restartStatus.required}
+                                                error={renderError(`pathDefaultFields[${index - 1}]`)}
+                                                withTags
+                                              >
+                                                {attributeKeys.map((attribute) => (
+                                                  <MultiSelectOption
+                                                    key={attribute}
+                                                    value={attribute}
+                                                  >
+                                                    {attribute}
+                                                  </MultiSelectOption>
+                                                ))}
+                                              </MultiSelect>
+                                            </Field>
+                                          </Grid.Item>
+                                        </Grid.Root>
+                                      </Accordion.Content>
+                                    </Accordion.Item>
+                                  ) : null;
                                 })}
-                              </AccordionGroup>
-                            </GridItem>)}
-                        </Grid>
-                      </Stack>
-                    </Box>
-                    <Box {...BOX_DEFAULT_PROPS} >
-                      <Stack size={4}>
-                        <Typography variant="delta" as="h2">
-                          {getMessage('pages.settings.additional.title')}
-                        </Typography>
-                        <Grid gap={4}>
-                          <GridItem col={6} s={6} xs={12}>
-                            <Box style={{ maxWidth: 257 }}>
-                              <NumberInput
-                                name="allowedLevels"
-                                label={getMessage('pages.settings.form.allowedLevels.label')}
-                                placeholder={getMessage('pages.settings.form.allowedLevels.placeholder')}
-                                hint={getMessage('pages.settings.form.allowedLevels.hint')}
-                                onValueChange={(value: number) => setFieldValue('allowedLevels', value, false)}
-                                value={values.allowedLevels}
-                                disabled={restartStatus.required}
-                              />
-                            </Box>
-                          </GridItem>
-                          <GridItem col={6} s={12} xs={12}>
-                            <ToggleInput
-                              name="cascadeMenuAttachedChecked"
-                              label={getMessage('pages.settings.form.cascadeMenuAttached.label')}
-                              hint={getMessage('pages.settings.form.cascadeMenuAttached.hint')}
-                              checked={values.cascadeMenuAttachedChecked}
-                              onChange={({ target: { checked } }: { target: { checked: boolean } }) => {
-                                setFieldValue('cascadeMenuAttachedChecked', checked, true);
-                              }}
-                              onLabel="Enabled"
-                              offLabel="Disabled"
-                              disabled={restartStatus.required}
-                            />
-                          </GridItem>
-                        </Grid>
-                        <Grid gap={4}>
-                          <GridItem col={6} s={12} xs={12}>
-                            <ToggleInput
-                              name="audienceFieldChecked"
-                              label={getMessage('pages.settings.form.audience.label')}
-                              hint={getMessage('pages.settings.form.audience.hint')}
-                              checked={values.audienceFieldChecked}
-                              onChange={() => setFieldValue('audienceFieldChecked', !values.audienceFieldChecked, false)}
-                              onLabel="Enabled"
-                              offLabel="Disabled"
-                              disabled={restartStatus.required}
-                            />
-                          </GridItem>
-                          {isI18NPluginEnabled && (
-                            <GridItem col={6} s={12} xs={12}>
-                              <ToggleInput
-                                name="i18nEnabled"
-                                label={getMessage('pages.settings.form.i18n.label')}
-                                hint={defaultLocale
-                                  ? getMessage('pages.settings.form.i18n.hint')
-                                  : getMessage('pages.settings.form.i18n.hint.missingDefaultLocale')
+                              </Accordion.Root>
+                            ) : null}
+                          </Grid.Item>
+                        </Grid.Root>
+                      </Grid.Item>
+                    </Grid.Root>
+                  </Flex>
+                </Box>
+
+                <Box {...BOX_DEFAULT_PROPS} width="100%">
+                  <Flex direction="column" alignItems="flex-start" gap={2}>
+                    <Typography variant="delta" as="h2">
+                      {formatMessage(getTrad('pages.settings.additional.title'))}
+                    </Typography>
+
+                    <Grid.Root gap={4} width="100%">
+                      <Grid.Item col={4} s={12} xs={12}>
+                        <Box width="100%">
+                          <Field
+                            name="allowedLevels"
+                            label={formatMessage(getTrad('pages.settings.form.allowedLevels.label'))}
+                            hint={formatMessage(getTrad('pages.settings.form.allowedLevels.hint'))}>
+                            <NumberInput
+                              width="100%"
+                              name="allowedLevels"
+                              type="number"
+                              placeholder={formatMessage(
+                                getTrad('pages.settings.form.allowedLevels.placeholder')
+                              )}
+                              onChange={(eventOrPath: FormChangeEvent, value?: any) => {
+                                if (isObject(eventOrPath)) {
+                                  const parsedVal = parseInt(eventOrPath.target.value);
+                                  return handleChange(eventOrPath.target.name, isNaN(parsedVal) ? 0 : parsedVal, onChange);
                                 }
-                                checked={values.i18nEnabled}
-                                onChange={({ target: { checked } }: { target: { checked: boolean } }) => {
-                                  setFieldValue('i18nEnabled', checked, false);
-                                  if (checked) {
-                                    setPruneObsoleteI18nNavigations(false);
-                                  } else {
-                                    setDisableI18nModalOpened(true);
-                                    setI18nModalOnCancel(() => () => {
-                                      setFieldValue('i18nEnabled', true);
-                                    });
-                                  }
-                                }}
-                                onLabel="Enabled"
-                                offLabel="Disabled"
-                                disabled={restartStatus.required || !defaultLocale}
-                              />
-                            </GridItem>
+                                return handleChange(eventOrPath, value, onChange);
+                              }}
+                              value={values.allowedLevels}
+                              disabled={restartStatus.required}
+                            />
+                          </Field>
+                        </Box>
+                      </Grid.Item>
+                      <Grid.Item col={4} s={12} xs={12}>
+                        <Field
+                          name="cascadeMenuAttached"
+                          label={formatMessage(
+                            getTrad('pages.settings.form.cascadeMenuAttached.label')
                           )}
-                        </Grid>
-                        {isCachePluginEnabled && (
-                          <Grid gap={4}>
-                            <GridItem col={12} s={12} xs={12}>
-                              <ToggleInput
-                                name="cacheEnabled"
-                                label={getMessage('pages.settings.form.cache.label')}
-                                hint={getMessage('pages.settings.form.cache.hint')}
-                                checked={values.isCacheEnabled}
-                                onChange={({ target: { checked } }: { target: { checked: boolean } }) => {
-                                  setFieldValue('isCacheEnabled', checked, false);
-                                }}
-                                onLabel="Enabled"
-                                offLabel="Disabled"
-                                disabled={restartStatus.required}
-                              />
-                            </GridItem>
-                          </Grid>
-                        )}
-                      </Stack>
-                    </Box>
-                    <Box {...BOX_DEFAULT_PROPS} >
-                      <Stack size={4}>
-                        <Typography variant="delta" as="h2">
-                          {getMessage('pages.settings.customFields.title')}
+                          hint={formatMessage(getTrad('pages.settings.form.cascadeMenuAttached.hint'))}>
+                          <Toggle
+                            width="100%"
+                            name="cascadeMenuAttached"
+                            checked={values.cascadeMenuAttached}
+                            onChange={(eventOrPath: FormChangeEvent) => handleChange(eventOrPath, !values.cascadeMenuAttached, onChange)}
+                            onLabel={formatMessage(getTrad('components.toggle.enabled'))}
+                            offLabel={formatMessage(getTrad('components.toggle.disabled'))}
+                            disabled={restartStatus.required}
+                          />
+                        </Field>
+                      </Grid.Item>
+                      <Grid.Item col={4} s={12} xs={12}>
+                        <Field
+                          name="audienceFieldChecked"
+                          label={formatMessage(getTrad('pages.settings.form.audience.label'))}
+                          hint={formatMessage(getTrad('pages.settings.form.audience.hint'))}>
+                          <Toggle
+                            name="audienceFieldChecked"
+                            checked={values.audienceFieldChecked}
+                            onChange={(eventOrPath: FormChangeEvent) => handleChange(eventOrPath, !values.audienceFieldChecked, onChange)}
+                            onLabel={formatMessage(getTrad('components.toggle.enabled'))}
+                            offLabel={formatMessage(getTrad('components.toggle.disabled'))}
+                            disabled={restartStatus.required}
+                            width="100%"
+                          />
+                        </Field>
+                      </Grid.Item>
+                      {configQuery.data?.isCachePluginEnabled && (
+                        <Grid.Item col={12} s={12} xs={12}>
+                          <Field
+                            name="isCacheEnabled"
+                            label={formatMessage(getTrad('pages.settings.form.cache.label'))}
+                            hint={formatMessage(getTrad('pages.settings.form.cache.hint'))}>
+                            <Toggle
+                              name="isCacheEnabled"
+                              checked={values.isCacheEnabled}
+                              onChange={(eventOrPath: FormChangeEvent) => handleChange(eventOrPath, !values.isCacheEnabled, onChange)}
+                              onLabel={formatMessage(getTrad('components.toggle.enabled'))}
+                              offLabel={formatMessage(getTrad('components.toggle.disabled'))}
+                              disabled={restartStatus.required}
+                              width="100%"
+                            />
+                          </Field>
+                        </Grid.Item>
+                      )}
+                    </Grid.Root>
+                  </Flex>
+                </Box>
+
+                <Box {...BOX_DEFAULT_PROPS} width="100%" gap={2} direction="column" alignItems="flex-start">
+                  <Typography variant="delta" as="h2">
+                    {formatMessage(getTrad('pages.settings.customFields.title'))}
+                  </Typography>
+                  <Box padding={1} />
+                  <CustomFieldTable
+                    data={additionalFields}
+                    onOpenModal={handleOpenCustomFieldModal}
+                    onRemoveCustomField={handleRemoveCustomField}
+                    onToggleCustomField={handleToggleCustomField}
+                  />
+                </Box>
+
+                <Box {...BOX_DEFAULT_PROPS} width="100%">
+                  <Flex direction="column" alignItems="flex-start" gap={2}>
+                    <Typography variant="delta" as="h2">
+                      {formatMessage(getTrad('pages.settings.restoring.title'))}
+                    </Typography>
+                    <Grid.Root gap={4} width="100%">
+                      <Grid.Item col={12} s={12} xs={12}>
+                        <Typography>
+                          {formatMessage(getTrad('pages.settings.actions.restore.description'))}
                         </Typography>
-                        <CustomFieldTable
-                          data={customFields}
-                          onOpenModal={handleOpenCustomFieldModal}
-                          onRemoveCustomField={handleRemoveCustomField}
-                          onToggleCustomField={handleToggleCustomField}
-                        />
-                      </Stack>
-                    </Box>
-                    <Box {...BOX_DEFAULT_PROPS} >
-                      <Stack size={4}>
-                        <Typography variant="delta" as="h2">
-                          {getMessage('pages.settings.restoring.title')}
-                        </Typography>
-                        <Grid gap={4}>
-                          <GridItem col={12} s={12} xs={12}>
-                            <Typography>
-                              {getMessage('pages.settings.actions.restore.description')}
-                            </Typography>
-                          </GridItem>
-                          <GridItem col={6} s={12} xs={12}>
-                            <CheckPermissions permissions={permissions.access}>
-                              <Button variant="danger-light" startIcon={<Refresh />} onClick={() => setIsRestorePopupOpen(true)}>
-                                {getMessage('pages.settings.actions.restore')}
-                              </Button>
-                            </CheckPermissions>
-                            <ConfirmationDialog
-                              isVisible={isRestorePopupOpen}
-                              header={getMessage('pages.settings.actions.restore.confirmation.header')}
-                              labelConfirm={getMessage('pages.settings.actions.restore.confirmation.confirm')}
-                              iconConfirm={<Refresh />}
-                              onConfirm={() => onPopupClose(true)}
-                              onCancel={() => onPopupClose(false)}>
-                              {getMessage('pages.settings.actions.restore.confirmation.description')}
-                            </ConfirmationDialog>
-                            {disableI18nModal}
-                          </GridItem>
-                        </Grid>
-                      </Stack>
-                    </Box>
-                  </Stack>
-                </ContentLayout>
-              </Form>
-          )}}
-        </Formik>
-      </Main>
-      {isCustomFieldModalOpen &&
+                      </Grid.Item>
+                      <Grid.Item col={12} s={12} xs={12}>
+                        {hasSettingsReadPermissions ? (
+                          <Button
+                            variant="danger-light"
+                            startIcon={<Check />}
+                            onClick={() => setIsRestorePopupOpen(true)}
+                          >
+                            {formatMessage(getTrad('pages.settings.actions.restore.label'))}
+                          </Button>
+                        ) : null}
+                        <ConfirmationDialog
+                          isVisible={isRestorePopupOpen}
+                          header={formatMessage(
+                            getTrad('pages.settings.actions.restore.confirmation.header')
+                          )}
+                          labelConfirm={formatMessage(
+                            getTrad('pages.settings.actions.restore.confirmation.confirm')
+                          )}
+                          iconConfirm={<Typhoon />}
+                          onConfirm={() => onPopupClose(true)}
+                          onCancel={() => onPopupClose(false)}
+                        >
+                          {formatMessage(
+                            getTrad('pages.settings.actions.restore.confirmation.description')
+                          )}
+                        </ConfirmationDialog>
+                      </Grid.Item>
+                    </Grid.Root>
+                  </Flex>
+                </Box>
+              </Flex>)
+            }}
+          </Form>
+        </Layouts.Content>
+      </Page.Main>
+      {isCustomFieldModalOpen && (
         <CustomFieldModal
           onClose={() => setIsCustomFieldModalOpen(false)}
           onSubmit={handleSubmitCustomField}
           isOpen={isCustomFieldModalOpen}
           data={customFieldSelected}
-          usedCustomFieldNames={customFields.filter(f => f.name !== customFieldSelected?.name).map(f => f.name)}
         />
-      }
-    </>
+      )}
+    </Layouts.Root>
+  );
+};
+
+export default function SettingsPage() {
+  queryClient.invalidateQueries();
+  const theme = usePluginTheme();
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <DesignSystemProvider theme={theme}>
+        <Inner />
+      </DesignSystemProvider>
+    </QueryClientProvider>
   );
 }
-
-
-export default SettingsPage;

@@ -1,22 +1,2 @@
-import { StrapiContentTypeFullSchema } from "strapi-typed";
-import { Effect, NavigationPluginConfig } from "../../../../types";
-export type RawPayload = {
-  allowedLevels: number;
-  audienceFieldChecked: boolean;
-  cascadeMenuAttachedChecked: boolean;
-  i18nEnabled: boolean;
-  nameFields: Record<string, string[]>;
-  pathDefaultFields: Record<string, string[]>;
-  populate: Record<string, string[]>;
-  selectedContentTypes: string[];
-  isCacheEnabled: boolean;
-  preferCustomContentTypes: boolean;
-}
-export type StrapiContentTypeSchema = StrapiContentTypeFullSchema & { available: boolean, isSingle: boolean, plugin: string, label: string  }
-
-export type PreparePayload = (payload: { form: RawPayload, pruneObsoleteI18nNavigations: boolean }) => NavigationPluginConfig;
-export type OnSave = Effect<RawPayload>;
-export type OnPopupClose = Effect<boolean>;
-export type HandleSetContentTypeExpanded = Effect<string | undefined>;
-export type RestartReasons = 'I18N' | 'GRAPH_QL' | 'I18N_NAVIGATIONS_PRUNE' | 'CACHE';
-export type RestartStatus = { required: true, reasons?: RestartReasons[] } | { required: false };
+export type RestartReasons = 'GRAPH_QL';
+export type RestartStatus = { required: true; reasons?: RestartReasons[] } | { required: false };

@@ -1,20 +1,18 @@
+import { Modal, Typography } from '@strapi/design-system';
 import React from 'react';
-//@ts-ignore
-import { Typography } from '@strapi/design-system/Typography';
-//@ts-ignore
-import { ModalLayout, ModalHeader } from '@strapi/design-system/ModalLayout';
 
-import CustomFieldForm from '../CustomFieldForm';
-import { Effect, NavigationItemCustomField, VoidEffect } from '../../../../../../types';
-import { getMessage } from '../../../../utils';
 import { pick } from 'lodash';
+import { useIntl } from 'react-intl';
+import { NavigationItemCustomField } from '../../../../schemas';
+import { getTrad } from '../../../../translations';
+import { Effect, VoidEffect } from '../../../../types';
+import CustomFieldForm from '../CustomFieldForm';
 
 interface ICustomFieldModalProps {
   data: NavigationItemCustomField | null;
   isOpen: boolean;
   onClose: VoidEffect;
   onSubmit: Effect<NavigationItemCustomField>;
-  usedCustomFieldNames: string[];
 }
 
 const CustomFieldModal: React.FC<ICustomFieldModalProps> = ({
@@ -22,25 +20,46 @@ const CustomFieldModal: React.FC<ICustomFieldModalProps> = ({
   onClose,
   onSubmit,
   data,
-  usedCustomFieldNames,
 }) => {
   const isEditMode = !!data;
+
+  const { formatMessage } = useIntl();
+
   return (
-    <ModalLayout onClose={onClose} isOpen={isOpen} labelledBy="custom-field-modal">
-      <ModalHeader>
-        <Typography variant="omega" fontWeight="bold" textColor="neutral800" as="h2" id="asset-dialog-title">
-          {getMessage(`pages.settings.form.customFields.popup.header.${isEditMode ? 'edit' : 'new'}`)}
-        </Typography>
-      </ModalHeader>
-      <CustomFieldForm
-        isEditForm={isEditMode}
-        customField={pick(data, "name", "label", "type", "required", "options", "multi")}
-        onSubmit={onSubmit}
-        onClose={onClose}
-        usedCustomFieldNames={usedCustomFieldNames}
-      />
-    </ModalLayout>
+    <Modal.Root
+      onOpenChange={(isOpen: false) => {
+        if (!isOpen) {
+          onClose();
+        }
+      }}
+      open={isOpen}
+      labelledBy="custom-field-modal"
+    >
+      <Modal.Content>
+        <Modal.Header>
+          <Typography
+            variant="omega"
+            fontWeight="bold"
+            textColor="neutral800"
+            as="h2"
+            id="asset-dialog-title"
+          >
+            {formatMessage(
+              getTrad(
+                `pages.settings.form.customFields.popup.header.${isEditMode ? 'edit' : 'new'}`
+              )
+            )}
+          </Typography>
+        </Modal.Header>
+        <CustomFieldForm
+          isEditForm={isEditMode}
+          customField={pick(data, 'name', 'label', 'type', 'required', 'options', 'multi')}
+          onSubmit={onSubmit}
+          onClose={onClose}
+        />
+      </Modal.Content>
+    </Modal.Root>
   );
-}
+};
 
 export default CustomFieldModal;

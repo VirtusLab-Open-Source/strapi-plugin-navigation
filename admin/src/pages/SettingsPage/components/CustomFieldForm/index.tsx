@@ -1,180 +1,236 @@
-import React, { useCallback, useMemo } from 'react';
-//@ts-ignore
-import { ModalBody, ModalFooter } from '@strapi/design-system/ModalLayout';
-//@ts-ignore
-import { Button } from '@strapi/design-system/Button';
-import { GenericInput, GenericInputProps } from '@strapi/helper-plugin';
-//@ts-ignore
-import { Grid, GridItem } from '@strapi/design-system/Grid';
-import { useFormik } from 'formik';
-import { Effect, NavigationItemCustomField, VoidEffect } from '../../../../../../types';
-import * as formDefinition from '../../utils/form';
-import { getMessage } from '../../../../utils';
-import { isEmpty, isNil } from 'lodash';
-import { getTrad } from '../../../../translations';
+import React, { useEffect, useState } from 'react';
+import { useIntl } from 'react-intl';
+import { Form } from '@strapi/strapi/admin';
+import { Button, Grid, Modal, SingleSelect, SingleSelectOption, TextInput, Toggle } from '@strapi/design-system';
+import { Field } from "@sensinum/strapi-utils";
+
 import TextArrayInput from '../../../../components/TextArrayInput';
+import { navigationItemCustomField, NavigationItemCustomField } from '../../../../schemas';
+import { getTrad } from '../../../../translations';
+import { Effect, FormChangeEvent, FormItemErrorSchema, ToBeFixed, VoidEffect } from '../../../../types';
 import { customFieldsTypes } from '../../common';
-const tradPrefix = 'pages.settings.form.customFields.popup.'
+import { get, isNil, isObject, isString, set } from 'lodash';
+
+const tradPrefix = 'pages.settings.form.customFields.popup.';
 
 interface ICustomFieldFormProps {
   customField: Partial<NavigationItemCustomField>;
   isEditForm: boolean;
   onSubmit: Effect<NavigationItemCustomField>;
   onClose: VoidEffect;
-  usedCustomFieldNames: string[];
 }
 
-const prepareSelectOptions = (options: string[]) => options.map((option, index) => ({
-  key: `${option}-${index}`,
-  metadatas: {
-    intlLabel: {
-      id: option,
-      defaultMessage: option,
+const prepareSelectOptions = (options: ReadonlyArray<string>) =>
+  options.map((option, index) => ({
+    key: `${option}-${index}`,
+    metadatas: {
+      intlLabel: {
+        id: option,
+        defaultMessage: option,
+      },
+      hidden: false,
+      disabled: false,
     },
-    hidden: false,
-    disabled: false,
-  },
-  value: option,
-  label: option,
-}));
+    value: option,
+    label: option,
+  }));
 
-const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({ isEditForm, customField, onSubmit, onClose, usedCustomFieldNames }) => {
+const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({
+  isEditForm,
+  customField,
+  onSubmit,
+  onClose,
+}) => {
   const typeSelectOptions = prepareSelectOptions(customFieldsTypes);
-  const initialValues = useMemo<NavigationItemCustomField>(() => {
-    if (isNil(customField.type)) {
-      return formDefinition.defaultValues;
-    } else if (customField.type === 'select') {
-      return {
-        type: customField.type,
-        name: customField.name || formDefinition.defaultValues.name,
-        label: customField.label || formDefinition.defaultValues.label,
-        required: customField.required || formDefinition.defaultValues.required,
-        options: customField.options || formDefinition.defaultValues.options,
-        multi: customField.multi || formDefinition.defaultValues.multi,
-        enabled: customField.enabled,
-      }
-    } else {
-      return {
-        type: customField.type,
-        name: customField.name || formDefinition.defaultValues.name,
-        label: customField.label || formDefinition.defaultValues.label,
-        required: customField.required || formDefinition.defaultValues.required,
-        options: [],
-        multi: false,
-        enabled: customField.enabled,
-      }
+
+  const { formatMessage } = useIntl();
+
+  const [formValue, setFormValue] = useState<NavigationItemCustomField>({} as NavigationItemCustomField);
+  const [formError, setFormError] = useState<FormItemErrorSchema<NavigationItemCustomField>>();
+
+  const { type } = formValue;
+
+  useEffect(() => {
+    if (customField) {
+      setFormValue({
+        ...customField
+      } as NavigationItemCustomField);
     }
-  }, [customField]);
+  }, [customField])
 
-  const {
-    handleChange,
-    setFieldValue,
-    values,
-    errors,
-    handleSubmit,
-    isSubmitting,
-  } = useFormik<NavigationItemCustomField>({
-    initialValues,
-    onSubmit,
-    validationSchema: formDefinition.schemaFactory(usedCustomFieldNames),
-    validateOnChange: false,
-  });
-  const defaultProps = useCallback((fieldName: keyof NavigationItemCustomField): Omit<GenericInputProps, "type"> => {
-    const error = mapError(errors[fieldName]);
+  const handleChange = (eventOrPath: FormChangeEvent, value?: any, nativeOnChange?: (eventOrPath: FormChangeEvent, value?: any) => void) => {
+    if (nativeOnChange) {
 
-    return {
-      intlLabel: getTrad(`${tradPrefix}${fieldName}.label`),
-      onChange: handleChange,
-      name: fieldName,
-      value: values[fieldName],
-      error,
-    };
-  }, [values, errors, handleChange]);
+      let fieldName = eventOrPath;
+      let fieldValue = value;
+      if (isObject(eventOrPath)) {
+        const { name: targetName, value: targetValue } = eventOrPath.target;
+        fieldName = targetName;
+        fieldValue = isNil(fieldValue) ? targetValue : fieldValue;
+      }
+
+      if (isString(fieldName)) {
+        setFormValueItem(fieldName, fieldValue);
+      }
+
+      return nativeOnChange(eventOrPath, fieldValue);
+    }
+  };
+
+  const setFormValueItem = (path: string, value: any) => {
+    setFormValue(set({
+      ...formValue,
+    }, path, value));
+  };
+
+  const renderError = (error: string): string | undefined => {
+    const errorOccurence = get(formError, error);
+    if (errorOccurence) {
+      return formatMessage(getTrad(error));
+    }
+    return undefined;
+  };
+
+
+  const submit = (e: React.MouseEvent, values: NavigationItemCustomField) => {
+    const { success, data, error } = navigationItemCustomField.safeParse(values);
+    if (success) {
+      onSubmit(values);
+    } else if (error) {
+      setFormError(error.issues.reduce((acc, err) => {
+        return {
+          ...acc,
+          [err.path.join('.')]: err.message
+        }
+      }, {} as FormItemErrorSchema<NavigationItemCustomField>));
+    }
+  }
 
   return (
-    <form>
-      <ModalBody>
-        <Grid gap={5}>
-          <GridItem key="name" col={12}>
-            <GenericInput
-              {...defaultProps("name")}
-              placeholder={getTrad(`${tradPrefix}name.placeholder`)}
-              description={getTrad(`${tradPrefix}name.description`)}
-              type="text"
-              disabled={isEditForm}
-            />
-          </GridItem>
-          <GridItem key="label" col={12}>
-            <GenericInput
-              {...defaultProps("label")}
-              placeholder={getTrad(`${tradPrefix}label.placeholder`)}
-              description={getTrad(`${tradPrefix}label.description`)}
-              type="text"
-            />
-          </GridItem>
-          <GridItem key="type" col={12}>
-            <GenericInput
-              {...defaultProps("type")}
-              options={typeSelectOptions}
-              type="select"
-              disabled={isEditForm}
-            />
-          </GridItem>
-          {values.type === 'select' && (
-            <>
-              <GridItem key="multi" col={12}>
-                <GenericInput
-                  {...defaultProps("multi")}
-                  type="bool"
-                />
-              </GridItem>
-              <GridItem key="options" col={12}>
-                <TextArrayInput
-                  {...defaultProps("options")}
-                  onChange={v => setFieldValue("options", v)}
-                  label={getMessage(`${tradPrefix}options.label`)}
-                  initialValue={values.options}
-                />
-              </GridItem>
-            </>
-          )}
-          <GridItem key="required" col={12}>
-            <GenericInput
-              {...defaultProps("required")}
-              type="bool"
-              description={getTrad(`${tradPrefix}required.description`)}
-            />
-          </GridItem>
-        </Grid>
-      </ModalBody>
-      <ModalFooter
-        startActions={
+    <>
+      <Modal.Body>
+        <Form
+          method="POST"
+          initialValues={formValue}
+        >
+          {({ values, onChange }) => {
+            return (<Grid.Root gap={5}>
+              <Grid.Item key="name" col={12}>
+                <Field
+                  name="name"
+                  label={formatMessage(getTrad(`${tradPrefix}name.label`))}
+                  hint={formatMessage(getTrad(`${tradPrefix}name.description`))}
+                  error={renderError('name')}>
+                  <TextInput
+                    name="name"
+                    value={values.name}
+                    onChange={(eventOrPath: FormChangeEvent, value?: any) => handleChange(eventOrPath, value, onChange)}
+                    placeholder={formatMessage(getTrad(`${tradPrefix}name.placeholder`))}
+                    type="string"
+                    disabled={isEditForm}
+                    width="100%"
+                  />
+                </Field>
+              </Grid.Item>
+              <Grid.Item key="label" col={12}>
+                <Field
+                  name="label"
+                  label={formatMessage(getTrad(`${tradPrefix}label.label`))}
+                  hint={formatMessage(getTrad(`${tradPrefix}label.description`))}
+                  error={renderError('label')}>
+                  <TextInput
+                    name="label"
+                    value={values.label}
+                    onChange={(eventOrPath: FormChangeEvent, value?: any) => handleChange(eventOrPath, value, onChange)}
+                    placeholder={formatMessage(getTrad(`${tradPrefix}label.placeholder`))}
+                    type="string"
+                    width="100%"
+                  />
+                </Field>
+              </Grid.Item>
+              <Grid.Item key="type" col={12}>
+                <Field
+                  name="type"
+                  label={formatMessage(getTrad(`${tradPrefix}type.label`))}
+                  hint={formatMessage(getTrad(`${tradPrefix}type.description`))}>
+                  <SingleSelect
+                    name="type"
+                    value={values.type}
+                    onChange={(eventOrPath: FormChangeEvent) => handleChange('type', eventOrPath, onChange)}
+                    disabled={isEditForm}
+                    width="100%"
+                  >
+                    {typeSelectOptions.map(({ key, label, value }) => (
+                      <SingleSelectOption key={key} value={value}>
+                        {label}
+                      </SingleSelectOption>
+                    ))}
+                  </SingleSelect>
+                </Field>
+              </Grid.Item>
+              {(type as ToBeFixed) === 'select' && (
+                <>
+                  <Grid.Item key="multi" col={12}>
+                    <Field
+                      name="multi"
+                      label={formatMessage(getTrad(`${tradPrefix}multi.label`))}
+                      hint={formatMessage(getTrad(`${tradPrefix}multi.description`))}
+                      error={renderError("multi")}>
+                      <Toggle
+                        name="multi"
+                        checked={values.multi}
+                        onChange={(eventOrPath: FormChangeEvent) => handleChange(eventOrPath, !values.multi, onChange)}
+                        onLabel="true"
+                        offLabel="false"
+                        width="100%"
+                      />
+                    </Field>
+                  </Grid.Item>
+                  <Grid.Item key="options" col={12}>
+                    <Field
+                      name="options"
+                      label={formatMessage(getTrad(`${tradPrefix}options.label`))}
+                      hint={formatMessage(getTrad(`${tradPrefix}options.description`))}
+                      error={renderError('options')}>
+                      <TextArrayInput
+                        name="options"
+                        onChange={(value: string[]) => handleChange('options', value, onChange)}
+                        initialValue={values.options} />
+                    </Field>
+                  </Grid.Item>
+                </>
+              )}
+              <Grid.Item key="required" col={12} >
+                <Field
+                  name="required"
+                  label={formatMessage(getTrad(`${tradPrefix}required.label`))}
+                  hint={formatMessage(getTrad(`${tradPrefix}required.description`))}
+                  error={renderError('required')}>
+                  <Toggle
+                    name="required"
+                    placeholder={formatMessage(getTrad(`${tradPrefix}required.placeholder`))}
+                    checked={values.required}
+                    onChange={(eventOrPath: FormChangeEvent) => handleChange(eventOrPath, !values.required, onChange)}
+                    onLabel="true"
+                    offLabel="false"
+                    width="100%"
+                  />
+                </Field>
+              </Grid.Item>
+            </Grid.Root>);
+          }}
+        </Form>
+      </Modal.Body>
+      <Modal.Footer>
+        <Modal.Close>
           <Button onClick={onClose} variant="tertiary">
-            {getMessage('popup.item.form.button.cancel')}
+            {formatMessage(getTrad('popup.item.form.button.cancel'))}
           </Button>
-        }
-        endActions={
-          <Button onClick={handleSubmit} disabled={!isEmpty(errors) || isSubmitting}>
-            {getMessage(`popup.item.form.button.save`)}
-          </Button>
-        }
-      />
-    </form>
+        </Modal.Close>
+        <Button onClick={(e: React.MouseEvent) => submit(e, formValue)}>{formatMessage(getTrad(`popup.item.form.button.save`))}</Button>
+      </Modal.Footer>
+    </>
   );
-}
+};
 
 export default CustomFieldForm;
-
-const mapError = (err: unknown): GenericInputProps["error"] => {
-  if (typeof err === "string") {
-    return err;
-  }
-
-  if (
-    typeof err === "object" &&
-    err &&
-    ((err as any).id || (err as any).description || (err as any).defaultMessage)
-  ) {
-    return err;
-  }
-};

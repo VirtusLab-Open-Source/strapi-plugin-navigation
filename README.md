@@ -2,7 +2,7 @@
   <img style="width: 150px; height: auto;" src="public/assets/logo.png" alt="Logo - Strapi Navigation plugin" />
 </div>
 <div align="center">
-  <h1>Strapi v4 - Navigation plugin</h1>
+  <h1>Strapi - Navigation plugin</h1>
   <p>Create consumable navigation with a simple and straightforward visual builder</p>
   <a href="https://www.npmjs.org/package/strapi-plugin-navigation">
     <img alt="GitHub package.json version" src="https://img.shields.io/github/package-json/v/VirtusLab-Open-Source/strapi-plugin-navigation?label=npm&logo=npm">
@@ -30,6 +30,7 @@ Strapi Navigation Plugin provides a website navigation / menu builder feature fo
 - Tree (nested)
 - RFR (ready for handling by Redux First Router)
 
+
 ### Table of Contents
 1. [💎 Versions](#-versions)
 2. [✨ Features](#-features)
@@ -54,8 +55,8 @@ Strapi Navigation Plugin provides a website navigation / menu builder feature fo
 17. [👨‍💻 Community support](#-community-support)
 
 ## 💎 Versions
-- **Strapi v5** - [v3.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/v5)
-- **Strapi v4** - (current) [v2.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation)
+- **Strapi v5** - (current) [v3.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation)
+- **Strapi v4** - [v2.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/strapi-v4)
 - **Strapi v3** - [v1.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/strapi-v3)
 
 ## ✨ Features
@@ -70,14 +71,9 @@ Strapi Navigation Plugin provides a website navigation / menu builder feature fo
 - **Customizable:** Possibility to customize the options like: available Content Types, Maximum level for "attach to menu", Additional fields (audience)
 - **[Audit log](https://github.com/VirtusLab/strapi-molecules/tree/master/packages/strapi-plugin-audit-log):** integration with Strapi Molecules Audit Log plugin that provides changes track record
 
-## ⚙️ Versions
-
-- **Strapi v4** - (current) - [v2.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation)
-- **Strapi v3** - [v1.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/strapi-v3)
-
 ## ⏳ Installation
 
-### Via Strapi Markerplace
+### Via Strapi Marketplace
 
 As a ✅ **verified** plugin by Strapi team we're available on the [**Strapi Marketplace**](https://market.strapi.io/plugins/strapi-plugin-navigation) as well as **In-App Marketplace** where you can follow the installation instructions.
 
@@ -90,7 +86,7 @@ As a ✅ **verified** plugin by Strapi team we're available on the [**Strapi Mar
 It's recommended to use **yarn** to install this plugin within your Strapi project. [You can install yarn with these docs](https://yarnpkg.com/lang/en/docs/install/).
 
 ```bash
-yarn add strapi-plugin-navigation@latest
+yarn add strapi-plugin-navigation@beta
 ```
 
 After successful installation you've to re-build your Strapi instance. To archive that simply use:
@@ -98,12 +94,6 @@ After successful installation you've to re-build your Strapi instance. To archiv
 ```bash
 yarn build
 yarn develop
-```
-
-or just run Strapi in the development mode with `--watch-admin` option:
-
-```bash
-yarn develop --watch-admin
 ```
 
 The **UI Navigation** plugin should appear in the **Plugins** section of Strapi sidebar after you run app again.
@@ -124,20 +114,18 @@ Complete installation requirements are exact same as for Strapi itself and can b
 
 **Supported Strapi versions**:
 
-- Strapi v4.25.11 (recently tested)
-- Strapi v4.x
+- Strapi v5.5.1 (recently tested)
+- Strapi v5.x
 
-> This plugin is designed for **Strapi v4** and is not working with v3.x. To get version for **Strapi v3** install version [v1.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/strapi-v3).
+> This plugin is designed for **Strapi v5** and is not working with v4.x. To get version for **Strapi v4** install version [v4.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/strapi-v4).
 
 **We recommend always using the latest version of Strapi to start your new projects**.
 
 ## 🔧 Configuration
 
-To start your journey with **Navigation plugin** you must first setup it using the dedicated Settings page (`v2.0.3` and newer) or for any version, put your configuration in `config/plugins.js`. Anyway we're recommending the click-through option where your configuration is going to be properly validated.
+To start your journey with **Navigation plugin** you must first setup it using the dedicated Settings page or for any version, put your configuration in `config/plugins.js`. Anyway we're recommending the click-through option where your configuration is going to be properly validated.
 
-### In `v2.0.3` and newer
-
-Version `2.0.3` introduces the intuitive **Settings** page which you can easily access via `Strapi Settings -> Section: Navigation Plugin -> Configuration`. 
+### Settings page
 
 On the dedicated page, you will be able to set up all crucial properties which drive the plugin and customize each individual collection for which **Navigation plugin** should be enabled.
 
@@ -148,15 +136,10 @@ On the dedicated page, you will be able to set up all crucial properties which d
 > *Note*
 > The default configuration for your plugin is fetched from `config/plugins.js` or, if the file is not there, directly from the plugin itself. If you would like to customize the default state to which you might revert, please follow the next section.
 
-### In `v2.0.2` and older + default configuration state for `v2.0.3` and newer
+### File
 
 Config for this plugin is stored as a part of the `config/plugins.js` or `config/<env>/plugins.js` file. You can use the following snippet to make sure that the config structure is correct. If you've got already configurations for other plugins stores by this way, you can use the `navigation` along with them. 
 
-> *Note v2.0.3 and newer only*
-> Changing this file will not automatically change plugin configuration. To synchronize plugin's config with plugins.js file, it is necessary to restore configuration through the settings page 
-
-> *Note for newer than v2.2.0*
-> `slugify` as been removed. **THIS A BREAKING CHANGE**
 
 ```js
     module.exports = ({ env }) => ({
@@ -194,7 +177,7 @@ Config for this plugin is stored as a part of the `config/plugins.js` or `config
 ### Additional Fields
 It is advised to configure additional fields through the plugin's Settings Page. There you can find the table of custom fields and toggle input for the audience field. When enabled, the audience field can be customized through the content manager. Custom fields can be added, edited, toggled, and removed with the use of the table provided on the Settings Page. When removing custom fields be advised that their values in navigation items will be lost. Disabling the custom fields will not affect the data and can be done with no consequence of loosing information. 
 
-Creating configuration for additional fields with the `config.js` file should be done with caution. Config object contains the `additionalFields` property of type `Array<CustomField | 'audience'>`, where CustomField is of type `{ type: 'string' | 'boolean' | { "name": string, "url": string, "mime": string, "width": number, "height": number, "previewUrl": string }, name: string, label: string }`. When creating custom fields be advised that the `name` property has to be unique. When editing a custom field it is advised not to edit its `name` and `type` properties. After config has been restored the custom fields that are not present in `config.js` file will be deleted and their values in navigation items will be lost.
+Creating configuration for additional fields with the `config.(js|ts)` file should be done with caution. Config object contains the `additionalFields` property of type `Array<CustomField | 'audience'>`, where CustomField is of type `{ type: 'string' | 'boolean' | { "name": string, "url": string, "mime": string, "width": number, "height": number, "previewUrl": string }, name: string, label: string }`. When creating custom fields be advised that the `name` property has to be unique. When editing a custom field it is advised not to edit its `name` and `type` properties. After config has been restored the custom fields that are not present in `config.js` file will be deleted and their values in navigation items will be lost.
 
 ## 🔧 GQL Configuration
 Using navigation with GraphQL requires both plugins to be installed and working. You can find installation guide for GraphQL plugin **[here](https://docs.strapi.io/developer-docs/latest/plugins/graphql.html#graphql)**.  To properly configure GQL to work with navigation you should provide `gql` prop. This should contain union types that will be used to define GQL response format for your data while fetching:
@@ -227,15 +210,7 @@ where `Page` and `UploadFile` are your type names for the **Content Types** you'
 
 ## 🌍 i18n Internationalization
 
-### Settings
-
-This feature is **opt-in**.
-
-In order to use this functionality setting **default locale** is required. (See: Settings -> Internationalization)
-
-Once feature is enabled a restart is required. On server startup missing navigations for other locales will be created. From then you can manage navigation's localizations just like before.
-
-If you want go back to _pre-i18n_ way you can disable it in settings. Already created navigations will not be removed unless you make a choice for plugin to do so(this will require a restart).
+On server startup missing navigations for other locales will be created. From then you can manage navigation's localizations just like before.
 
 If your newly created navigation localization is empty you can copy contents of one version's to the empty one. If related item is localized and locale version exists localization will be used as a related item. Otherwise plugin will fallback to an original item.
 
@@ -340,7 +315,6 @@ Is applied for **Public API** both for REST and GraphQL. You can manage is by tw
 {
     "id": "News",
     "title": "News",
-    "templateName": "pages:1",
     "related": {
         "contentType": "page",
         "collectionName": "pages",
@@ -375,10 +349,6 @@ Plugin supports both **REST API** and **GraphQL API** exposed by Strapi.
 
 ### REST API
 
-> **Important!**
-> Version `v2.0.13` introduced breaking change!
-> All responses have changed their structure. Related field will now be of type ContentType instead of Array\<ContentType\>
-
 `GET <host>/api/navigation/?locale=<locale>&orderBy=<orderBy>&orderDirection=<orderDirection>`
 
 NOTE: All params are optional
@@ -396,7 +366,7 @@ NOTE: All params are optional
     "visible": true,
     "createdAt": "2023-09-29T12:45:54.399Z",
     "updatedAt": "2023-09-29T13:44:08.702Z",
-    "localeCode": "pl"
+    "locale": "pl"
   },
   {
     "id": 384,
@@ -405,7 +375,7 @@ NOTE: All params are optional
     "visible": true,
     "createdAt": "2023-09-29T12:45:54.399Z",
     "updatedAt": "2023-09-29T13:44:08.725Z",
-    "localeCode": "fr"
+    "locale": "fr"
   },
   {
     "id": 382,
@@ -414,7 +384,7 @@ NOTE: All params are optional
     "visible": true,
     "createdAt": "2023-09-29T12:45:54.173Z",
     "updatedAt": "2023-09-29T13:44:08.747Z",
-    "localeCode": "en"
+    "locale": "en"
   },
   {
     "id": 374,
@@ -423,7 +393,7 @@ NOTE: All params are optional
     "visible": true,
     "createdAt": "2023-09-29T12:22:30.373Z",
     "updatedAt": "2023-09-29T13:44:08.631Z",
-    "localeCode": "pl"
+    "locale": "pl"
   },
   {
     "id": 375,
@@ -432,7 +402,7 @@ NOTE: All params are optional
     "visible": true,
     "createdAt": "2023-09-29T12:22:30.373Z",
     "updatedAt": "2023-09-29T13:44:08.658Z",
-    "localeCode": "fr"
+    "locale": "fr"
   },
   {
     "id": 373,
@@ -441,7 +411,7 @@ NOTE: All params are optional
     "visible": true,
     "createdAt": "2023-09-29T12:22:30.356Z",
     "updatedAt": "2023-09-29T13:44:08.680Z",
-    "localeCode": "en"
+    "locale": "en"
   }
 ]
 ```
@@ -527,7 +497,6 @@ Return a rendered navigation structure depends on passed type (`TREE`, `RFR` or 
         "News": {
             "id": "News",
             "title": "News",
-            "templateName": "pages:1",
             "related": {
                 "contentType": "page",
                 "collectionName": "pages",
@@ -541,7 +510,6 @@ Return a rendered navigation structure depends on passed type (`TREE`, `RFR` or 
         "Community": {
             "id": "Community",
             "title": "Community",
-            "templateName": "pages:2",
             "related": {
                 "contentType": "page",
                 "collectionName": "pages",
@@ -555,7 +523,6 @@ Return a rendered navigation structure depends on passed type (`TREE`, `RFR` or 
         "Highlights": {
             "id": "Highlights",
             "title": "Highlights",
-            "templateName": "pages:3",
             "related": {
                 "contentType": "page",
                 "collectionName": "pages",
@@ -700,14 +667,6 @@ query {
 }
 ```
 
-### Template name
-
-Depending on a content type `templateName` will be resolved differently
-
-For collection types it will be read from content type's attribute name `template` holding a component which definition has option named `templateName`.
-
-For single types a global name of this content type will be used as a template name or it can be set manually with an option named `templateName`.
-
 ## 🔌 Extensions
 
 ### Slug generation
@@ -819,27 +778,34 @@ If you already got it, make sure that `navigation` plugin is inserted before `gr
 
 Feel free to fork and make a Pull Request to this plugin project. All the input is warmly welcome!
 
-- Clone repository
+1. Clone repository
 
-    ```
-    git clone git@github.com:VirtusLab-Open-Source/strapi-plugin-navigation.git
-    ```
+   ```
+   git clone git@github.com:VirtusLab-Open-Source/strapi-plugin-navigation.git
+   ```
 
-- Create a soft link in your strapi project to plugin build folder
+2. Run `install` & `watch:link` command
 
-    ```sh
-    ln -s <...>/strapi-plugin-navigation/build <...>/strapi-project/src/plugins/navigation 
-    ```
+   ```ts
+   // Install all dependencies
+   yarn install
 
-- Run build command 
+   // Watch for file changes using `plugin-sdk` and follow the instructions provided by this official Strapi developer tool
+   yarn watch:link
+   ```
 
-    ```ts
-    // Watch for file changes
-    yarn develop
+3. Within the Strapi project, modify `config/plugins.{js,ts}` for `imgix`
 
-    // or run build without nodemon
-    yarn build:dev
-    ```
+```ts
+//...
+'navigation': {
+  enabled: true,
+  //...
+}
+//...
+```
+
+4. Run your Strapi instance
 
 ## 👨‍💻 Community support
 

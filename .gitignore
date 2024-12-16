@@ -79,6 +79,7 @@ $RECYCLE.BIN/
 *#
 ssl
 .idea
+.vscode
 nbproject
 public/uploads/*
 !public/uploads/.gitkeep
@@ -94,8 +95,8 @@ logs
 results
 node_modules
 .node_history
-yarn.lock
 package-lock.json
+.yarnrc.yml
 
 
 ############################
@@ -104,6 +105,7 @@ package-lock.json
 
 testApp
 coverage
+junit.xml
 
 ############################
 # Strapi
@@ -112,4 +114,5 @@ coverage
 .env
 exports
 .cache
-build
+dist
+.vscode
