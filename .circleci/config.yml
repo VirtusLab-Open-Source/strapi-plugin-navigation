@@ -74,7 +74,7 @@ jobs:
             yarn build
       - run:
           name: Publish package
-          command: npm publish --tag beta
+          command: npm publish --tag latest
 
 workflows:
   version: 2
