@@ -125,6 +125,10 @@ const ca = {
         },
         menuAttached: {
           label: "Attacher au menu",
+          value: {
+            yes: "Sí",
+            no: "No",
+          },
         },
         type: {
           label: "Type d'élément de navigation",
