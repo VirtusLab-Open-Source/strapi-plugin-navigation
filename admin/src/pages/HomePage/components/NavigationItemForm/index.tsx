@@ -4,20 +4,18 @@ import { get, isBoolean, isEmpty, isNil, isObject, isString, set, sortBy } from 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 
+import { Grid, Modal, Toggle } from '@strapi/design-system';
+
 import {
   Box,
   Button,
   Divider,
-  Grid,
-  Modal,
   MultiSelect,
   MultiSelectOption,
   SingleSelect,
   SingleSelectOption,
   TextInput,
-  Toggle,
 } from '@strapi/design-system';
-
 import { NavigationSchema } from '../../../../api/validators';
 import { NavigationItemAdditionalField } from '../../../../schemas';
 import { getTrad } from '../../../../translations';
@@ -571,34 +569,8 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
 
             return (
               <>
-                <Grid.Root gap={5}>
-                  <Grid.Item alignItems="flex-start" key="title" col={12}>
-                    <Field
-                      name="title"
-                      label={formatMessage(getTrad('popup.item.form.title.label', 'Title'))}
-                      error={renderError('title')}
-                      hint={formatMessage(
-                        getTrad('popup.item.form.title.placeholder', 'e.g. Blog')
-                      )}
-                    >
-                      <TextInput
-                        type="string"
-                        disabled={!canUpdate || (values.autoSync && values.type === 'INTERNAL')}
-                        name="title"
-                        onChange={(eventOrPath: FormChangeEvent, value?: any) =>
-                          handleChange(eventOrPath, value, onChange)
-                        }
-                        value={values.title}
-                      />
-                    </Field>
-                  </Grid.Item>
-
-                  <Grid.Item
-                    alignItems="flex-start"
-                    key="type"
-                    col={values.type === 'INTERNAL' ? 4 : 7}
-                    lg={12}
-                  >
+                <Grid.Root gap={5} paddingBottom={1}>
+                  <Grid.Item alignItems="flex-start" key="title" col={8}>
                     <Field
                       name="type"
                       label={formatMessage(getTrad('popup.item.form.type.label', 'Internal link'))}
@@ -625,12 +597,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                     </Field>
                   </Grid.Item>
 
-                  <Grid.Item
-                    alignItems="flex-start"
-                    key="menuAttached"
-                    col={values.type === 'INTERNAL' ? 4 : 5}
-                    lg={12}
-                  >
+                  <Grid.Item alignItems="flex-start" key="menuAttached" col={4}>
                     <Field
                       name="menuAttached"
                       label={formatMessage(
@@ -651,8 +618,12 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                           handleChange(eventOrPath, !values.menuAttached, onChange)
                         }
                         value={values.menuAttached}
-                        onLabel="true"
-                        offLabel="false"
+                        onLabel={formatMessage(
+                          getTrad('popup.item.form.menuAttached.value.yes', 'yes')
+                        )}
+                        offLabel={formatMessage(
+                          getTrad('popup.item.form.menuAttached.value.no', 'no')
+                        )}
                         disabled={
                           !canUpdate ||
                           (configQuery.data?.cascadeMenuAttached
@@ -663,9 +634,36 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                       />
                     </Field>
                   </Grid.Item>
+                </Grid.Root>
+
+                <Grid.Root gap={5} paddingTop={1} paddingBottom={1}>
+                  <Grid.Item
+                    alignItems="flex-start"
+                    key="title"
+                    col={values.type === 'INTERNAL' ? 8 : 12}
+                  >
+                    <Field
+                      name="title"
+                      label={formatMessage(getTrad('popup.item.form.title.label', 'Title'))}
+                      error={renderError('title')}
+                      hint={formatMessage(
+                        getTrad('popup.item.form.title.placeholder', 'e.g. Blog')
+                      )}
+                    >
+                      <TextInput
+                        type="string"
+                        disabled={!canUpdate || (values.autoSync && values.type === 'INTERNAL')}
+                        name="title"
+                        onChange={(eventOrPath: FormChangeEvent, value?: any) =>
+                          handleChange(eventOrPath, value, onChange)
+                        }
+                        value={values.title}
+                      />
+                    </Field>
+                  </Grid.Item>
 
                   {values.type === 'INTERNAL' && (
-                    <Grid.Item alignItems="flex-start" key="autoSync" col={4} lg={12}>
+                    <Grid.Item alignItems="flex-start" key="autoSync" col={4}>
                       <Field
                         name="autoSync"
                         label={formatMessage(
@@ -685,8 +683,10 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                       </Field>
                     </Grid.Item>
                   )}
+                </Grid.Root>
 
-                  <Grid.Item alignItems="flex-start" key={pathSourceName} col={12}>
+                <Grid.Root gap={5} paddingTop={1} paddingBottom={1}>
+                  <Grid.Item alignItems="flex-start" key="title" col={12}>
                     <Field
                       name={pathSourceName}
                       label={formatMessage(
@@ -716,179 +716,78 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                       />
                     </Field>
                   </Grid.Item>
+                </Grid.Root>
 
-                  {values.type === 'INTERNAL' && (
-                    <>
-                      <Grid.Item alignItems="flex-start" col={6} lg={12}>
-                        <Field
+                {values.type === 'INTERNAL' && (
+                  <Grid.Root gap={5} paddingTop={1} paddingBottom={1}>
+                    <Grid.Item
+                      alignItems="flex-start"
+                      col={values.relatedType && !isSingleSelected ? 6 : 12}
+                    >
+                      <Field
+                        name="relatedType"
+                        label={formatMessage(
+                          getTrad('popup.item.form.relatedType.label', 'Related Type')
+                        )}
+                        error={renderError('relatedType')}
+                        hint={
+                          !isLoading && isEmpty(relatedTypeSelectOptions)
+                            ? formatMessage(
+                                getTrad(
+                                  'popup.item.form.relatedType.empty',
+                                  'There are no more content types'
+                                )
+                              )
+                            : undefined
+                        }
+                      >
+                        <SingleSelect
                           name="relatedType"
-                          label={formatMessage(
-                            getTrad('popup.item.form.relatedType.label', 'Related Type')
-                          )}
-                          error={renderError('relatedType')}
+                          onChange={(eventOrPath: FormChangeEvent) =>
+                            handleChange('relatedType', eventOrPath, onChange)
+                          }
+                          value={values.relatedType}
+                          disabled={!configQuery.data?.contentTypes.length || !canUpdate}
+                          width="100%"
+                        >
+                          {configQuery.data?.contentTypes.map((contentType) => (
+                            <SingleSelectOption key={contentType.uid} value={contentType.uid}>
+                              {contentType.contentTypeName}
+                            </SingleSelectOption>
+                          ))}
+                        </SingleSelect>
+                      </Field>
+                    </Grid.Item>
+
+                    {values.relatedType && !isSingleSelected && (
+                      <Grid.Item alignItems="flex-start" col={6}>
+                        <Field
+                          name="related"
+                          label={formatMessage(getTrad('popup.item.form.related.label', 'Related'))}
+                          error={renderError('related')}
                           hint={
-                            !isLoading && isEmpty(relatedTypeSelectOptions)
+                            !isLoading && thereAreNoMoreContentTypes
                               ? formatMessage(
                                   getTrad(
-                                    'popup.item.form.relatedType.empty',
-                                    'There are no more content types'
-                                  )
+                                    'popup.item.form.related.empty',
+                                    'There are no more entities'
+                                  ),
+                                  { contentTypeName: values.relatedType }
                                 )
                               : undefined
                           }
                         >
                           <SingleSelect
-                            name="relatedType"
+                            name="related"
                             onChange={(eventOrPath: FormChangeEvent) =>
-                              handleChange('relatedType', eventOrPath, onChange)
+                              handleChange('related', eventOrPath, onChange)
                             }
-                            value={values.relatedType}
-                            disabled={!configQuery.data?.contentTypes.length || !canUpdate}
+                            value={values.related}
+                            options={relatedSelectOptions}
+                            disabled={isLoading || thereAreNoMoreContentTypes || !canUpdate}
                             width="100%"
                           >
-                            {configQuery.data?.contentTypes.map((contentType) => (
-                              <SingleSelectOption key={contentType.uid} value={contentType.uid}>
-                                {contentType.contentTypeName}
-                              </SingleSelectOption>
-                            ))}
-                          </SingleSelect>
-                        </Field>
-                      </Grid.Item>
-
-                      {values.relatedType && !isSingleSelected && (
-                        <Grid.Item alignItems="flex-start" col={6} lg={12}>
-                          <Field
-                            name="related"
-                            label={formatMessage(
-                              getTrad('popup.item.form.related.label', 'Related')
-                            )}
-                            error={renderError('related')}
-                            hint={
-                              !isLoading && thereAreNoMoreContentTypes
-                                ? formatMessage(
-                                    getTrad(
-                                      'popup.item.form.related.empty',
-                                      'There are no more entities'
-                                    ),
-                                    { contentTypeName: values.relatedType }
-                                  )
-                                : undefined
-                            }
-                          >
-                            <SingleSelect
-                              name="related"
-                              onChange={(eventOrPath: FormChangeEvent) =>
-                                handleChange('related', eventOrPath, onChange)
-                              }
-                              value={values.related}
-                              options={relatedSelectOptions}
-                              disabled={isLoading || thereAreNoMoreContentTypes || !canUpdate}
-                              width="100%"
-                            >
-                              {relatedSelectOptions.map(({ key, label, value }) => (
-                                <SingleSelectOption key={key} value={value}>
-                                  {label}
-                                </SingleSelectOption>
-                              ))}
-                            </SingleSelect>
-                          </Field>
-                        </Grid.Item>
-                      )}
-                    </>
-                  )}
-
-                  {!isEmpty(configQuery.data?.additionalFields) && (
-                    <Grid.Item col={12} lg={12}>
-                      <Divider width="100%" />
-                    </Grid.Item>
-                  )}
-
-                  {configQuery.data?.additionalFields.map(
-                    (additionalField: NavigationItemAdditionalField, index: number) => {
-                      if (additionalField === 'audience') {
-                        return (
-                          <Grid.Item alignItems="flex-start" key="audience" col={6} lg={12}>
-                            <Field
-                              name="audience"
-                              label={formatMessage(getTrad('popup.item.form.audience.label'))}
-                              error={renderError('audience')}
-                              hint={
-                                !isLoading && isEmpty(audienceOptions)
-                                  ? formatMessage(
-                                      getTrad('popup.item.form.title.placeholder', 'e.g. Blog')
-                                    )
-                                  : undefined
-                              }
-                            >
-                              <MultiSelect
-                                name="audience"
-                                value={values.audience}
-                                onChange={(eventOrPath: FormChangeEvent) =>
-                                  handleChange('audience', eventOrPath, onChange)
-                                }
-                                width="100%"
-                              >
-                                {audienceOptions.map(({ value, label }) => (
-                                  <MultiSelectOption key={value} value={value}>
-                                    {label}
-                                  </MultiSelectOption>
-                                ))}
-                              </MultiSelect>
-                            </Field>
-                          </Grid.Item>
-                        );
-                      } else {
-                        return (
-                          <Grid.Item
-                            alignItems="flex-start"
-                            key={additionalField.name}
-                            col={6}
-                            lg={12}
-                          >
-                            <Field
-                              name={`additionalFields.${additionalField.name}`}
-                              label={additionalField.label}
-                              error={renderError(`additionalFields.${additionalField.name}`)}
-                            >
-                              <AdditionalFieldInput
-                                name={`additionalFields.${additionalField.name}`}
-                                field={additionalField}
-                                isLoading={isLoading}
-                                onChange={onChange}
-                                onChangeEnhancer={handleChange}
-                                value={get(values?.additionalFields, additionalField.name)}
-                                disabled={!canUpdate}
-                              />
-                            </Field>
-                          </Grid.Item>
-                        );
-                      }
-                    }
-                  )}
-                </Grid.Root>
-
-                {availableLocaleOptions && availableLocaleOptions.length > 1 && (
-                  <>
-                    <Divider marginTop={5} marginBottom={5} />
-
-                    <Grid.Root gap={5}>
-                      <Grid.Item alignItems="flex-start" col={6} lg={12}>
-                        <Field
-                          name="i18n.locale"
-                          label={formatMessage(
-                            getTrad('popup.item.form.i18n.locale.label', 'Copy details from')
-                          )}
-                        >
-                          <SingleSelect
-                            name="i18n.locale"
-                            onChange={setItemLocaleCopyValue}
-                            value={itemLocaleCopyValue}
-                            disabled={isLoading || !canUpdate}
-                            placeholder={formatMessage(
-                              getTrad('popup.item.form.i18n.locale.placeholder', 'locale')
-                            )}
-                          >
-                            {availableLocaleOptions.map(({ key, label, value }) => (
+                            {relatedSelectOptions.map(({ key, label, value }) => (
                               <SingleSelectOption key={key} value={value}>
                                 {label}
                               </SingleSelectOption>
@@ -896,23 +795,144 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                           </SingleSelect>
                         </Field>
                       </Grid.Item>
+                    )}
+                  </Grid.Root>
+                )}
 
-                      {canUpdate && (
-                        <Grid.Item alignItems="flex-start" col={6} lg={12} paddingTop={6}>
-                          <Box>
-                            <Button
-                              variant="tertiary"
-                              onClick={onCopyFromLocale}
-                              disabled={isLoading || !itemLocaleCopyValue}
-                            >
-                              {formatMessage(getTrad('popup.item.form.i18n.locale.button'))}
-                            </Button>
-                          </Box>
-                        </Grid.Item>
+                {!isEmpty(configQuery.data?.additionalFields) && (
+                  <>
+                    <Grid.Root gap={5} paddingTop={1} paddingBottom={1}>
+                      <Grid.Item col={12} lg={12}>
+                        <Divider width="100%" />
+                      </Grid.Item>
+                    </Grid.Root>
+
+                    <Grid.Root gap={5} paddingTop={1} paddingBottom={1}>
+                      {configQuery.data?.additionalFields.map(
+                        (additionalField: NavigationItemAdditionalField, index: number) => {
+                          if (additionalField !== 'audience') {
+                            return (
+                              <Grid.Item alignItems="flex-start" key={additionalField.name} col={6}>
+                                <Field
+                                  name={`additionalFields.${additionalField.name}`}
+                                  label={additionalField.label}
+                                  error={renderError(`additionalFields.${additionalField.name}`)}
+                                >
+                                  <AdditionalFieldInput
+                                    name={`additionalFields.${additionalField.name}`}
+                                    field={additionalField}
+                                    isLoading={isLoading}
+                                    onChange={onChange}
+                                    onChangeEnhancer={handleChange}
+                                    value={get(values?.additionalFields, additionalField.name)}
+                                    disabled={!canUpdate}
+                                  />
+                                </Field>
+                              </Grid.Item>
+                            );
+                          }
+                        }
                       )}
+
+                      {configQuery.data?.additionalFields.map(
+                        (additionalField: NavigationItemAdditionalField, index: number) => {
+                          if (additionalField === 'audience') {
+                            return (
+                              <Grid.Item alignItems="flex-start" key="audience" col={12}>
+                                <Field
+                                  name="audience"
+                                  label={formatMessage(getTrad('popup.item.form.audience.label'))}
+                                  error={renderError('audience')}
+                                  hint={
+                                    !isLoading && isEmpty(audienceOptions)
+                                      ? formatMessage(
+                                          getTrad('popup.item.form.title.placeholder', 'e.g. Blog')
+                                        )
+                                      : undefined
+                                  }
+                                >
+                                  <MultiSelect
+                                    name="audience"
+                                    value={values.audience}
+                                    onChange={(eventOrPath: FormChangeEvent) =>
+                                      handleChange('audience', eventOrPath, onChange)
+                                    }
+                                    width="100%"
+                                  >
+                                    {audienceOptions.map(({ value, label }) => (
+                                      <MultiSelectOption key={value} value={value}>
+                                        {label}
+                                      </MultiSelectOption>
+                                    ))}
+                                  </MultiSelect>
+                                </Field>
+                              </Grid.Item>
+                            );
+                          }
+                        }
+                      )}
+                    </Grid.Root>
+
+                    <Grid.Root gap={5} paddingTop={1} paddingBottom={1}>
+                      <Grid.Item col={12} lg={12}>
+                        <Divider width="100%" />
+                      </Grid.Item>
                     </Grid.Root>
                   </>
                 )}
+
+                {availableLocaleOptions && availableLocaleOptions.length > 1 && (
+                  <Grid.Root gap={5} paddingTop={1} paddingBottom={1}>
+                    <Grid.Item alignItems="flex-start" key="title" col={12}>
+                      <Divider marginTop={5} marginBottom={5} />
+
+                      <Grid.Root gap={5}>
+                        <Grid.Item alignItems="flex-start" col={6} lg={12}>
+                          <Field
+                            name="i18n.locale"
+                            label={formatMessage(
+                              getTrad('popup.item.form.i18n.locale.label', 'Copy details from')
+                            )}
+                          >
+                            <SingleSelect
+                              name="i18n.locale"
+                              onChange={setItemLocaleCopyValue}
+                              value={itemLocaleCopyValue}
+                              disabled={isLoading || !canUpdate}
+                              placeholder={formatMessage(
+                                getTrad('popup.item.form.i18n.locale.placeholder', 'locale')
+                              )}
+                            >
+                              {availableLocaleOptions.map(({ key, label, value }) => (
+                                <SingleSelectOption key={key} value={value}>
+                                  {label}
+                                </SingleSelectOption>
+                              ))}
+                            </SingleSelect>
+                          </Field>
+                        </Grid.Item>
+
+                        {canUpdate && (
+                          <Grid.Item alignItems="flex-start" col={6} lg={12} paddingTop={6}>
+                            <Box>
+                              <Button
+                                variant="tertiary"
+                                onClick={onCopyFromLocale}
+                                disabled={isLoading || !itemLocaleCopyValue}
+                              >
+                                {formatMessage(getTrad('popup.item.form.i18n.locale.button'))}
+                              </Button>
+                            </Box>
+                          </Grid.Item>
+                        )}
+                      </Grid.Root>
+                    </Grid.Item>
+                  </Grid.Root>
+                )}
+
+                <Grid.Root gap={5}>
+                  <Grid.Item alignItems="flex-start" key="title" col={12}></Grid.Item>
+                </Grid.Root>
               </>
             );
           }}

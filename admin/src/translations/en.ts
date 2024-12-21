@@ -129,6 +129,10 @@ const en = {
         },
         menuAttached: {
           label: "Attach to menu",
+          value: {
+            yes: "Yes",
+            no: "No",
+          },
         },
         type: {
           label: "Navigation item type",
