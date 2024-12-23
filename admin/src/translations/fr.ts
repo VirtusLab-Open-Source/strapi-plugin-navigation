@@ -129,6 +129,10 @@ const fr = {
         },
         menuAttached: {
           label: "Attacher au menu",
+          value: {
+            yes: "Oui",
+            no: "Non",
+          },
         },
         type: {
           label: "Type d'élément de navigation",
