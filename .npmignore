@@ -11,3 +11,4 @@ setup-package.*
 **/__tests__/**
 **/__mocks__/**
 migrations/**
+dist/assets/

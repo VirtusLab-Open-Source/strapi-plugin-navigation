@@ -111,6 +111,9 @@ const ca = {
           label: "Clé du routeur UI",
           placeholder: "Si vide, généré automatiquement par \"Titre\"",
         },
+        uiRouter: {
+          unableToRender: "Impossible de restituer le slug et/ou la clé du routeur d'interface utilisateur en raison de caractères non pris en charge"
+        },
         path: {
           label: "URL",
           placeholder: "Partie unique de l'URL identifiant cet élément",
