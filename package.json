@@ -1,6 +1,6 @@
 {
   "name": "strapi-plugin-navigation",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Strapi - Navigation plugin",
   "strapi": {
     "name": "navigation",
@@ -40,7 +40,6 @@
     }
   ],
   "dependencies": {
-    "@faker-js/faker": "^9.0.3",
     "@sindresorhus/slugify": "1.1.0",
     "@tanstack/react-query": "^5.40.0",
     "lodash": "^4.17.21",
@@ -55,16 +54,17 @@
     "zod": "^3.22.5"
   },
   "devDependencies": {
+    "@faker-js/faker": "^9.0.3",
     "@jest/types": "29.5.x",
     "@koa/router": "^12.0.1",
     "@sensinum/strapi-utils": "^1.0.4",
     "@strapi/design-system": "2.0.0-rc.14",
     "@strapi/icons": "2.0.0-rc.14",
-    "@strapi/plugin-graphql": "^5.5.1",
+    "@strapi/plugin-graphql": "^5.6.0",
     "@strapi/sdk-plugin": "^5.2.8",
-    "@strapi/strapi": "^5.5.1",
-    "@strapi/types": "^5.5.1",
-    "@strapi/typescript-utils": "^5.5.1",
+    "@strapi/strapi": "^5.6.0",
+    "@strapi/types": "^5.6.0",
+    "@strapi/typescript-utils": "^5.6.0",
     "@types/jest": "^29.5.12",
     "@types/koa": "^2.15.0",
     "@types/koa-bodyparser": "^4.3.12",
@@ -101,7 +101,7 @@
   },
   "peerDependencies": {
     "@strapi/sdk-plugin": "^5.2.8",
-    "@strapi/strapi": "^5.5.1",
+    "@strapi/strapi": "^5.6.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.2",
