@@ -50,7 +50,7 @@ jobs:
       - save_cache:
           paths:
             - ./node_modules
-          key: strapi-plugin-navigation-v3-{{ checksum "yarn.lock" }}
+          key: strapi-plugin-navigation-v4-{{ checksum "yarn.lock" }}
       - persist_to_workspace:
           root: ~/repo
           paths: .

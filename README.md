@@ -1,5 +1,5 @@
-<div align="center" width="150px">
-  <img style="width: 150px; height: auto;" src="public/assets/logo.png" alt="Logo - Strapi Navigation plugin" />
+<div align="center" style="max-width: 10rem; margin: 0 auto">
+  <img style="width: 150px; height: auto;" src="https://www.sensinum.com/img/open-source/strapi-plugin-navigation/logo.png" alt="Logo - Strapi Navigation plugin" />
 </div>
 <div align="center">
   <h1>Strapi - Navigation plugin</h1>
@@ -21,7 +21,7 @@
 ---
 
 <div style="margin: 20px 0" align="center">
-  <img style="width: 100%; height: auto;" src="public/assets/preview.png" alt="UI preview" />
+  <img style="width: 100%; height: auto;" src="https://www.sensinum.com/img/open-source/strapi-plugin-navigation/preview.png" alt="UI preview" />
 </div>
 
 Strapi Navigation Plugin provides a website navigation / menu builder feature for [Strapi Headless CMS](https://github.com/strapi/strapi) admin panel. Navigation has the possibility to control the audience and can be consumed by the website with different output structure renderers:
@@ -77,7 +77,7 @@ Strapi Navigation Plugin provides a website navigation / menu builder feature fo
 As a ✅ **verified** plugin by Strapi team we're available on the [**Strapi Marketplace**](https://market.strapi.io/plugins/strapi-plugin-navigation) as well as **In-App Marketplace** where you can follow the installation instructions.
 
 <div style="margin: 20px 0" align="center">
-  <img style="width: 100%; height: auto;" src="public/assets/marketplace.png" alt="Strapi In-App Marketplace" />
+  <img style="width: 100%; height: auto;" src="https://www.sensinum.com/img/open-source/strapi-plugin-navigation/marketplace.png" alt="Strapi In-App Marketplace" />
 </div>
 
 ### Via command line
@@ -100,7 +100,7 @@ The **UI Navigation** plugin should appear in the **Plugins** section of Strapi 
 You can manage your multiple navigation containers by going to the **Navigation** manage view by clicking "Manage" button.
 
 <div style="margin: 20px 0" align="center">
-  <img style="width: 100%; height: auto;" src="public/assets/manager-view.png" alt="Navigation Manager View" />
+  <img style="width: 100%; height: auto;" src="https://www.sensinum.com/img/open-source/strapi-plugin-navigation/manager-view.png" alt="Navigation Manager View" />
 </div>
 
 As a next step you must configure your the plugin by the way you want to. See [**Configuration**](#🔧-configuration) section.
@@ -129,7 +129,7 @@ To start your journey with **Navigation plugin** you must first setup it using t
 On the dedicated page, you will be able to set up all crucial properties which drive the plugin and customize each individual collection for which **Navigation plugin** should be enabled.
 
 <div style="margin: 20px 0" align="center">
-  <img style="width: 100%; height: auto;" src="public/assets/configuration.png" alt="Plugin configuration" />
+  <img style="width: 100%; height: auto;" src="https://www.sensinum.com/img/open-source/strapi-plugin-navigation/configuration.png" alt="Plugin configuration" />
 </div>
 
 > *Note*
