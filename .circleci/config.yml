@@ -75,7 +75,27 @@ jobs:
       - run:
           name: Publish package
           command: npm publish --tag latest
-
+  deployBeta:
+    environment:
+      CODECOV_TOKEN: c803c20c-c45d-4a63-9ba9-58c7d5d05bbf
+    docker:
+      - image: cimg/node:20.12.2
+    working_directory: ~/repo
+    resource_class: large
+    steps:
+      - attach_workspace:
+          at: ~/repo
+      - run:
+          name: Configure NPM
+          command: |
+            echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/.npmrc
+      - run:
+          name: Build
+          command: |
+            yarn build
+      - run:
+          name: Publish package
+          command: npm publish --tag beta
 workflows:
   version: 2
   test-deploy:
@@ -89,6 +109,14 @@ workflows:
             - test
           filters:
             tags:
-              only: /^v.*/
+              only: /^v\d+\.\d+\.\d+$/
+            branches:
+              only: master
+      - deployBeta:
+          requires:
+            - test
+          filters:
+            tags:
+              only: /^v.*-beta\.\d+$/
             branches:
               ignore: /.*/
