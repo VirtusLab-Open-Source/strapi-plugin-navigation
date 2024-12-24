@@ -16,7 +16,7 @@ export default ({ nexus, config }: any) =>
       t.field('parent', { type: 'NavigationItem' });
       t.string('master');
       t.list.field('items', { type: 'NavigationItem' });
-      t.field('related', { type: 'NavigationItemRelatedData' });
+      t.field('related', { type: 'NavigationItemRelated' });
 
       if (config.additionalFields.find((field: NavigationItemAdditionalField) => field === 'audience')) {
         t.list.string('audience');
