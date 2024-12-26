@@ -196,6 +196,7 @@ export const contentTypeFieldTypeSchema = z.enum([
   'decimal',
   'json',
   'relation',
+  'media',
 ]);
 
 export type SimpleContentTypeAttribute = z.infer<typeof simpleContentTypeAttribute>;
@@ -225,7 +226,7 @@ export const contentTypeDynamicZoneAttribute = z.object({
 export type ContentTypeMediaAttribute = z.infer<typeof contentTypeMediaAttribute>;
 export const contentTypeMediaAttribute = z.object({
   media: z.literal('media'),
-  allowedTypes: z.enum(['images', 'videos', 'files']).array(),
+  allowedTypes: z.enum(['images', 'videos', 'audios', 'files']).array(),
   required: z.boolean().optional(),
 });
 
