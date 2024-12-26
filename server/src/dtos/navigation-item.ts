@@ -5,12 +5,17 @@ export type NavigationItemDTO = Omit<
   NavigationItemDBSchema,
   'related' | 'items' | 'master' | 'parent'
 > & {
-  related?: { __type: string; documentId: string } | null;
+  related?: NavigationItemRelatedDTO | null;
   items?: NavigationItemDTO[];
   master?: NavigationDTO;
   parent?: NavigationItemDTO | null;
   order?: number;
 };
+
+export type NavigationItemRelatedDTO = {
+  __type: string;
+  documentId: string;
+}
 
 export type CreateBranchNavigationItemDTO = Omit<NavigationItemDBSchema, 'id' | 'documentId' | 'items'> & {
   id?: number;
