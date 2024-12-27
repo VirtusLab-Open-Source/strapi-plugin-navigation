@@ -157,17 +157,18 @@ const CustomFieldTable: React.FC<ICustomFieldTableProps> = ({
                 <Td>
                   <Flex direction="row" size={1}>
                     <IconButton
-                      onClick={() => onOpenModal(customField)}
-                      label={formatMessage(getTrad(`${tradPrefix}edit`))}
-                      children={<Pencil />}
-                      style={{ minWidth: 50 }}
-                    />
-                    <IconButton
                       onClick={() => onToggleCustomField(customField)}
                       label={formatMessage(
                         getTrad(`${tradPrefix}${customField.enabled ? 'disable' : 'enable'}`)
                       )}
+                      variant={customField.enabled ? 'success-light' : 'tertiary'}
                       children={customField.enabled ? <Eye /> : <EyeStriked />}
+                      style={{ minWidth: 50 }}
+                    />
+                    <IconButton
+                      onClick={() => onOpenModal(customField)}
+                      label={formatMessage(getTrad(`${tradPrefix}edit`))}
+                      children={<Pencil />}
                       style={{ minWidth: 50 }}
                     />
                     <IconButton
