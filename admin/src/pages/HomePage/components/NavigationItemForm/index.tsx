@@ -225,11 +225,11 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
       const uiRouterKey = await generateUiRouterKey(
         payload.type === 'INTERNAL'
           ? {
-              slugify: slugifyMutation.mutateAsync,
-              title,
-              related: payload.related,
-              relatedType: payload.relatedType,
-            }
+            slugify: slugifyMutation.mutateAsync,
+            title,
+            related: payload.related,
+            relatedType: payload.relatedType,
+          }
           : { slugify: slugifyMutation.mutateAsync, title }
       );
 
@@ -248,15 +248,15 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
       onSubmit(
         payload.type === 'INTERNAL'
           ? {
-              ...payload,
-              title,
-              uiRouterKey,
-            }
+            ...payload,
+            title,
+            uiRouterKey,
+          }
           : {
-              ...payload,
-              title,
-              uiRouterKey,
-            }
+            ...payload,
+            title,
+            uiRouterKey,
+          }
       );
     } else if (error) {
       setFormError(
@@ -290,9 +290,9 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
     formValue.type === 'INTERNAL'
       ? formValue
       : {
-          related: undefined,
-          relatedType: undefined,
-        };
+        related: undefined,
+        relatedType: undefined,
+      };
 
   const isExternal = currentType === 'EXTERNAL';
   const isInternal = currentType === 'INTERNAL';
@@ -354,7 +354,10 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
     [contentTypeItemsQuery.data, configQuery.data, contentTypes]
   );
 
-  const navigationItemTypeOptions = (['INTERNAL', 'EXTERNAL', 'WRAPPER'] as const).map((key) => {
+  const availableNavigationItemTypeOptions = !configQuery.data?.contentTypes.length ?
+    ['EXTERNAL', 'WRAPPER'] as const :
+    ['INTERNAL', 'EXTERNAL', 'WRAPPER'] as const;
+  const navigationItemTypeOptions = availableNavigationItemTypeOptions.map((key) => {
     return {
       key,
       value: key,
@@ -551,9 +554,9 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
               values.type === 'INTERNAL'
                 ? values
                 : {
-                    related: undefined,
-                    relatedType: undefined,
-                  };
+                  related: undefined,
+                  relatedType: undefined,
+                };
 
             const pathDefault = generatePreviewPath({
               currentPath: values.path,
@@ -585,7 +588,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                         }
                         value={values.type}
                         name="type"
-                        disabled={!configQuery.data?.contentTypes.length || !canUpdate}
+                        disabled={!canUpdate}
                         width="100%"
                       >
                         {navigationItemTypeOptions.map(({ key, label, value }) => (
@@ -699,8 +702,8 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                         ),
                         pathDefault
                           ? formatMessage(getTrad('popup.item.form.type.external.description'), {
-                              value: pathDefault,
-                            })
+                            value: pathDefault,
+                          })
                           : '',
                       ].join(' ')}
                     >
@@ -733,11 +736,11 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                         hint={
                           !isLoading && isEmpty(relatedTypeSelectOptions)
                             ? formatMessage(
-                                getTrad(
-                                  'popup.item.form.relatedType.empty',
-                                  'There are no more content types'
-                                )
+                              getTrad(
+                                'popup.item.form.relatedType.empty',
+                                'There are no more content types'
                               )
+                            )
                             : undefined
                         }
                       >
@@ -768,12 +771,12 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                           hint={
                             !isLoading && thereAreNoMoreContentTypes
                               ? formatMessage(
-                                  getTrad(
-                                    'popup.item.form.related.empty',
-                                    'There are no more entities'
-                                  ),
-                                  { contentTypeName: values.relatedType }
-                                )
+                                getTrad(
+                                  'popup.item.form.related.empty',
+                                  'There are no more entities'
+                                ),
+                                { contentTypeName: values.relatedType }
+                              )
                               : undefined
                           }
                         >
@@ -846,8 +849,8 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                                   hint={
                                     !isLoading && isEmpty(audienceOptions)
                                       ? formatMessage(
-                                          getTrad('popup.item.form.title.placeholder', 'e.g. Blog')
-                                        )
+                                        getTrad('popup.item.form.title.placeholder', 'e.g. Blog')
+                                      )
                                       : undefined
                                   }
                                 >
