@@ -571,16 +571,14 @@ query {
     path
     related {
       id
-      attributes {
-        __typename
+      __typename
 
-        ... on Page {
-          Title
-        }
+      ... on Page {
+        Title
+      }
 
-        ... on WithFlowType {
-          Name
-        }
+      ... on WithFlowType {
+        Name
       }
     }
     items {
@@ -589,16 +587,14 @@ query {
       path
       related {
         id
-        attributes {
-          __typename
+        __typename
 
-          ... on Page {
-            Title
-          }
+        ... on Page {
+          Title
+        }
 
-          ... on WithFlowType {
-            Name
-          }
+        ... on WithFlowType {
+          Name
         }
       }
     }
@@ -618,10 +614,8 @@ query {
         "path": "/test-path",
         "related": {
           "id": 3,
-          "attributes": {
-            "__typename": "WithFlowType",
-            "Name": "Test"
-          }
+          "__typename": "WithFlowType",
+          "Name": "Test"
         },
         "items": [
           {
@@ -630,10 +624,8 @@ query {
             "path": "/test-path/nested-one",
             "related": {
               "id": 1,
-              "attributes": {
-                  "__typename": "Page",
-                "Title": "Eg. Page title"
-              }
+              "__typename": "Page",
+              "Title": "Eg. Page title"
             }
           }
         ]
