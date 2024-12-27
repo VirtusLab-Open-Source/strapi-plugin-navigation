@@ -1,3 +1,5 @@
+import { NavigationItemRelatedDTO } from '../../dtos';
+
 export default ({ strapi, nexus, config }: any) => {
 	const related = config.gql?.navigationItemRelated;
 	const name = "NavigationItemRelated";
@@ -8,12 +10,12 @@ export default ({ strapi, nexus, config }: any) => {
 			definition(t: any) {
 				t.members(...related)
 			},
-			resolveType: (item: { uid: string }) => {
-				return strapi.contentTypes[item.uid]?.globalId
+			resolveType: (item: NavigationItemRelatedDTO) => {
+				return strapi.contentTypes[item.__type]?.globalId
 			}
 		});
 	}
-	
+
 	return nexus.objectType({
 		name,
 		definition(t: any) {

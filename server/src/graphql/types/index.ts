@@ -10,14 +10,12 @@ import navigationItem from './navigation-item';
 import navigationItemAdditionalFields from './navigation-item-additional-fields';
 import navigationItemAdditionalFieldMedia from './navigation-item-additional-field-media';
 import navigationItemRelated from './navigation-item-related';
-import navigationItemRelatedData from './navigation-item-related-data';
 import renderType from './navigation-render-type';
 
 const typesFactories = [
   navigationItemAdditionalFieldMedia,
   navigationItemAdditionalFields,
   navigationItemRelated,
-  navigationItemRelatedData,
   navigationItem,
   renderType,
   navigation,
