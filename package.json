@@ -1,6 +1,6 @@
 {
   "name": "strapi-plugin-navigation",
-  "version": "2.5.5",
+  "version": "2.5.6",
   "description": "Strapi - Navigation plugin",
   "strapi": {
     "name": "navigation",
@@ -13,7 +13,6 @@
     "url": "https://github.com/VirtusLab/strapi-plugin-navigation"
   },
   "scripts": {
-    "publish:latest": "cd build && npm publish --tag latest",
     "prepublish:latest": "npm run clean && npm run build && node build/setup-package.js",
     "test:unit": "jest --verbose --coverage",
     "test:unit:watch": "jest --watch",
@@ -25,7 +24,7 @@
   "types": "./types/index.d.ts",
   "dependencies": {
     "@sindresorhus/slugify": "1.1.0",
-    "@strapi/utils": "^4.25.17",
+    "@strapi/utils": "^4.25.18",
     "lodash": "^4.17.21",
     "pluralize": "^8.0.0",
     "react": "^18.2.0",
@@ -37,8 +36,8 @@
   },
   "devDependencies": {
     "@jest/types": "29.5.x",
-    "@strapi/admin": "4.25.17",
-    "@strapi/helper-plugin": "4.25.17",
+    "@strapi/admin": "4.25.18",
+    "@strapi/helper-plugin": "4.25.18",
     "@types/jest": "29.5.1",
     "@types/koa__router": "^12.0.4",
     "@types/lodash": "^4.14.181",
@@ -58,7 +57,7 @@
     "typescript": "5.2.2"
   },
   "peerDependencies": {
-    "@strapi/data-transfer": "4.25.17",
+    "@strapi/data-transfer": "4.25.18",
     "@strapi/strapi": "4.x",
     "react": "^17.0.0 || ^18.0.0",
     "react-dom": "^17.0.0 || ^18.0.0",
