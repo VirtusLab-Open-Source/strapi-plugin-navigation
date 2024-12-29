@@ -13,7 +13,7 @@
     "url": "https://github.com/VirtusLab/strapi-plugin-navigation"
   },
   "scripts": {
-    "prepublish:latest": "npm run clean && npm run build && node build/setup-package.js",
+    "prepublish": "npm run clean && npm run build && node build/setup-package.js",
     "test:unit": "jest --verbose --coverage",
     "test:unit:watch": "jest --watch",
     "test:unit:ci": "CI=true jest --ci --runInBand --verbose --coverage",
