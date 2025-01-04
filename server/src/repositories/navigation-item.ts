@@ -95,14 +95,14 @@ export const getNavigationItemRepository = once((context: { strapi: Core.Strapi 
     });
   },
 
-  findForMasterIds(ids: string[]) {
+  findForMasterIds(ids: number[]) {
     const { itemModel } = getPluginModels(context);
 
     return context.strapi
       .query(itemModel.uid)
       .findMany({
         where: {
-          $or: ids.map((documentId) => ({ master: documentId })),
+          $or: ids.map((id) => ({ master: id })),
         },
         limit: Number.MAX_SAFE_INTEGER,
       })
