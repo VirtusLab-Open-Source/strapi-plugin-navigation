@@ -485,7 +485,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
 
     // TODO: remove when cascade deletion is present
     // NOTE: Delete many with relation `where` crashes ORM
-    const cleanNavigationItems = async (masterIds: Array<string>) => {
+    const cleanNavigationItems = async (masterIds: Array<number>) => {
       if (masterIds.length < 1) {
         return;
       }
@@ -515,7 +515,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
     });
 
     await cleanNavigationItems(
-      allNavigations.map(({ documentId }: NavigationDBSchema) => documentId)
+      allNavigations.map(({ id }: NavigationDBSchema) => id)
     );
     await navigationRepository.remove({ documentId: navigation.documentId });
 
