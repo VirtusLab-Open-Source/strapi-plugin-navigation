@@ -30,7 +30,6 @@ Strapi Navigation Plugin provides a website navigation / menu builder feature fo
 - Tree (nested)
 - RFR (ready for handling by Redux First Router)
 
-
 ### Table of Contents
 1. [💎 Versions](#-versions)
 2. [✨ Features](#-features)
@@ -55,6 +54,7 @@ Strapi Navigation Plugin provides a website navigation / menu builder feature fo
 17. [👨‍💻 Community support](#-community-support)
 
 ## 💎 Versions
+
 - **Strapi v5** - (current) [v3.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation)
 - **Strapi v4** - [v2.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/strapi-v4)
 - **Strapi v3** - [v1.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/strapi-v3)
@@ -122,7 +122,7 @@ Complete installation requirements are exact same as for Strapi itself and can b
 
 ## 🔧 Configuration
 
-To start your journey with **Navigation plugin** you must first setup it using the dedicated Settings page or for any version, put your configuration in `config/plugins.{js,ts}`. Anyway we're recommending the click-through option where your configuration is going to be properly validated.
+To start your journey with **Navigation plugin** you must first setup it using the dedicated Settings page or for any version, put your configuration in `config/plugins.{js|ts}`. Anyway we're recommending the click-through option where your configuration is going to be properly validated.
 
 ### Settings page
 
@@ -137,7 +137,7 @@ On the dedicated page, you will be able to set up all crucial properties which d
 
 ### File
 
-Config for this plugin is stored as a part of the `config/plugins.{js, ts}` or `config/<env>/plugins.{js,ts}` file. You can use the following snippet to make sure that the config structure is correct. If you've got already configurations for other plugins stores by this way, you can use the `navigation` along with them. 
+Config for this plugin is stored as a part of the `config/plugins.{js|ts}` or `config/<env>/plugins.{js|ts}` file. You can use the following snippet to make sure that the config structure is correct. If you've got already configurations for other plugins stores by this way, you can use the `navigation` along with them. 
 
 
 ```ts
@@ -734,7 +734,7 @@ Live example of plugin usage can be found in the [VirtusLab Strapi Examples](htt
 
 **Q:** I would like to use GraphQL schemas but I'm not getting `renderNavigation` query or even proper types as Navigation, NavigationItem etc. What should I do?
 
-**A:** There is a one trick you might try. Strapi by default is ordering plugins by the way which takes `strapi-plugin-graphql` to initialize earlier than other plugins so types might not be injected. If you don't have it yet, please create `config/plugins.{js,ts}` file and put there following lines (put `graphql` at the end):
+**A:** There is a one trick you might try. Strapi by default is ordering plugins by the way which takes `strapi-plugin-graphql` to initialize earlier than other plugins so types might not be injected. If you don't have it yet, please create `config/plugins.{js|ts}` file and put there following lines (put `graphql` at the end):
 
 ```ts
 module.exports = {
@@ -774,7 +774,7 @@ Feel free to fork and make a Pull Request to this plugin project. All the input 
    yarn watch:link
    ```
 
-3. Within the Strapi project, modify `config/plugins.{js,ts}` for `imgix`
+3. Within the Strapi project, modify `config/plugins.{js|ts}` for `imgix`
 
 ```ts
 //...
