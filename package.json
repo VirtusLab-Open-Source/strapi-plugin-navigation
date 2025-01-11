@@ -1,6 +1,6 @@
 {
   "name": "strapi-plugin-navigation",
-  "version": "3.0.4",
+  "version": "3.0.5",
   "description": "Strapi - Navigation plugin",
   "strapi": {
     "name": "navigation",
@@ -60,11 +60,11 @@
     "@sensinum/strapi-utils": "^1.0.4",
     "@strapi/design-system": "2.0.0-rc.14",
     "@strapi/icons": "2.0.0-rc.14",
-    "@strapi/plugin-graphql": "^5.6.0",
+    "@strapi/plugin-graphql": "^5.7.0",
     "@strapi/sdk-plugin": "^5.2.8",
-    "@strapi/strapi": "^5.6.0",
-    "@strapi/types": "^5.6.0",
-    "@strapi/typescript-utils": "^5.6.0",
+    "@strapi/strapi": "^5.7.0",
+    "@strapi/types": "^5.7.0",
+    "@strapi/typescript-utils": "^5.7.0",
     "@types/jest": "^29.5.12",
     "@types/koa": "^2.15.0",
     "@types/koa-bodyparser": "^4.3.12",
@@ -101,7 +101,7 @@
   },
   "peerDependencies": {
     "@strapi/sdk-plugin": "^5.2.8",
-    "@strapi/strapi": "^5.6.0",
+    "@strapi/strapi": "^5.7.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.2",
