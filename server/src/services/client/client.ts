@@ -33,12 +33,13 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
   },
 
   renderRFRNavigationItem({ item }: RenderRFRNavInput): RFRNavigationItemDTO {
-    const { uiRouterKey, title, path, type, audience } = item;
+    const { uiRouterKey, title, path, type, audience, additionalFields } = item;
 
     const itemCommon = {
       label: title,
       type: type,
       audience: audience?.map(({ key }) => key),
+      additionalFields,
     };
 
     if (type === 'WRAPPER') {
@@ -74,7 +75,11 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
   },
 
   renderRFRPage({ item, parent, enabledCustomFieldsNames }: RenderRFRPageInput): RFRPageDTO {
-    const { documentId, uiRouterKey, title, path, related, type, audience, menuAttached } = item;
+    const { documentId, uiRouterKey, title, path, related, type, audience, menuAttached, additionalFields } = item;
+    const additionalFieldsRendered = enabledCustomFieldsNames.reduce(
+        (acc, field) => ({ ...acc, [field]: additionalFields?.[field] }),
+        {}
+      )
 
     return {
       id: uiRouterKey,
@@ -91,10 +96,7 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
       parent,
       audience,
       menuAttached,
-      ...enabledCustomFieldsNames.reduce(
-        (acc, field) => ({ ...acc, [field]: get(item, field) }),
-        {}
-      ),
+      additionalFields: additionalFieldsRendered,
     };
   },
 
@@ -300,7 +302,7 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
 
       const additionalFieldsMapper = (item: NavigationItemDTO) => (acc: {}, field: string) => {
         const fieldDefinition = customFieldsDefinitions.find(({ name }) => name === field);
-        let content = get(item, `additionalFields.${field}`);
+        let content = item.additionalFields?.[field];
 
         if (content) {
           switch (fieldDefinition?.type) {
@@ -429,8 +431,8 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
           };
 
           return result
-            .map(({ additionalFields, ...item }: NavigationItemDTO) => {
-              const customFields = enabledCustomFieldsNames.reduce(
+            .map((item: NavigationItemDTO) => {
+              const additionalFieldsMapped = enabledCustomFieldsNames.reduce(
                 additionalFieldsMapper(item),
                 {}
               );
@@ -438,15 +440,10 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
               return {
                 ...item,
                 audience: item.audience?.map((_) => _.key),
-                title:
-                  composeItemTitle(
-                    { ...item, additionalFields },
-                    contentTypesNameFields,
-                    contentTypes
-                  ) || '',
+                title: composeItemTitle(item, contentTypesNameFields, contentTypes) || '',
                 related: wrapContentType(item.related),
                 items: null,
-                ...customFields,
+                additionalFields: additionalFieldsMapped,
               };
             })
             .sort((a, b) =>

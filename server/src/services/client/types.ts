@@ -30,7 +30,10 @@ export interface RenderRFRInput {
 }
 
 export interface RenderRFRNavInput {
-  item: Pick<NavigationItemDTO, 'uiRouterKey' | 'title' | 'path' | 'type' | 'audience'>;
+  item: Pick<
+    NavigationItemDTO,
+    'uiRouterKey' | 'title' | 'path' | 'type' | 'audience' | 'additionalFields'
+  >;
 }
 
 export interface RenderRFRPageInput {
