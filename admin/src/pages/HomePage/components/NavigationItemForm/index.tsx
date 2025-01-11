@@ -270,12 +270,8 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
     }
   };
 
-  const renderError = (error: string): string | undefined => {
-    const errorOccurence = get(formError, error);
-    if (errorOccurence) {
-      return formatMessage(getTrad(error));
-    }
-    return undefined;
+  const renderError = (field: string, messageKey?: string): string | undefined => {
+    return get(formError, field) ? formatMessage(getTrad(messageKey ?? field)) : undefined;
   };
 
   const initialRelatedTypeSelected = current.type === 'INTERNAL' ? current.relatedType : undefined;
@@ -695,7 +691,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                       label={formatMessage(
                         getTrad(`popup.item.form.${pathSourceName}.label`, 'Path')
                       )}
-                      error={renderError(pathSourceName)}
+                      error={renderError(pathSourceName, `popup.item.form.${pathSourceName}.validation.type`)}
                       hint={[
                         formatMessage(
                           getTrad(`popup.item.form.${pathSourceName}.placeholder`, 'e.g. Blog')
