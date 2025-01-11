@@ -17,15 +17,17 @@ const TextArrayInput: React.FC<IProps> = ({ onChange, initialValue, ...props }) 
   const [value, setValue] = useState(
     isArray(initialValue) ? initialValue.reduce((acc, cur) => `${acc}${cur}; `, '') : ''
   );
-  const handleOnChange = (value: string) => {
-    const newValue: string = value;
+  const handleOnChange = (event: { target: { value?: string } }) => {
+    const newValue: string = event?.target.value ?? '';
     const valuesArray = newValue
       .split(';')
-      .map((v) => v.trim())
-      .filter((v) => !!v.length);
-    setValue(value);
+      .map((value) => value.trim())
+      .filter((value) => !!value.length);
+
+    setValue(newValue ?? '');
     onChange(valuesArray);
   };
+
   return <TextInput {...props} onChange={handleOnChange} value={value} />;
 };
 
