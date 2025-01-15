@@ -740,7 +740,7 @@ const Inner = () => {
                   </Flex>
                 </Box>
 
-                <Box {...BOX_DEFAULT_PROPS} width="100%" gap={2} direction="column" alignItems="flex-start">
+                <Box {...BOX_DEFAULT_PROPS} width="100%">
                   <Typography variant="delta" as="h2">
                     {formatMessage(getTrad('pages.settings.customFields.title'))}
                   </Typography>
