@@ -67,6 +67,7 @@ export const processItems =
       master: context.master,
       parent: undefined,
       related: item.related,
+      additionalFields: item.additionalFields,
     };
   };
 

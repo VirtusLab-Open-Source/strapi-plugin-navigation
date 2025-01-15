@@ -47,6 +47,32 @@ export const useContentTypes = () => {
   });
 };
 
+export const useResetNavigations = () => {
+  const fetch = getFetchClient();
+  const apiClient = getApiClient(fetch);
+
+  const queryClient = useQueryClient();
+
+  return () => {
+    queryClient.resetQueries({
+      queryKey: apiClient.readAllIndex(),
+    });
+  };
+};
+
+export const useResetContentTypes = () => {
+  const fetch = getFetchClient();
+  const apiClient = getApiClient(fetch);
+
+  const queryClient = useQueryClient();
+
+  return () => {
+    queryClient.resetQueries({
+      queryKey: apiClient.readContentTypeIndex(),
+    });
+  };
+};
+
 export const useNavigations = () => {
   const fetch = getFetchClient();
   const apiClient = getApiClient(fetch);
@@ -158,7 +184,9 @@ export const usePurgeNavigation = () => {
         return apiClient.purge({});
       }
 
-      return Promise.all(documentIds.map((documentId) => apiClient.purge({ documentId, withLangVersions: true })));
+      return Promise.all(
+        documentIds.map((documentId) => apiClient.purge({ documentId, withLangVersions: true }))
+      );
     },
   });
 };
@@ -207,7 +235,7 @@ export const useI18nCopyNavigationItemsModal = (onConfirm: ConfirmEffect) => {
   );
 };
 
-const appendViewId = (item: NavigationItemSchema): NavigationItemSchema => {
+export const appendViewId = (item: NavigationItemSchema): NavigationItemSchema => {
   return {
     ...item,
     viewId: Math.floor(Math.random() * 1520000),

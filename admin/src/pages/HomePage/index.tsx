@@ -1,4 +1,3 @@
-import { Data } from '@strapi/strapi';
 import {
   Box,
   Button,
@@ -8,6 +7,7 @@ import {
   SingleSelectOption,
   Typography,
 } from '@strapi/design-system';
+import { Data } from '@strapi/strapi';
 import { Layouts, Page, useRBAC } from '@strapi/strapi/admin';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { first, isEmpty } from 'lodash';
@@ -27,12 +27,15 @@ import { List } from './components/NavigationItemList';
 import NavigationItemPopUp from './components/NavigationItemPopup';
 import { Search } from './components/Search';
 import {
+  appendViewId,
   useConfig,
   useCopyNavigationI18n,
   useI18nCopyNavigationItemsModal,
   useLocale,
   useNavigations,
   usePurgeNavigation,
+  useResetContentTypes,
+  useResetNavigations,
   useUpdateNavigation,
 } from './hooks';
 import {
@@ -49,7 +52,7 @@ const Inner = () => {
 
   const localeQuery = useLocale();
 
-  const [recentNavigation, setRecentNavigation] = useState<{ documentId?: string, id?: Data.ID }>();
+  const [recentNavigation, setRecentNavigation] = useState<{ documentId?: string; id?: Data.ID }>();
   const [currentNavigation, setCurrentNavigation] = useState<NavigationSchema>();
 
   const [activeNavigationItem, setActiveNavigationItemState] = useState<
@@ -172,6 +175,9 @@ const Inner = () => {
     [localeQuery.data, currentLocale]
   );
 
+  const resetContentTypes = useResetContentTypes();
+  const resetNavigations = useResetNavigations();
+
   const {
     i18nCopyItemsModal,
     i18nCopySourceLocale,
@@ -196,7 +202,12 @@ const Inner = () => {
               {
                 onSuccess(res) {
                   copyNavigationI18nMutation.reset();
-                  setCurrentNavigation(res.data);
+                  setCurrentNavigation({
+                    ...res.data,
+                    items: res.data.items.map(appendViewId),
+                  });
+                  resetContentTypes();
+                  resetNavigations();
                 },
               }
             );
@@ -375,13 +386,11 @@ const Inner = () => {
 
   useEffect(() => {
     if (!currentNavigation && navigationsQuery.data?.[0]) {
-
       let navigation;
       if (recentNavigation?.documentId) {
-        navigation = navigationsQuery.data.find((nav) => 
-          (nav.documentId === recentNavigation.documentId) &&
-          (nav.id === recentNavigation.id)
-        )
+        navigation = navigationsQuery.data.find(
+          (nav) => nav.documentId === recentNavigation.documentId && nav.id === recentNavigation.id
+        );
       }
 
       setRecentNavigation(undefined);
@@ -398,7 +407,7 @@ const Inner = () => {
   useEffect(() => {
     if (currentNavigation && currentLocale !== currentNavigation.locale) {
       setRecentNavigation(undefined);
-      
+
       const nextNavigation = navigationsQuery.data?.find(
         (navigation) =>
           navigation.documentId === currentNavigation.documentId &&
