@@ -1,6 +1,6 @@
 import { Core } from '@strapi/strapi';
 import { errors } from '@strapi/utils';
-import { cloneDeep, first, get, isArray, isEmpty, isNil, last, pick } from 'lodash';
+import { cloneDeep, first, isArray, isEmpty, isNil, last, pick } from 'lodash';
 import { NavigationError } from '../../app-errors';
 import { NavigationItemDTO, RFRNavigationItemDTO, RFRPageDTO } from '../../dtos';
 import { getNavigationItemRepository, getNavigationRepository } from '../../repositories';
@@ -75,11 +75,21 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
   },
 
   renderRFRPage({ item, parent, enabledCustomFieldsNames }: RenderRFRPageInput): RFRPageDTO {
-    const { documentId, uiRouterKey, title, path, related, type, audience, menuAttached, additionalFields } = item;
+    const {
+      documentId,
+      uiRouterKey,
+      title,
+      path,
+      related,
+      type,
+      audience,
+      menuAttached,
+      additionalFields,
+    } = item;
     const additionalFieldsRendered = enabledCustomFieldsNames.reduce(
-        (acc, field) => ({ ...acc, [field]: additionalFields?.[field] }),
-        {}
-      )
+      (acc, field) => ({ ...acc, [field]: additionalFields?.[field] }),
+      {}
+    );
 
     return {
       id: uiRouterKey,
@@ -273,9 +283,10 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
       });
 
       const mappedItems = await commonService.mapToNavigationItemDTO({
+        locale,
+        master: navigation,
         navigationItems,
         populate,
-        master: navigation,
       });
 
       const { contentTypes, contentTypesNameFields, additionalFields } = await adminService.config({
