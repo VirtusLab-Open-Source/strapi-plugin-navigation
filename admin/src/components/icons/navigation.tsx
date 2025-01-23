@@ -8,9 +8,9 @@ const NavigationIconSvg = styled.svg`
   }
 `;
 
-export const NavigationIcon = ({ width = 24, height = 24 }) => (
+export const NavigationIcon = ({ width = 20, height = 20 }) => (
   <NavigationIconSvg
-    viewBox={`0px 0px ${width}px ${height}px`}
+    viewBox={`0 0 ${width} ${height}`}
     xmlns="http://www.w3.org/2000/svg"
     height={height}
     width={width}
