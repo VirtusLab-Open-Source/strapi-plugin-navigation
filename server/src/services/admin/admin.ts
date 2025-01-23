@@ -310,7 +310,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
     }));
   },
 
-  async getById({ documentId, locale }: GetByIdInput): Promise<NavigationDBSchema> {
+  async getById({ documentId, locale, populate = [] }: GetByIdInput): Promise<NavigationDBSchema> {
     const commonService = getPluginService(context, 'common');
     const { defaultLocale } = await commonService.readLocale();
     const filters: Record<string, any> = {
@@ -327,7 +327,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       locale: locale || defaultLocale,
       limit: Number.MAX_SAFE_INTEGER,
       order: [{ order: 'asc' }],
-      populate: ['parent', 'audience'],
+      populate: ['parent', 'audience', ...populate],
     });
 
     return {
@@ -514,9 +514,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       populate: '*',
     });
 
-    await cleanNavigationItems(
-      allNavigations.map(({ id }: NavigationDBSchema) => id)
-    );
+    await cleanNavigationItems(allNavigations.map(({ id }: NavigationDBSchema) => id));
     await navigationRepository.remove({ documentId: navigation.documentId });
 
     sendAuditLog(auditLog, 'onNavigationDeletion', {
@@ -582,10 +580,10 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
     const targetEntity = await this.getById({ documentId, locale: target });
 
     return await this.i18nNavigationContentsCopy({
-      source: await this.getById({ documentId, locale: source }),
+      source: await this.getById({ documentId, locale: source, populate: ['related'] }),
       target: targetEntity,
     })
-      .then(() => this.getById({ documentId, locale: target }))
+      .then(() => this.getById({ documentId, locale: target, populate: ['related'] }))
       .then((newEntity) => {
         sendAuditLog(auditLog, 'onChangeNavigation', {
           actionType: 'UPDATE',
