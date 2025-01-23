@@ -1,4 +1,4 @@
-import type { Core } from '@strapi/strapi';
+import type { Core, UID } from '@strapi/strapi';
 
 import { sanitize } from '@strapi/utils';
 
@@ -8,8 +8,9 @@ import { omit } from 'lodash';
 
 import { configSetup } from '../../config';
 import { CreateBranchNavigationItemDTO, NavigationItemDTO } from '../../dtos';
-import { getNavigationItemRepository } from '../../repositories';
+import { getGenericRepository, getNavigationItemRepository } from '../../repositories';
 import {
+  configSchema,
   NavigationItemCustomField,
   NavigationItemDBSchema,
   NavigationItemsDBSchema,
@@ -35,7 +36,7 @@ import {
   RunLifeCycleHookInput,
   UpdateBranchInput,
 } from './types';
-import { DuplicateCheckItem, checkDuplicatePath } from './utils';
+import { checkDuplicatePath, DuplicateCheckItem } from './utils';
 
 export type CommonService = ReturnType<typeof commonService>;
 
@@ -50,14 +51,55 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
   },
 
   async mapToNavigationItemDTO({
-    navigationItems,
-    populate,
+    locale,
     master,
+    navigationItems,
     parent,
+    populate,
   }: MapToNavigationItemDTOInput): Promise<NavigationItemDTO[]> {
     const result: NavigationItemDTO[] = [];
 
-    for (const navigationItem of navigationItems) {
+    const pluginStore = await this.getPluginStore();
+    const config = await pluginStore
+      .get({
+        key: 'config',
+      })
+      .then(configSchema.parse);
+
+    const extendedNavigationItems = await Promise.all(
+      navigationItems.map(async (item) => {
+        if (!item.related?.__type || !item.related.documentId) {
+          return item;
+        }
+
+        const fieldsToPopulate = config.contentTypesPopulate[item.related.__type];
+
+        if (!fieldsToPopulate?.length) {
+          return item;
+        }
+
+        const repository = getGenericRepository({ strapi }, item.related.__type as UID.ContentType);
+        const related = await repository.findById(
+          item.related.documentId,
+          fieldsToPopulate,
+          'published',
+          {
+            locale,
+          }
+        );
+
+        return {
+          ...item,
+          related: {
+            ...related,
+            __type: item.related.__type,
+            documentId: item.related.documentId,
+          },
+        };
+      })
+    );
+
+    for (const navigationItem of extendedNavigationItems) {
       const { items = [], ...base } = navigationItem;
 
       result.push({
@@ -68,6 +110,7 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
           populate,
           master,
           parent: base as NavigationItemDTO,
+          locale,
         }),
       } as NavigationItemDTO);
     }
