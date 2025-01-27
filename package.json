@@ -1,6 +1,6 @@
 {
   "name": "strapi-plugin-navigation",
-  "version": "3.0.7-beta.1",
+  "version": "3.0.7-beta.2",
   "description": "Strapi - Navigation plugin",
   "strapi": {
     "name": "navigation",
