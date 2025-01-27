@@ -6,17 +6,14 @@ export type ConfigContentTypeDTO = {
   name: string;
   draftAndPublish: boolean | undefined;
   isSingle: boolean;
-  description: string;
   collectionName: string;
-  contentTypeName: string;
-  label: string;
   relatedField: string | undefined;
   templateName: string | undefined;
   available: boolean | undefined;
-  labelSingular: string;
   endpoint: string;
   plugin: string | undefined;
   visible: boolean;
+  gqlTypeName: string | undefined;
 };
 
 export type NavigationPluginConfigDTO = Pick<

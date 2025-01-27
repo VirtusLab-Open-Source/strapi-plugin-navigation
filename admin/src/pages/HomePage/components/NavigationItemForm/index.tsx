@@ -333,7 +333,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
         );
 
         if (!selectedEntity) {
-          return contentTypes.find((_) => _.uid === relatedType)?.contentTypeName;
+          return contentTypes.find((_) => _.uid === relatedType)?.label;
         }
       } else {
         const entity = contentTypeItemsQuery.data?.find(({ documentId }) => documentId === related);
@@ -402,7 +402,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
             return {
               key: item.uid,
               value: item.uid,
-              label: item.contentTypeName,
+              label: item.label,
             };
           }),
         (item) => item.key
@@ -751,7 +751,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                         >
                           {configQuery.data?.contentTypes.map((contentType) => (
                             <SingleSelectOption key={contentType.uid} value={contentType.uid}>
-                              {contentType.contentTypeName}
+                              {contentType.label}
                             </SingleSelectOption>
                           ))}
                         </SingleSelect>

@@ -10,7 +10,6 @@ import {
   isContentTypeEligible,
   resolveGlobalLikeId,
   RESTRICTED_CONTENT_TYPES,
-  singularize,
   validateAdditionalFields,
 } from '../../src/utils';
 import { asProxy } from '../utils';
@@ -185,18 +184,6 @@ describe('Navigation', () => {
           ])('%s should throw', (value) => {
             // Then
             expect(() => assertConfig(value)).toThrow();
-          });
-        });
-
-        describe('singularize()', () => {
-          it('should singularize plural string', () => {
-            // Then
-            expect(singularize('blogs')).toEqual('blog');
-          });
-
-          it('should leave singular string as is', () => {
-            // Then
-            expect(singularize('blog')).toEqual('blog');
           });
         });
 
