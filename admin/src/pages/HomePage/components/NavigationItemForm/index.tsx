@@ -381,7 +381,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
         label: label,
       };
     }) ?? [],
-    (item) => item.key
+    (item) => item.label
   );
 
   const relatedTypeSelectOptions = useMemo(
@@ -405,7 +405,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
               label: item.contentTypeName,
             };
           }),
-        (item) => item.key
+        (item) => item.label
       ),
     [configQuery.data, currentRelatedType]
   );
