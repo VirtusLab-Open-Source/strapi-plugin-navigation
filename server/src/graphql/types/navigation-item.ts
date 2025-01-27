@@ -7,7 +7,7 @@ export default ({ nexus, config }: any) =>
       t.nonNull.int('id');
       t.nonNull.string('documentId');
       t.nonNull.string('title');
-      t.nonNull.string('type');
+      t.nonNull.field('type', { type: 'NavigationItemType' });
       t.string('path');
       t.string('externalPath');
       t.nonNull.string('uiRouterKey');

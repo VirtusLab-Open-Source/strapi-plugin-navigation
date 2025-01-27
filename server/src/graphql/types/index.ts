@@ -10,6 +10,7 @@ import navigationItem from './navigation-item';
 import navigationItemAdditionalFields from './navigation-item-additional-fields';
 import navigationItemAdditionalFieldMedia from './navigation-item-additional-field-media';
 import navigationItemRelated from './navigation-item-related';
+import navigationItemType from './navigation-item-type';
 import renderType from './navigation-render-type';
 
 const typesFactories = [
@@ -26,6 +27,7 @@ const typesFactories = [
   createNavigationRelated,
   createNavigationItem,
   createNavigations,
+  navigationItemType,
 ];
 
 export const getTypes = (context: any) => {
