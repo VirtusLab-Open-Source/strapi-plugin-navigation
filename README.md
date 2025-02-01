@@ -781,10 +781,10 @@ Feel free to fork and make a Pull Request to this plugin project. All the input 
 4. Run your Strapi instance
 
 ### :octocat: Core team
-@CodeVoyager @cyp3rius 
+[@CodeVoyager](https://github.com/CodeVoyager) [@cyp3rius](https://github.com/cyp3rius)
 
 ### 🌟 Strapi Community
-@jorrit
+[@jorrit](https://github.com/jorrit)
 
 ## 👨‍💻 Community support
 
