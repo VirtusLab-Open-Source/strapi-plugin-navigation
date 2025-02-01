@@ -153,7 +153,7 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
           root: navItems,
         };
       } else {
-        const navigationLevel = navItems.filter((navItem) => navItem.type !== 'EXTERNAL');
+        const navigationLevel = navItems.filter((navItem) => navItem.type);
 
         if (!isEmpty(navigationLevel))
           nav = {
@@ -170,8 +170,9 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
           contentTypes,
           enabledCustomFieldsNames,
         });
+
         const { pages: nestedPages } = this.renderRFR({
-          items: itemChildren?.filter((child) => child.type !== 'EXTERNAL') || [],
+          items: itemChildren || [],
           parent: itemPage.documentId,
           parentNavItem: itemNav,
           contentTypes,
@@ -378,14 +379,12 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
                       ...relatedContentType,
                     },
               audience: !isEmpty(item.audience) ? item.audience : undefined,
-              items: isExternal
-                ? []
-                : await this.renderTree({
-                    itemParser,
-                    path: parentPath,
-                    documentId: item.documentId,
-                    items: mappedItems,
-                  }),
+              items: await this.renderTree({
+                itemParser,
+                path: parentPath,
+                documentId: item.documentId,
+                items: mappedItems,
+              }),
               collapsed: item.collapsed,
               additionalFields: customFields || {},
             };

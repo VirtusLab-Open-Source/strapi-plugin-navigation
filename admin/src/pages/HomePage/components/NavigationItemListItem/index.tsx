@@ -105,7 +105,7 @@ export const Item: React.FC<Props> = ({
     ? level < configQuery.data.allowedLevels
     : true;
 
-  const hasChildren = !isEmpty(item.items) && !isExternal && !displayChildren;
+  const hasChildren = !isEmpty(item.items) && !displayChildren;
   const absolutePath = isExternal
     ? undefined
     : `${levelPath === '/' ? '' : levelPath}/${mappedItem.path === '/' ? '' : mappedItem.path}`.replace(
@@ -348,83 +348,83 @@ export const Item: React.FC<Props> = ({
               isSearchActive={mappedItem.isSearchActive}
             />
           </CardBody>
+
           <Divider />
-          {!isExternal && (
-            <CardBody style={{ padding: '8px' }}>
-              <Flex
-                style={{ width: '100%' }}
-                direction="row"
-                alignItems="center"
-                justifyContent="space-between"
-              >
-                <Flex>
-                  {!isEmpty(item.items) && (
-                    <CollapseButton
-                      toggle={() => onItemToggleCollapse({ ...item, viewParentId })}
-                      collapsed={mappedItem.collapsed}
-                      itemsCount={item.items?.length ?? 0}
-                    />
-                  )}
-                  {canUpdate && isNextMenuAllowedLevel && (
-                    <TextButton
-                      disabled={mappedItem.removed}
-                      startIcon={<Plus />}
-                      onClick={onNewItemClick}
+
+          <CardBody style={{ padding: '8px' }}>
+            <Flex
+              style={{ width: '100%' }}
+              direction="row"
+              alignItems="center"
+              justifyContent="space-between"
+            >
+              <Flex>
+                {!isEmpty(item.items) && (
+                  <CollapseButton
+                    toggle={() => onItemToggleCollapse({ ...item, viewParentId })}
+                    collapsed={mappedItem.collapsed}
+                    itemsCount={item.items?.length ?? 0}
+                  />
+                )}
+                {canUpdate && isNextMenuAllowedLevel && (
+                  <TextButton
+                    disabled={mappedItem.removed}
+                    startIcon={<Plus />}
+                    onClick={onNewItemClick}
+                  >
+                    <Typography
+                      variant="pi"
+                      fontWeight="bold"
+                      textColor={mappedItem.removed ? 'neutral600' : 'primary600'}
                     >
-                      <Typography
-                        variant="pi"
-                        fontWeight="bold"
-                        textColor={mappedItem.removed ? 'neutral600' : 'primary600'}
-                      >
-                        {formatMessage(getTrad('components.navigationItem.action.newItem'))}
-                      </Typography>
-                    </TextButton>
-                  )}
-                </Flex>
-                {mappedItem.type === 'INTERNAL' && mappedItem.related && !relatedItem.id ? (
-                  <Flex justifyContent="center" alignItems="center">
-                    <Typography variant="omega" textColor="neutral600">
-                      {relatedTypeLabel}&nbsp;/&nbsp;
+                      {formatMessage(getTrad('components.navigationItem.action.newItem'))}
                     </Typography>
-                    <Typography variant="omega" textColor="neutral800">
-                      {formatMessage(getTrad('components.navigationItem.related.localeMissing'))}
-                    </Typography>
-                  </Flex>
-                ) : null}
-                {relatedItemLabel && (
-                  <Flex justifyContent="center" alignItems="center">
-                    {isHandledByPublishFlow && (
-                      <ItemCardBadge
-                        borderColor={`${relatedBadgeColor}200`}
-                        backgroundColor={`${relatedBadgeColor}100`}
-                        textColor={`${relatedBadgeColor}600`}
-                        className="action"
-                        small
-                      >
-                        {formatMessage(
-                          getTrad(
-                            `components.navigationItem.badge.${isPublished ? 'published' : 'draft'}`
-                          )
-                        )}
-                      </ItemCardBadge>
-                    )}
-                    <Typography variant="omega" textColor="neutral600">
-                      {relatedTypeLabel}&nbsp;/&nbsp;
-                    </Typography>
-                    <Typography variant="omega" textColor="neutral800">
-                      {relatedItemLabel}
-                    </Typography>
-                    <Link
-                      href={generatePreviewUrl(relatedItem ?? undefined)}
-                      endIcon={<ArrowRight />}
-                    >
-                      &nbsp;
-                    </Link>
-                  </Flex>
+                  </TextButton>
                 )}
               </Flex>
-            </CardBody>
-          )}
+              {mappedItem.type === 'INTERNAL' && mappedItem.related && !relatedItem.id ? (
+                <Flex justifyContent="center" alignItems="center">
+                  <Typography variant="omega" textColor="neutral600">
+                    {relatedTypeLabel}&nbsp;/&nbsp;
+                  </Typography>
+                  <Typography variant="omega" textColor="neutral800">
+                    {formatMessage(getTrad('components.navigationItem.related.localeMissing'))}
+                  </Typography>
+                </Flex>
+              ) : null}
+              {relatedItemLabel && (
+                <Flex justifyContent="center" alignItems="center">
+                  {isHandledByPublishFlow && (
+                    <ItemCardBadge
+                      borderColor={`${relatedBadgeColor}200`}
+                      backgroundColor={`${relatedBadgeColor}100`}
+                      textColor={`${relatedBadgeColor}600`}
+                      className="action"
+                      small
+                    >
+                      {formatMessage(
+                        getTrad(
+                          `components.navigationItem.badge.${isPublished ? 'published' : 'draft'}`
+                        )
+                      )}
+                    </ItemCardBadge>
+                  )}
+                  <Typography variant="omega" textColor="neutral600">
+                    {relatedTypeLabel}&nbsp;/&nbsp;
+                  </Typography>
+                  <Typography variant="omega" textColor="neutral800">
+                    {relatedItemLabel}
+                  </Typography>
+                  <Link
+                    href={generatePreviewUrl(relatedItem ?? undefined)}
+                    endIcon={<ArrowRight />}
+                  >
+                    &nbsp;
+                  </Link>
+                </Flex>
+              )}
+            </Flex>
+          </CardBody>
         </div>
       </Card>
       {hasChildren && !mappedItem.removed && !mappedItem.collapsed && (
