@@ -3,7 +3,7 @@ export default ({ nexus }: any) =>
     name: 'CreateNavigationItem',
     definition(t: any) {
       t.nonNull.string('title');
-      t.nonNull.string('type');
+      t.nonNull.field('type', { type: 'NavigationItemType' });
       t.string('path');
       t.string('externalPath');
       t.nonNull.string('uiRouterKey');
