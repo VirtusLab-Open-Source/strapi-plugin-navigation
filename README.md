@@ -50,7 +50,7 @@ Strapi Navigation Plugin provides a website navigation / menu builder feature fo
 13. [🧹 REST Cache](#rest-cache)
 14. [🧩 Examples](#-examples)
 15. [💬 FAQ](#-faq)
-16. [🤝 Contributing](#-contributing)
+16. [🤝 Contributing](#-contributing-to-the-plugin)
 17. [👨‍💻 Community support](#-community-support)
 
 ## 💎 Versions
@@ -113,7 +113,7 @@ Complete installation requirements are exact same as for Strapi itself and can b
 
 **Supported Strapi versions**:
 
-- Strapi v5.8.1 (recently tested)
+- Strapi v5.9.0 (recently tested)
 - Strapi v5.x
 
 > This plugin is designed for **Strapi v5** and is not working with v4.x. To get version for **Strapi v4** install version [v4.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/strapi-v4).
@@ -745,16 +745,9 @@ module.exports = {
 
 If you already got it, make sure that `navigation` plugin is inserted before `graphql`. That should do the job.
 
-## 🤝 Contributing
+## 🤝 Contributing to the plugin
 
-<div>
-  <a href="https://sharing.clickup.com/tl/xhcmx-43/strapiv-4-navigation-roadmap">
-    <img src="https://img.shields.io/website?down_message=roadmap&label=product&up_message=roadmap&url=https%3A%2F%2Fsharing.clickup.com%2Ftl%2Fxhcmx-43%2Fstrapiv-4-navigation-roadmap" />
-  </a>
-  <a href="https://sharing.clickup.com/b/6-169004201-2/strapiv-4-navigation-board">
-    <img src="https://img.shields.io/website?down_message=board&label=product&up_color=blue&up_message=board&url=https%3A%2F%2Fsharing.clickup.com%2Fb%2F6-169004201-2%2Fstrapiv-4-navigation-board" />
-  </a>
-</div>
+### How to start?
 
 Feel free to fork and make a Pull Request to this plugin project. All the input is warmly welcome!
 
@@ -786,6 +779,12 @@ Feel free to fork and make a Pull Request to this plugin project. All the input 
 ```
 
 4. Run your Strapi instance
+
+### :octocat: Core team
+@CodeVoyager @cyp3rius 
+
+### 🌟 Strapi Community
+@jorrit
 
 ## 👨‍💻 Community support
 
