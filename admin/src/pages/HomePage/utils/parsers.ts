@@ -191,7 +191,7 @@ export const extractRelatedItemLabel = (
   const contentType = contentTypes.find(({ uid }) => uid === __collectionUid);
 
   if (contentType?.isSingle) {
-    return contentType.labelSingular;
+    return contentType.label;
   }
 
   const defaultFieldsWithCapitalizedOptions = [

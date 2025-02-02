@@ -158,7 +158,3 @@ export const isContentTypeEligible = (uid = '') => {
 
   return !!uid && isOneOfAllowedType && isNoneOfRestricted;
 };
-
-export const singularize = (value = '') => {
-  return last(value) === 's' ? value.substr(0, value.length - 1) : value;
-};

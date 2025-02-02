@@ -37,7 +37,6 @@ import {
   getPluginModels,
   getPluginService,
   isContentTypeEligible,
-  singularize,
   validateAdditionalFields,
 } from '../../utils';
 import {
@@ -79,7 +78,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       preferCustomContentTypes,
     } = config;
 
-    const isGQLPluginEnabled = !!strapi.plugin('graphql');
+    const isGQLPluginEnabled = !!context.strapi.plugin('graphql');
 
     let extendedResult: Record<string, unknown> = {
       allowedContentTypes: ALLOWED_CONTENT_TYPES,
@@ -89,7 +88,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
     const configContentTypes = await this.configContentTypes({});
 
     const result = {
-      contentTypes: await this.configContentTypes({ viaSettingsPage }),
+      contentTypes: configContentTypes,
       contentTypesNameFields: {
         default: CONTENT_TYPES_NAME_FIELDS_DEFAULTS,
         ...(isObject(contentTypesNameFields) ? contentTypesNameFields : {}),
@@ -101,9 +100,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
         ? additionalFields
         : additionalFields.filter((field) => typeof field === 'string' || !!field.enabled),
       gql: {
-        navigationItemRelated: configContentTypes.map(({ labelSingular }) =>
-          labelSingular.replace(/\s+/g, '')
-        ),
+        navigationItemRelated: isGQLPluginEnabled ? configContentTypes.map((contentType) =>  contentType.gqlTypeName!) : [],
       },
       isGQLPluginEnabled: viaSettingsPage ? isGQLPluginEnabled : undefined,
       cascadeMenuAttached,
@@ -135,6 +132,9 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
     const pluginStore = await commonService.getPluginStore();
 
     const config = await pluginStore.get({ key: 'config' }).then(configSchema.parse);
+
+    const gqlPlugin = context.strapi.plugin('graphql');
+    const graphQlNamingPlugin = gqlPlugin?.service('utils').naming;
 
     const eligibleContentTypes = await Promise.all(
       config.contentTypes
@@ -211,7 +211,6 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       }
 
       const { visible = true } = pluginOptions['content-manager'] || {};
-      const { name = '', description = '' } = info;
 
       const findRouteConfig = find(
         get(context.strapi.api, `[${modelName}].config.routes`, []),
@@ -224,32 +223,22 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
         findRoutePath && findRoutePath !== apiName ? findRoutePath : apiName || modelName;
       const isSingle = kind === KIND_TYPES.SINGLE;
       const endpoint = isSingle ? apiPath : pluralize(apiPath!);
-      const relationName = singularize(modelName);
-      const relationNameParts = typeof uid === 'string' ? last(uid.split('.'))!.split('-') : [];
-      const contentTypeName =
-        relationNameParts.length > 1
-          ? relationNameParts.reduce((prev, curr) => `${prev}${upperFirst(curr)}`, '')
-          : upperFirst(modelName);
-      const labelSingular =
-        name ||
-        upperFirst(relationNameParts.length > 1 ? relationNameParts.join(' ') : relationName);
+
+      const gqlTypeName: string | undefined = graphQlNamingPlugin?.(item);
 
       acc.push({
         uid,
-        name: relationName,
+        name: info.displayName,
         draftAndPublish: options?.draftAndPublish,
         isSingle,
-        description,
         collectionName,
-        contentTypeName,
-        label: isSingle ? labelSingular : pluralize(name || labelSingular),
         relatedField: relatedField ? relatedField.alias : undefined,
-        labelSingular: singularize(labelSingular),
         endpoint: endpoint!,
         plugin,
         available: isAvailable,
         visible,
         templateName: options?.templateName,
+        gqlTypeName,
       });
 
       return acc;
