@@ -386,6 +386,40 @@ const tr = {
             confirm: 'Geri yükle',
             description: 'Eklenti yapılandırması plugins.js dosyasından geri yüklenecektir.',
           },
+          description:
+            "Eklenti yapılandırmasını geri yüklemek, 'plugins.js' dosyasındaki yapılandırma ile değiştirilecektir.",
+        },
+        restart: {
+          label: "Strapi'yi yeniden başlat",
+          alert: {
+            title: 'Strapi yeniden başlatılmalı',
+            description:
+              'Yapılandırmada değişiklikler yaptınız ve bu değişikliklerin etkili olabilmesi için Strapi uygulamanızın yeniden başlatılması gerekiyor. Manuel olarak veya aşağıdaki tetikleyiciyi kullanarak yapabilirsiniz.',
+            close: 'Vazgeç',
+            cancel: 'İptal',
+            reason: {
+              I18N: 'Uluslararasılaştırma (i18n) değişiklikleri uygulanacaktır.',
+              GRAPH_QL: 'GraphQL değişiklikleri uygulanacaktır.',
+              I18N_NAVIGATIONS_PRUNE: 'Kullanılmayan yerel dil navigasyonları kaldırılacaktır.',
+            },
+          },
+        },
+        disableI18n: {
+          confirmation: {
+            header: 'Uluslararasılaştırmayı Devre Dışı Bırakma',
+            confirm: 'Anladım',
+            description: {
+              line1:
+                'Navigasyon için Uluslararasılaştırmayı devre dışı bırakıyorsunuz. Varsayılan dil dışındaki navigasyonlar, bu eklenti üzerinden görüntülenemez veya düzenlenemez.',
+              line2: 'Diğer diller için navigasyonları kaldırmayı seçebilirsiniz.',
+              line3: 'Unutmayın! Kaldırma işlemi geri alınamaz.',
+            },
+          },
+          prune: {
+            label: 'Kullanılmayan navigasyonlar',
+            on: 'Kaldır',
+            off: 'Tut',
+          },
         },
       },
       notification: {
@@ -399,6 +433,21 @@ const tr = {
         restore: {
           success: 'Yapılandırma başarıyla geri yüklendi',
           error: 'Yapılandırma geri yüklenirken hata oluştu',
+        },
+        restart: {
+          success: 'Uygulama başarıyla yeniden başlatıldı',
+          error: 'Uygulamanız yeniden başlatılamadı. Manuel olarak tekrar deneyin.',
+        },
+      },
+    },
+    view: {
+      actions: {
+        i18nCopyItems: {
+          confirmation: {
+            header: 'Onay',
+            confirm: 'Kopyala',
+            content: 'Navigasyon öğelerini kopyalamak istiyor musunuz?',
+          },
         },
       },
     },
