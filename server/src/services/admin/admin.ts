@@ -530,6 +530,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
   },
 
   async restoreConfig(): Promise<void> {
+    console.log('restore');
     const commonService = getPluginService(context, 'common');
 
     const pluginStore = await commonService.getPluginStore();

@@ -14,25 +14,26 @@ import {
   PluginConfigPopulate,
 } from '../types';
 import { assertNotEmpty, resolveGlobalLikeId, validateAdditionalFields } from '../utils';
+import { isEmpty } from 'lodash';
 
 type PluginDefaultConfigGetter = (
   key: PluginConfigKeys
 ) => NavigationPluginConfigDBSchema[PluginConfigKeys];
 
-export const configSetup = async ({ strapi }: { strapi: Core.Strapi }) => {
+export const configSetup = async ({ strapi, forceDefault = false }: { strapi: Core.Strapi, forceDefault?: boolean }) => {
   const pluginStore = strapi.store({
     type: 'plugin',
     name: 'navigation',
   });
   const getFromPluginDefaults: PluginDefaultConfigGetter = await strapi.plugin('navigation').config;
-  const configRaw = {
+  const configRaw = forceDefault ? {} as NavigationPluginConfigDBSchema : {
     ...configBase.default,
     ...((await pluginStore.get({
       key: 'config',
     })) ?? configBase.default),
   };
 
-  let config = configSchema.parse(configRaw);
+  let config = isEmpty(configRaw) ? configRaw : configSchema.parse(configRaw);
 
   const getWithFallback = getWithFallbackFactory(config, getFromPluginDefaults);
 
@@ -63,13 +64,13 @@ export const configSetup = async ({ strapi }: { strapi: Core.Strapi }) => {
 
 const getWithFallbackFactory =
   (config: NavigationPluginConfigDBSchema, fallback: PluginDefaultConfigGetter) =>
-  <T extends ReturnType<PluginDefaultConfigGetter>>(key: PluginConfigKeys) => {
-    const value = config?.[key] ?? fallback(key);
+    <T extends ReturnType<PluginDefaultConfigGetter>>(key: PluginConfigKeys) => {
+      const value = config?.[key] ?? fallback(key);
 
-    assertNotEmpty(value, new Error(`[Navigation] Config "${key}" is undefined`));
+      assertNotEmpty(value, new Error(`[Navigation] Config "${key}" is undefined`));
 
-    return value as T;
-  };
+      return value as T;
+    };
 
 const handleDeletedContentTypes = (
   config: NavigationPluginConfigDBSchema,

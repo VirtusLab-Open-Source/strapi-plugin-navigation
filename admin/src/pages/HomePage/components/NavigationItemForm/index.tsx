@@ -9,6 +9,8 @@ import { Grid, Modal, Toggle } from '@strapi/design-system';
 import {
   Box,
   Button,
+  Combobox,
+  ComboboxOption,
   Divider,
   MultiSelect,
   MultiSelectOption,
@@ -544,8 +546,9 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   return (
     <>
       <Modal.Body>
-        <Form method="POST" initialValues={formValue}>
+        <Form width="auto" height="auto" method="POST" initialValues={formValue}>
           {({ values, onChange }) => {
+            console.log('values', values);
             const internalValues =
               values.type === 'INTERNAL'
                 ? values
@@ -740,21 +743,34 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                             : undefined
                         }
                       >
-                        <SingleSelect
+                        <Combobox
                           name="relatedType"
-                          onChange={(eventOrPath: FormChangeEvent) =>
-                            handleChange('relatedType', eventOrPath, onChange)
+                          autocomplete="both"
+                          onClear={() => {
+                            handleChange('relatedType', undefined, onChange);
+                            handleChange('related', undefined, onChange);
+                            if (values.autoSync) {
+                              handleChange('title', undefined, onChange);
+                            }
+                          }}
+                          onChange={(eventOrPath: FormChangeEvent) => {
+                            handleChange('relatedType', eventOrPath, onChange);
+                            handleChange('related', undefined, onChange);
+                            if (values.autoSync) {
+                              handleChange('title', undefined, onChange);
+                            }
+                          }
                           }
                           value={values.relatedType}
                           disabled={!configQuery.data?.contentTypes.length || !canUpdate}
                           width="100%"
                         >
                           {configQuery.data?.contentTypes.map((contentType) => (
-                            <SingleSelectOption key={contentType.uid} value={contentType.uid}>
+                            <ComboboxOption key={contentType.uid} value={contentType.uid}>
                               {contentType.contentTypeName}
-                            </SingleSelectOption>
+                            </ComboboxOption>
                           ))}
-                        </SingleSelect>
+                        </Combobox>
                       </Field>
                     </Grid.Item>
 
@@ -776,8 +792,10 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                               : undefined
                           }
                         >
-                          <SingleSelect
+                          <Combobox
                             name="related"
+                            autocomplete="both"
+                            onClear={() => handleChange('related', undefined, onChange)}
                             onChange={(eventOrPath: FormChangeEvent) =>
                               handleChange('related', eventOrPath, onChange)
                             }
@@ -787,11 +805,11 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                             width="100%"
                           >
                             {relatedSelectOptions.map(({ key, label, value }) => (
-                              <SingleSelectOption key={key} value={value}>
+                              <ComboboxOption key={key} value={value}>
                                 {label}
-                              </SingleSelectOption>
+                              </ComboboxOption>
                             ))}
-                          </SingleSelect>
+                          </Combobox>
                         </Field>
                       </Grid.Item>
                     )}
