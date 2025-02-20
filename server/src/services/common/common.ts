@@ -119,7 +119,7 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
   },
 
   setDefaultConfig(): Promise<NavigationPluginConfigDBSchema> {
-    return configSetup({ strapi });
+    return configSetup({ strapi, forceDefault: true });
   },
 
   getBranchName({ item }: GetBranchNameInput): NavigationActionsCategories | void {
