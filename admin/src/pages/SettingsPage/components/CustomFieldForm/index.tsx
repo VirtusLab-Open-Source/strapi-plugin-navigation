@@ -111,6 +111,8 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({
       <Modal.Body>
         <Form
           method="POST"
+          width="auto"
+          height="auto"
           initialValues={formValue}
         >
           {({ values, onChange }) => {

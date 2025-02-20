@@ -112,6 +112,8 @@ export const Form = <T extends Partial<Navigation>>({
   }, [name, visible]);
 
   return (<StrapiForm
+    width="auto"
+    height="auto"
     method="POST"
     initialValues={formValue}
   >

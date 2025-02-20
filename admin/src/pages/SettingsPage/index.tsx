@@ -314,6 +314,8 @@ const Inner = () => {
 
           <Form
             method="POST"
+            width="auto"
+            height="auto"
             initialValues={formValue}
           >
             {({ values, onChange }) => {
