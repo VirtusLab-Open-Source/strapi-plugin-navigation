@@ -109,9 +109,9 @@ export const Item: React.FC<Props> = ({
   const absolutePath = isExternal
     ? undefined
     : `${levelPath === '/' ? '' : levelPath}/${mappedItem.path === '/' ? '' : mappedItem.path}`.replace(
-        '//',
-        '/'
-      );
+      '//',
+      '/'
+    );
 
   const contentTypeItemsQuery = useContentTypeItems({
     uid: mappedItem.type === 'INTERNAL' ? (mappedItem.relatedType ?? '') : '',
@@ -123,6 +123,8 @@ export const Item: React.FC<Props> = ({
   const contentType = contentTypesQuery.data?.find((_) =>
     mappedItem.type === 'INTERNAL' ? _.uid === mappedItem.relatedType : false
   );
+
+  const isContentManagerType = contentType?.uid.includes('api::');
 
   const relatedItem = contentTypeItemsQuery.data?.find((contentTypeItem) =>
     mappedItem.type === 'INTERNAL' ? contentTypeItem.documentId === mappedItem.related : false
@@ -295,48 +297,48 @@ export const Item: React.FC<Props> = ({
                   item:
                     item.type === 'INTERNAL'
                       ? {
+                        ...item,
+                        type: 'INTERNAL',
+                        isMenuAllowedLevel,
+                        isParentAttachedToMenu,
+                        isSearchActive: false,
+                        relatedType: relatedType ?? '',
+                        related: related ?? '',
+                        additionalFields: item.additionalFields ?? {},
+                        items: item.items ?? [],
+                        autoSync: item.autoSync ?? true,
+                        externalPath: undefined,
+                        viewParentId,
+                        audience: item.audience?.map(({ documentId }) => documentId) ?? [],
+                      }
+                      : item.type === 'EXTERNAL'
+                        ? {
                           ...item,
-                          type: 'INTERNAL',
+                          type: 'EXTERNAL',
                           isMenuAllowedLevel,
                           isParentAttachedToMenu,
                           isSearchActive: false,
-                          relatedType: relatedType ?? '',
-                          related: related ?? '',
+                          relatedType: undefined,
+                          related: undefined,
                           additionalFields: item.additionalFields ?? {},
                           items: item.items ?? [],
                           autoSync: item.autoSync ?? true,
-                          externalPath: undefined,
+                          externalPath: item.externalPath ?? '',
                           viewParentId,
                           audience: item.audience?.map(({ documentId }) => documentId) ?? [],
                         }
-                      : item.type === 'EXTERNAL'
-                        ? {
-                            ...item,
-                            type: 'EXTERNAL',
-                            isMenuAllowedLevel,
-                            isParentAttachedToMenu,
-                            isSearchActive: false,
-                            relatedType: undefined,
-                            related: undefined,
-                            additionalFields: item.additionalFields ?? {},
-                            items: item.items ?? [],
-                            autoSync: item.autoSync ?? true,
-                            externalPath: item.externalPath ?? '',
-                            viewParentId,
-                            audience: item.audience?.map(({ documentId }) => documentId) ?? [],
-                          }
                         : {
-                            ...item,
-                            type: 'WRAPPER',
-                            isMenuAllowedLevel,
-                            isParentAttachedToMenu,
-                            isSearchActive: false,
-                            additionalFields: item.additionalFields ?? {},
-                            items: item.items ?? [],
-                            autoSync: item.autoSync ?? true,
-                            viewParentId,
-                            audience: item.audience?.map(({ documentId }) => documentId) ?? [],
-                          },
+                          ...item,
+                          type: 'WRAPPER',
+                          isMenuAllowedLevel,
+                          isParentAttachedToMenu,
+                          isSearchActive: false,
+                          additionalFields: item.additionalFields ?? {},
+                          items: item.items ?? [],
+                          autoSync: item.autoSync ?? true,
+                          viewParentId,
+                          audience: item.audience?.map(({ documentId }) => documentId) ?? [],
+                        },
                   levelPath,
                   isParentAttachedToMenu,
                 });
@@ -415,12 +417,12 @@ export const Item: React.FC<Props> = ({
                   <Typography variant="omega" textColor="neutral800">
                     {relatedItemLabel}
                   </Typography>
-                  <Link
+                  {isContentManagerType && (<Link
                     href={generatePreviewUrl(relatedItem ?? undefined)}
                     endIcon={<ArrowRight />}
                   >
                     &nbsp;
-                  </Link>
+                  </Link>)}
                 </Flex>
               )}
             </Flex>
