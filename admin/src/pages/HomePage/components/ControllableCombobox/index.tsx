@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { FormChangeEvent } from "src/types";
 
 type ControllableComboboxProps = {
+  name: string;
   onClear: () => void;
   onChange: (eventOrPath: FormChangeEvent) => void;
   options: {
@@ -16,6 +17,7 @@ type ControllableComboboxProps = {
 };
 
 export const ControllableCombobox: React.FC<ControllableComboboxProps> = ({
+  name,
   onClear,
   onChange,
   options,
@@ -36,7 +38,7 @@ export const ControllableCombobox: React.FC<ControllableComboboxProps> = ({
 
   return (
     <Combobox
-      name="related"
+      name={name}
       autocomplete="list"
       onClear={onClear}
       onChange={onChange}

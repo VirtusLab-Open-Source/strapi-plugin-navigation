@@ -755,8 +755,18 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                             : undefined
                         }
                       >
-                        <SingleSelect
+                        <ControllableCombobox
                           name="relatedType"
+                          onClear={(eventOrPath: FormChangeEvent) =>
+                            handleChange(
+                              eventOrPath,
+                              {
+                                related: undefined,
+                                title: undefined,
+                                relatedType: undefined,
+                              },
+                              onChange)
+                          }
                           onChange={(eventOrPath: FormChangeEvent) =>
                             handleChange(
                               eventOrPath,
@@ -768,15 +778,9 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                               onChange)
                           }
                           value={values.relatedType}
+                          options={configQuery.data?.contentTypes.map(contentType => ({ key: contentType.uid, value: contentType.uid, label: contentType.contentTypeName }))}
                           disabled={!configQuery.data?.contentTypes.length || !canUpdate}
-                          width="100%"
-                        >
-                          {configQuery.data?.contentTypes.map((contentType) => (
-                            <SingleSelectOption key={contentType.uid} value={contentType.uid}>
-                              {contentType.contentTypeName}
-                            </SingleSelectOption>
-                          ))}
-                        </SingleSelect>
+                        />
                       </Field>
                     </Grid.Item>
 
