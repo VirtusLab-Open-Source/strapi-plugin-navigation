@@ -9,8 +9,6 @@ import { Grid, Modal, Toggle } from '@strapi/design-system';
 import {
   Box,
   Button,
-  Combobox,
-  ComboboxOption,
   Divider,
   MultiSelect,
   MultiSelectOption,
@@ -45,6 +43,7 @@ import {
 } from './utils/form';
 import { useSlug } from './utils/hooks';
 import { generatePreviewPath, generateUiRouterKey } from './utils/properties';
+import { ControllableCombobox } from '../ControllableCombobox';
 
 export { ContentTypeEntity, GetContentTypeEntitiesPayload } from './types';
 export { NavigationItemFormSchema } from './utils/form';
@@ -118,7 +117,9 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
         fieldValue = isNil(fieldValue) ? targetValue : fieldValue;
       }
 
-      if (isString(fieldName)) {
+      if (isObject(fieldValue)) {
+        setFormValuesItems(fieldValue);
+      } else if (isString(fieldName)) {
         setFormValueItem(fieldName, fieldValue);
       }
 
@@ -141,6 +142,18 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
       )
     );
   };
+
+  const setFormValuesItems = (values: any) =>
+    setFormValue(
+      {
+        ...formValue,
+        additionalFields: {
+          ...formValue.additionalFields,
+        },
+        updated: true,
+        ...values
+      },
+    );
 
   const encodePayload = (values: NavigationItemFormSchema): NavigationItemFormSchema => {
     return {
@@ -548,7 +561,6 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
       <Modal.Body>
         <Form width="auto" height="auto" method="POST" initialValues={formValue}>
           {({ values, onChange }) => {
-            console.log('values', values);
             const internalValues =
               values.type === 'INTERNAL'
                 ? values
@@ -743,34 +755,28 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                             : undefined
                         }
                       >
-                        <Combobox
+                        <SingleSelect
                           name="relatedType"
-                          autocomplete="both"
-                          onClear={() => {
-                            handleChange('relatedType', undefined, onChange);
-                            handleChange('related', undefined, onChange);
-                            if (values.autoSync) {
-                              handleChange('title', undefined, onChange);
-                            }
-                          }}
-                          onChange={(eventOrPath: FormChangeEvent) => {
-                            handleChange('relatedType', eventOrPath, onChange);
-                            handleChange('related', undefined, onChange);
-                            if (values.autoSync) {
-                              handleChange('title', undefined, onChange);
-                            }
-                          }
+                          onChange={(eventOrPath: FormChangeEvent) =>
+                            handleChange(
+                              eventOrPath,
+                              {
+                                related: undefined,
+                                title: values.autoSync ? '' : values.title,
+                                relatedType: eventOrPath,
+                              },
+                              onChange)
                           }
                           value={values.relatedType}
                           disabled={!configQuery.data?.contentTypes.length || !canUpdate}
                           width="100%"
                         >
                           {configQuery.data?.contentTypes.map((contentType) => (
-                            <ComboboxOption key={contentType.uid} value={contentType.uid}>
+                            <SingleSelectOption key={contentType.uid} value={contentType.uid}>
                               {contentType.contentTypeName}
-                            </ComboboxOption>
+                            </SingleSelectOption>
                           ))}
-                        </Combobox>
+                        </SingleSelect>
                       </Field>
                     </Grid.Item>
 
@@ -792,24 +798,17 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                               : undefined
                           }
                         >
-                          <Combobox
-                            name="related"
-                            autocomplete="both"
-                            onClear={() => handleChange('related', undefined, onChange)}
+                          <ControllableCombobox
+                            onClear={() =>
+                              handleChange('related', undefined, onChange)
+                            }
                             onChange={(eventOrPath: FormChangeEvent) =>
                               handleChange('related', eventOrPath, onChange)
                             }
                             value={values.related}
                             options={relatedSelectOptions}
                             disabled={isLoading || thereAreNoMoreContentTypes || !canUpdate}
-                            width="100%"
-                          >
-                            {relatedSelectOptions.map(({ key, label, value }) => (
-                              <ComboboxOption key={key} value={value}>
-                                {label}
-                              </ComboboxOption>
-                            ))}
-                          </Combobox>
+                          />
                         </Field>
                       </Grid.Item>
                     )}
