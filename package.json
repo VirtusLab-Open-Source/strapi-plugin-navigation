@@ -144,8 +144,6 @@
     "test:unit:ci": "CI=true jest --ci --runInBand --verbose --coverage",
     "verify": "strapi-plugin verify",
     "watch": "strapi-plugin watch",
-    "build:admin:watch": "tsc -p ./admin/tsconfig.json --watch",
-    "build:server:watch": "tsc -p ./server/tsconfig.json --watch",
     "watch:link": "strapi-plugin watch:link"
   },
   "keywords": [
