@@ -143,8 +143,7 @@
     "test:unit:watch": "jest --watch",
     "test:unit:ci": "CI=true jest --ci --runInBand --verbose --coverage",
     "verify": "strapi-plugin verify",
-    "watch": "strapi-plugin watch",
-    "watch:link": "strapi-plugin watch:link"
+    "watch": "strapi-plugin watch"
   },
   "keywords": [
     "strapi",

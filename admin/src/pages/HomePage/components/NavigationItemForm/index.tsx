@@ -757,9 +757,9 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                       >
                         <ControllableCombobox
                           name="relatedType"
-                          onClear={(eventOrPath: FormChangeEvent) =>
+                          onClear={() =>
                             handleChange(
-                              eventOrPath,
+                              "",
                               {
                                 related: undefined,
                                 title: undefined,
@@ -778,7 +778,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                               onChange)
                           }
                           value={values.relatedType}
-                          options={configQuery.data?.contentTypes.map(contentType => ({ key: contentType.uid, value: contentType.uid, label: contentType.contentTypeName }))}
+                          options={configQuery.data?.contentTypes.map(contentType => ({ key: contentType.uid, value: contentType.uid, label: contentType.contentTypeName })) ?? []}
                           disabled={!configQuery.data?.contentTypes.length || !canUpdate}
                         />
                       </Field>
@@ -803,6 +803,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                           }
                         >
                           <ControllableCombobox
+                            name="related"
                             onClear={() =>
                               handleChange('related', undefined, onChange)
                             }
