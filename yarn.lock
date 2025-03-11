@@ -3680,9 +3680,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rushstack/node-core-library@npm:5.11.0":
-  version: 5.11.0
-  resolution: "@rushstack/node-core-library@npm:5.11.0"
+"@rushstack/node-core-library@npm:5.12.0":
+  version: 5.12.0
+  resolution: "@rushstack/node-core-library@npm:5.12.0"
   dependencies:
     ajv: "npm:~8.13.0"
     ajv-draft-04: "npm:~1.0.0"
@@ -3697,34 +3697,34 @@ __metadata:
   peerDependenciesMeta:
     "@types/node":
       optional: true
-  checksum: 10c0/7de70fdfa0274ce2fd5e2617c38156143172d852730d03ffb7cfec9ebd6f1bbbc595b81527a189956ee89fe419d9e7d51ffaeaa2d0ee2fc2deae7d24531b7ffb
+  checksum: 10c0/e2ad1138e8619ed5ea28072da69ed0f785ff0e6017ee04bed7254f8f34a8356ba3f86d9942aaaf2fb812c68991ff9fd1f471d33df51254ee54bbe551819f9956
   languageName: node
   linkType: hard
 
-"@rushstack/terminal@npm:0.15.0":
-  version: 0.15.0
-  resolution: "@rushstack/terminal@npm:0.15.0"
+"@rushstack/terminal@npm:0.15.1":
+  version: 0.15.1
+  resolution: "@rushstack/terminal@npm:0.15.1"
   dependencies:
-    "@rushstack/node-core-library": "npm:5.11.0"
+    "@rushstack/node-core-library": "npm:5.12.0"
     supports-color: "npm:~8.1.1"
   peerDependencies:
     "@types/node": "*"
   peerDependenciesMeta:
     "@types/node":
       optional: true
-  checksum: 10c0/44e23353e8a4b8024d10d01b9a05fd8d736ddbe2d595a12bfcd290c27842fef156e2471f5e61eed62bad733bd692ba261f1e642c2b1547a0009927805e74e2a6
+  checksum: 10c0/ae316508b95280840624e7eeb1f09b553b9764094eee486b04ce01e1fc46677d880afe09847b4c3c49357fe0b92f35d5f2137fc39276be84857fb543f98b9dc5
   languageName: node
   linkType: hard
 
 "@rushstack/ts-command-line@npm:^4.12.2":
-  version: 4.23.5
-  resolution: "@rushstack/ts-command-line@npm:4.23.5"
+  version: 4.23.6
+  resolution: "@rushstack/ts-command-line@npm:4.23.6"
   dependencies:
-    "@rushstack/terminal": "npm:0.15.0"
+    "@rushstack/terminal": "npm:0.15.1"
     "@types/argparse": "npm:1.0.38"
     argparse: "npm:~1.0.9"
     string-argv: "npm:~0.3.1"
-  checksum: 10c0/8c4330620658227bb7af27031d720a826f6a8b92f281cc433393c52968475fddc0031d86477f1676377878130b926b2efb7893edb2d73cdb1fa23444b792e88a
+  checksum: 10c0/70a1028d912116f3ee6e6cf08a6d9b967bb6a229db899deb9386b31eda7b484b63ac25405c181c0ef846d412bd99ddeaa9d679ef69eb55d17cb822f9617d756f
   languageName: node
   linkType: hard
 
@@ -13053,9 +13053,9 @@ __metadata:
   linkType: hard
 
 "mux-embed@npm:^5.3.1":
-  version: 5.8.1
-  resolution: "mux-embed@npm:5.8.1"
-  checksum: 10c0/dd080db856b1a829b65e91850802e50e3702a837b891c661b74116b94324967a391c0913469ee9ccfb55ce373c1da756c5576d059942c244e4a0c2ba67f0c452
+  version: 5.8.2
+  resolution: "mux-embed@npm:5.8.2"
+  checksum: 10c0/b9145bdcb7d34967d86eb166d276243b6ad001ac8380c5e87208d9ecb5a3e11ca4314140cab8f81cd3c5522b382c0f5bcbb7fb5fc5f272ca6a7536a815933849
   languageName: node
   linkType: hard
 
@@ -14347,9 +14347,9 @@ __metadata:
   linkType: hard
 
 "prismjs@npm:^1.29.0":
-  version: 1.29.0
-  resolution: "prismjs@npm:1.29.0"
-  checksum: 10c0/d906c4c4d01b446db549b4f57f72d5d7e6ccaca04ecc670fb85cea4d4b1acc1283e945a9cbc3d81819084a699b382f970e02f9d1378e14af9808d366d9ed7ec6
+  version: 1.30.0
+  resolution: "prismjs@npm:1.30.0"
+  checksum: 10c0/f56205bfd58ef71ccfcbcb691fd0eb84adc96c6ff21b0b69fc6fdcf02be42d6ef972ba4aed60466310de3d67733f6a746f89f2fb79c00bf217406d465b3e8f23
   languageName: node
   linkType: hard
 
