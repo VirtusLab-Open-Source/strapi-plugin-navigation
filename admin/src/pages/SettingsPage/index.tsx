@@ -259,18 +259,18 @@ const Inner = () => {
   const mapConfigDataToArray = (properties: Record<string, string[]>, contentTypes: string[]) => {
     const contentTypeProperties = contentTypes.map(key => ({
       key,
-      fields: properties[key] ?? []
-    }))
+      fields: properties[key] ?? [],
+    }));
 
     const restProperties = Object.entries(properties)
       .filter(([key, _]) => !contentTypes.includes(key))
       .map(([key, fields]) => ({
         key,
-        fields
-      }))
+        fields,
+      }));
 
-    return restProperties.concat(contentTypeProperties)
-  }
+    return restProperties.concat(contentTypeProperties);
+  };
 
   useEffect(() => {
     if (configQuery.data) {
