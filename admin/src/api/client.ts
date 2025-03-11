@@ -94,15 +94,15 @@ export const getApiClient = once((fetch: ReturnType<typeof getFetchClient>) => (
   updateConfig(
     body: Omit<NavigationPluginConfigSchema, 'restrictedContentTypes' | 'allowedContentTypes'>
   ) {
-    return fetch.put(`/${URL_PREFIX}/config`, body).then(() => { });
+    return fetch.put(`/${URL_PREFIX}/config`, body).then(() => {});
   },
 
   restart() {
-    return fetch.get(`/${URL_PREFIX}/settings/restart`).then(() => { });
+    return fetch.get(`/${URL_PREFIX}/settings/restart`).then(() => {});
   },
 
   restoreConfig() {
-    return fetch.del(`/${URL_PREFIX}/config`).then(() => { });
+    return fetch.del(`/${URL_PREFIX}/config`).then(() => {});
   },
 
   readSettingsConfig() {
