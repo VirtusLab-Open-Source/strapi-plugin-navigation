@@ -116,10 +116,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
         fieldName = targetName;
         fieldValue = isNil(fieldValue) ? targetValue : fieldValue;
       }
-
-      if (isObject(fieldValue)) {
-        setFormValuesItems(fieldValue);
-      } else if (isString(fieldName)) {
+      if (isString(fieldName)) {
         setFormValueItem(fieldName, fieldValue);
       }
 
@@ -758,24 +755,20 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                         <ControllableCombobox
                           name="relatedType"
                           onClear={() =>
-                            handleChange(
-                              "",
+                            setFormValuesItems(
                               {
                                 related: undefined,
                                 title: undefined,
                                 relatedType: undefined,
-                              },
-                              onChange)
+                              })
                           }
                           onChange={(eventOrPath: FormChangeEvent) =>
-                            handleChange(
-                              eventOrPath,
+                            setFormValuesItems(
                               {
                                 related: undefined,
                                 title: values.autoSync ? '' : values.title,
                                 relatedType: eventOrPath,
-                              },
-                              onChange)
+                              })
                           }
                           value={values.relatedType}
                           options={configQuery.data?.contentTypes.map(contentType => ({ key: contentType.uid, value: contentType.uid, label: contentType.contentTypeName })) ?? []}

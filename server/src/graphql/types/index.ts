@@ -8,13 +8,11 @@ import navigationConfig from './navigation-config';
 import navigationDetails from './navigation-details';
 import navigationItem from './navigation-item';
 import navigationItemAdditionalFields from './navigation-item-additional-fields';
-import navigationItemAdditionalFieldMedia from './navigation-item-additional-field-media';
 import navigationItemRelated from './navigation-item-related';
 import navigationItemType from './navigation-item-type';
 import renderType from './navigation-render-type';
 
 const typesFactories = [
-  navigationItemAdditionalFieldMedia,
   navigationItemAdditionalFields,
   navigationItemRelated,
   navigationItem,

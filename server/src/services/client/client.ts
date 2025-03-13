@@ -307,7 +307,6 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
             }
           : itemContentType;
 
-      const mediaFields = ['name', 'url', 'mime', 'width', 'height', 'previewUrl'] as const;
       const customFieldsDefinitions = additionalFields.filter(
         (_) => typeof _ !== 'string'
       ) as NavigationItemCustomField[];
@@ -319,7 +318,7 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
         if (content) {
           switch (fieldDefinition?.type) {
             case 'media':
-              content = pick(JSON.parse(content as string), mediaFields);
+              content = JSON.parse(content as string);
               break;
             case 'boolean':
               content = content === 'true';
