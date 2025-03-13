@@ -16,6 +16,14 @@ type ControllableComboboxProps = {
   disabled: boolean;
 };
 
+function findTextValue(options: ControllableComboboxProps['options'], value: ControllableComboboxProps['value']): string {
+  if (!value) {
+    return '';
+  }
+
+  return options.find(o => o.value === value)?.label ?? '';
+}
+
 export const ControllableCombobox: React.FC<ControllableComboboxProps> = ({
   name,
   onClear,
@@ -24,17 +32,11 @@ export const ControllableCombobox: React.FC<ControllableComboboxProps> = ({
   value,
   disabled,
 }) => {
-  const [textValue, setTextValue] = useState('');
-
-  const handleTextValueChange = (textValue: string) => {
-    setTextValue(textValue);
-  };
+  const [textValue, setTextValue] = useState(findTextValue(options, value));
 
   useEffect(() => {
-    if (!value) {
-      handleTextValueChange('');
-    }
-  }, [value]);
+    setTextValue(findTextValue(options, value))
+  }, [value, options]);
 
   return (
     <Combobox
@@ -42,7 +44,7 @@ export const ControllableCombobox: React.FC<ControllableComboboxProps> = ({
       autocomplete="list"
       onClear={onClear}
       onChange={onChange}
-      onTextValueChange={handleTextValueChange}
+      onTextValueChange={setTextValue}
       value={value}
       textValue={textValue}
       options={options}
