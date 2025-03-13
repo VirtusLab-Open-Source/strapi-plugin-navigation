@@ -93,9 +93,9 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({
 
 
   const submit = (e: React.MouseEvent, values: NavigationItemCustomField) => {
-    const { success, data, error } = navigationItemCustomField.safeParse(values);
+    const { success, data, error } = navigationItemCustomField.safeParse({ ...values, enabled: true });
     if (success) {
-      onSubmit(values);
+      onSubmit(data);
     } else if (error) {
       setFormError(error.issues.reduce((acc, err) => {
         return {
