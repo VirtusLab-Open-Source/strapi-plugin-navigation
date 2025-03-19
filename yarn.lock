@@ -4833,21 +4833,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tanstack/query-core@npm:5.68.0":
-  version: 5.68.0
-  resolution: "@tanstack/query-core@npm:5.68.0"
-  checksum: 10c0/c57b34ee2aabffe26d6cc03039d6dc74b97a860eb343dc042ebba25cc1d177405ff1dbc911c40ed11447665fefbf735b4c03e4936dd7d74310fad30b648e0855
+"@tanstack/query-core@npm:5.69.0":
+  version: 5.69.0
+  resolution: "@tanstack/query-core@npm:5.69.0"
+  checksum: 10c0/8ad87046d1a8c18773de10e74d7fef2093cdbe9734e76460945048c00a219ae3d2421eab2b4d54340f3f491813f99ceef7d2849827d95490c8b67de1b87934ae
   languageName: node
   linkType: hard
 
 "@tanstack/react-query@npm:^5.40.0":
-  version: 5.68.0
-  resolution: "@tanstack/react-query@npm:5.68.0"
+  version: 5.69.0
+  resolution: "@tanstack/react-query@npm:5.69.0"
   dependencies:
-    "@tanstack/query-core": "npm:5.68.0"
+    "@tanstack/query-core": "npm:5.69.0"
   peerDependencies:
     react: ^18 || ^19
-  checksum: 10c0/5d9dc4e17324976fe00203bbb25893089d709051896b5c3f523939cfeb3ab70cf1c68606bf6464815ee62c7bf4af69a590a17d5e6b6f6e7bdc0e80fc370a480a
+  checksum: 10c0/3481218d0dd1623af8148037011415ca6f57f2f918e859f6856b7d6cec191ca79029f6fd9e5b1139b1ec252198bda645ce8c1b44ac8dd28adf3c5f978a4126ec
   languageName: node
   linkType: hard
 
@@ -12774,9 +12774,9 @@ __metadata:
   linkType: hard
 
 "mime-db@npm:>= 1.43.0 < 2":
-  version: 1.53.0
-  resolution: "mime-db@npm:1.53.0"
-  checksum: 10c0/1dcc37ba8ed5d1c179f5c6f0837e8db19371d5f2ea3690c3c2f3fa8c3858f976851d3460b172b4dee78ebd606762cbb407aa398545fbacd539e519f858cd7bf4
+  version: 1.54.0
+  resolution: "mime-db@npm:1.54.0"
+  checksum: 10c0/8d907917bc2a90fa2df842cdf5dfeaf509adc15fe0531e07bb2f6ab15992416479015828d6a74200041c492e42cce3ebf78e5ce714388a0a538ea9c53eece284
   languageName: node
   linkType: hard
 
@@ -13087,11 +13087,11 @@ __metadata:
   linkType: hard
 
 "nanoid@npm:^3.3.7, nanoid@npm:^3.3.8":
-  version: 3.3.10
-  resolution: "nanoid@npm:3.3.10"
+  version: 3.3.11
+  resolution: "nanoid@npm:3.3.11"
   bin:
     nanoid: bin/nanoid.cjs
-  checksum: 10c0/34eca53d4d95cb538b05a9fa07e4b2ab941906852202edb00824c8004d71d34592704e40b0ae608bf756b1ffd91ff9359d2ea59f8d92e1a7b769e0ca46368e84
+  checksum: 10c0/40e7f70b3d15f725ca072dfc4f74e81fcf1fbb02e491cf58ac0c79093adc9b0a73b152bcde57df4b79cd097e13023d7504acb38404a4da7bc1cd8e887b82fe0b
   languageName: node
   linkType: hard
 

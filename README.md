@@ -31,27 +31,46 @@ Strapi Navigation Plugin provides a website navigation / menu builder feature fo
 - RFR (ready for handling by Redux First Router)
 
 ### Table of Contents
-1. [💎 Versions](#-versions)
-2. [✨ Features](#-features)
-3. [⏳ Installation](#-installation)
-4. [🖐 Requirements](#-requirements)
-5. [🔧 Basic Configuration](#-configuration)
-    - [Settings page](#in-v203-and-newer)
-    - [Plugin file](#in-v202-and-older--default-configuration-state-for-v203-and-newer)
-6. [🔧 GraphQL Configuration](#-gql-configuration)
-7. [🌍 i18n](#-i18n)
-8. [👤 RBAC](#-rbac)
-9. [🔐 Authorization strategy](#-authorization-strategy)
-10. [🕸️ Public API specification](#%EF%B8%8F-public-api-specification)
-    - [REST API](#rest-api) 
-    - [GraphQL API](#graphql-api)
-11. [🔌 Extensions](#-extensions)
-12. [🌿 Model lifecycle hooks](#model-life-cycle-hooks)
-13. [🧹 REST Cache](#rest-cache)
-14. [🧩 Examples](#-examples)
-15. [💬 FAQ](#-faq)
-16. [🤝 Contributing](#-contributing-to-the-plugin)
-17. [👨‍💻 Community support](#-community-support)
+- [💎 Versions](#-versions)
+- [✨ Features](#-features)
+- [⏳ Installation](#-installation)
+  - [Via Strapi Marketplace](#via-strapi-marketplace)
+  - [Via command line](#via-command-line)
+- [🖐 Requirements](#-requirements)
+- [🔧 Configuration](#-configuration)
+  - [Settings page](#settings-page)
+  - [File](#file)
+  - [Properties](#properties)
+  - [Properties](#properties-1)
+  - [Additional Fields](#additional-fields)
+- [🔧 GQL Configuration](#-gql-configuration)
+- [🌍 i18n](#-i18n)
+- [👤 RBAC](#-rbac)
+  - [Mandatory permissions](#mandatory-permissions)
+  - [Other permissions](#other-permissions)
+- [🔐 Authorization strategy](#-authorization-strategy)
+- [User based](#user-based)
+- [Token based](#token-based)
+- [Base Navigation Item model](#base-navigation-item-model)
+  - [Flat](#flat)
+  - [Tree](#tree)
+  - [RFR](#rfr)
+- [🕸️ Public API specification](#️-public-api-specification)
+  - [REST API](#rest-api)
+  - [GraphQL API](#graphql-api)
+- [🔌 Extensions](#-extensions)
+  - [Slug generation](#slug-generation)
+- [Model lifecycle hooks](#model-lifecycle-hooks)
+- [🧹 REST Cache](#-rest-cache)
+- [🧩 Examples](#-examples)
+- [💬 FAQ](#-faq)
+  - [GraphQL tricks](#graphql-tricks)
+- [🤝 Contributing to the plugin](#-contributing-to-the-plugin)
+  - [How to start?](#how-to-start)
+  - [:octocat: Core team](#octocat-core-team)
+  - [🌟 Strapi Community](#-strapi-community)
+- [👨‍💻 Community support](#-community-support)
+- [📝 License](#-license)
 
 ## 💎 Versions
 
@@ -176,7 +195,7 @@ Config for this plugin is stored as a part of the `config/plugins.{js|ts}` or `c
 ### Additional Fields
 It is advised to configure additional fields through the plugin's Settings Page. There you can find the table of custom fields and toggle input for the audience field. When enabled, the audience field can be customized through the content manager. Custom fields can be added, edited, toggled, and removed with the use of the table provided on the Settings Page. When removing custom fields be advised that their values in navigation items will be lost. Disabling the custom fields will not affect the data and can be done with no consequence of loosing information. 
 
-Creating configuration for additional fields with the `config.(js|ts)` file should be done with caution. Config object contains the `additionalFields` property of type `Array<CustomField | 'audience'>`, where CustomField is of type `{ type: 'string' | 'boolean' | { "name": string, "url": string, "mime": string, "width": number, "height": number, "previewUrl": string }, name: string, label: string }`. When creating custom fields be advised that the `name` property has to be unique. When editing a custom field it is advised not to edit its `name` and `type` properties. After config has been restored the custom fields that are not present in `config.js` file will be deleted and their values in navigation items will be lost.
+Creating configuration for additional fields with the `config.(js|ts)` file should be done with caution. Config object contains the `additionalFields` property of type `Array<CustomField | 'audience'>`, where CustomField is of type `{ type: 'string' | 'boolean' | 'media', name: string, label: string, enabled?: boolean }`. When creating custom fields be advised that the `name` property has to be unique. When editing a custom field it is advised not to edit its `name` and `type` properties. After config has been restored the custom fields that are not present in `config.js` file will be deleted and their values in navigation items will be lost.
 
 ## 🔧 GQL Configuration
 Using navigation with GraphQL requires both plugins to be installed and working. You can find installation guide for GraphQL plugin **[here](https://docs.strapi.io/dev-docs/plugins/graphql#graphql)**.  To properly configure GQL to work with navigation you should provide `gql` prop. This should contain union types that will be used to define GQL response format for your data while fetching:

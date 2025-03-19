@@ -49,6 +49,8 @@ const BOX_DEFAULT_PROPS = {
   padding: 6,
 };
 
+const ALLOWED_POPULATE_TYPES = ['relation', 'media', 'component', 'dynamiczone']
+
 const queryClient = new QueryClient();
 
 const Inner = () => {
@@ -483,8 +485,9 @@ const Inner = () => {
                                   const current = contentTypesQuery.data?.find(
                                     ({ uid }) => uid === nameFields.key
                                   );
-                                  const attributeKeys = Object.keys(current?.attributes ?? {}).sort();
-
+                                  const attributes = current?.attributes ?? {} as Record<string, any>
+                                  const attributeKeys = Object.keys(attributes).sort();
+                                  const allowedFieldsToPopulate = attributeKeys.filter(key => ALLOWED_POPULATE_TYPES.includes(attributes[key]?.type))
                                   return current ? (
                                     <Accordion.Item key={nameFields.key} value={nameFields.key}>
                                       <Accordion.Header>
@@ -581,7 +584,7 @@ const Inner = () => {
                                                 error={renderError(`contentTypesPopulate[${index - 1}]`)}
                                                 withTags
                                               >
-                                                {attributeKeys.map((attribute) => (
+                                                {allowedFieldsToPopulate.map((attribute) => (
                                                   <MultiSelectOption
                                                     key={attribute}
                                                     value={attribute}
