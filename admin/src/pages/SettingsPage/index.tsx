@@ -49,6 +49,8 @@ const BOX_DEFAULT_PROPS = {
   padding: 6,
 };
 
+const ALLOWED_POPULATE_TYPES = ['relation', 'media', 'component', 'dynamiczone']
+
 const queryClient = new QueryClient();
 
 const Inner = () => {
@@ -256,28 +258,32 @@ const Inner = () => {
 
   const handleRestartDiscard = () => setRestartStatus({ required: false });
 
+  const mapConfigDataToArray = (properties: Record<string, string[]>, contentTypes: string[]) => {
+    const contentTypeProperties = contentTypes.map(key => ({
+      key,
+      fields: properties[key] ?? [],
+    }));
+
+    const restProperties = Object.entries(properties)
+      .filter(([key, _]) => !contentTypes.includes(key))
+      .map(([key, fields]) => ({
+        key,
+        fields,
+      }));
+
+    return restProperties.concat(contentTypeProperties);
+  };
+
   useEffect(() => {
     if (configQuery.data) {
+      const { additionalFields, contentTypes, contentTypesNameFields, contentTypesPopulate, pathDefaultFields } = configQuery.data;
       setFormValue({
         ...configQuery.data,
-        additionalFields: configQuery.data.additionalFields.filter((field) => typeof field !== 'string'),
-        audienceFieldChecked: configQuery.data.additionalFields.includes('audience'),
-        contentTypesNameFields: Object.entries(configQuery.data.contentTypesNameFields).map(
-          ([key, fields]) => ({
-            key,
-            fields,
-          })
-        ),
-        contentTypesPopulate: Object.entries(configQuery.data.contentTypesPopulate).map(
-          ([key, fields]) => ({
-            key,
-            fields,
-          })
-        ),
-        pathDefaultFields: Object.entries(configQuery.data.pathDefaultFields).map(([key, fields]) => ({
-          key,
-          fields,
-        })),
+        additionalFields: additionalFields.filter((field) => typeof field !== 'string'),
+        audienceFieldChecked: additionalFields.includes('audience'),
+        contentTypesNameFields: mapConfigDataToArray(contentTypesNameFields, contentTypes),
+        contentTypesPopulate: mapConfigDataToArray(contentTypesPopulate, contentTypes),
+        pathDefaultFields: mapConfigDataToArray(pathDefaultFields, contentTypes),
       } as UiFormSchema);
     }
   }, [configQuery.data]);
@@ -319,7 +325,6 @@ const Inner = () => {
             initialValues={formValue}
           >
             {({ values, onChange }) => {
-
               return (<Flex direction="column" gap={4}>
                 {restartStatus.required && (
                   <Box {...BOX_DEFAULT_PROPS} width="100%">
@@ -480,8 +485,9 @@ const Inner = () => {
                                   const current = contentTypesQuery.data?.find(
                                     ({ uid }) => uid === nameFields.key
                                   );
-                                  const attributeKeys = Object.keys(current?.attributes ?? {}).sort();
-
+                                  const attributes = current?.attributes ?? {} as Record<string, any>
+                                  const attributeKeys = Object.keys(attributes).sort();
+                                  const allowedFieldsToPopulate = attributeKeys.filter(key => ALLOWED_POPULATE_TYPES.includes(attributes[key]?.type))
                                   return current ? (
                                     <Accordion.Item key={nameFields.key} value={nameFields.key}>
                                       <Accordion.Header>
@@ -578,7 +584,7 @@ const Inner = () => {
                                                 error={renderError(`contentTypesPopulate[${index - 1}]`)}
                                                 withTags
                                               >
-                                                {attributeKeys.map((attribute) => (
+                                                {allowedFieldsToPopulate.map((attribute) => (
                                                   <MultiSelectOption
                                                     key={attribute}
                                                     value={attribute}
