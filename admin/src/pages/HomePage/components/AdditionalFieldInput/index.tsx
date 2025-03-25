@@ -6,7 +6,7 @@ import {
   TextInput,
 } from '@strapi/design-system';
 import { useNotification, useStrapiApp } from '@strapi/strapi/admin';
-import { isNil } from 'lodash';
+import { isNil, isNull } from 'lodash';
 import { useEffect, useMemo } from 'react';
 import { useIntl } from 'react-intl';
 
@@ -65,7 +65,8 @@ export const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
 
   useEffect(() => {
     if (field.type === 'media') {
-      onChangeEnhancer(defaultInputProps.name, value, onChange)
+      const newMediaValue = isNull(value) ? undefined : value;
+      onChangeEnhancer(defaultInputProps.name, newMediaValue, onChange);
     }
   }, [value]);
 
