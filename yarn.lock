@@ -3602,18 +3602,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sensinum/strapi-utils@npm:^1.0.7":
-  version: 1.0.7
-  resolution: "@sensinum/strapi-utils@npm:1.0.7"
+"@sensinum/strapi-utils@npm:^1.0.8":
+  version: 1.0.8
+  resolution: "@sensinum/strapi-utils@npm:1.0.8"
   peerDependencies:
-    "@strapi/design-system": ^2.0.0-rc.16
-    "@strapi/icons": 2.0.0-rc.16
+    "@strapi/design-system": ^2.0.0-rc.18
+    "@strapi/icons": 2.0.0-rc.18
     "@strapi/sdk-plugin": ^5.3.2
-    "@strapi/strapi": ^5.10.3
+    "@strapi/strapi": ^5.12.0
     react: ^18.3.1
     react-dom: ^18.3.1
     styled-components: ^6.1.13
-  checksum: 10c0/7c4e381964c253e66760f7b6938e3ba2a5304b947bea1094474b9da249fb70dd40042527bcda0a374a674fd4695e448a12eea531b4a140cb5dce94e1564ebfbd
+  checksum: 10c0/20c2cefa1c2a4be84869a459b0a7874a48205d748599913e045b028010a5b8f7d85557eb9c8de3a3448fd2f0d4fd94b64c247fadc13c88c383fa3c2522f7936a
   languageName: node
   linkType: hard
 
@@ -15910,7 +15910,7 @@ __metadata:
     "@faker-js/faker": "npm:^9.0.3"
     "@jest/types": "npm:29.5.x"
     "@koa/router": "npm:^12.0.1"
-    "@sensinum/strapi-utils": "npm:^1.0.7"
+    "@sensinum/strapi-utils": "npm:^1.0.8"
     "@sindresorhus/slugify": "npm:1.1.0"
     "@strapi/design-system": "npm:2.0.0-rc.18"
     "@strapi/icons": "npm:2.0.0-rc.18"
