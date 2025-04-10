@@ -9,7 +9,7 @@ const fr = {
   header: {
     title: "Navigation",
     description: "Définissez la navigation de votre portail",
-    meta: "ID: { id }, slug: { key }",
+    meta: "ID : { id }, slug : { key }",
     action: {
       newItem: "Nouvel élément",
       manage: "Gérer",
@@ -35,7 +35,7 @@ const fr = {
           CREATE: "Nouvelle navigation",
           DELETE: "Suppression",
           ERROR: "Erreur",
-          EDIT: "Édition de \"{name}\"",
+          EDIT: "Édition de « {name} »",
         },
         button: {
           cancel: "Annuler",
@@ -43,7 +43,7 @@ const fr = {
           save: "Enregistrer",
           edit: "Modifier",
           create: "Créer",
-          goBack: "Retourner",
+          goBack: "Retour",
           purge: "Effacer le cache de lecture",
         },
         table: {
@@ -62,7 +62,7 @@ const fr = {
           header: "Cette action effacera le cache de lecture de l'API. Cela entraînera un ralentissement temporaire des lectures pour les navigations ci-dessous.",
         },
         delete: {
-          header: "Les navigations suivantes seront supprimées :",
+          header: "Les navigations suivantes seront supprimées :",
         },
         error: {
           header: "Une erreur est survenue :(",
@@ -70,7 +70,7 @@ const fr = {
         },
         navigation: {
           visible: "visible",
-          hidden: "caché",
+          hidden: "masqué",
         },
       },
       form: {
@@ -92,7 +92,7 @@ const fr = {
           label: "Visibilité",
           toggle: {
             visible: "Visible",
-            hidden: "Caché",
+            hidden: "Masqué",
           }
         },
       },
@@ -113,25 +113,25 @@ const fr = {
         },
         uiRouterKey: {
           label: "Clé du routeur UI",
-          placeholder: "Si vide, généré automatiquement par \"Titre\"",
+          placeholder: "Si vide, généré automatiquement par « {name} »",
         },
         uiRouter: {
-          unableToRender: "Impossible de restituer le slug et/ou la clé du routeur d'interface utilisateur en raison de caractères non pris en charge"
+          unableToRender: "Impossible de générer le slug ou la clé du routeur d'interface utilisateur en raison de caractères non pris en charge"
         },
         path: {
           label: "URL",
-          placeholder: "Partie unique de l'URL identifiant cet élément",
-          preview: "Aperçu :",
+          placeholder: "Partie unique de l'URL pour cet élément",
+          preview: "Aperçu :",
         },
         externalPath: {
           label: "URL externe",
           placeholder: "Lien vers la source externe",
           validation: {
-            type: "Cette valeur n'est pas une URL valide.",
+            type: "Cette URL n'est pas valide.",
           },
         },
         menuAttached: {
-          label: "Attacher au menu",
+          label: "Inclure dans le menu",
           value: {
             yes: "Oui",
             no: "Non",
@@ -144,33 +144,33 @@ const fr = {
           },
           external: {
             label: "Source externe",
-            description: "Chemin de sortie : {value}",
+            description: "Chemin de sortie : {value}",
           },
           wrapper: {
-            label: "Élément wrapper",
+            label: "Élément englobant",
           },
         },
         audience: {
           label: "Audience",
-          placeholder: "Sélectionner l'audience...",
-          empty: "Il n'y a plus d'audiences",
+          placeholder: "Sélectionner l'audience…",
+          empty: "Aucune autre audience disponible",
         },
         relatedSection: {
           label: "Relation à",
         },
         relatedType: {
           label: "Type de contenu",
-          placeholder: "Sélectionner le type de contenu...",
-          empty: "Il n'y a pas de types de contenu à sélectionner",
+          placeholder: "Sélectionner le type de contenu…",
+          empty: "Aucun type de contenu disponible à sélectionner",
         },
         related: {
           label: "Entité",
-          placeholder: "Sélectionner l'entité...",
-          empty: "Il n'y a plus d'entités de \"{ contentTypeName }\" à sélectionner",
+          placeholder: "Sélectionner l'entité…",
+          empty: "Il n'y a plus d'entités de « { contentTypeName } » à sélectionner",
         },
         i18n: {
           locale: {
-            label: "Copier les détails de",
+            label: "Copier les informations depuis",
             placeholder: "locale",
             button: "Copier",
             error: {
@@ -193,9 +193,9 @@ const fr = {
   notification: {
     navigation: {
       submit: "Les modifications de navigation ont été enregistrées",
-      error: "Chemin en double : \"{ path }\" dans le parent : \"{ parentTitle }\" pour { errorTitles } éléments",
+      error: "Chemin en double : « { path } » dans le parent : « { parentTitle } » pour { errorTitles } éléments",
       item: {
-        relation: "La relation de l'entité n'existe pas !",
+        relation: "La relation vers l'entité n'existe pas !",
         status: {
           draft: "brouillon",
           published: "publié",
@@ -212,20 +212,20 @@ const fr = {
       },
       item: {
         relation: "Les relations fournies dans certains éléments sont incorrectes",
-        slug: "Impossible de créer une clé de routeur UI valide (slug) à partir de \"{ query }\". \"{ result }\" reçu",
+        slug: "Impossible de créer une clé de routeur d'interface valide (slug) à partir de « { query } ». « { result } » reçu",
       },
     }
   },
   pages: {
     auth: {
-      noAccess: "Pas d'accès",
+      noAccess: "Aucun accès",
       not: {
-        allowed: "Oups ! Il semble que vous n'ayez pas accès à cette page...",
+        allowed: "Oups ! Il semble que vous n'ayez pas accès à cette page…",
       },
     },
     main: {
       search: {
-        placeholder: "Tapez pour commencer à rechercher...",
+        placeholder: "Tapez pour commencer à rechercher…",
         subLabel: "appuyez sur ENTRÉE pour mettre en surbrillance l'élément suivant",
       },
       header: {
@@ -264,7 +264,7 @@ const fr = {
       form: {
         cascadeMenuAttached: {
           label: "Cascade du menu attaché",
-          hint: "Désactiver si vous ne voulez pas que \"Menu attaché\" se propage aux éléments enfants",
+          hint: "Désactiver si vous ne voulez pas que « Menu attaché » se propage aux éléments enfants",
         },
         preferCustomContentTypes: {
           label: "Préférer les types de contenu API",
@@ -273,17 +273,17 @@ const fr = {
         contentTypes: {
           label: "Activer la navigation pour",
           placeholder: "ex. Pages, Articles",
-          hint: "Si aucun n'est sélectionné, aucun des types de contenu n'est activé",
+          hint: "Si rien n'est sélectionné, aucun des types de contenu n'est activé",
         },
         i18n: {
           label: "i18n",
           hint: "Activer l'internationalisation",
-          hintMissingDefaultLocale: "Locale par défaut manquante !",
+          hintMissingDefaultLocale: "Locale par défaut manquante !",
         },
         allowedLevels: {
           label: "Niveaux autorisés",
           placeholder: "ex. 2",
-          hint: "Niveau maximum pour lequel vous pouvez marquer un élément comme \"Menu attaché\"",
+          hint: "Niveau maximum pour lequel vous pouvez marquer un élément comme « Menu attaché »",
         },
         audience: {
           label: "Audience",
@@ -293,7 +293,7 @@ const fr = {
           default: "Par défaut",
           label: "Champs de nom",
           placeholder: "Sélectionner au moins un ou laisser vide pour appliquer les valeurs par défaut",
-          hint: "Si laissé vide, le champ de nom prendra les champs suivants par ordre : \"titre\", \"sujet\" et \"nom\"",
+          hint: "Si laissé vide, le champ de nom prendra les champs suivants par ordre : « titre », « sujet » et « nom »",
           empty: "Ce type de contenu n'a pas d'attributs de chaîne",
         },
         populate: {
@@ -363,7 +363,7 @@ const fr = {
             },
             options: {
               label: "Options pour l'entrée de sélection",
-              description: "Fournir des options séparées par \";\"",
+              description: "Fournir des options séparées par « ; »",
             },
             multi: {
               label: "Activer l'entrée de plusieurs options",
@@ -377,7 +377,7 @@ const fr = {
         restore: {
           label: "Restaurer la configuration",
           confirmation: {
-            header: "Voulez-vous continuer ?",
+            header: "Voulez-vous continuer ?",
             confirm: "Restaurer",
             description: "La configuration du plugin sera restaurée à partir du fichier plugins.js.",
           },
@@ -393,7 +393,7 @@ const fr = {
             reason: {
               I18N: "Les modifications de l'internationalisation (i18n) seront appliquées.",
               GRAPH_QL: "Les modifications de GraphQL seront appliquées.",
-              I18N_NAVIGATIONS_PRUNE: "Les navigations de locale obsolètes seront supprimées.",
+              I18N_NAVIGATIONS_PRUNE: "Les navigations dans des locales obsolètes seront supprimées.",
             },
           },
         },
@@ -404,7 +404,7 @@ const fr = {
             description: {
               line1: "Vous désactivez l'internationalisation pour la navigation. Les navigations pour les locales différentes de la locale par défaut ne sont pas disponibles pour la visualisation et les modifications via ce plugin.",
               line2: "Vous pouvez choisir de supprimer les navigations pour d'autres locales.",
-              line3: "Rappelez-vous ! La suppression est irréversible",
+              line3: "Rappelez-vous ! La suppression est irréversible",
             },
           },
           prune: {
@@ -416,18 +416,18 @@ const fr = {
       },
       notification: {
         fetch: {
-          error: "Échec de la récupération de la configuration. Nouvelle tentative...",
+          error: "Échec de la récupération de la configuration. Nouvelle tentative…",
         },
         submit: {
-          success: "La configuration a été mise à jour avec succès",
+          success: "La configuration a bien été mise à jour",
           error: "La mise à jour de la configuration a échoué",
         },
         restore: {
-          success: "La configuration a été restaurée avec succès",
+          success: "La configuration a bien été restaurée",
           error: "La restauration de la configuration a échoué",
         },
         restart: {
-          success: "L'application a été redémarrée avec succès",
+          success: "L'application a bien été redémarrée",
           error: "Échec du redémarrage de votre application. Essayez de le faire manuellement.",
         },
       },
@@ -438,7 +438,7 @@ const fr = {
           confirmation: {
             header: "Confirmation",
             confirm: "Copier",
-            content: "Voulez-vous copier les éléments de navigation ?",
+            content: "Voulez-vous copier les éléments de navigation ?",
           },
         },
       },
@@ -472,7 +472,7 @@ const fr = {
           cancel: "Annuler",
           confirm: "Confirmer",
         },
-        description: "Voulez-vous continuer ?",
+        description: "Voulez-vous continuer ?",
         header: "Confirmation",
       },
     },
