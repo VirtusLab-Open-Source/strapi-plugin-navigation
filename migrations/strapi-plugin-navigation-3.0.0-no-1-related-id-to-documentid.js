@@ -34,7 +34,7 @@ module.exports = {
 
     await strapi.db.transaction(async () => {
       // Run related id to document id migration
-      await strapi.service('plugin::navigation.navigation').migrateRelatedIdToDocumentId();
+      await strapi.service('plugin::navigation.migrate').migrateRelatedIdToDocumentId();
     });
   },
 };
