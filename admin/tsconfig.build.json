@@ -6,6 +6,5 @@
     "rootDir": "../",
     "baseUrl": ".",
     "outDir": "./dist",
-    "noEmit": false
   }
 }

@@ -9,29 +9,29 @@ const DragButtonWrapper = styled.span<{ ref: unknown, isActive?: boolean }>`
 
   height: 32px;
   width: 32px;
-  padding: ${({ theme }) => theme.spaces[2]};
+  padding: ${({ theme }: { theme: DefaultTheme }) => theme?.spaces[2]};
 
-  background: ${({ theme, isActive }) =>
-    isActive ? theme.colors.neutral150 : theme.colors.neutral0};
-  border: 1px solid ${({ theme }) => theme.colors.neutral200};
-  border-radius: ${({ theme }) => theme.borderRadius};
+  background: ${({ theme, isActive }: { theme: DefaultTheme, isActive?: boolean }) =>
+    isActive ? theme?.colors.neutral150 : theme?.colors.neutral0};
+  border: 1px solid ${({ theme }: { theme: DefaultTheme }) => theme?.colors.neutral200};
+  border-radius: ${({ theme }: { theme: DefaultTheme }) => theme?.borderRadius};
   cursor: pointer;
   transition: background-color 0.3s ease-in;
 
   svg {
-    height: ${({ theme }) => theme.spaces[3]};
-    width: ${({ theme }) => theme.spaces[3]};
+    height: ${({ theme }: { theme: DefaultTheme }) => theme?.spaces[3]};
+    width: ${({ theme }: { theme: DefaultTheme }) => theme?.spaces[3]};
 
     > g,
     path {
-      fill: ${({ theme }) => theme.colors.neutral500};
+      fill: ${({ theme }: { theme: DefaultTheme }) => theme?.colors.neutral500};
     }
   }
   &:hover {
     svg {
       > g,
       path {
-        fill: ${({ theme }) => theme.colors.neutral600};
+        fill: ${({ theme }: { theme: DefaultTheme }) => theme?.colors.neutral600};
       }
     }
   }
@@ -39,15 +39,15 @@ const DragButtonWrapper = styled.span<{ ref: unknown, isActive?: boolean }>`
     svg {
       > g,
       path {
-        fill: ${({ theme }) => theme.colors.neutral400};
+        fill: ${({ theme }: { theme: DefaultTheme }) => theme?.colors.neutral400};
       }
     }
   }
   &[aria-disabled='true'] {
-    background-color: ${({ theme }) => theme.colors.neutral150};
+    background-color: ${({ theme }: { theme: DefaultTheme }) => theme?.colors.neutral150};
     svg {
       path {
-        fill: ${({ theme }) => theme.colors.neutral600};
+        fill: ${({ theme }: { theme: DefaultTheme }) => theme?.colors.neutral600};
       }
     }
   }

@@ -1,9 +1,9 @@
-import styled from 'styled-components';
+import styled, { DefaultTheme } from 'styled-components';
 import { IconButton } from '@strapi/design-system';
 
 export const MoreButton = styled(IconButton)`
-    margin: ${({ theme }) => `0 ${theme.spaces[2]}`};
-    padding: ${({ theme }) => theme.spaces[2]};
+    margin: ${({ theme }: { theme: DefaultTheme }) => `0 ${theme?.spaces[2]}`};
+    padding: ${({ theme }: { theme: DefaultTheme }) => theme?.spaces[2]};
 
     svg {
         width: ${18 / 16}rem;

@@ -269,8 +269,8 @@ export const Item: React.FC<Props> = ({
           zIndex: 1,
           position: 'relative',
           overflow: 'hidden',
-          backgroundColor: mappedItem.isSearchActive ? theme.colors.secondary100 : undefined,
-          borderColor: mappedItem.isSearchActive ? theme.colors.secondary200 : undefined,
+          backgroundColor: mappedItem.isSearchActive ? theme?.colors.secondary100 : undefined,
+          borderColor: mappedItem.isSearchActive ? theme?.colors.secondary200 : undefined,
           transition: 'background-color 0.3s ease-in',
         }}
       >

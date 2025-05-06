@@ -1,10 +1,10 @@
-import styled from "styled-components";
+import styled, { DefaultTheme } from "styled-components";
 
 const initSize = 92;
 
 const NavigationIconSvg = styled.svg`
   path {
-    fill: ${ ({ theme }) => theme.colors.neutral500 };
+    fill: ${ ({ theme }: { theme: DefaultTheme }) => theme?.colors.neutral500 };
   }
 `;
 

@@ -1,5 +1,5 @@
 import { CardTitle } from '@strapi/design-system';
-import styled from 'styled-components';
+import styled, { DefaultTheme } from 'styled-components';
 
 export const CardItemTitle = styled(CardTitle)`
   width: 100%;
@@ -10,6 +10,6 @@ export const CardItemTitle = styled(CardTitle)`
   align-items: center;
 
   > div > * {
-    margin: 0px ${({ theme }) => theme.spaces[1]};
+    margin: 0px ${({ theme }: { theme: DefaultTheme }) => theme?.spaces[1]};
   }
 `;
