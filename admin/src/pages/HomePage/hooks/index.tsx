@@ -157,7 +157,7 @@ export const useCreateNavigation = () => {
   });
 };
 
-export const useUpdateNavigation = (onSuccess?: Effect<void>) => {
+export const useUpdateNavigation = (onSuccess?: Effect<NavigationSchema>) => {
   const fetch = getFetchClient();
   const apiClient = getApiClient(fetch);
   // TODO: nicer cache update
@@ -165,11 +165,12 @@ export const useUpdateNavigation = (onSuccess?: Effect<void>) => {
 
   return useMutation({
     mutationFn: apiClient.update,
-    onSuccess() {
+    onSuccess(next) {
       queryClient.invalidateQueries({
         queryKey: apiClient.readAllIndex(),
       });
-      onSuccess?.();
+      
+      onSuccess?.(next);
     },
   });
 };

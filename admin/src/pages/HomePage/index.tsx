@@ -222,12 +222,18 @@ const Inner = () => {
     i18nCopySourceLocale && setI18nCopyModalOpened(true);
   }, [setI18nCopyModalOpened, i18nCopySourceLocale]);
 
-  const updateNavigationMutation = useUpdateNavigation(() => {
-    setRecentNavigation({
-      documentId: currentNavigation?.documentId,
-      id: currentNavigation?.id,
+  const updateNavigationMutation = useUpdateNavigation((next) => {
+    setCurrentNavigation({
+      ...next,
+      items: next.items.map(appendViewId),
     });
-    setCurrentNavigation(undefined);
+
+    setRecentNavigation({
+      documentId: next.documentId,
+      id: next.id,
+    });
+
+    setStructureChanged(false);
   });
 
   const submit = () => {
@@ -396,7 +402,7 @@ const Inner = () => {
       setRecentNavigation(undefined);
       setCurrentNavigation(navigation ? navigation : first(navigationsQuery.data));
     }
-  }, [navigationsQuery.data]);
+  }, [navigationsQuery.data, currentNavigation]);
 
   useEffect(() => {
     if (!currentLocale && localeQuery.data?.defaultLocale) {
