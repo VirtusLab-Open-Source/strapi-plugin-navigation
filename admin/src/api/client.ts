@@ -37,7 +37,10 @@ export const getApiClient = once((fetch: ReturnType<typeof getFetchClient>) => (
   },
 
   update(body: NavigationSchema) {
-    return fetch.put(`/${URL_PREFIX}/${body.documentId}`, body);
+    return fetch
+      .put(`/${URL_PREFIX}/${body.documentId}`, body)
+      .then(({ data }) => data)
+      .then(navigationSchema.parse);
   },
 
   purge({ documentId, withLangVersions }: { documentId?: string; withLangVersions?: boolean }) {
@@ -67,8 +70,7 @@ export const getApiClient = once((fetch: ReturnType<typeof getFetchClient>) => (
   },
 
   healthCheck() {
-    return fetch
-      .get(`/_health`);
+    return fetch.get(`/_health`);
   },
 
   healthCheckIndex() {

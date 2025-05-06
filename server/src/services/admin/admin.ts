@@ -446,7 +446,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       }
     }
 
-    const updatedNavigationAsDTO = await commonService
+    await commonService
       .analyzeBranch({
         navigationItems: items ?? [],
         masterEntity: currentNavigation,
@@ -461,8 +461,6 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
           oldEntity: currentNavigationAsDTO,
           newEntity,
         });
-
-        return newEntity;
       });
 
     await commonService.emitEvent({
@@ -474,7 +472,11 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       uid: masterModel.uid,
     });
 
-    return updatedNavigationAsDTO;
+    return await this.getById({
+      documentId: payload.documentId,
+      locale: payload.locale,
+      populate: ['related'],
+    });
   },
 
   async delete({ auditLog, documentId }: DeleteInput): Promise<void> {
