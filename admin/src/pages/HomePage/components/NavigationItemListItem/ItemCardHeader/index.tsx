@@ -1,7 +1,7 @@
 import { IconButton as BaseIconButton, IconButtonGroup, Flex, Typography } from '@strapi/design-system';
 import { FC, MutableRefObject, ReactNode } from 'react';
 import { useIntl } from 'react-intl';
-import styled, { DefaultTheme } from 'styled-components';
+import styled from 'styled-components';
 
 import { getTrad } from '../../../../../translations';
 import { VoidEffect } from '../../../../../types';
@@ -108,5 +108,5 @@ export const ItemCardHeader: FC<IProps> = ({
 
 const IconButton = styled(BaseIconButton) <{ isActive?: boolean }>`
   transition: background-color 0.3s ease-in;
-  ${({ isActive, theme }: { isActive?: boolean, theme: DefaultTheme }) => (isActive ? `background-color: ${theme?.colors.neutral150} ;` : '')}
+  ${({ isActive, theme }) => (isActive ? `background-color: ${theme.colors.neutral150} ;` : '')}
 `;

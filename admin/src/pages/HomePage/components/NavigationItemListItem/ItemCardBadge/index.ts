@@ -1,14 +1,14 @@
 import { Badge } from '@strapi/design-system';
-import styled, { DefaultTheme } from 'styled-components';
+import styled from 'styled-components';
 
 export const ItemCardBadge = styled(Badge)`
-  border: 1px solid ${({ theme, borderColor }: { theme: DefaultTheme, borderColor?: string }) => theme?.colors[borderColor ?? 'neutral200']};
+  border: 1px solid ${({ theme, borderColor }) => theme.colors[borderColor]};
 
   ${({ small, theme }) =>
     small &&
     `
-			padding: ${theme?.spaces[1]} ${theme?.spaces[2]};
-			margin: 0px ${theme?.spaces[3]};
+			padding: ${theme.spaces[1]} ${theme.spaces[2]};
+			margin: 0px ${theme.spaces[3]};
 			vertical-align: middle;
 
 			cursor: default;

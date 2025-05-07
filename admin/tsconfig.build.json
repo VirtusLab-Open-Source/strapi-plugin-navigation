@@ -5,6 +5,6 @@
   "compilerOptions": {
     "rootDir": "../",
     "baseUrl": ".",
-    "outDir": "./dist",
+    "outDir": "./dist"
   }
 }
