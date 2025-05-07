@@ -84,15 +84,13 @@ export const getNavigationItemRepository = once((context: { strapi: Core.Strapi 
   remove(item: NavigationItemRemoveMinimal) {
     const { itemModel } = getPluginModels(context);
 
-    return context.strapi.query(itemModel.uid).delete({ where: { documentId: item.documentId } });
+    return context.strapi.documents(itemModel.uid).delete({ documentId: item.documentId });
   },
 
   removeForIds(ids: string[]) {
     const { itemModel } = getPluginModels(context);
 
-    return context.strapi.query(itemModel.uid).deleteMany({
-      where: { documentId: ids },
-    });
+    return ids.map(id => context.strapi.documents(itemModel.uid).delete({ documentId: id }))
   },
 
   findForMasterIds(ids: number[]) {
