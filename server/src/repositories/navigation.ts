@@ -101,13 +101,13 @@ export const getNavigationRepository = once((context: { strapi: Core.Strapi }) =
     }
   },
 
-  remove(navigation: Partial<Pick<NavigationDBSchema, 'id' | 'documentId'>>) {
+  remove(navigation: Partial<Pick<NavigationDBSchema, 'documentId'>>) {
     const { masterModel } = getPluginModels(context);
 
-    if (!navigation.documentId && !navigation.id) {
-      throw new NavigationError('Some kind of id required. None given.');
+    if (!navigation.documentId) {
+      throw new NavigationError('Document id is required.');
     }
 
-    return context.strapi.query(masterModel.uid).deleteMany({ where: navigation });
+    return context.strapi.documents(masterModel.uid).delete({ documentId: navigation.documentId });
   },
 }));
