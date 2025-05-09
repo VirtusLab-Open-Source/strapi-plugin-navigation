@@ -10,7 +10,6 @@ export default {
     gql: {
       navigationItemRelated: [],
     },
-    i18nEnabled: false,
     pathDefaultFields: {},
     pruneObsoleteI18nNavigations: false,
     cascadeMenuAttached: true,
