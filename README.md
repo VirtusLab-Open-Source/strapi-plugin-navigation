@@ -39,19 +39,18 @@ Strapi Navigation Plugin provides a website navigation / menu builder feature fo
     - [Settings page](#in-v203-and-newer)
     - [Plugin file](#in-v202-and-older--default-configuration-state-for-v203-and-newer)
 6. [🔧 GraphQL Configuration](#-gql-configuration)
-7. [🌍 i18n](#-i18n)
-8. [👤 RBAC](#-rbac)
-9. [🔐 Authorization strategy](#-authorization-strategy)
-10. [🕸️ Public API specification](#%EF%B8%8F-public-api-specification)
+7. [👤 RBAC](#-rbac)
+8. [🔐 Authorization strategy](#-authorization-strategy)
+9. [🕸️ Public API specification](#%EF%B8%8F-public-api-specification)
     - [REST API](#rest-api) 
     - [GraphQL API](#graphql-api)
-11. [🔌 Extensions](#-extensions)
-12. [🌿 Model lifecycle hooks](#model-life-cycle-hooks)
-13. [🧹 REST Cache](#rest-cache)
-14. [🧩 Examples](#-examples)
-15. [💬 FAQ](#-faq)
-16. [🤝 Contributing](#-contributing-to-the-plugin)
-17. [👨‍💻 Community support](#-community-support)
+10. [🔌 Extensions](#-extensions)
+11. [🌿 Model lifecycle hooks](#model-life-cycle-hooks)
+12. [🧹 REST Cache](#rest-cache)
+13. [🧩 Examples](#-examples)
+14. [💬 FAQ](#-faq)
+15. [🤝 Contributing](#-contributing-to-the-plugin)
+16. [👨‍💻 Community support](#-community-support)
 
 ## 💎 Versions
 
@@ -168,7 +167,6 @@ Config for this plugin is stored as a part of the `config/plugins.{js|ts}` or `c
 - `contentTypesNameFields` - Definition of content type title fields like `'api::<collection name>.<content type name>': ['field_name_1', 'field_name_2']`, if not set titles are pulled from fields like `['title', 'subject', 'name']`. **TIP** - Proper content type uid you can find in the URL of Content Manager where you're managing relevant entities like: `admin/content-manager/collectionType/< THE UID HERE >?page=1&pageSize=10&sort=Title:ASC&plugins[i18n][locale]=en`
 - `pathDefaultFields` - The attribute to copy the default path from per content type. Syntax: `'api::<collection name>.<content type name>': ['url_slug', 'path']`
 - `gql` - If you're using GraphQL that's the right place to put all necessary settings. More **[ here ](#gql-configuration)**
-- `i18nEnabled` - should you want to manage multi-locale content via navigation set this value `Enabled`. More **[ here ](#i18n)**
 - `cascadeMenuAttached` - If you don't want "Menu attached" to cascade on child items set this value `Disabled`.
 
 ### Properties
@@ -205,11 +203,7 @@ gql: {
     navigationItemRelated: ['Page', 'UploadFile'],
 },
 ```
-where `Page` and `UploadFile` are your type names for the **Content Types** you're referring by navigation items relations. 
-
-## 🌍 i18n
-
-Fully integrated and follows the **[official i18n Strapi patterns](https://docs.strapi.io/dev-docs/i18n)**.
+where `Page` and `UploadFile` are your type names for the **Content Types** you're referring by navigation items relations.
 
 ## 👤 RBAC
 Plugin provides granular permissions based on **Strapi RBAC** functionality within the editorial interface &amp; **Admin API**. Those settings are editable via the _Setings_ -> _Administration Panel_ -> _Roles_.
