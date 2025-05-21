@@ -7,10 +7,10 @@ export type MigrationService = ReturnType<typeof migrationService>;
 
 const migrationService = (context: { strapi: Core.Strapi }) => ({
   async migrateRelatedIdToDocumentId(): Promise<void> {
-    console.log('Navigation plugin :: Migrations :: Relared id to document id - START');
+    console.log('Navigation plugin :: Migrations :: Related id to document id - START');
 
     const navigationItemRepository = getNavigationItemRepository(context);
-    const all = await navigationItemRepository.find({
+    const all = await navigationItemRepository.findV4({
       filters: {},
       limit: Number.MAX_SAFE_INTEGER,
     });
@@ -40,7 +40,7 @@ const migrationService = (context: { strapi: Core.Strapi }) => ({
       })
     );
 
-    console.log('Navigation plugin :: Migrations :: Relared id to document id - DONE');
+    console.log('Navigation plugin :: Migrations :: Related id to document id - DONE');
   },
 });
 
