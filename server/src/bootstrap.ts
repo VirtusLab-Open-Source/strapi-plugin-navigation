@@ -10,5 +10,7 @@ const bootstrap = async (context: { strapi: Core.Strapi }) => {
   await navigationSetup(context);
   await setupPermissions(context);
   await graphQLSetup(context);
+
+  await strapi.service('plugin::navigation.migrate').migrateRelatedIdToDocumentId();
 };
 export default bootstrap;

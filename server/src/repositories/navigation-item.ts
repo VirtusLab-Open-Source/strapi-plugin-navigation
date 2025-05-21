@@ -75,6 +75,14 @@ export const getNavigationItemRepository = once((context: { strapi: Core.Strapi 
       .then((items) => items.map(removeSensitiveFields));
   },
 
+  findV4({ filters, locale, limit, order, populate }: FindInput) {
+    const { itemModel } = getPluginModels(context);
+
+    return context.strapi
+      .documents(itemModel.uid)
+      .findMany({ filters, locale, limit, populate, orderBy: order })
+  },
+
   count(where: any) {
     const { itemModel } = getPluginModels(context);
 
