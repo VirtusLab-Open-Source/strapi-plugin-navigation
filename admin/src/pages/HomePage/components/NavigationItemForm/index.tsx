@@ -141,16 +141,14 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   };
 
   const setFormValuesItems = (values: any) =>
-    setFormValue(
-      {
-        ...formValue,
-        additionalFields: {
-          ...formValue.additionalFields,
-        },
-        updated: true,
-        ...values
+    setFormValue({
+      ...formValue,
+      additionalFields: {
+        ...formValue.additionalFields,
       },
-    );
+      updated: true,
+      ...values,
+    });
 
   const encodePayload = (values: NavigationItemFormSchema): NavigationItemFormSchema => {
     return {
@@ -237,11 +235,11 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
       const uiRouterKey = await generateUiRouterKey(
         payload.type === 'INTERNAL'
           ? {
-            slugify: slugifyMutation.mutateAsync,
-            title,
-            related: payload.related,
-            relatedType: payload.relatedType,
-          }
+              slugify: slugifyMutation.mutateAsync,
+              title,
+              related: payload.related,
+              relatedType: payload.relatedType,
+            }
           : { slugify: slugifyMutation.mutateAsync, title }
       );
 
@@ -260,15 +258,15 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
       onSubmit(
         payload.type === 'INTERNAL'
           ? {
-            ...payload,
-            title,
-            uiRouterKey,
-          }
+              ...payload,
+              title,
+              uiRouterKey,
+            }
           : {
-            ...payload,
-            title,
-            uiRouterKey,
-          }
+              ...payload,
+              title,
+              uiRouterKey,
+            }
       );
     } else if (error) {
       setFormError(
@@ -298,9 +296,9 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
     formValue.type === 'INTERNAL'
       ? formValue
       : {
-        related: undefined,
-        relatedType: undefined,
-      };
+          related: undefined,
+          relatedType: undefined,
+        };
 
   const isExternal = currentType === 'EXTERNAL';
   const isInternal = currentType === 'INTERNAL';
@@ -362,9 +360,9 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
     [contentTypeItemsQuery.data, configQuery.data, contentTypes]
   );
 
-  const availableNavigationItemTypeOptions = !configQuery.data?.contentTypes.length ?
-    ['EXTERNAL', 'WRAPPER'] as const :
-    ['INTERNAL', 'EXTERNAL', 'WRAPPER'] as const;
+  const availableNavigationItemTypeOptions = !configQuery.data?.contentTypes.length
+    ? (['EXTERNAL', 'WRAPPER'] as const)
+    : (['INTERNAL', 'EXTERNAL', 'WRAPPER'] as const);
   const navigationItemTypeOptions = availableNavigationItemTypeOptions.map((key) => {
     return {
       key,
@@ -562,9 +560,9 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
               values.type === 'INTERNAL'
                 ? values
                 : {
-                  related: undefined,
-                  relatedType: undefined,
-                };
+                    related: undefined,
+                    relatedType: undefined,
+                  };
 
             const pathDefault = generatePreviewPath({
               currentPath: values.path,
@@ -703,15 +701,18 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                       label={formatMessage(
                         getTrad(`popup.item.form.${pathSourceName}.label`, 'Path')
                       )}
-                      error={renderError(pathSourceName, `popup.item.form.${pathSourceName}.validation.type`)}
+                      error={renderError(
+                        pathSourceName,
+                        `popup.item.form.${pathSourceName}.validation.type`
+                      )}
                       hint={[
                         formatMessage(
                           getTrad(`popup.item.form.${pathSourceName}.placeholder`, 'e.g. Blog')
                         ),
                         pathDefault
                           ? formatMessage(getTrad('popup.item.form.type.external.description'), {
-                            value: pathDefault,
-                          })
+                              value: pathDefault,
+                            })
                           : '',
                       ].join(' ')}
                     >
@@ -744,34 +745,38 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                         hint={
                           !isLoading && isEmpty(relatedTypeSelectOptions)
                             ? formatMessage(
-                              getTrad(
-                                'popup.item.form.relatedType.empty',
-                                'There are no more content types'
+                                getTrad(
+                                  'popup.item.form.relatedType.empty',
+                                  'There are no more content types'
+                                )
                               )
-                            )
                             : undefined
                         }
                       >
                         <ControllableCombobox
                           name="relatedType"
                           onClear={() =>
-                            setFormValuesItems(
-                              {
-                                related: undefined,
-                                title: undefined,
-                                relatedType: undefined,
-                              })
+                            setFormValuesItems({
+                              related: undefined,
+                              title: undefined,
+                              relatedType: undefined,
+                            })
                           }
                           onChange={(eventOrPath: FormChangeEvent) =>
-                            setFormValuesItems(
-                              {
-                                related: undefined,
-                                title: values.autoSync ? '' : values.title,
-                                relatedType: eventOrPath,
-                              })
+                            setFormValuesItems({
+                              related: undefined,
+                              title: values.autoSync ? '' : values.title,
+                              relatedType: eventOrPath,
+                            })
                           }
                           value={values.relatedType}
-                          options={configQuery.data?.contentTypes.map(contentType => ({ key: contentType.uid, value: contentType.uid, label: contentType.contentTypeName })) ?? []}
+                          options={
+                            configQuery.data?.contentTypes.map((contentType) => ({
+                              key: contentType.uid,
+                              value: contentType.uid,
+                              label: contentType.contentTypeName,
+                            })) ?? []
+                          }
                           disabled={!configQuery.data?.contentTypes.length || !canUpdate}
                         />
                       </Field>
@@ -786,20 +791,18 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                           hint={
                             !isLoading && thereAreNoMoreContentTypes
                               ? formatMessage(
-                                getTrad(
-                                  'popup.item.form.related.empty',
-                                  'There are no more entities'
-                                ),
-                                { contentTypeName: values.relatedType }
-                              )
+                                  getTrad(
+                                    'popup.item.form.related.empty',
+                                    'There are no more entities'
+                                  ),
+                                  { contentTypeName: values.relatedType }
+                                )
                               : undefined
                           }
                         >
                           <ControllableCombobox
                             name="related"
-                            onClear={() =>
-                              handleChange('related', undefined, onChange)
-                            }
+                            onClear={() => handleChange('related', undefined, onChange)}
                             onChange={(eventOrPath: FormChangeEvent) =>
                               handleChange('related', eventOrPath, onChange)
                             }
@@ -860,8 +863,8 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                                   hint={
                                     !isLoading && isEmpty(audienceOptions)
                                       ? formatMessage(
-                                        getTrad('popup.item.form.title.placeholder', 'e.g. Blog')
-                                      )
+                                          getTrad('popup.item.form.title.placeholder', 'e.g. Blog')
+                                        )
                                       : undefined
                                   }
                                 >

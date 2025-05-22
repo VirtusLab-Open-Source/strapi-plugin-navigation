@@ -34,7 +34,7 @@ export const RESTRICTED_CONTENT_TYPES = [
   'plugin::navigation',
   'plugin::review-workflows',
   'plugin::users-permissions',
-  'plugin::upload.folder'
+  'plugin::upload.folder',
 ] as const;
 export const CONTENT_TYPES_NAME_FIELDS_DEFAULTS = ['title', 'subject', 'name'];
 

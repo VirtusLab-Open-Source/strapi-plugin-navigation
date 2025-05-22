@@ -3,7 +3,6 @@ class NavigationError extends Error {
     super(message);
     this.additionalInfo = additionalInfo;
   }
-
 }
 
 module.exports = {
