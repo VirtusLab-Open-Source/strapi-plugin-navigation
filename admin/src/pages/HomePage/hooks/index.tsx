@@ -169,7 +169,7 @@ export const useUpdateNavigation = (onSuccess?: Effect<NavigationSchema>) => {
       queryClient.invalidateQueries({
         queryKey: apiClient.readAllIndex(),
       });
-      
+
       onSuccess?.(next);
     },
   });

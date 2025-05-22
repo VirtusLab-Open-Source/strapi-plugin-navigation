@@ -1,4 +1,4 @@
-const { NavigationError } = require("./NavigationError");
+const { NavigationError } = require('./NavigationError');
 
 class InvalidParamNavigationError extends NavigationError {}
 

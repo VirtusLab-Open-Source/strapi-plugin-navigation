@@ -80,7 +80,7 @@ export const getNavigationItemRepository = once((context: { strapi: Core.Strapi 
 
     return context.strapi
       .documents(itemModel.uid)
-      .findMany({ filters, locale, limit, populate, orderBy: order })
+      .findMany({ filters, locale, limit, populate, orderBy: order });
   },
 
   count(where: any) {
@@ -92,13 +92,18 @@ export const getNavigationItemRepository = once((context: { strapi: Core.Strapi 
   remove(item: NavigationItemRemoveMinimal) {
     const { itemModel } = getPluginModels(context);
 
-    return context.strapi.documents(itemModel.uid).delete({ documentId: item.documentId });
+    return context.strapi.documents(itemModel.uid).delete({
+      documentId: item.documentId,
+      populate: '*',
+    });
   },
 
   removeForIds(ids: string[]) {
     const { itemModel } = getPluginModels(context);
 
-    return ids.map(id => context.strapi.documents(itemModel.uid).delete({ documentId: id }))
+    return ids.map((id) =>
+      context.strapi.documents(itemModel.uid).delete({ documentId: id, populate: '*' })
+    );
   },
 
   findForMasterIds(ids: number[]) {

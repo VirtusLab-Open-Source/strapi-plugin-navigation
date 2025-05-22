@@ -31,19 +31,20 @@ Strapi Navigation Plugin provides a website navigation / menu builder feature fo
 - RFR (ready for handling by Redux First Router)
 
 ### Table of Contents
+
 1. [💎 Versions](#-versions)
 2. [✨ Features](#-features)
 3. [⏳ Installation](#-installation)
 4. [🖐 Requirements](#-requirements)
 5. [🔧 Basic Configuration](#-configuration)
-    - [Settings page](#in-v203-and-newer)
-    - [Plugin file](#in-v202-and-older--default-configuration-state-for-v203-and-newer)
+   - [Settings page](#in-v203-and-newer)
+   - [Plugin file](#in-v202-and-older--default-configuration-state-for-v203-and-newer)
 6. [🔧 GraphQL Configuration](#-gql-configuration)
 7. [👤 RBAC](#-rbac)
 8. [🔐 Authorization strategy](#-authorization-strategy)
 9. [🕸️ Public API specification](#%EF%B8%8F-public-api-specification)
-    - [REST API](#rest-api) 
-    - [GraphQL API](#graphql-api)
+   - [REST API](#rest-api)
+   - [GraphQL API](#graphql-api)
 10. [🔌 Extensions](#-extensions)
 11. [🌿 Model lifecycle hooks](#model-life-cycle-hooks)
 12. [🧹 REST Cache](#rest-cache)
@@ -63,10 +64,10 @@ Strapi Navigation Plugin provides a website navigation / menu builder feature fo
 - **Navigation Public API:** Simple and ready for use API endpoint for consuming the navigation structure you've created
 - **Visual builder:** Elegant and easy to use visual builder
 - **Any Content Type relation:** Navigation can by linked to any of your Content Types by default. Simply, you're controlling it and also limiting available content types by configuration props
-- **Different types of navigation items:** Create navigation with items linked to internal types, to external links or wrapper elements to keep structure clean 
+- **Different types of navigation items:** Create navigation with items linked to internal types, to external links or wrapper elements to keep structure clean
 - **Multiple navigations:** Create as many Navigation containers as you want, setup them and use in the consumer application
-- **Light / Dark mode compatible:** By design we're supporting Strapi ☀️ Light / 🌙 Dark modes 
-- **Webhooks integration:** Changes to navigation will trigger 'entry.update' or 'entry.create' webhook events. 
+- **Light / Dark mode compatible:** By design we're supporting Strapi ☀️ Light / 🌙 Dark modes
+- **Webhooks integration:** Changes to navigation will trigger 'entry.update' or 'entry.create' webhook events.
 - **Customizable:** Possibility to customize the options like: available Content Types, Maximum level for "attach to menu", Additional fields (audience)
 
 ## ⏳ Installation
@@ -131,13 +132,12 @@ On the dedicated page, you will be able to set up all crucial properties which d
   <img style="width: 100%; height: auto;" src="https://www.sensinum.com/img/open-source/strapi-plugin-navigation/configuration.png" alt="Plugin configuration" />
 </div>
 
-> *Note*
+> _Note_
 > The default configuration for your plugin is fetched from `config/plugins.js` or, if the file is not there, directly from the plugin itself. If you would like to customize the default state to which you might revert, please follow the next section.
 
 ### File
 
-Config for this plugin is stored as a part of the `config/plugins.{js|ts}` or `config/<env>/plugins.{js|ts}` file. You can use the following snippet to make sure that the config structure is correct. If you've got already configurations for other plugins stores by this way, you can use the `navigation` along with them. 
-
+Config for this plugin is stored as a part of the `config/plugins.{js|ts}` or `config/<env>/plugins.{js|ts}` file. You can use the following snippet to make sure that the config structure is correct. If you've got already configurations for other plugins stores by this way, you can use the `navigation` along with them.
 
 ```ts
     module.exports = ({ env }) => ({
@@ -161,6 +161,7 @@ Config for this plugin is stored as a part of the `config/plugins.{js|ts}` or `c
 ```
 
 ### Properties
+
 - `additionalFields` - Additional fields for navigation items. More **[ here ](#additional-fields)**
 - `allowedLevels` - Maximum level for which you're able to mark item as "Menu attached"
 - `contentTypes` - UIDs of related content types
@@ -172,12 +173,14 @@ Config for this plugin is stored as a part of the `config/plugins.{js|ts}` or `c
 ### Properties
 
 ### Additional Fields
-It is advised to configure additional fields through the plugin's Settings Page. There you can find the table of custom fields and toggle input for the audience field. When enabled, the audience field can be customized through the content manager. Custom fields can be added, edited, toggled, and removed with the use of the table provided on the Settings Page. When removing custom fields be advised that their values in navigation items will be lost. Disabling the custom fields will not affect the data and can be done with no consequence of loosing information. 
+
+It is advised to configure additional fields through the plugin's Settings Page. There you can find the table of custom fields and toggle input for the audience field. When enabled, the audience field can be customized through the content manager. Custom fields can be added, edited, toggled, and removed with the use of the table provided on the Settings Page. When removing custom fields be advised that their values in navigation items will be lost. Disabling the custom fields will not affect the data and can be done with no consequence of loosing information.
 
 Creating configuration for additional fields with the `config.(js|ts)` file should be done with caution. Config object contains the `additionalFields` property of type `Array<CustomField | 'audience'>`, where CustomField is of type `{ type: 'string' | 'boolean' | 'media', name: string, label: string, enabled?: boolean }`. When creating custom fields be advised that the `name` property has to be unique. When editing a custom field it is advised not to edit its `name` and `type` properties. After config has been restored the custom fields that are not present in `config.js` file will be deleted and their values in navigation items will be lost.
 
 ## 🔧 GQL Configuration
-Using navigation with GraphQL requires both plugins to be installed and working. You can find installation guide for GraphQL plugin **[here](https://docs.strapi.io/dev-docs/plugins/graphql#graphql)**.  To properly configure GQL to work with navigation you should provide `gql` prop. This should contain union types that will be used to define GQL response format for your data while fetching:
+
+Using navigation with GraphQL requires both plugins to be installed and working. You can find installation guide for GraphQL plugin **[here](https://docs.strapi.io/dev-docs/plugins/graphql#graphql)**. To properly configure GQL to work with navigation you should provide `gql` prop. This should contain union types that will be used to define GQL response format for your data while fetching:
 
 > **Important!**
 > If you're using `config/plugins.js` to configure your plugins , please put `navigation` property before `graphql`. Otherwise types are not going to be properly added to GraphQL Schema. That's because of dynamic types which base on plugin configuration which are added on `bootstrap` stage, not `register`. This is not valid if you're using `graphql` plugin without any custom configuration, so most of cases in real.
@@ -188,7 +191,7 @@ items: [NavigationItem]
 related: NavigationRelated
 ```
 
-This prop should look as follows:   
+This prop should look as follows:
 
 ```ts
 gql: {
@@ -196,35 +199,42 @@ gql: {
 },
 ```
 
-for example:   
+for example:
 
 ```ts
 gql: {
     navigationItemRelated: ['Page', 'UploadFile'],
 },
 ```
+
 where `Page` and `UploadFile` are your type names for the **Content Types** you're referring by navigation items relations.
 
 ## 👤 RBAC
+
 Plugin provides granular permissions based on **Strapi RBAC** functionality within the editorial interface &amp; **Admin API**. Those settings are editable via the _Setings_ -> _Administration Panel_ -> _Roles_.
 
 For any role different than **Super Admin**, to access the **Navigation panel** you must set following permissions:
 
 ### Mandatory permissions
+
 - _Plugins_ -> _Navigation_ -> _Read_ - gives you the access to **Navigation Panel**
 
 ### Other permissions
+
 - _Plugins_ -> _Navigation_ -> _Update_ - with this permission user is able to change Navigation structure
 - _Plugins_ -> _Navigation_ -> _Settings_ - special permission for users that should be able to change plugin settings
 
 ## 🔐 Authorization strategy
-Is applied for **Public API** both for REST and GraphQL. You can manage is by two different ways. Those settings are editable via the _Setings_ -> _Users &amp; Permissions Plugin_ -> _Roles_. 
+
+Is applied for **Public API** both for REST and GraphQL. You can manage is by two different ways. Those settings are editable via the _Setings_ -> _Users &amp; Permissions Plugin_ -> _Roles_.
 
 ## User based
+
 - _Public_ - as per description it's default role for any not authenticated user. By enabling **Public API** of the plugin here you're making it **fully public**, without **any permissions check**.
 - _Authenticated_ - as per description this is default role for Strapi Users. If you enable **Public API** here, for any call made you must use the User authentication token as `Bearer <token>`.
 
 ## Token based
+
 - _Full Access_ - gives full access to every Strapi Content API including our plugin endpoints as well.
 - _Custom_ - granural access management to every Strapi Content API endpoints as well as plugin **Public API** - _(recomended approach)_
 
@@ -238,66 +248,71 @@ Is applied for **Public API** both for REST and GraphQL. You can manage is by tw
 ## Base Navigation Item model
 
 ### Flat
+
 ```json
 {
-    "id": 1,
-    "documentId": "njx99iv4p4txuqp307ye8625",
-    "title": "News",
-    "type": "INTERNAL",
-    "path": "news",
-    "externalPath": null,
-    "uiRouterKey": "News",
-    "menuAttached": false,
-    "parent": 8, // Parent Navigation Item 'id', null in case of root level
-    "master": 1, // Navigation 'id'
-    "createdAt": "2020-09-29T13:29:19.086Z",
-    "updatedAt": "2020-09-29T13:29:19.128Z",
-    "related": {/*<Content Type model >*/ },
-    "audience": []
+  "id": 1,
+  "documentId": "njx99iv4p4txuqp307ye8625",
+  "title": "News",
+  "type": "INTERNAL",
+  "path": "news",
+  "externalPath": null,
+  "uiRouterKey": "News",
+  "menuAttached": false,
+  "parent": 8, // Parent Navigation Item 'id', null in case of root level
+  "master": 1, // Navigation 'id'
+  "createdAt": "2020-09-29T13:29:19.086Z",
+  "updatedAt": "2020-09-29T13:29:19.128Z",
+  "related": {
+    /*<Content Type model >*/
+  },
+  "audience": []
 }
 ```
 
 ### Tree
+
 ```json
 {
-    "title": "News",
-    "menuAttached": true,
-    "path": "/news",
-    "type": "INTERNAL",
-    "uiRouterKey": "news",
-    "slug": "benefits",
-    "external": false,
-    "related": {
-        // <Content Type model >
-    },
-    "items": [
-        {
-            "title": "External url",
-            "menuAttached": true,
-            "path": "http://example.com",
-            "type": "EXTERNAL",
-            "uiRouterKey": "generic",
-            "external": true
-        },
-       //  < Tree Navigation Item models >
-    ]
+  "title": "News",
+  "menuAttached": true,
+  "path": "/news",
+  "type": "INTERNAL",
+  "uiRouterKey": "news",
+  "slug": "benefits",
+  "external": false,
+  "related": {
+    // <Content Type model >
+  },
+  "items": [
+    {
+      "title": "External url",
+      "menuAttached": true,
+      "path": "http://example.com",
+      "type": "EXTERNAL",
+      "uiRouterKey": "generic",
+      "external": true
+    }
+    //  < Tree Navigation Item models >
+  ]
 }
 ```
 
 ### RFR
+
 ```json
 {
-    "id": "News",
-    "title": "News",
-    "related": {
-        "contentType": "page",
-        "collectionName": "pages",
-        "id": 1
-    },
-    "path": "/news",
-    "slug": "news",
-    "parent": null, // Parent Navigation Item 'id', null in case of root level
-    "menuAttached": true
+  "id": "News",
+  "title": "News",
+  "related": {
+    "contentType": "page",
+    "collectionName": "pages",
+    "id": 1
+  },
+  "path": "/news",
+  "slug": "news",
+  "parent": null, // Parent Navigation Item 'id', null in case of root level
+  "menuAttached": true
 }
 ```
 
@@ -309,13 +324,14 @@ Plugin supports both **REST API** and **GraphQL API** exposed by Strapi.
 
 - `navigationIdOrSlug` - ID or slug for which your navigation structure is generated like for REST API:
 
-  > `https://localhost:1337/api/navigation/render/njx99iv4p4txuqp307ye8625`
-  > `https://localhost:1337/api/navigation/render/main-menu`
+  > `https://localhost:1337/api/navigation/render/njx99iv4p4txuqp307ye8625` > `https://localhost:1337/api/navigation/render/main-menu`
 
 - `type` - Enum value representing structure type of returned navigation:
+
   > `https://localhost:1337/api/navigation/render/njx99iv4p4txuqp307ye8625?type=FLAT`
 
 - `menu` (`menuOnly` for GQL) - Boolean value for querying only navigation items that are attached to menu should be rendered eg.
+
   > `https://localhost:1337/api/navigation/render/njx99iv4p4txuqp307ye8625?menu=true`
 
 - `path` - String value for querying navigation items by its path:
@@ -406,28 +422,28 @@ Return a rendered navigation structure depends on passed type (`TREE`, `RFR` or 
 
 ```json
 [
-    {
-        "id": 1,
-        "documentId": "njx99iv4p4txuqp307ye8625",
-        "title": "News",
-        "type": "INTERNAL",
-        "path": "news",
-        "externalPath": null,
-        "uiRouterKey": "News",
-        "menuAttached": false,
-        "parent": null,
-        "master": 1,
-        "created_at": "2020-09-29T13:29:19.086Z",
-        "updated_at": "2020-09-29T13:29:19.128Z",
-        "related": {
-            "__contentType": "Page",
-            "id": 1,
-            "documentId": "njx99iv4p4txuqp307ye8625",
-            "title": "News",
-            // ...
-        }
-    },
-    // ...
+  {
+    "id": 1,
+    "documentId": "njx99iv4p4txuqp307ye8625",
+    "title": "News",
+    "type": "INTERNAL",
+    "path": "news",
+    "externalPath": null,
+    "uiRouterKey": "News",
+    "menuAttached": false,
+    "parent": null,
+    "master": 1,
+    "created_at": "2020-09-29T13:29:19.086Z",
+    "updated_at": "2020-09-29T13:29:19.128Z",
+    "related": {
+      "__contentType": "Page",
+      "id": 1,
+      "documentId": "njx99iv4p4txuqp307ye8625",
+      "title": "News"
+      // ...
+    }
+  }
+  // ...
 ]
 ```
 
@@ -437,33 +453,33 @@ Return a rendered navigation structure depends on passed type (`TREE`, `RFR` or 
 
 ```json
 [
-    {
-        "title": "News",
-        "menuAttached": true,
-        "path": "/news",
-        "type": "INTERNAL",
-        "uiRouterKey": "news",
-        "slug": "benefits",
-        "external": false,
-        "related": {
-            "__contentType": "Page",
-            "id": 1,
-            "title": "News",
-            // ...
-        },
-        "items": [
-            {
-                "title": "External url",
-                "menuAttached": true,
-                "path": "http://example.com",
-                "type": "EXTERNAL",
-                "uiRouterKey": "generic",
-                "external": true
-            },
-            // ...
-        ]
+  {
+    "title": "News",
+    "menuAttached": true,
+    "path": "/news",
+    "type": "INTERNAL",
+    "uiRouterKey": "news",
+    "slug": "benefits",
+    "external": false,
+    "related": {
+      "__contentType": "Page",
+      "id": 1,
+      "title": "News"
+      // ...
     },
-    // ...
+    "items": [
+      {
+        "title": "External url",
+        "menuAttached": true,
+        "path": "http://example.com",
+        "type": "EXTERNAL",
+        "uiRouterKey": "generic",
+        "external": true
+      }
+      // ...
+    ]
+  }
+  // ...
 ]
 ```
 
@@ -473,77 +489,77 @@ Return a rendered navigation structure depends on passed type (`TREE`, `RFR` or 
 
 ```json
 {
-    "pages": {
-        "News": {
-            "id": "News",
-            "title": "News",
-            "related": {
-                "contentType": "page",
-                "collectionName": "pages",
-                "id": 1
-            },
-            "path": "/news",
-            "slug": "news",
-            "parent": null,
-            "menuAttached": true
-        },
-        "Community": {
-            "id": "Community",
-            "title": "Community",
-            "related": {
-                "contentType": "page",
-                "collectionName": "pages",
-                "id": 2
-            },
-            "path": "/community",
-            "slug": "community",
-            "parent": null,
-            "menuAttached": true
-        },
-        "Highlights": {
-            "id": "Highlights",
-            "title": "Highlights",
-            "related": {
-                "contentType": "page",
-                "collectionName": "pages",
-                "id": 3
-            },
-            "path": "/community/highlights",
-            "slug": "community-highlights",
-            "parent": "Community",
-            "menuAttached": false
-        },
-        // ...
+  "pages": {
+    "News": {
+      "id": "News",
+      "title": "News",
+      "related": {
+        "contentType": "page",
+        "collectionName": "pages",
+        "id": 1
+      },
+      "path": "/news",
+      "slug": "news",
+      "parent": null,
+      "menuAttached": true
     },
-    "nav": {
-        "root": [
-            {
-                "label": "News",
-                "type": "internal",
-                "page": "News"
-            },
-            {
-                "label": "Community",
-                "type": "internal",
-                "page": "Community"
-            },
-            {
-                "label": "External url",
-                "type": "external",
-                "url": "http://example.com"
-            },
-            // ...
-        ],
-        "Community": [
-            {
-                "label": "Highlights",
-                "type": "internal",
-                "page": "Highlights"
-            },
-            // ...
-        ],
-        // ...
+    "Community": {
+      "id": "Community",
+      "title": "Community",
+      "related": {
+        "contentType": "page",
+        "collectionName": "pages",
+        "id": 2
+      },
+      "path": "/community",
+      "slug": "community",
+      "parent": null,
+      "menuAttached": true
+    },
+    "Highlights": {
+      "id": "Highlights",
+      "title": "Highlights",
+      "related": {
+        "contentType": "page",
+        "collectionName": "pages",
+        "id": 3
+      },
+      "path": "/community/highlights",
+      "slug": "community-highlights",
+      "parent": "Community",
+      "menuAttached": false
     }
+    // ...
+  },
+  "nav": {
+    "root": [
+      {
+        "label": "News",
+        "type": "internal",
+        "page": "News"
+      },
+      {
+        "label": "Community",
+        "type": "internal",
+        "page": "Community"
+      },
+      {
+        "label": "External url",
+        "type": "external",
+        "url": "http://example.com"
+      }
+      // ...
+    ],
+    "Community": [
+      {
+        "label": "Highlights",
+        "type": "internal",
+        "page": "Highlights"
+      }
+      // ...
+    ]
+    // ...
+  }
 }
 ```
 
@@ -555,11 +571,7 @@ Same as [**REST API**](#rest-api) returns a rendered navigation structure depend
 
 ```graphql
 query {
-  renderNavigation(
-    navigationIdOrSlug: "main-navigation"
-    type: TREE
-    menuOnly: false
-  ) {
+  renderNavigation(navigationIdOrSlug: "main-navigation", type: TREE, menuOnly: false) {
     id
     title
     path
@@ -653,10 +665,10 @@ For example:
 module.exports = {
   // ...
   bootstrap({ strapi }) {
-    const navigationCommonService = strapi.plugin("navigation").service("common");
+    const navigationCommonService = strapi.plugin('navigation').service('common');
     const originalGetSlug = navigationCommonService.getSlug;
     const preprocess = (q) => {
-      return q + "suffix";
+      return q + 'suffix';
     };
 
     navigationCommonService.getSlug = (query) => {
@@ -676,34 +688,32 @@ Lifecycle hooks can be register either in `register()` or `bootstrap()` methods 
 
 Listeners can by sync and `async`.
 
->Be aware that lifecycle hooks registered in `register()` may be fired by plugin's bootstrapping. If you want listen to events triggered after server's startup use `bootstrap()`.
+> Be aware that lifecycle hooks registered in `register()` may be fired by plugin's bootstrapping. If you want listen to events triggered after server's startup use `bootstrap()`.
 
 Example:
 
 ```ts
-  const navigationCommonService = strapi
-    .plugin("navigation")
-    .service("common");
+const navigationCommonService = strapi.plugin('navigation').service('common');
 
-  navigationCommonService.registerLifecycleHook({
-    callback: async ({ action, result }) => {
-      const saveResult = await logIntoSystem(action, result);
+navigationCommonService.registerLifecycleHook({
+  callback: async ({ action, result }) => {
+    const saveResult = await logIntoSystem(action, result);
 
-      console.log(saveResult);
-    },
-    contentTypeName: "navigation",
-    hookName: "afterCreate",
-  });
+    console.log(saveResult);
+  },
+  contentTypeName: 'navigation',
+  hookName: 'afterCreate',
+});
 
-  navigationCommonService.registerLifecycleHook({
-    callback: async ({ action, result }) => {
-      const saveResult = await logIntoSystem(action, result);
+navigationCommonService.registerLifecycleHook({
+  callback: async ({ action, result }) => {
+    const saveResult = await logIntoSystem(action, result);
 
-      console.log(saveResult);
-    },
-    contentTypeName: "navigation-item",
-    hookName: "afterCreate",
-  });
+    console.log(saveResult);
+  },
+  contentTypeName: 'navigation-item',
+  hookName: 'afterCreate',
+});
 ```
 
 ## 🧹 REST Cache
@@ -732,8 +742,8 @@ Live example of plugin usage can be found in the [VirtusLab Strapi Examples](htt
 
 ```ts
 module.exports = {
-  'navigation': { enabled: true },
-  'graphql': { enabled: true },
+  navigation: { enabled: true },
+  graphql: { enabled: true },
 };
 ```
 
@@ -775,9 +785,11 @@ Feel free to fork and make a Pull Request to this plugin project. All the input 
 4. Run your Strapi instance
 
 ### :octocat: Core team
+
 [@CodeVoyager](https://github.com/CodeVoyager) [@cyp3rius](https://github.com/cyp3rius)
 
 ### 🌟 Strapi Community
+
 [@jorrit](https://github.com/jorrit)
 
 ## 👨‍💻 Community support

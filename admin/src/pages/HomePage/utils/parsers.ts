@@ -252,8 +252,8 @@ export const mapServerNavigationItem = (
     item.type === 'INTERNAL' && item.related
       ? item.related
       : {
-          __type: "",
-          documentId: "",
+          __type: '',
+          documentId: '',
         };
 
   return item.type === 'INTERNAL'

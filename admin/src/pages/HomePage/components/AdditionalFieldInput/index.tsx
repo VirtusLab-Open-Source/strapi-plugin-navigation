@@ -19,7 +19,11 @@ export type AdditionalFieldInputProps = {
   field: NavigationItemCustomField;
   isLoading: boolean;
   onChange: (eventOrPath: React.ChangeEvent<any> | string, value?: any) => void;
-  onChangeEnhancer: (eventOrPath: React.ChangeEvent<any> | string, value?: any, nativeOnChange?: (eventOrPath: React.ChangeEvent<any> | string, value?: any) => void) => void;
+  onChangeEnhancer: (
+    eventOrPath: React.ChangeEvent<any> | string,
+    value?: any,
+    nativeOnChange?: (eventOrPath: React.ChangeEvent<any> | string, value?: any) => void
+  ) => void;
   value: string | boolean | string[] | object | null;
   disabled: boolean;
 };
@@ -76,7 +80,9 @@ export const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
         <Toggle
           {...defaultInputProps}
           checked={!!value}
-          onChange={(eventOrPath: React.ChangeEvent<any> | string) => onChangeEnhancer(eventOrPath, !value, onChange)}
+          onChange={(eventOrPath: React.ChangeEvent<any> | string) =>
+            onChangeEnhancer(eventOrPath, !value, onChange)
+          }
           onLabel="true"
           offLabel="false"
           type="checkbox"
@@ -86,7 +92,9 @@ export const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
       return (
         <TextInput
           {...defaultInputProps}
-          onChange={(eventOrPath: React.ChangeEvent<any> | string, value?: any) => onChangeEnhancer(eventOrPath, value, onChange)}
+          onChange={(eventOrPath: React.ChangeEvent<any> | string, value?: any) =>
+            onChangeEnhancer(eventOrPath, value, onChange)
+          }
           value={value || DEFAULT_STRING_VALUE}
         />
       );
@@ -94,7 +102,9 @@ export const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
       return field.multi ? (
         <MultiSelect
           {...defaultInputProps}
-          onChange={(eventOrPath: React.ChangeEvent<any> | string) => onChangeEnhancer(defaultInputProps.name, eventOrPath, onChange)}
+          onChange={(eventOrPath: React.ChangeEvent<any> | string) =>
+            onChangeEnhancer(defaultInputProps.name, eventOrPath, onChange)
+          }
           value={isNil(value) ? (field.multi ? [] : null) : value}
           multi={field.multi}
           withTags={field.multi}
@@ -108,7 +118,9 @@ export const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
       ) : (
         <SingleSelect
           {...defaultInputProps}
-          onChange={(eventOrPath: React.ChangeEvent<any> | string) => onChangeEnhancer(defaultInputProps.name, eventOrPath, onChange)}
+          onChange={(eventOrPath: React.ChangeEvent<any> | string) =>
+            onChangeEnhancer(defaultInputProps.name, eventOrPath, onChange)
+          }
           value={isNil(value) ? (field.multi ? [] : null) : value}
           multi={field.multi}
           withTags={field.multi}
@@ -121,13 +133,7 @@ export const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
         </SingleSelect>
       );
     case 'media':
-      return (
-        <MediaLibrary
-          {...defaultInputProps}
-          {...mediaAttribute}
-          value={value}
-        />
-      );
+      return <MediaLibrary {...defaultInputProps} {...mediaAttribute} value={value} />;
     default:
       toggleNotification({
         type: 'warning',

@@ -47,7 +47,7 @@ const splitTypeUid = (uid = '') => {
   return uid.split(UID_REGEX).filter((s) => s && s.length > 0);
 };
 
-const SERVER_OFFLINE_MESSAGE = "SERVER OFFLINE";
+const SERVER_OFFLINE_MESSAGE = 'SERVER OFFLINE';
 
 export const waitForServerRestart = (response: any, didShutDownServer?: boolean) => {
   return new Promise((resolve) => {
@@ -73,11 +73,10 @@ export const waitForServerRestart = (response: any, didShutDownServer?: boolean)
       })
       .catch((err) => {
         setTimeout(() => {
-          return waitForServerRestart(
-            response,
-            err.message !== SERVER_OFFLINE_MESSAGE
-          ).then(resolve);
+          return waitForServerRestart(response, err.message !== SERVER_OFFLINE_MESSAGE).then(
+            resolve
+          );
         }, 100);
       });
   });
-}
+};

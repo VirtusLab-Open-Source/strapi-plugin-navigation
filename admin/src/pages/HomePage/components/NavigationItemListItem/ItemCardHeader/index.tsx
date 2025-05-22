@@ -1,4 +1,9 @@
-import { IconButton as BaseIconButton, IconButtonGroup, Flex, Typography } from '@strapi/design-system';
+import {
+  IconButton as BaseIconButton,
+  IconButtonGroup,
+  Flex,
+  Typography,
+} from '@strapi/design-system';
 import { FC, MutableRefObject, ReactNode } from 'react';
 import { useIntl } from 'react-intl';
 import styled from 'styled-components';
@@ -94,7 +99,9 @@ export const ItemCardHeader: FC<IProps> = ({
                   isActive={isSearchActive}
                   onClick={onItemRemove}
                   variant="danger-light"
-                  label={formatMessage(getTrad('components.navigationItem.action.remove', 'Remove'))}
+                  label={formatMessage(
+                    getTrad('components.navigationItem.action.remove', 'Remove')
+                  )}
                   children={trashIcon}
                 />
               )}
@@ -106,7 +113,7 @@ export const ItemCardHeader: FC<IProps> = ({
   );
 };
 
-const IconButton = styled(BaseIconButton) <{ isActive?: boolean }>`
+const IconButton = styled(BaseIconButton)<{ isActive?: boolean }>`
   transition: background-color 0.3s ease-in;
   ${({ isActive, theme }) => (isActive ? `background-color: ${theme.colors.neutral150} ;` : '')}
 `;

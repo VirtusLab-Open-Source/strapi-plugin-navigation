@@ -18,7 +18,9 @@ export default ({ nexus, config }: any) =>
       t.list.field('items', { type: 'NavigationItem' });
       t.field('related', { type: 'NavigationItemRelated' });
 
-      if (config.additionalFields.find((field: NavigationItemAdditionalField) => field === 'audience')) {
+      if (
+        config.additionalFields.find((field: NavigationItemAdditionalField) => field === 'audience')
+      ) {
         t.list.string('audience');
       }
 

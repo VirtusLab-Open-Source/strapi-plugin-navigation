@@ -1,5 +1,5 @@
-import { z } from "zod";
-import { idSchema } from "./validators";
+import { z } from 'zod';
+import { idSchema } from './validators';
 
 type Populate = string | boolean | string[] | undefined;
 

@@ -48,11 +48,15 @@ export const filterByPath = <T extends Pick<NavigationItemDTO, 'parent' | 'docum
 
   return {
     root,
-    items: isNil(root) ? [] : items.filter(({ documentId }) => itemsWithPaths.find((v) => v.documentId === documentId)),
+    items: isNil(root)
+      ? []
+      : items.filter(({ documentId }) => itemsWithPaths.find((v) => v.documentId === documentId)),
   };
 };
 
-export const buildNestedPaths = <T extends Pick<NavigationItemDTO, 'parent' | 'documentId' | 'path'>>(
+export const buildNestedPaths = <
+  T extends Pick<NavigationItemDTO, 'parent' | 'documentId' | 'path'>,
+>(
   items: T[],
   documentId?: string,
   parentPath: string | null = null
@@ -73,13 +77,14 @@ export const buildNestedPaths = <T extends Pick<NavigationItemDTO, 'parent' | 'd
       return [
         {
           documentId: entity.documentId,
-          parent: parentPath && entity.parent?.documentId
-            ? {
-                id: entity.parent?.id,
-                documentId: entity.parent?.documentId,
-                path: parentPath,
-              }
-            : undefined,
+          parent:
+            parentPath && entity.parent?.documentId
+              ? {
+                  id: entity.parent?.id,
+                  documentId: entity.parent?.documentId,
+                  path: parentPath,
+                }
+              : undefined,
           path,
         },
         ...buildNestedPaths(items, entity.documentId, path),

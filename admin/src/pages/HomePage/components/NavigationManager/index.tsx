@@ -71,45 +71,22 @@ export const NavigationManager = ({ initialState, isOpened, onClose }: Props) =>
     const performAction =
       state.view === 'DELETE'
         ? () => {
-          deleteNavigationsMutation.mutate(
-            state.navigations.reduce<string[]>((acc, navigation) => {
-              if (navigation.documentId) {
-                acc.push(navigation.documentId);
-              }
+            deleteNavigationsMutation.mutate(
+              state.navigations.reduce<string[]>((acc, navigation) => {
+                if (navigation.documentId) {
+                  acc.push(navigation.documentId);
+                }
 
-              return acc;
-            }, []),
-            {
-              onSuccess: hardReset,
-            }
-          );
-        }
+                return acc;
+              }, []),
+              {
+                onSuccess: hardReset,
+              }
+            );
+          }
         : state.view === 'EDIT'
           ? () => {
-            updateNavigationMutation.mutate(state.current, {
-              onSuccess() {
-                hardReset();
-                toggleNotification({
-                  type: 'success',
-                  message: formatMessage(getTrad('notification.navigation.submit')),
-                });
-              },
-              onError(error) {
-                // TODO: handle errors
-                console.warn(error);
-
-                toggleNotification({
-                  type: 'warning',
-                  message: formatMessage(getTrad('notification.navigation.error'), {
-                    errorTitles: '',
-                  }),
-                });
-              },
-            });
-          }
-          : state.view === 'CREATE' && state.current
-            ? () => {
-              createNavigationMutation.mutate(state.current, {
+              updateNavigationMutation.mutate(state.current, {
                 onSuccess() {
                   hardReset();
                   toggleNotification({
@@ -130,22 +107,45 @@ export const NavigationManager = ({ initialState, isOpened, onClose }: Props) =>
                 },
               });
             }
+          : state.view === 'CREATE' && state.current
+            ? () => {
+                createNavigationMutation.mutate(state.current, {
+                  onSuccess() {
+                    hardReset();
+                    toggleNotification({
+                      type: 'success',
+                      message: formatMessage(getTrad('notification.navigation.submit')),
+                    });
+                  },
+                  onError(error) {
+                    // TODO: handle errors
+                    console.warn(error);
+
+                    toggleNotification({
+                      type: 'warning',
+                      message: formatMessage(getTrad('notification.navigation.error'), {
+                        errorTitles: '',
+                      }),
+                    });
+                  },
+                });
+              }
             : state.view === 'CACHE_PURGE'
               ? () => {
-                purgeNavigationsMutation.mutate(
-                  state.navigations.reduce<string[]>((acc, navigation) => {
-                    if (navigation.documentId) {
-                      acc.push(navigation.documentId);
-                    }
+                  purgeNavigationsMutation.mutate(
+                    state.navigations.reduce<string[]>((acc, navigation) => {
+                      if (navigation.documentId) {
+                        acc.push(navigation.documentId);
+                      }
 
-                    return acc;
-                  }, []),
-                  {
-                    onSuccess: hardReset,
-                  }
-                );
-              }
-              : () => { };
+                      return acc;
+                    }, []),
+                    {
+                      onSuccess: hardReset,
+                    }
+                  );
+                }
+              : () => {};
 
     try {
       performAction();
@@ -203,11 +203,7 @@ export const NavigationManager = ({ initialState, isOpened, onClose }: Props) =>
     >
       <Modal.Content>
         <Modal.Header>
-          <Typography
-            variant="omega"
-            fontWeight="bold"
-            textColor="neutral800"
-            as="h2">
+          <Typography variant="omega" fontWeight="bold" textColor="neutral800" as="h2">
             {header}
           </Typography>
         </Modal.Header>

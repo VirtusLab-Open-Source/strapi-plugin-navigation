@@ -1,7 +1,7 @@
-import { ComboboxOption } from "@strapi/design-system"
-import { Combobox } from "@strapi/design-system"
-import { useEffect, useState } from "react";
-import { FormChangeEvent } from "src/types";
+import { ComboboxOption } from '@strapi/design-system';
+import { Combobox } from '@strapi/design-system';
+import { useEffect, useState } from 'react';
+import { FormChangeEvent } from 'src/types';
 
 type ControllableComboboxProps = {
   name: string;
@@ -16,12 +16,15 @@ type ControllableComboboxProps = {
   disabled: boolean;
 };
 
-const findTextValue = (options: ControllableComboboxProps['options'], value: ControllableComboboxProps['value']): string => {
+const findTextValue = (
+  options: ControllableComboboxProps['options'],
+  value: ControllableComboboxProps['value']
+): string => {
   if (!value) {
     return '';
   }
 
-  return options.find(o => o.value === value)?.label ?? '';
+  return options.find((o) => o.value === value)?.label ?? '';
 };
 
 export const ControllableCombobox: React.FC<ControllableComboboxProps> = ({
@@ -35,7 +38,7 @@ export const ControllableCombobox: React.FC<ControllableComboboxProps> = ({
   const [textValue, setTextValue] = useState(findTextValue(options, value));
 
   useEffect(() => {
-    setTextValue(findTextValue(options, value))
+    setTextValue(findTextValue(options, value));
   }, [value, options]);
 
   return (

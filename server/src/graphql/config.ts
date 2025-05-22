@@ -1,6 +1,5 @@
 import { Core } from '@strapi/strapi';
 
-
 import { configSchema } from '../schemas';
 import { getPluginService } from '../utils';
 import { getTypes } from './types';

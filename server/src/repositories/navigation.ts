@@ -71,7 +71,7 @@ export const getNavigationRepository = once((context: { strapi: Core.Strapi }) =
 
   async save(
     navigation:
-      | (CreateNavigationSchema & { locale?: string, items?: unknown })
+      | (CreateNavigationSchema & { locale?: string; items?: unknown })
       | (Omit<UpdateNavigationSchema, 'items'> & { items?: never })
   ) {
     const { masterModel } = getPluginModels(context);

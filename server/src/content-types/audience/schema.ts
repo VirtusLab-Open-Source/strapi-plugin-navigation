@@ -1,23 +1,23 @@
 export default {
-  collectionName: "audience",
+  collectionName: 'audience',
   info: {
-    singularName: "audience",
-    pluralName: "audiences",
-    displayName: "Audience",
-    name: "audience"
+    singularName: 'audience',
+    pluralName: 'audiences',
+    displayName: 'Audience',
+    name: 'audience',
   },
   options: {
     increments: true,
-    comment: "Audience"
+    comment: 'Audience',
   },
   attributes: {
     name: {
-      type: "string",
-      required: true
+      type: 'string',
+      required: true,
     },
     key: {
-      type: "uid",
-      targetField: "name"
-    }
-  }
-}
+      type: 'uid',
+      targetField: 'name',
+    },
+  },
+};

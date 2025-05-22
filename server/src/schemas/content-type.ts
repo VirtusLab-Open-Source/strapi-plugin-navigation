@@ -75,7 +75,6 @@ export const contentTypeUidAttribute = z.object({
   type: z.literal('uid'),
 });
 
-
 export type ContentTypeMediaAttribute = z.infer<typeof contentTypeMediaAttribute>;
 export const contentTypeMediaAttribute = z.object({
   type: z.literal('media'),
@@ -84,7 +83,14 @@ export const contentTypeMediaAttribute = z.object({
 });
 
 export type ContentTypeRelationType = z.infer<typeof contentTypeRelationType>;
-export const contentTypeRelationType = z.enum(['oneToOne', 'oneToMany', 'manyToOne', 'manyToMany', 'morphToMany', 'manyToMorph']);
+export const contentTypeRelationType = z.enum([
+  'oneToOne',
+  'oneToMany',
+  'manyToOne',
+  'manyToMany',
+  'morphToMany',
+  'manyToMorph',
+]);
 
 export type ContentTypeRelationAttribute = z.infer<typeof contentTypeRelationAttribute>;
 export const contentTypeRelationAttribute = z.object({
