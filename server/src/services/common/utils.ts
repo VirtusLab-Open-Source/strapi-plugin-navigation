@@ -7,6 +7,7 @@ export interface DuplicateCheckItem {
   title: string;
   path?: string | null;
   type: NavigationItemType;
+  removed?: boolean;
 }
 
 export const checkDuplicatePath = ({
@@ -20,7 +21,7 @@ export const checkDuplicatePath = ({
     if (parentItem && parentItem.items) {
       for (let item of checkData) {
         for (let _ of parentItem.items) {
-          if (_.path === item.path && _.id !== item.id && item.type === 'INTERNAL') {
+          if (_.path === item.path && _.id !== item.id && item.type === 'INTERNAL' && !_.removed) {
             return reject(
               new NavigationError(
                 `Duplicate path:${item.path} in parent: ${parentItem.title || 'root'} for ${item.title} and ${_.title} items`,
