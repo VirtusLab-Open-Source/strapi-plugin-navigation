@@ -25,6 +25,7 @@ interface Props {
   availableNavigations: NavigationSchema[];
   structureHasErrors?: boolean;
   structureHasChanged?: boolean;
+  isSaving?: boolean;
   handleChangeSelection: Effect<NavigationSchema>;
   handleLocalizationSelection: Effect<string>;
   handleSave: Effect<void>;
@@ -42,6 +43,7 @@ export const NavigationHeader: React.FC<Props> = ({
   availableNavigations,
   structureHasErrors,
   structureHasChanged,
+  isSaving,
   handleChangeSelection,
   handleLocalizationSelection,
   handleSave,
@@ -140,7 +142,7 @@ export const NavigationHeader: React.FC<Props> = ({
                     <Button
                       onClick={handleSave}
                       startIcon={submitIcon}
-                      disabled={structureHasErrors || !structureHasChanged}
+                      disabled={structureHasErrors || !structureHasChanged || isSaving}
                       type="submit"
                       fullWidth
                       size="S"

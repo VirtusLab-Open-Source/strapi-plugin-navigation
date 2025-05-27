@@ -453,6 +453,7 @@ const Inner = () => {
           handleSave={submit}
           locale={localeQuery.data}
           structureHasChanged={structureChanged}
+          isSaving={updateNavigationMutation.isPending}
           permissions={{ canUpdate }}
           currentLocale={currentLocale}
         />
