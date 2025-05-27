@@ -30,4 +30,4 @@ const typesFactories = [
 
 export const getTypes = (context: any) => {
   return typesFactories.map((factory) => factory(context));
-}
+};

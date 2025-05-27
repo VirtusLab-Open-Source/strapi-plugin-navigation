@@ -16,7 +16,7 @@ export const INITIAL_NAVIGATION = {
 
 export const NewNavigation = ({ setState, current, isLoading, alreadyUsedNames }: Props) => {
   const onSubmit = useCallback(
-    ({disabled, ...updated}: NewNavigationType & { disabled?: boolean }) => {
+    ({ disabled, ...updated }: NewNavigationType & { disabled?: boolean }) => {
       setState({
         view: 'CREATE',
         current: updated,

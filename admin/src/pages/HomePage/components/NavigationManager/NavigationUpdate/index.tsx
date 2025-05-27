@@ -19,7 +19,7 @@ export const NavigationUpdate = ({
   const navigation: Navigation = useMemo(() => current ?? initialValue, [current]);
 
   const onChange: Effect<Navigation> = useCallback(
-    ({disabled, ...updated}: Navigation & { disabled?: boolean }) => {
+    ({ disabled, ...updated }: Navigation & { disabled?: boolean }) => {
       setState({
         view: 'EDIT',
         alreadyUsedNames,

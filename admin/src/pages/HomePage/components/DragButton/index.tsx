@@ -2,7 +2,7 @@ import { Drag } from '@strapi/icons';
 import React from 'react';
 import styled, { DefaultTheme } from 'styled-components';
 
-const DragButtonWrapper = styled.span<{ ref: unknown, isActive?: boolean }>`
+const DragButtonWrapper = styled.span<{ ref: unknown; isActive?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;

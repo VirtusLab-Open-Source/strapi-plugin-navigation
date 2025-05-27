@@ -28,14 +28,14 @@ export const Form = <T extends Partial<Navigation>>({
 
   const { formatMessage } = useIntl();
 
-  const {
-    name,
-    visible,
-  } = formValue;
+  const { name, visible } = formValue;
 
-  const handleChange = (eventOrPath: FormChangeEvent, value?: any, nativeOnChange?: (eventOrPath: FormChangeEvent, value?: any) => void) => {
+  const handleChange = (
+    eventOrPath: FormChangeEvent,
+    value?: any,
+    nativeOnChange?: (eventOrPath: FormChangeEvent, value?: any) => void
+  ) => {
     if (nativeOnChange) {
-
       let fieldName = eventOrPath;
       let fieldValue = value;
 
@@ -54,9 +54,15 @@ export const Form = <T extends Partial<Navigation>>({
   };
 
   const setFormValueItem = (path: string, value: any) => {
-    setFormValue(set({
-      ...formValue,
-    }, path, value));
+    setFormValue(
+      set(
+        {
+          ...formValue,
+        },
+        path,
+        value
+      )
+    );
   };
 
   const renderError = (error: string): string | undefined => {
@@ -71,14 +77,14 @@ export const Form = <T extends Partial<Navigation>>({
     if (navigation) {
       if (navigation.name) {
         setFormValue({
-          ...navigation
+          ...navigation,
         } as T);
       } else {
         setFormValue({
           name: 'New navigation',
           visible: true,
         } as T);
-  
+
         onChange({
           name: 'New navigation',
           visible: true,
@@ -89,7 +95,7 @@ export const Form = <T extends Partial<Navigation>>({
   }, []);
 
   useEffect(() => {
-    if ((`${name}-${visible}` !== `${navigation.name}-${navigation.visible}`)) {
+    if (`${name}-${visible}` !== `${navigation.name}-${navigation.visible}`) {
       const { error } = formSchema({ alreadyUsedNames }).safeParse(formValue);
 
       onChange({
@@ -99,61 +105,67 @@ export const Form = <T extends Partial<Navigation>>({
         disabled: !isEmpty(error?.issues),
       });
       if (error) {
-        setFormError(error.issues.reduce((acc, err) => {
-          return {
-            ...acc,
-            [err.path.join('.')]: err.message
-          }
-        }, {} as FormItemErrorSchema<T>));
+        setFormError(
+          error.issues.reduce((acc, err) => {
+            return {
+              ...acc,
+              [err.path.join('.')]: err.message,
+            };
+          }, {} as FormItemErrorSchema<T>)
+        );
       } else {
         setFormError(undefined);
       }
     }
   }, [name, visible]);
 
-  return (<StrapiForm
-    width="auto"
-    height="auto"
-    method="POST"
-    initialValues={formValue}
-  >
-    {({ values, onChange }) => {
-      return (<Grid.Root gap={5}>
-        <Grid.Item col={6}>
-          <Field
-            name="name"
-            label={formatMessage(getTrad('popup.navigation.form.name.label', 'Name'))}
-            error={renderError('name')}>
-            <TextInput
-              name="name"
-              type="string"
-              placeholder={formatMessage(
-                getTrad('popup.navigation.form.name.placeholder', "Navigations's name")
-              )}
-              onChange={(eventOrPath: FormChangeEvent, value?: any) => handleChange(eventOrPath, value, onChange)}
-              value={values.name}
-              disabled={isLoading}
-            />
-          </Field>
-        </Grid.Item>
-        <Grid.Item col={6}>
-          <Field
-            name="visible"
-            label={formatMessage(getTrad('popup.navigation.form.visible.label', 'Visibility'))}
-            error={renderError('visible')}>
-            <Toggle
-              name="visible"
-              checked={values.visible}
-              onChange={(eventOrPath: FormChangeEvent) => handleChange(eventOrPath, !values.visible, onChange)}
-              onLabel={formatMessage(getTrad('popup.navigation.form.visible.toggle.visible'))}
-              offLabel={formatMessage(getTrad('popup.navigation.form.visible.toggle.hidden'))}
-              disabled={isLoading}
-              width="100%"
-            />
-          </Field>
-        </Grid.Item>
-      </Grid.Root>);
-    }}
-  </StrapiForm>
+  return (
+    <StrapiForm width="auto" height="auto" method="POST" initialValues={formValue}>
+      {({ values, onChange }) => {
+        return (
+          <Grid.Root gap={5}>
+            <Grid.Item col={6}>
+              <Field
+                name="name"
+                label={formatMessage(getTrad('popup.navigation.form.name.label', 'Name'))}
+                error={renderError('name')}
+              >
+                <TextInput
+                  name="name"
+                  type="string"
+                  placeholder={formatMessage(
+                    getTrad('popup.navigation.form.name.placeholder', "Navigations's name")
+                  )}
+                  onChange={(eventOrPath: FormChangeEvent, value?: any) =>
+                    handleChange(eventOrPath, value, onChange)
+                  }
+                  value={values.name}
+                  disabled={isLoading}
+                />
+              </Field>
+            </Grid.Item>
+            <Grid.Item col={6}>
+              <Field
+                name="visible"
+                label={formatMessage(getTrad('popup.navigation.form.visible.label', 'Visibility'))}
+                error={renderError('visible')}
+              >
+                <Toggle
+                  name="visible"
+                  checked={values.visible}
+                  onChange={(eventOrPath: FormChangeEvent) =>
+                    handleChange(eventOrPath, !values.visible, onChange)
+                  }
+                  onLabel={formatMessage(getTrad('popup.navigation.form.visible.toggle.visible'))}
+                  offLabel={formatMessage(getTrad('popup.navigation.form.visible.toggle.hidden'))}
+                  disabled={isLoading}
+                  width="100%"
+                />
+              </Field>
+            </Grid.Item>
+          </Grid.Root>
+        );
+      }}
+    </StrapiForm>
   );
 };

@@ -9,6 +9,9 @@ export const getAudienceRepository = once((context: { strapi: Core.Strapi }) => 
       audienceModel: { uid },
     } = getPluginModels(context);
 
-    return context.strapi.query(uid).findMany({ where, limit }).then(audienceDBSchema.array().parse);
+    return context.strapi
+      .query(uid)
+      .findMany({ where, limit })
+      .then(audienceDBSchema.array().parse);
   },
 }));

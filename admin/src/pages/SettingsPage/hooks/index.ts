@@ -34,8 +34,7 @@ export const useRestart = () => {
 
   return useMutation({
     mutationFn: () => {
-      return apiClient.restart()
-        .then(() => healthCheck.refetch());
+      return apiClient.restart().then(() => healthCheck.refetch());
     },
   });
 };
@@ -89,7 +88,6 @@ export const useSaveConfig = () => {
     },
   });
 };
-
 
 export type UiFormSchema = z.infer<typeof uiFormSchema>;
 

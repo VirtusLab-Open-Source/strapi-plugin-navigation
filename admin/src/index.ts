@@ -5,10 +5,10 @@ import SettingsPage from './pages/SettingsPage';
 import { PLUGIN_ID } from './pluginId';
 import pluginPermissions from './utils/permissions';
 import { flattenObject, prefixPluginTranslations } from '@sensinum/strapi-utils';
-import trads from "./translations";
+import trads from './translations';
 
-const name = "navigation";
-const displayName = "Navigation";
+const name = 'navigation';
+const displayName = 'Navigation';
 
 export default {
   register(app: any) {
@@ -24,7 +24,7 @@ export default {
         {
           intlLabel: {
             id: `${PLUGIN_ID}.plugin.section.item`,
-            defaultMessage: "Configuration",
+            defaultMessage: 'Configuration',
           },
           id: 'navigation',
           to: PLUGIN_ID,
@@ -58,7 +58,6 @@ export default {
     });
   },
 
-
   registerTrads: async function ({ locales = [] }: { locales: string[] }) {
     return Promise.all(
       locales.map(async (locale: string) => {
@@ -75,7 +74,7 @@ export default {
           data: prefixPluginTranslations(flattenObject({}), PLUGIN_ID),
           locale,
         };
-      }),
+      })
     );
   },
 };

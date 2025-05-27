@@ -18,7 +18,7 @@ export interface GetInput {
 export interface GetByIdInput {
   documentId: string;
   locale?: string;
-  populate?: Array<string>
+  populate?: Array<string>;
 }
 
 export interface PostInput {

@@ -91,8 +91,7 @@ export const AllNavigations = ({ navigations, selected, setState }: Props) => {
     [focused].concat(
       navigations.filter(
         (navigation) =>
-          navigation.documentId === focused.documentId &&
-          navigation.locale !== focused.locale
+          navigation.documentId === focused.documentId && navigation.locale !== focused.locale
       )
     );
 

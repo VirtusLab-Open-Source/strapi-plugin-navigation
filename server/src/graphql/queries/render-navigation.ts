@@ -19,17 +19,16 @@ export const renderNavigation = ({ strapi, nexus }: any) => {
     args,
     type: nonNull(list('NavigationItem')),
     resolve(_: unknown, { navigationIdOrSlug, type, menuOnly, path: rootPath, locale }: any) {
-      const idOrSlug =z.string().parse(navigationIdOrSlug);
+      const idOrSlug = z.string().parse(navigationIdOrSlug);
 
-      return getPluginService({ strapi }, 'client')
-        .render({
-          idOrSlug,
-          type,
-          rootPath,
-          locale,
-          menuOnly,
-          wrapRelated: true,
-        });
+      return getPluginService({ strapi }, 'client').render({
+        idOrSlug,
+        type,
+        rootPath,
+        locale,
+        menuOnly,
+        wrapRelated: true,
+      });
     },
   };
 };

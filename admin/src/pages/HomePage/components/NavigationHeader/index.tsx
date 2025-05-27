@@ -93,8 +93,10 @@ export const NavigationHeader: React.FC<Props> = ({
                       placeholder="Change navigation"
                       name="navigationSelect"
                       onChange={(nextDocumentId: string) => {
-                        const nextNavigation = availableNavigations.find(({ documentId }) => nextDocumentId === documentId);
-                        
+                        const nextNavigation = availableNavigations.find(
+                          ({ documentId }) => nextDocumentId === documentId
+                        );
+
                         if (nextNavigation) {
                           handleChangeSelection(nextNavigation);
                         }
@@ -170,9 +172,9 @@ export const NavigationHeader: React.FC<Props> = ({
           <Tag icon={<Information aria-hidden={true} />}>
             {activeNavigation
               ? formatMessage(getTrad('header.meta'), {
-                id: activeNavigation?.documentId,
-                key: activeNavigation?.slug,
-              })
+                  id: activeNavigation?.documentId,
+                  key: activeNavigation?.slug,
+                })
               : null}
           </Tag>
         }
