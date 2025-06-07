@@ -450,6 +450,13 @@ const ca = {
             content: 'Voulez-vous copier les éléments de navigation ?',
           },
         },
+        changeLanguage: {
+          confirmation: {
+            header: 'Confirmació',
+            confirm: 'Continuar',
+            content: 'Teniu canvis sense desar. Voleu continuar?',
+          },
+        },
       },
     },
   },

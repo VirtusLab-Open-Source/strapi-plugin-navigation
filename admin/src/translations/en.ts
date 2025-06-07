@@ -449,6 +449,13 @@ const en = {
             content: 'Do you want to copy navigations items?',
           },
         },
+        changeLanguage: {
+          confirmation: {
+            header: "Confirmation",
+            confirm: "Continue",
+            content: "You have some unsaved changes. Do you want to continue?"
+          }
+        }
       },
     },
   },
