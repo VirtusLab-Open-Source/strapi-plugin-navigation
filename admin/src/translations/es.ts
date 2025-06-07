@@ -453,6 +453,13 @@ const en = {
             content: '¿Quieres copiar los elementos de navegación?',
           },
         },
+        changeLanguage: {
+          confirmation: {
+            header: 'Confirmación',
+            confirm: 'Continuar',
+            content: '¿Tiene cambios sin guardar. Quiere continuar?',
+          },
+        },
       },
     },
   },

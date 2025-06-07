@@ -457,6 +457,13 @@ const fr = {
             content: 'Voulez-vous copier les éléments de navigation ?',
           },
         },
+        changeLanguage: {
+          confirmation: {
+            header: 'Confirmation',
+            confirm: 'Continuer',
+            content: 'Vous avez des modifications non enregistrées. Voulez-vous continuer ?',
+          },
+        },
       },
     },
   },

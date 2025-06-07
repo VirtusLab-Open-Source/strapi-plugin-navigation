@@ -449,6 +449,13 @@ const tr = {
             content: 'Navigasyon öğelerini kopyalamak istiyor musunuz?',
           },
         },
+        changeLanguage: {
+          confirmation: {
+            header: 'Onay',
+            confirm: 'Devam Et',
+            content: 'Kaydedilmemiş değişiklikleriniz var. Devam etmek istiyor musunuz?',
+          },
+        },
       },
     },
   },
