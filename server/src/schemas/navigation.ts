@@ -26,7 +26,8 @@ const navigationItemDBBaseSchema = z.object({
   related: z
     .object({ documentId: z.string().optional(), __type: z.string() })
     .catchall(z.unknown())
-    .nullish(),
+    .nullish()
+    .optional(),
   additionalFields: z.record(z.string(), z.unknown()).or(z.null()).optional(),
   audience: z.array(audienceDBSchema).or(z.null()).optional(),
   autoSync: z.boolean().or(z.null()).optional(),
@@ -44,7 +45,7 @@ export const readNavigationItemFromLocaleSchema = navigationItemDBBaseSchema
     title: true,
     externalPath: true,
   })
-  .extend({ related: z.unknown() });
+  .extend({ related: z.unknown().optional() });
 
 export type NavigationItemDBSchema = z.infer<typeof navigationItemDBBaseSchema> & {
   parent?: NavigationItemDBSchema | null;
