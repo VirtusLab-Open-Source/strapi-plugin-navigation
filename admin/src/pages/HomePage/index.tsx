@@ -21,6 +21,7 @@ import { getTrad } from '../../translations';
 import { ToBeFixed } from '../../types';
 import pluginPermissions from '../../utils/permissions';
 import { NavigationHeader } from './components';
+import { ChangeLanguageDialog } from './components/ChangeLanguageDialog';
 import { NavigationContentHeader } from './components/NavigationContentHeader';
 import { NavigationItemFormSchema } from './components/NavigationItemForm';
 import { List } from './components/NavigationItemList';
@@ -47,6 +48,32 @@ import {
 
 const queryClient = new QueryClient();
 
+interface MakeActionInput<T> {
+  trigger(): void;
+  cancel(): void;
+  perform(input: T): void;
+}
+
+const makeAction = <T,>({ cancel, perform, trigger }: MakeActionInput<T>) => {
+  const pointer: { value?: T } = {};
+
+  return {
+    perform: (next?: T) => {
+      const value = next ?? pointer.value;
+
+      if (value) {
+        perform(value);
+      }
+    },
+    trigger: (next: T) => {
+      pointer.value = next;
+
+      trigger();
+    },
+    cancel,
+  };
+};
+
 const Inner = () => {
   const { formatMessage } = useIntl();
 
@@ -64,6 +91,16 @@ const Inner = () => {
   const [structureChanged, setStructureChanged] = useState(false);
 
   const [currentLocale, setCurrentLocale] = useState<string>();
+  const [isChangeLanguageVisible, setIsChangeLanguageVisible] = useState(false);
+  const changeCurrentLocaleAction = useMemo(() => makeAction<string>({
+    perform: (next) => {
+      setCurrentLocale(next);
+      setIsChangeLanguageVisible(false);
+      setStructureChanged(false);
+    },
+    trigger: () => setIsChangeLanguageVisible(true),
+    cancel: () => setIsChangeLanguageVisible(false),
+  }), [setCurrentLocale, setIsChangeLanguageVisible]);
 
   const viewPermissions = useMemo(
     () => ({
@@ -404,11 +441,6 @@ const Inner = () => {
     }
   }, [navigationsQuery.data, currentNavigation]);
 
-  useEffect(() => {
-    if (!currentLocale && localeQuery.data?.defaultLocale) {
-      setCurrentLocale(localeQuery.data?.defaultLocale);
-    }
-  }, [navigationsQuery.data]);
 
   useEffect(() => {
     if (currentNavigation && currentLocale !== currentNavigation.locale) {
@@ -432,7 +464,8 @@ const Inner = () => {
 
   useEffect(() => {
     if (!currentLocale && localeQuery.data?.defaultLocale) {
-      setCurrentLocale(localeQuery.data.defaultLocale);
+      setCurrentLocale(localeQuery.data?.defaultLocale);
+      setStructureChanged(false);
     }
   }, [navigationsQuery.data]);
 
@@ -449,7 +482,9 @@ const Inner = () => {
           activeNavigation={currentNavigation}
           handleCachePurge={() => purgeMutation.mutate(undefined)}
           handleChangeSelection={setCurrentNavigation}
-          handleLocalizationSelection={setCurrentLocale}
+          handleLocalizationSelection={
+            structureChanged ? changeCurrentLocaleAction.trigger : changeCurrentLocaleAction.perform
+          }
           handleSave={submit}
           locale={localeQuery.data}
           structureHasChanged={structureChanged}
@@ -549,6 +584,13 @@ const Inner = () => {
               currentNavigation={currentNavigation}
             />
           )}
+
+          {isChangeLanguageVisible ? (
+            <ChangeLanguageDialog
+              onCancel={() => changeCurrentLocaleAction.cancel()}
+              onConfirm={() => changeCurrentLocaleAction.perform()}
+            />
+          ) : null}
 
           {canUpdate && i18nCopyItemsModal}
         </Layouts.Content>
