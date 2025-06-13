@@ -540,6 +540,35 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
     await commonService.setDefaultConfig();
   },
 
+  async refreshNavigationLocale(newLocale?: string): Promise<void> {
+    if (!newLocale) {
+      return;
+    }
+
+    const commonService = getPluginService(context, 'common');
+
+    const { defaultLocale } = await commonService.readLocale();
+
+    const repository = getNavigationRepository(context);
+
+    const navigations = await repository.find({
+      limit: Number.MAX_SAFE_INTEGER,
+      locale: defaultLocale,
+    });
+
+    await Promise.all(
+      navigations.map(({ name, visible, slug, documentId }) =>
+        repository.save({
+          name,
+          visible,
+          locale: newLocale,
+          slug,
+          documentId,
+        })
+      )
+    );
+  },
+
   async updateConfig({ config: newConfig }: UpdateConfigInput): Promise<void> {
     const commonService = getPluginService(context, 'common');
 
