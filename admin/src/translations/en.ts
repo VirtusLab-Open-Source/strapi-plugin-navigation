@@ -451,11 +451,11 @@ const en = {
         },
         changeLanguage: {
           confirmation: {
-            header: "Confirmation",
-            confirm: "Continue",
-            content: "You have some unsaved changes. Do you want to continue?"
-          }
-        }
+            header: 'Confirmation',
+            confirm: 'Continue',
+            content: 'You have some unsaved changes. Do you want to continue?',
+          },
+        },
       },
     },
   },

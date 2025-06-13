@@ -9,7 +9,7 @@ import {
 } from '@strapi/design-system';
 import { Data } from '@strapi/strapi';
 import { Layouts, Page, useRBAC } from '@strapi/strapi/admin';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 import { first, isEmpty } from 'lodash';
 import { SyntheticEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
@@ -32,6 +32,8 @@ import {
   useConfig,
   useCopyNavigationI18n,
   useI18nCopyNavigationItemsModal,
+  useInvalidateLocale,
+  useInvalidateNavigations,
   useLocale,
   useNavigations,
   usePurgeNavigation,
@@ -92,15 +94,19 @@ const Inner = () => {
 
   const [currentLocale, setCurrentLocale] = useState<string>();
   const [isChangeLanguageVisible, setIsChangeLanguageVisible] = useState(false);
-  const changeCurrentLocaleAction = useMemo(() => makeAction<string>({
-    perform: (next) => {
-      setCurrentLocale(next);
-      setIsChangeLanguageVisible(false);
-      setStructureChanged(false);
-    },
-    trigger: () => setIsChangeLanguageVisible(true),
-    cancel: () => setIsChangeLanguageVisible(false),
-  }), [setCurrentLocale, setIsChangeLanguageVisible]);
+  const changeCurrentLocaleAction = useMemo(
+    () =>
+      makeAction<string>({
+        perform: (next) => {
+          setCurrentLocale(next);
+          setIsChangeLanguageVisible(false);
+          setStructureChanged(false);
+        },
+        trigger: () => setIsChangeLanguageVisible(true),
+        cancel: () => setIsChangeLanguageVisible(false),
+      }),
+    [setCurrentLocale, setIsChangeLanguageVisible]
+  );
 
   const viewPermissions = useMemo(
     () => ({
@@ -214,6 +220,9 @@ const Inner = () => {
 
   const resetContentTypes = useResetContentTypes();
   const resetNavigations = useResetNavigations();
+
+  const invalidateLocaleQuery = useInvalidateLocale();
+  const invalidateNavigationsQuery = useInvalidateNavigations();
 
   const {
     i18nCopyItemsModal,
@@ -441,7 +450,6 @@ const Inner = () => {
     }
   }, [navigationsQuery.data, currentNavigation]);
 
-
   useEffect(() => {
     if (currentNavigation && currentLocale !== currentNavigation.locale) {
       setRecentNavigation(undefined);
@@ -468,6 +476,11 @@ const Inner = () => {
       setStructureChanged(false);
     }
   }, [navigationsQuery.data]);
+
+  useEffect(() => {
+    invalidateLocaleQuery();
+    invalidateNavigationsQuery();
+  }, []);
 
   if (!navigationsQuery.data || !localeQuery.data || !!pending) {
     return <Page.Loading />;

@@ -73,6 +73,28 @@ export const useResetContentTypes = () => {
   };
 };
 
+export const useInvalidateNavigations = () => {
+  const fetch = getFetchClient();
+  const apiClient = getApiClient(fetch);
+
+  const queryClient = useQueryClient();
+
+  return () => {
+    queryClient.invalidateQueries({
+      queryKey: apiClient.readAllIndex(),
+    });
+  };
+};
+
+export const useInvalidateLocale = () => {
+  const fetch = getFetchClient();
+  const apiClient = getApiClient(fetch);
+
+  const queryClient = useQueryClient();
+
+  return () => queryClient.invalidateQueries({ queryKey: apiClient.readLocaleIndex() });
+};
+
 export const useNavigations = () => {
   const fetch = getFetchClient();
   const apiClient = getApiClient(fetch);
