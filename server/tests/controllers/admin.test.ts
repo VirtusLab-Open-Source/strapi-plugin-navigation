@@ -100,22 +100,26 @@ describe('Navigation', () => {
             },
             faker.helpers.arrayElements(['name', 'visible'], { min: 1, max: 2 })
           );
+          const internalServerErrorMock = jest.fn();
 
           (getPluginService as jest.Mock).mockReturnValue(mockAdminService);
 
           const adminController = buildAdminController({ strapi });
 
+          // When
+          adminController.post(
+            asProxy<KoaContext & KoaContextExtension>({
+              auditLog: auditLogMock,
+              request: asProxy<KoaContextExtension['request']>({
+                body,
+              }),
+              // TODO: error handling; fix this test case
+              internalServerError: internalServerErrorMock,
+            })
+          );
+
           // Then
-          expect(() => {
-            adminController.post(
-              asProxy<KoaContext & KoaContextExtension>({
-                auditLog: auditLogMock,
-                request: asProxy<KoaContextExtension['request']>({
-                  body,
-                }),
-              })
-            );
-          }).toThrow();
+          expect(internalServerErrorMock).toHaveBeenCalled();
           expect(mockAdminService.post).not.toHaveBeenCalled();
         });
       });
@@ -164,26 +168,32 @@ describe('Navigation', () => {
           const mockNavigation = getMockNavigation();
           const body = omit(
             mockNavigation,
-            faker.helpers.arrayElements(Object.keys(mockNavigation), { min: 1, max: 4 })
+            faker.helpers.arrayElements(['id', 'name'], {
+              min: 1,
+              max: 2,
+            })
           );
           const documentId = faker.string.uuid();
+          const internalServerErrorMock = jest.fn();
 
           (getPluginService as jest.Mock).mockReturnValue(mockAdminService);
 
           const adminController = buildAdminController({ strapi });
 
+          // When
+          adminController.put(
+            asProxy<KoaContext & KoaContextExtension>({
+              auditLog: auditLogMock,
+              params: { documentId },
+              request: asProxy<KoaContextExtension['request']>({
+                body,
+              }),
+              internalServerError: internalServerErrorMock,
+            })
+          );
+
           // Then
-          expect(() => {
-            adminController.put(
-              asProxy<KoaContext & KoaContextExtension>({
-                auditLog: auditLogMock,
-                params: { documentId },
-                request: asProxy<KoaContextExtension['request']>({
-                  body,
-                }),
-              })
-            );
-          });
+          expect(internalServerErrorMock).toHaveBeenCalled();
           expect(mockAdminService.put).not.toHaveBeenCalled();
         });
       });
