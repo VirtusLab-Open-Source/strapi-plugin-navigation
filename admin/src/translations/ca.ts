@@ -200,6 +200,9 @@ const ca = {
           published: 'publié',
         },
       },
+      update: {
+        error: "No s'ha pogut desar la navegació. Comproveu les eines de desenvolupador.",
+      },
     },
     error: {
       common: 'Erreur lors du traitement de la demande.',

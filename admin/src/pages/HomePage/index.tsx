@@ -8,8 +8,8 @@ import {
   Typography,
 } from '@strapi/design-system';
 import { Data } from '@strapi/strapi';
-import { Layouts, Page, useRBAC } from '@strapi/strapi/admin';
-import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query';
+import { Layouts, Page, useNotification, useRBAC } from '@strapi/strapi/admin';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { first, isEmpty } from 'lodash';
 import { SyntheticEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
@@ -78,6 +78,8 @@ const makeAction = <T,>({ cancel, perform, trigger }: MakeActionInput<T>) => {
 
 const Inner = () => {
   const { formatMessage } = useIntl();
+
+  const { toggleNotification } = useNotification();
 
   const localeQuery = useLocale();
 
@@ -268,18 +270,31 @@ const Inner = () => {
     i18nCopySourceLocale && setI18nCopyModalOpened(true);
   }, [setI18nCopyModalOpened, i18nCopySourceLocale]);
 
-  const updateNavigationMutation = useUpdateNavigation((next) => {
-    setCurrentNavigation({
-      ...next,
-      items: next.items.map(appendViewId),
-    });
+  const updateNavigationMutation = useUpdateNavigation({
+    onError: (error: any) => {
+      toggleNotification({
+        type: 'danger',
+        message: formatMessage(getTrad('notification.navigation.update.error')),
+      });
 
-    setRecentNavigation({
-      documentId: next.documentId,
-      id: next.id,
-    });
+      try {
+        console.error(error);
+        console.log(error.response.data.error);
+      } catch (e) {}
+    },
+    onSuccess: (next) => {
+      setCurrentNavigation({
+        ...next,
+        items: next.items.map(appendViewId),
+      });
 
-    setStructureChanged(false);
+      setRecentNavigation({
+        documentId: next.documentId,
+        id: next.id,
+      });
+
+      setStructureChanged(false);
+    },
   });
 
   const submit = () => {

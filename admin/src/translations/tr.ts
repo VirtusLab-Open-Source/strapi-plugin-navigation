@@ -203,6 +203,9 @@ const tr = {
           published: 'yayınlandı',
         },
       },
+      update: {
+        error: 'Navigasyon kaydedilemedi. Geliştirici araçlarını kontrol edin.',
+      },
     },
     error: {
       common: 'İstek işlenirken hata oluştu.',

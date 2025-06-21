@@ -653,6 +653,26 @@ query {
 
 ## 🔌 Extensions
 
+### Server-side schema
+
+On bootstrap you can customise Zod validators. Not all schemas are available at the moment, consult `CommonService` to see all available updaters.
+
+Example:
+
+```ts
+const navigationCommonService = strapi.plugin('navigation').service('common');
+
+navigationCommonService.updateUpdateNavigationSchema((schema: ZodObject) => {
+  return schema.refine((data) => {
+    if (!data.visible) {
+      return false;
+    }
+
+    return true;
+  }, { message: "Hidden navigation updated." });
+});
+```
+
 ### Slug generation
 
 Slug generation is available as a controller and service. If you have custom requirements outside of what this plugin provides you can add your own logic with [plugins extensions](https://docs.strapi.io/developer-docs/latest/development/plugins-extension.html).

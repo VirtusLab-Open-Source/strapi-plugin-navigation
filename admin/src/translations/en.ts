@@ -203,6 +203,9 @@ const en = {
           published: 'published',
         },
       },
+      update: {
+        error: 'Unable to save a navigation. Check developer tools.',
+      },
     },
     error: {
       common: 'Error while processing request.',

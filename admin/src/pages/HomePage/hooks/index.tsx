@@ -179,7 +179,13 @@ export const useCreateNavigation = () => {
   });
 };
 
-export const useUpdateNavigation = (onSuccess?: Effect<NavigationSchema>) => {
+export const useUpdateNavigation = ({
+  onError,
+  onSuccess,
+}: {
+  onSuccess?: Effect<NavigationSchema>;
+  onError?: Effect<unknown>;
+}) => {
   const fetch = getFetchClient();
   const apiClient = getApiClient(fetch);
   // TODO: nicer cache update
@@ -194,6 +200,7 @@ export const useUpdateNavigation = (onSuccess?: Effect<NavigationSchema>) => {
 
       onSuccess?.(next);
     },
+    onError,
   });
 };
 
