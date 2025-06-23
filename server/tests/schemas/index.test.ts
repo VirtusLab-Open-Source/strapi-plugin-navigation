@@ -87,8 +87,6 @@ describe('Navigation', () => {
       it.each(cases)('it should update schema for %s', ({ updater, schema, validData }: any) => {
         // Given
         updater((schema: any) => {
-          console.log({ schema });
-
           return schema.refine((data: unknown) => false);
         });
 
