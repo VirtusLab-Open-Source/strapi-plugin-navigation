@@ -6,7 +6,6 @@ import {
 
 import {
   createNavigationSchema as createNavigationSchemaBase,
-  navigationDBSchema as navigationDBSchemaBase,
   updateNavigationSchema as updateNavigationSchemaBase,
 } from './navigation';
 
@@ -71,14 +70,6 @@ export const updateCreateNavigationSchema = applySchemaRefineHigher(
   }
 );
 
-let navigationDBSchema = navigationDBSchemaBase;
-export const updateNavigationDBSchema = applySchemaRefineHigher(
-  () => navigationDBSchema,
-  (next) => {
-    navigationDBSchema = next;
-  }
-);
-
 let updateNavigationSchema = updateNavigationSchemaBase;
 export const updateUpdateNavigationSchema = applySchemaRefineHigher(
   () => updateNavigationSchema,
@@ -99,9 +90,6 @@ export const DynamicSchemas = {
   },
   get createNavigationSchema() {
     return createNavigationSchema;
-  },
-  get navigationDBSchema() {
-    return navigationDBSchema;
   },
   get updateNavigationSchema() {
     return updateNavigationSchema;
