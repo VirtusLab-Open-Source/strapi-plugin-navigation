@@ -26,7 +26,9 @@ export const ChangeLanguageDialog: FC<Props> = ({ onConfirm, onCancel }) => {
     <ConfirmationDialog
       isVisible
       header={formatMessage(getTrad('pages.view.actions.changeLanguage.confirmation.header'))}
-      labelConfirm={formatMessage(getTrad('pages.view.actions.changeLanguage.confirmation.confirm'))}
+      labelConfirm={formatMessage(
+        getTrad('pages.view.actions.changeLanguage.confirmation.confirm')
+      )}
       iconConfirm={refreshIcon}
       mainIcon={refreshIcon}
       onConfirm={onConfirm}
