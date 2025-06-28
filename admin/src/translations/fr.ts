@@ -204,6 +204,9 @@ const fr = {
           published: 'publié',
         },
       },
+      update: {
+        error: 'Impossible d\'enregistrer la navigation. Vérifiez les outils de développement.',
+      },
     },
     error: {
       common: 'Erreur lors du traitement de la demande.',

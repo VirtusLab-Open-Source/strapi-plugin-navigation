@@ -10,11 +10,16 @@ import { configSetup } from '../../config';
 import { CreateBranchNavigationItemDTO, NavigationItemDTO } from '../../dtos';
 import { getGenericRepository, getNavigationItemRepository } from '../../repositories';
 import {
-  configSchema,
+  DynamicSchemas,
   NavigationItemCustomField,
   NavigationItemDBSchema,
   NavigationItemsDBSchema,
   NavigationPluginConfigDBSchema,
+  updateConfigSchema,
+  updateCreateNavigationSchema,
+  updateNavigationItemAdditionalField,
+  updateNavigationItemCustomField,
+  updateUpdateNavigationSchema,
 } from '../../schemas';
 import {
   ContentType,
@@ -64,7 +69,7 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
       .get({
         key: 'config',
       })
-      .then(configSchema.parse);
+      .then(DynamicSchemas.configSchema.parse);
 
     const extendedNavigationItems = await Promise.all(
       navigationItems.map(async (item) => {
@@ -453,6 +458,12 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
       restLocale,
     };
   },
+
+  updateConfigSchema,
+  updateCreateNavigationSchema,
+  updateNavigationItemAdditionalField,
+  updateNavigationItemCustomField,
+  updateUpdateNavigationSchema,
 });
 
 export default commonService;

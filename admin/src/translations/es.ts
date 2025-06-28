@@ -204,6 +204,9 @@ const en = {
           published: 'publicado',
         },
       },
+      update: {
+        error: 'No se ha podido guardar la navegación. Revisa las herramientas de desarrollador.',
+      },
     },
     error: {
       common: 'Error al procesar la solicitud.',

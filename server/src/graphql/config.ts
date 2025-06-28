@@ -1,10 +1,10 @@
 import { Core } from '@strapi/strapi';
 
-import { configSchema } from '../schemas';
+import { DynamicSchemas } from '../schemas';
 import { getPluginService } from '../utils';
-import { getTypes } from './types';
 import { getQueries } from './queries';
 import { getResolversConfig } from './resolvers-config';
+import { getTypes } from './types';
 
 export default async ({ strapi }: { strapi: Core.Strapi }) => {
   const extensionService = strapi.plugin('graphql').service('extension');
@@ -16,7 +16,7 @@ export default async ({ strapi }: { strapi: Core.Strapi }) => {
 
   const commonService = getPluginService({ strapi }, 'common');
   const pluginStore = await commonService.getPluginStore();
-  const config = configSchema.parse(await pluginStore.get({ key: 'config' }));
+  const config = DynamicSchemas.configSchema.parse(await pluginStore.get({ key: 'config' }));
 
   extensionService.use(({ strapi, nexus }: any) => {
     const types = getTypes({ strapi, nexus, config });

@@ -16,6 +16,8 @@ import policies from './policies';
 import routes from './routes';
 import services from './services';
 
+export type { AdminService, ClientService, CommonService, MigrationService } from './services';
+
 export default {
   bootstrap,
   destroy,

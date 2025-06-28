@@ -1,11 +1,13 @@
 import { Core } from '@strapi/strapi';
 
+import { isEmpty } from 'lodash';
 import configBase from '.';
 import {
+  ConfigSchema,
   NavigationItemAdditionalField,
   NavigationPluginConfigDBSchema,
   PluginConfigKeys,
-  configSchema,
+  DynamicSchemas,
 } from '../schemas';
 import {
   PluginConfigGraphQL,
@@ -14,7 +16,6 @@ import {
   PluginConfigPopulate,
 } from '../types';
 import { assertNotEmpty, resolveGlobalLikeId, validateAdditionalFields } from '../utils';
-import { isEmpty } from 'lodash';
 
 type PluginDefaultConfigGetter = (
   key: PluginConfigKeys
@@ -41,7 +42,7 @@ export const configSetup = async ({
         })) ?? configBase.default),
       };
 
-  let config = isEmpty(configRaw) ? configRaw : configSchema.parse(configRaw);
+  let config = isEmpty(configRaw) ? configRaw : DynamicSchemas.configSchema.parse(configRaw) as unknown as ConfigSchema;
 
   const getWithFallback = getWithFallbackFactory(config, getFromPluginDefaults);
 

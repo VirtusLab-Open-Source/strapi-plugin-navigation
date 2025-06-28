@@ -21,11 +21,11 @@ import {
   getNavigationRepository,
 } from '../../repositories';
 import {
+  DynamicSchemas,
   NavigationDBSchema,
   NavigationItemCustomField,
   NavigationItemDBSchema,
   ReadNavigationItemFromLocaleSchema,
-  configSchema,
   contentTypeFullSchema,
   readNavigationItemFromLocaleSchema,
 } from '../../schemas';
@@ -67,7 +67,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       .get({
         key: 'config',
       })
-      .then(configSchema.parse);
+      .then(DynamicSchemas.configSchema.parse);
 
     const {
       additionalFields,
@@ -134,7 +134,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
 
     const pluginStore = await commonService.getPluginStore();
 
-    const config = await pluginStore.get({ key: 'config' }).then(configSchema.parse);
+    const config = await pluginStore.get({ key: 'config' }).then(DynamicSchemas.configSchema.parse);
 
     const eligibleContentTypes = await Promise.all(
       config.contentTypes
@@ -578,7 +578,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       .get({
         key: 'config',
       })
-      .then(configSchema.parse);
+      .then(DynamicSchemas.configSchema.parse);
 
     validateAdditionalFields(newConfig.additionalFields);
 
@@ -716,7 +716,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
   }: GetContentTypeItemsInput): Promise<{ documentId: string }[]> {
     const commonService = getPluginService(context, 'common');
     const pluginStore = await commonService.getPluginStore();
-    const config = await pluginStore.get({ key: 'config' }).then(configSchema.parse);
+    const config = await pluginStore.get({ key: 'config' }).then(DynamicSchemas.configSchema.parse);
     const where: Record<string, any> = {
       publishedAt: {
         $notNull: true,

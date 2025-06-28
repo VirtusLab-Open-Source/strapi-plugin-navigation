@@ -43,7 +43,7 @@ export const NavigationManager = ({ initialState, isOpened, onClose }: Props) =>
 
   const createNavigationMutation = useCreateNavigation();
 
-  const updateNavigationMutation = useUpdateNavigation();
+  const updateNavigationMutation = useUpdateNavigation({});
 
   const purgeNavigationsMutation = usePurgeNavigation();
 
