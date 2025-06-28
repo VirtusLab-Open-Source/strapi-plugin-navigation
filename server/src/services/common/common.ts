@@ -17,7 +17,6 @@ import {
   NavigationPluginConfigDBSchema,
   updateConfigSchema,
   updateCreateNavigationSchema,
-  updateNavigationDBSchema,
   updateNavigationItemAdditionalField,
   updateNavigationItemCustomField,
   updateUpdateNavigationSchema,
@@ -462,7 +461,6 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
 
   updateConfigSchema,
   updateCreateNavigationSchema,
-  updateNavigationDBSchema,
   updateNavigationItemAdditionalField,
   updateNavigationItemCustomField,
   updateUpdateNavigationSchema,

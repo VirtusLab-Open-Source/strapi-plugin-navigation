@@ -4,7 +4,7 @@ import { omit, once } from 'lodash';
 import { NavigationError } from '../app-errors';
 import {
   CreateNavigationSchema,
-  DynamicSchemas,
+  navigationDBSchema,
   NavigationDBSchema,
   UpdateNavigationSchema,
 } from '../schemas';
@@ -49,9 +49,7 @@ export const getNavigationRepository = once((context: { strapi: Core.Strapi }) =
         }))
       )
       .then((data) => {
-        return DynamicSchemas.navigationDBSchema(calculateItemsRequirement(populate))
-          .array()
-          .parse(data);
+        return navigationDBSchema(calculateItemsRequirement(populate)).array().parse(data);
       });
   },
 
@@ -63,7 +61,7 @@ export const getNavigationRepository = once((context: { strapi: Core.Strapi }) =
       .findOne({ documentId: filters.documentId, locale, populate })
       .then((data) => (data ? { ...data, items: data.items?.map(flattenRelated) } : data))
       .then((data) => {
-        return DynamicSchemas.navigationDBSchema(calculateItemsRequirement(populate)).parse(data);
+        return navigationDBSchema(calculateItemsRequirement(populate)).parse(data);
       })
       .then((navigation) => ({
         ...navigation,
@@ -88,7 +86,7 @@ export const getNavigationRepository = once((context: { strapi: Core.Strapi }) =
           data: omit(rest, ['id', 'documentId']),
           populate: ['items'],
         })
-        .then(DynamicSchemas.navigationDBSchema(false).parse);
+        .then(navigationDBSchema(false).parse);
     } else {
       return context.strapi
         .documents(masterModel.uid)
@@ -99,7 +97,7 @@ export const getNavigationRepository = once((context: { strapi: Core.Strapi }) =
             populate: ['items'],
           },
         })
-        .then(DynamicSchemas.navigationDBSchema(false).parse);
+        .then(navigationDBSchema(false).parse);
     }
   },
 

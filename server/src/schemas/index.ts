@@ -24,6 +24,7 @@ export * from './content-type';
 export type * from './navigation';
 export {
   audienceDBSchema,
+  navigationDBSchema,
   navigationItemDBSchema,
   navigationItemsDBSchema,
   navigationItemType,
