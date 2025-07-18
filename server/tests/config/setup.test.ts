@@ -74,6 +74,28 @@ describe('Navigation', () => {
           }).rejects.toThrow(ZodError);
         });
 
+        it('should throw validation error if additional field name contains space', async () => {
+          // Given
+          const invalidField = [
+            {
+              name: 'invalid name',
+              label: 'Invalid Label',
+              type: 'string',
+            },
+          ];
+
+          getStore.mockReturnValue({
+            additionalFields: invalidField,
+          });
+          getFromConfig.mockReturnValue({});
+          getContentTypes.mockReturnValue({});
+
+          // Then
+          await expect(async () => {
+            await configSetup({ strapi });
+          }).rejects.toThrow(ZodError);
+        });
+
         it('should should use values from database over default ones', async () => {
           // Given
           const allowedLevels = faker.number.int({
