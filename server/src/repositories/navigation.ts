@@ -4,9 +4,9 @@ import { omit, once } from 'lodash';
 import { NavigationError } from '../app-errors';
 import {
   CreateNavigationSchema,
+  navigationDBSchema,
   NavigationDBSchema,
   UpdateNavigationSchema,
-  navigationDBSchema,
 } from '../schemas';
 import { getPluginModels } from '../utils';
 import { flattenRelated, removeSensitiveFields } from './navigation-item';
