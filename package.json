@@ -129,6 +129,8 @@
     "publish:latest": "npm publish --tag latest",
     "publish:beta": "npm publish --tag beta",
     "build": "yarn clean && strapi-plugin build --minify",
+    "build:admin:watch": "tsc -p ./admin/tsconfig.json --watch",
+    "build:server:watch": "tsc -p ./server/tsconfig.json --watch",
     "clean": "rm -rf dist",
     "lint": "prettier --check .",
     "format": "prettier --write .",

@@ -551,6 +551,19 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
     contentTypeItemsQuery.data,
   ]);
 
+  useEffect(() => {
+    console.log(currentType)
+    if (currentType === 'INTERNAL') {
+      setFormValue(
+        decodePayload({
+          ...fallbackDefaultValues,
+          relatedType: configQuery.data?.defaultContentType || '',
+          ...current,
+        } as NavigationItemFormSchema)
+      );
+    }
+  }, [current, configQuery.data?.defaultContentType, currentType])
+
   return (
     <>
       <Modal.Body>

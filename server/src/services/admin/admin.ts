@@ -74,6 +74,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       cascadeMenuAttached,
       contentTypesPopulate,
       contentTypesNameFields,
+      defaultContentType,
       pathDefaultFields,
       allowedLevels,
       preferCustomContentTypes,
@@ -95,6 +96,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
         ...(isObject(contentTypesNameFields) ? contentTypesNameFields : {}),
       },
       contentTypesPopulate: isObject(contentTypesPopulate) ? contentTypesPopulate : {},
+      defaultContentType,
       pathDefaultFields: isObject(pathDefaultFields) ? pathDefaultFields : {},
       allowedLevels,
       additionalFields: viaSettingsPage

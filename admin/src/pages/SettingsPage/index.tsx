@@ -14,6 +14,7 @@ import {
   MultiSelect,
   MultiSelectOption,
   NumberInput,
+  SingleSelect,
   Toggle,
   Typography,
 } from '@strapi/design-system';
@@ -403,7 +404,7 @@ const Inner = () => {
                               </Field>
                             </Grid.Item>
 
-                            <Grid.Item col={8} s={12} xs={12}>
+                            <Grid.Item col={4} s={12} xs={12}>
                               <Field
                                 name="contentTypes"
                                 label={formatMessage(
@@ -485,6 +486,36 @@ const Inner = () => {
                                     </MultiSelectOption>
                                   ))}
                                 </MultiSelect>
+                              </Field>
+                            </Grid.Item>
+
+                            <Grid.Item col={4} s={12} xs={12}>
+                              <Field
+                                name="defaultContentType"
+                                label="Default content type"
+                                hint="Default"
+                              >
+                                <SingleSelect
+                                  name="defaultContentType"
+                                  value={values.defaultContentType}
+                                  onChange={(eventOrPath: FormChangeEvent) =>
+                                    handleChange(
+                                      eventOrPath,
+                                      values.defaultContentType,
+                                      onChange
+                                    )
+                                  }
+                                  disabled={restartStatus.required}
+                                  error={renderError('defaultContentType')}
+                                  withTags
+                                  width="100%"
+                                >
+                                  {contentTypesCurrent?.map((item) => (
+                                    <MultiSelectOption key={item} value={item}>
+                                      {item}
+                                    </MultiSelectOption>
+                                  ))}
+                                </SingleSelect>
                               </Field>
                             </Grid.Item>
 
@@ -850,7 +881,7 @@ const Inner = () => {
                           </Typography>
                         </Grid.Item>
                         <Grid.Item col={12} s={12} xs={12}>
-                          {hasSettingsReadPermissions ? (
+                          {hasSettingsReadPermissions && (
                             <Button
                               variant="danger-light"
                               startIcon={<Check />}
@@ -858,7 +889,7 @@ const Inner = () => {
                             >
                               {formatMessage(getTrad('pages.settings.actions.restore.label'))}
                             </Button>
-                          ) : null}
+                          )}
                           <ConfirmationDialog
                             isVisible={isRestorePopupOpen}
                             header={formatMessage(

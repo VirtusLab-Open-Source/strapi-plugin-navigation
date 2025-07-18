@@ -51,6 +51,7 @@ export const configSetup = async ({
     contentTypes: getWithFallback<string[]>('contentTypes'),
     contentTypesNameFields: getWithFallback<PluginConfigNameFields>('contentTypesNameFields'),
     contentTypesPopulate: getWithFallback<PluginConfigPopulate>('contentTypesPopulate'),
+    defaultContentType: getWithFallback<string>('defaultContentType'),
     allowedLevels: getWithFallback<number>('allowedLevels'),
     gql: getWithFallback<PluginConfigGraphQL>('gql'),
     pathDefaultFields: getWithFallback<PluginConfigPathDefaultFields>('pathDefaultFields'),
