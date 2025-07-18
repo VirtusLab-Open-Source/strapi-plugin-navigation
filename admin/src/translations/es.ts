@@ -358,11 +358,24 @@ const en = {
               label: 'Nombre del campo personalizado',
               placeholder: 'ejemplo_nombre',
               description: 'El nombre del campo personalizado debe ser único',
+              requiredError: 'El nombre es obligatorio',
+              noSpaceError: 'No se permiten espacios',
             },
             label: {
               label: 'Etiqueta del campo personalizado',
               placeholder: 'Ejemplo de etiqueta',
               description: 'Esta etiqueta se mostrará en el formulario del elemento de navegación',
+              requiredError: 'La etiqueta es obligatoria',
+            },
+            description: {
+              label: 'Descripción del campo personalizado',
+              placeholder: 'Ejemplo de descripción',
+              description: 'Esta descripción se mostrará debajo del campo como pista o explicación',
+            },
+            placeholder: {
+              label: 'Marcador de posición del campo personalizado',
+              placeholder: 'Ejemplo de marcador de posición',
+              description: 'Este texto aparecerá dentro del campo antes de la interacción',
             },
             type: {
               label: 'Tipo de campo personalizado',
@@ -376,6 +389,7 @@ const en = {
             options: {
               label: 'Opciones para la entrada de selección',
               description: 'Proporciona opciones separadas por ";"',
+              requiredError: 'Se requiere al menos una opción',
             },
             multi: {
               label: 'Habilitar entrada de múltiples opciones',

@@ -355,11 +355,26 @@ const en = {
               label: 'Custom field name',
               placeholder: 'example_name',
               description: 'Name of the custom field must be unique',
+              requiredError: 'Name is required',
+              noSpaceError: 'No space allowed',
             },
             label: {
               label: 'Custom field label',
               placeholder: 'Example label',
               description: 'This label will be displayed on navigation item form',
+              requiredError: 'Label is required',
+            },
+            description: {
+              label: 'Custom field description',
+              placeholder: 'Example description',
+              description:
+                'This description will be displayed under the field as a hint or explenation',
+            },
+            placeholder: {
+              label: 'Custom field placeholder',
+              placeholder: 'Example placeholder',
+              description:
+                'This placeholder text will appear inside the field before the interaction',
             },
             type: {
               label: 'Custom field type',
@@ -372,6 +387,7 @@ const en = {
             options: {
               label: 'Options for select input',
               description: 'Provide options separated by ";"',
+              requiredError: 'At least one option is required',
             },
             multi: {
               label: 'Enable multiple options input',

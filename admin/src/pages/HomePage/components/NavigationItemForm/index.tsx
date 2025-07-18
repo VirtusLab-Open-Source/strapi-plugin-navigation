@@ -833,6 +833,8 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                                 <Field
                                   name={`additionalFields.${additionalField.name}`}
                                   label={additionalField.label}
+                                  hint={additionalField.description}
+                                  required={additionalField.required}
                                   error={renderError(`additionalFields.${additionalField.name}`)}
                                 >
                                   <AdditionalFieldInput
