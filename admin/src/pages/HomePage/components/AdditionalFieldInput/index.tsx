@@ -63,6 +63,7 @@ export const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
       id: field.name,
       name: name || field.name,
       disabled: isLoading || disabled,
+      placeholder: field.placeholder,
     }),
     [field, isLoading]
   );

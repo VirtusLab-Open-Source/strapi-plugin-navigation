@@ -28,7 +28,7 @@ import { get, isNil, isObject, isString, set } from 'lodash';
 const tradPrefix = 'pages.settings.form.customFields.popup.';
 
 interface ICustomFieldFormProps {
-  customField: Partial<NavigationItemCustomField>;
+  customField: NavigationItemCustomField | null;
   isEditForm: boolean;
   onSubmit: Effect<NavigationItemCustomField>;
   onClose: VoidEffect;
@@ -59,9 +59,14 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({
 
   const { formatMessage } = useIntl();
 
-  const [formValue, setFormValue] = useState<NavigationItemCustomField>(
-    {} as NavigationItemCustomField
-  );
+  const [formValue, setFormValue] = useState<NavigationItemCustomField>({
+    name: '',
+    label: '',
+    type: 'string',
+    required: false,
+    multi: false,
+    enabled: true,
+  });
   const [formError, setFormError] = useState<FormItemErrorSchema<NavigationItemCustomField>>();
 
   const { type } = formValue;
@@ -70,7 +75,7 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({
     if (customField) {
       setFormValue({
         ...customField,
-      } as NavigationItemCustomField);
+      });
     }
   }, [customField]);
 
@@ -111,16 +116,13 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({
   const renderError = (error: string): string | undefined => {
     const errorOccurence = get(formError, error);
     if (errorOccurence) {
-      return formatMessage(getTrad(error));
+      return formatMessage(getTrad(`${tradPrefix}${error}.${errorOccurence}`));
     }
     return undefined;
   };
 
   const submit = (e: React.MouseEvent, values: NavigationItemCustomField) => {
-    const { success, data, error } = navigationItemCustomField.safeParse({
-      ...values,
-      enabled: true,
-    });
+    const { success, data, error } = navigationItemCustomField.safeParse(values);
     if (success) {
       onSubmit(data);
     } else if (error) {
@@ -148,6 +150,7 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({
                     label={formatMessage(getTrad(`${tradPrefix}name.label`))}
                     hint={formatMessage(getTrad(`${tradPrefix}name.description`))}
                     error={renderError('name')}
+                    required
                   >
                     <TextInput
                       name="name"
@@ -168,6 +171,7 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({
                     label={formatMessage(getTrad(`${tradPrefix}label.label`))}
                     hint={formatMessage(getTrad(`${tradPrefix}label.description`))}
                     error={renderError('label')}
+                    required
                   >
                     <TextInput
                       name="label"
@@ -181,11 +185,50 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({
                     />
                   </Field>
                 </Grid.Item>
+                <Grid.Item key="description" col={12}>
+                  <Field
+                    name="description"
+                    label={formatMessage(getTrad(`${tradPrefix}description.label`))}
+                    hint={formatMessage(getTrad(`${tradPrefix}description.description`))}
+                    error={renderError('description')}
+                  >
+                    <TextInput
+                      name="description"
+                      value={values.description}
+                      onChange={(eventOrPath: FormChangeEvent, value?: any) =>
+                        handleChange(eventOrPath, value, onChange)
+                      }
+                      placeholder={formatMessage(getTrad(`${tradPrefix}description.placeholder`))}
+                      type="string"
+                      width="100%"
+                    />
+                  </Field>
+                </Grid.Item>
+                <Grid.Item key="placeholder" col={12}>
+                  <Field
+                    name="placeholder"
+                    label={formatMessage(getTrad(`${tradPrefix}placeholder.label`))}
+                    hint={formatMessage(getTrad(`${tradPrefix}placeholder.description`))}
+                    error={renderError('placeholder')}
+                  >
+                    <TextInput
+                      name="placeholder"
+                      value={values.placeholder}
+                      onChange={(eventOrPath: FormChangeEvent, value?: any) =>
+                        handleChange(eventOrPath, value, onChange)
+                      }
+                      placeholder={formatMessage(getTrad(`${tradPrefix}placeholder.placeholder`))}
+                      type="string"
+                      width="100%"
+                    />
+                  </Field>
+                </Grid.Item>
                 <Grid.Item key="type" col={12}>
                   <Field
                     name="type"
                     label={formatMessage(getTrad(`${tradPrefix}type.label`))}
                     hint={formatMessage(getTrad(`${tradPrefix}type.description`))}
+                    required
                   >
                     <SingleSelect
                       name="type"

@@ -354,12 +354,26 @@ const ca = {
               label: 'Nom du champ personnalisé',
               placeholder: 'exemple_nom',
               description: 'Le nom du champ personnalisé doit être unique',
+              requiredError: 'El nom és obligatori',
+              noSpaceError: "No s'admeten espais",
             },
             label: {
               label: 'Étiquette du champ personnalisé',
               placeholder: "Exemple d'étiquette",
               description:
                 "Cette étiquette sera affichée sur le formulaire de l'élément de navigation",
+              requiredError: "L'etiqueta és obligatòria",
+            },
+            description: {
+              label: 'Descripció del camp personalitzat',
+              placeholder: 'Exemple de descripció',
+              description: 'Aquesta descripció es mostrarà sota el camp com a pista o explicació',
+            },
+            placeholder: {
+              label: 'Marcador de posició del camp personalitzat',
+              placeholder: 'Exemple de marcador de posició',
+              description:
+                'Aquest text de marcador de posició apareixerà dins del camp abans de la interacció',
             },
             type: {
               label: 'Type de champ personnalisé',
@@ -373,6 +387,7 @@ const ca = {
               label: "Options pour l'entrée de sélection",
               description:
                 'Activer ce champ ne changera pas les éléments de navigation déjà existants',
+              requiredError: 'Cal almenys una opció',
             },
             multi: {
               label: "Activer l'entrée de plusieurs options",

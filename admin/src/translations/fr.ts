@@ -358,12 +358,26 @@ const fr = {
               label: 'Nom du champ personnalisé',
               placeholder: 'exemple_nom',
               description: 'Le nom du champ personnalisé doit être unique',
+              requiredError: 'Le nom est requis',
+              noSpaceError: 'Les espaces ne sont pas autorisés',
             },
             label: {
               label: 'Étiquette du champ personnalisé',
               placeholder: "Exemple d'étiquette",
               description:
                 "Cette étiquette sera affichée sur le formulaire de l'élément de navigation",
+              requiredError: "L'étiquette est requise",
+            },
+            description: {
+              label: 'Description du champ personnalisé',
+              placeholder: 'Exemple de description',
+              description:
+                'Cette description sera affichée sous le champ comme un indice ou une explication',
+            },
+            placeholder: {
+              label: 'Espace réservé du champ personnalisé',
+              placeholder: 'Exemple d’espace réservé',
+              description: "Ce texte d'espace réservé apparaîtra dans le champ avant l'interaction",
             },
             type: {
               label: 'Type de champ personnalisé',
@@ -378,6 +392,7 @@ const fr = {
             options: {
               label: "Options pour l'entrée de sélection",
               description: 'Fournir des options séparées par « ; »',
+              requiredError: 'Au moins une option est requise',
             },
             multi: {
               label: "Activer l'entrée de plusieurs options",

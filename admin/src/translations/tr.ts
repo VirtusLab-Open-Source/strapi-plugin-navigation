@@ -355,11 +355,25 @@ const tr = {
               label: 'Özel alan adı',
               placeholder: 'ornek_ad',
               description: 'Özel alan adı benzersiz olmalıdır',
+              requiredError: 'İsim zorunludur',
+              noSpaceError: 'Boşluk izin verilmiyor',
             },
             label: {
               label: 'Özel alan etiketi',
               placeholder: 'Örnek etiket',
               description: 'Bu etiket navigasyon öğesi formunda gösterilecektir',
+              requiredError: 'Etiket zorunludur',
+            },
+            description: {
+              label: 'Özel alan açıklaması',
+              placeholder: 'Örnek açıklama',
+              description: 'Bu açıklama, alanın altında ipucu veya açıklama olarak gösterilecektir',
+            },
+            placeholder: {
+              label: 'Özel alan yer tutucu',
+              placeholder: 'Örnek yer tutucu',
+              description:
+                'Bu yer tutucu metin, kullanıcı etkileşimde bulunmadan önce alanda görünecektir',
             },
             type: {
               label: 'Özel alan türü',
@@ -372,6 +386,7 @@ const tr = {
             options: {
               label: 'Seçim giriş seçenekleri',
               description: 'Seçenekleri ";" ile ayırarak girin',
+              requiredError: 'En az bir seçenek gereklidir',
             },
             multi: {
               label: 'Çoklu seçim girişini etkinleştir',

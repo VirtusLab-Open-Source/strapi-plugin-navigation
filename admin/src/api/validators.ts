@@ -59,9 +59,13 @@ export const navigationSchema = z.object({
 });
 
 const navigationCustomFieldBase = z.object({
-  // TODO: Proper message translation
-  name: z.string().refine((current) => !current.includes(' '), { message: 'No space allowed' }),
-  label: z.string(),
+  name: z
+    .string({ required_error: 'requiredError' })
+    .nonempty('requiredError')
+    .refine((current) => !current.includes(' '), { message: 'noSpaceError' }),
+  label: z.string({ required_error: 'requiredError' }).nonempty('requiredError'),
+  description: z.string().optional(),
+  placeholder: z.string().optional(),
   required: z.boolean().optional(),
   enabled: z.boolean().optional(),
 });
@@ -70,7 +74,9 @@ export type NavigationItemCustomFieldSelect = z.infer<typeof navigationItemCusto
 const navigationItemCustomFieldSelect = navigationCustomFieldBase.extend({
   type: z.literal('select'),
   multi: z.boolean(),
-  options: z.array(z.string()),
+  options: z
+    .array(z.string(), { required_error: 'requiredError' })
+    .min(1, { message: 'requiredError' }),
 });
 
 export type NavigationItemCustomFieldPrimitive = z.infer<typeof navigationItemCustomFieldPrimitive>;
@@ -88,9 +94,11 @@ const navigationItemCustomFieldMedia = navigationCustomFieldBase.extend({
 });
 
 export type NavigationItemCustomField = z.infer<typeof navigationItemCustomField>;
-export const navigationItemCustomField = navigationItemCustomFieldPrimitive
-  .or(navigationItemCustomFieldMedia)
-  .or(navigationItemCustomFieldSelect);
+export const navigationItemCustomField = z.discriminatedUnion('type', [
+  navigationItemCustomFieldPrimitive,
+  navigationItemCustomFieldMedia,
+  navigationItemCustomFieldSelect,
+]);
 
 export type NavigationItemAdditionalField = z.infer<typeof navigationItemAdditionalField>;
 export const navigationItemAdditionalField = z.union([

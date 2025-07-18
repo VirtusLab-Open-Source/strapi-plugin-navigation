@@ -1,7 +1,6 @@
 import { Modal, Typography } from '@strapi/design-system';
 import React from 'react';
 
-import { pick } from 'lodash';
 import { useIntl } from 'react-intl';
 import { NavigationItemCustomField } from '../../../../schemas';
 import { getTrad } from '../../../../translations';
@@ -53,7 +52,7 @@ const CustomFieldModal: React.FC<ICustomFieldModalProps> = ({
         </Modal.Header>
         <CustomFieldForm
           isEditForm={isEditMode}
-          customField={pick(data, 'name', 'label', 'type', 'required', 'options', 'multi')}
+          customField={data}
           onSubmit={onSubmit}
           onClose={onClose}
         />
