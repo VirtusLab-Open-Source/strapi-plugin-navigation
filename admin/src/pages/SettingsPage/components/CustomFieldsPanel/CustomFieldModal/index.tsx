@@ -2,9 +2,9 @@ import { Modal, Typography } from '@strapi/design-system';
 import React from 'react';
 
 import { useIntl } from 'react-intl';
-import { NavigationItemCustomField } from '../../../../schemas';
-import { getTrad } from '../../../../translations';
-import { Effect, VoidEffect } from '../../../../types';
+import { NavigationItemCustomField } from '../../../../../schemas';
+import { getTrad } from '../../../../../translations';
+import { Effect, VoidEffect } from '../../../../../types';
 import CustomFieldForm from '../CustomFieldForm';
 
 interface ICustomFieldModalProps {

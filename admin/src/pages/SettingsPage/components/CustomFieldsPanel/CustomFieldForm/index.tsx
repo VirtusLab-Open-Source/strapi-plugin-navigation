@@ -12,17 +12,17 @@ import {
 } from '@strapi/design-system';
 import { Field } from '@sensinum/strapi-utils';
 
-import TextArrayInput from '../../../../components/TextArrayInput';
-import { navigationItemCustomField, NavigationItemCustomField } from '../../../../schemas';
-import { getTrad } from '../../../../translations';
+import TextArrayInput from '../../../../../components/TextArrayInput';
+import { navigationItemCustomField, NavigationItemCustomField } from '../../../../../schemas';
+import { getTrad } from '../../../../../translations';
 import {
   Effect,
   FormChangeEvent,
   FormItemErrorSchema,
   ToBeFixed,
   VoidEffect,
-} from '../../../../types';
-import { customFieldsTypes } from '../../common';
+} from '../../../../../types';
+import { customFieldsTypes } from '../../../common';
 import { get, isNil, isObject, isString, set } from 'lodash';
 
 const tradPrefix = 'pages.settings.form.customFields.popup.';

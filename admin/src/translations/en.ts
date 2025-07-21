@@ -280,6 +280,11 @@ const en = {
           placeholder: 'eg. Pages, Posts',
           hint: 'If none is selected, also none of the content types are enabled',
         },
+        defaultContentType: {
+          label: 'Default content type',
+          placeholder: 'eg. Pages, Posts',
+          hint: 'Content type selected by default when creating a new navigation item',
+        },
         i18n: {
           label: 'i18n',
           hint: 'Enable internationalisation',

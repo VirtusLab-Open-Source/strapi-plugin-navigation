@@ -277,6 +277,11 @@ const ca = {
           placeholder: 'ex. Pages, Articles',
           hint: "Si aucun n'est sélectionné, aucun des types de contenu n'est activé",
         },
+        defaultContentType: {
+          label: 'Tipus de contingut per defecte',
+          placeholder: 'ex. Pages, Articles',
+          hint: 'Tipus de contingut seleccionat per defecte en crear un nou element de navegació',
+        },
         i18n: {
           label: 'i18n',
           hint: "Activer l'internationalisation",

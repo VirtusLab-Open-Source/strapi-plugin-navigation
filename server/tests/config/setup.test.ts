@@ -49,6 +49,7 @@ describe('Navigation', () => {
             allowedLevels: expect.any(Number),
             cascadeMenuAttached: expect.any(Boolean),
             contentTypes: expect.any(Array),
+            defaultContentType: expect.any(String),
             contentTypesNameFields: expect.any(Object),
             contentTypesPopulate: expect.any(Object),
             gql: expect.objectContaining({

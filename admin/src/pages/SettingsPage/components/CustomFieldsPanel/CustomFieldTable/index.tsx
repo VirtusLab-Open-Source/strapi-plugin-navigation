@@ -19,10 +19,10 @@ import {
   Typography,
 } from '@strapi/design-system';
 import { useIntl } from 'react-intl';
-import { ConfirmationDialog } from '../../../../components/ConfirmationDialog';
-import { NavigationItemCustomField } from '../../../../schemas';
-import { getTrad, getTradId } from '../../../../translations';
-import { Effect } from '../../../../types';
+import { ConfirmationDialog } from '../../../../../components/ConfirmationDialog';
+import { NavigationItemCustomField } from '../../../../../schemas';
+import { getTrad, getTradId } from '../../../../../translations';
+import { Effect } from '../../../../../types';
 
 interface ICustomFieldTableProps {
   data: (NavigationItemCustomField | string)[];

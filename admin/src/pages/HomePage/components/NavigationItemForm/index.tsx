@@ -551,6 +551,12 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
     contentTypeItemsQuery.data,
   ]);
 
+  useEffect(() => {
+    if (currentType === 'INTERNAL' && currentRelatedType === '') {
+      setFormValueItem("relatedType", configQuery.data?.defaultContentType);
+    }
+  }, [configQuery.data?.defaultContentType, currentType, currentRelatedType]);
+
   return (
     <>
       <Modal.Body>

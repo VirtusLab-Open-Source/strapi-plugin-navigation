@@ -42,7 +42,9 @@ export const configSetup = async ({
         })) ?? configBase.default),
       };
 
-  let config = isEmpty(configRaw) ? configRaw : DynamicSchemas.configSchema.parse(configRaw) as unknown as ConfigSchema;
+  let config = isEmpty(configRaw)
+    ? configRaw
+    : (DynamicSchemas.configSchema.parse(configRaw) as unknown as ConfigSchema);
 
   const getWithFallback = getWithFallbackFactory(config, getFromPluginDefaults);
 
@@ -51,6 +53,7 @@ export const configSetup = async ({
     contentTypes: getWithFallback<string[]>('contentTypes'),
     contentTypesNameFields: getWithFallback<PluginConfigNameFields>('contentTypesNameFields'),
     contentTypesPopulate: getWithFallback<PluginConfigPopulate>('contentTypesPopulate'),
+    defaultContentType: getWithFallback<string>('defaultContentType'),
     allowedLevels: getWithFallback<number>('allowedLevels'),
     gql: getWithFallback<PluginConfigGraphQL>('gql'),
     pathDefaultFields: getWithFallback<PluginConfigPathDefaultFields>('pathDefaultFields'),

@@ -57,6 +57,7 @@ export const configSchema = z.object({
   additionalFields: z.array(navigationItemAdditionalField),
   allowedLevels: z.number(),
   contentTypes: z.array(z.string()),
+  defaultContentType: z.string().optional(),
   contentTypesNameFields: z.record(z.string(), z.array(z.string())),
   contentTypesPopulate: z.record(z.string(), z.array(z.string())),
   gql: z.object({
