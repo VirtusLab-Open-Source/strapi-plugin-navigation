@@ -147,6 +147,7 @@ Config for this plugin is stored as a part of the `config/plugins.{js|ts}` or `c
             config: {
                 additionalFields: ['audience', { name: 'my_custom_field', type: 'boolean', label: 'My custom field' }],
                 contentTypes: ['api::page.page'],
+                defaultContentTypes: 'api::page.page',
                 contentTypesNameFields: {
                     'api::page.page': ['title']
                 },
@@ -165,6 +166,7 @@ Config for this plugin is stored as a part of the `config/plugins.{js|ts}` or `c
 - `additionalFields` - Additional fields for navigation items. More **[ here ](#additional-fields)**
 - `allowedLevels` - Maximum level for which you're able to mark item as "Menu attached"
 - `contentTypes` - UIDs of related content types
+- `defaultContentTypes` - UID of content type that will be selected by default while creating a new navigation item
 - `contentTypesNameFields` - Definition of content type title fields like `'api::<collection name>.<content type name>': ['field_name_1', 'field_name_2']`, if not set titles are pulled from fields like `['title', 'subject', 'name']`. **TIP** - Proper content type uid you can find in the URL of Content Manager where you're managing relevant entities like: `admin/content-manager/collectionType/< THE UID HERE >?page=1&pageSize=10&sort=Title:ASC&plugins[i18n][locale]=en`
 - `pathDefaultFields` - The attribute to copy the default path from per content type. Syntax: `'api::<collection name>.<content type name>': ['url_slug', 'path']`
 - `gql` - If you're using GraphQL that's the right place to put all necessary settings. More **[ here ](#gql-configuration)**

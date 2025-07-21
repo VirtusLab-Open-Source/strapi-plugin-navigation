@@ -552,8 +552,8 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   ]);
 
   useEffect(() => {
-    if (currentType === 'INTERNAL' && !currentRelatedType) {
-      setFormValueItem("relatedType", configQuery.data?.defaultContentType || '');
+    if (currentType === 'INTERNAL' && currentRelatedType === '') {
+      setFormValueItem("relatedType", configQuery.data?.defaultContentType);
     }
   }, [configQuery.data?.defaultContentType, currentType, currentRelatedType]);
 
