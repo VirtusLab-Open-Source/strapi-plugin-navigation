@@ -37,6 +37,11 @@
       "name": "VirtusLab // Tomasz Puch",
       "email": "tpuch@virtuslab.com",
       "url": "https://virtuslab.com"
+    },
+    {
+      "name": "VirtusLab // Mateusz Kleszcz",
+      "email": "mkleszcz@virtuslab.com",
+      "url": "https://virtuslab.com"
     }
   ],
   "dependencies": {

@@ -205,7 +205,7 @@ const fr = {
         },
       },
       update: {
-        error: 'Impossible d\'enregistrer la navigation. Vérifiez les outils de développement.',
+        error: "Impossible d'enregistrer la navigation. Vérifiez les outils de développement.",
       },
     },
     error: {
@@ -280,6 +280,11 @@ const fr = {
           label: 'Activer la navigation pour',
           placeholder: 'ex. Pages, Articles',
           hint: "Si rien n'est sélectionné, aucun des types de contenu n'est activé",
+        },
+        defaultContentType: {
+          label: 'Type de contenu par défaut',
+          placeholder: 'ex. Pages, Articles',
+          hint: 'Type de contenu sélectionné par défaut lors de la création d’un nouvel élément de navigation',
         },
         i18n: {
           label: 'i18n',

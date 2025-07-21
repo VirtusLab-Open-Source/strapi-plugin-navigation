@@ -552,17 +552,10 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
   ]);
 
   useEffect(() => {
-    console.log(currentType)
-    if (currentType === 'INTERNAL') {
-      setFormValue(
-        decodePayload({
-          ...fallbackDefaultValues,
-          relatedType: configQuery.data?.defaultContentType || '',
-          ...current,
-        } as NavigationItemFormSchema)
-      );
+    if (currentType === 'INTERNAL' && !currentRelatedType) {
+      setFormValueItem("relatedType", configQuery.data?.defaultContentType || '');
     }
-  }, [current, configQuery.data?.defaultContentType, currentType])
+  }, [configQuery.data?.defaultContentType, currentType, currentRelatedType]);
 
   return (
     <>

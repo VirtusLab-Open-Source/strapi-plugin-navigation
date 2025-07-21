@@ -281,6 +281,11 @@ const en = {
           placeholder: 'Ejemplo: Páginas, Publicaciones',
           hint: 'Si no se selecciona ninguno, ninguno de los tipos de contenido estará habilitado',
         },
+        defaultContentType: {
+          label: 'Tipo de contenido predeterminado',
+          placeholder: 'ej. Páginas, Publicaciones',
+          hint: 'Tipo de contenido seleccionado por defecto al crear un nuevo elemento de navegación',
+        },
         i18n: {
           label: 'i18n',
           hint: 'Habilitar internacionalización',

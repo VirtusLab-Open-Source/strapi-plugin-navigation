@@ -280,6 +280,11 @@ const tr = {
           placeholder: 'Örn: Sayfalar, Gönderiler',
           hint: 'Hiçbiri seçilmezse, içerik türleri de etkinleştirilmez',
         },
+        defaultContentType: {
+          label: 'Varsayılan içerik türü',
+          placeholder: 'Örn: Sayfalar, Gönderiler',
+          hint: 'Yeni bir gezinme öğesi oluşturulurken varsayılan olarak seçilen içerik türü',
+        },
         i18n: {
           label: 'i18n',
           hint: 'Uluslararasılaştırmayı etkinleştir',

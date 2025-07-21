@@ -689,13 +689,16 @@ Example:
 const navigationCommonService = strapi.plugin('navigation').service('common');
 
 navigationCommonService.updateUpdateNavigationSchema((schema: ZodObject) => {
-  return schema.refine((data) => {
-    if (!data.visible) {
-      return false;
-    }
+  return schema.refine(
+    (data) => {
+      if (!data.visible) {
+        return false;
+      }
 
-    return true;
-  }, { message: "Hidden navigation updated." });
+      return true;
+    },
+    { message: 'Hidden navigation updated.' }
+  );
 });
 ```
 
