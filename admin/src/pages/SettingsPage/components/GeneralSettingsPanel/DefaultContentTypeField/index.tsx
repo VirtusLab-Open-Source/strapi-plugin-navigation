@@ -7,6 +7,7 @@ import { useSettingsContext } from '../../../context';
 import { getTrad } from '../../../../../translations';
 import { useEffect, useMemo } from 'react';
 import { useContentTypes } from '../../../hooks';
+import { StrapiContentTypeSchema } from '../../../../../schemas';
 
 export const DefaultContentTypeField = () => {
   const contentTypesQuery = useContentTypes();
@@ -19,7 +20,7 @@ export const DefaultContentTypeField = () => {
     () =>
       values.contentTypes
         ?.map((contentType) => contentTypesQuery.data?.find(({ uid }) => uid === contentType))
-        .filter((contentType) => contentType !== undefined) || [],
+        .filter((contentType): contentType is StrapiContentTypeSchema => contentType !== undefined) || [],
     [values.contentTypes, contentTypesQuery.data]
   );
 
