@@ -231,7 +231,7 @@ export const Item: React.FC<Props> = ({
       const maxOrder = (mappedItem.items ?? []).reduce((acc, { order }) => {
         return acc < order ? order : acc;
       }, 0);
-      console.log(structureId, mappedItem.items?.length ?? 0)
+
       return onItemLevelAdd(
         event,
         mappedItem.viewId,

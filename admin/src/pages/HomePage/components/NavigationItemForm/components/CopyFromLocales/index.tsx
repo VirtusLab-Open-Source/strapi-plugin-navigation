@@ -22,6 +22,7 @@ type CopyFromLocalesProps = {
   current: Partial<NavigationItemFormSchema>;
   currentNavigation: Pick<NavigationSchema, 'id' | 'documentId' | 'locale'>;
   setIsLoading: (isLoading: boolean) => void;
+  setFormValuesItems: (values: any) => void;
 };
 
 export const CopyFromLocales: React.FC<CopyFromLocalesProps> = ({
@@ -29,6 +30,7 @@ export const CopyFromLocales: React.FC<CopyFromLocalesProps> = ({
   current,
   currentNavigation,
   setIsLoading,
+  setFormValuesItems,
 }) => {
   const { formatMessage } = useIntl();
 
@@ -37,7 +39,7 @@ export const CopyFromLocales: React.FC<CopyFromLocalesProps> = ({
   const copyItemFromLocaleMutation = useCopyNavigationItemI18n();
   const navigationsQuery = useNavigations();
 
-  const { canUpdate, isLoading, setFormValueItem } = useNavigationItemFormContext();
+  const { canUpdate, isLoading } = useNavigationItemFormContext();
 
   const availableLocaleOptions = useMemo(
     () =>
@@ -55,7 +57,7 @@ export const CopyFromLocales: React.FC<CopyFromLocalesProps> = ({
       event.stopPropagation();
 
       const source = navigationsQuery.data?.find(({ locale }) => locale === itemLocaleCopyValue);
-      console.log(current)
+
       if (source) {
         setIsLoading(true);
 
@@ -70,18 +72,15 @@ export const CopyFromLocales: React.FC<CopyFromLocalesProps> = ({
               copyItemFromLocaleMutation.reset();
 
               const { type, externalPath, path, related, title, uiRouterKey } = data;
-              const { __type, documentId } = related ?? {};
 
-              setFormValueItem('type', type);
-              setFormValueItem('externalPath', externalPath ?? undefined);
-              setFormValueItem('path', path ?? undefined);
-              setFormValueItem('title', title);
-              setFormValueItem('uiRouterKey', uiRouterKey);
-
-              if (__type && documentId) {
-                setFormValueItem('related', documentId);
-                setFormValueItem('relatedType', __type);
-              }
+              setFormValuesItems({
+                type,
+                externalPath,
+                path,
+                title,
+                uiRouterKey,
+                related,
+              });
             },
             onSettled() {
               setIsLoading(false);

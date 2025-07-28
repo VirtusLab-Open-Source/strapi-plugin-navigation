@@ -268,6 +268,7 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                   current={current}
                   currentNavigation={currentNavigation}
                   setIsLoading={setIsLoading}
+                  setFormValuesItems={setFormValuesItems}
                 />
 
                 <Grid.Root gap={5}>

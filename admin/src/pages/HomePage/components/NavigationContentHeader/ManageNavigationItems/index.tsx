@@ -56,7 +56,15 @@ export const ManageNavigationItems: React.FC<ManageNavigationItemsProps> = ({
         (acc, { order }) => Math.max(acc, order),
         0
       );
-      addNewNavigationItem(event, undefined, true, '', true, currentNavigation?.items.length.toString(), maxOrder + 1);
+      addNewNavigationItem(
+        event,
+        undefined,
+        true,
+        '',
+        true,
+        currentNavigation?.items.length.toString(),
+        maxOrder + 1
+      );
     },
     [addNewNavigationItem, currentNavigation?.items]
   );
