@@ -9,7 +9,12 @@ import { useTheme } from 'styled-components';
 import { NavigationItemSchema, StrapiContentTypeItemSchema } from '../../../../api/validators';
 import { getTrad } from '../../../../translations';
 import { Effect } from '../../../../types';
-import { useConfig, useContentTypeItems, useContentTypes } from '../../hooks';
+import {
+  useConfig,
+  useContentTypeItems,
+  useContentTypes,
+  useInvalidateContentTypeItems,
+} from '../../hooks';
 import { extractRelatedItemLabel, mapServerNavigationItem } from '../../utils';
 import { CollapseButton } from '../CollapseButton';
 import { NavigationItemFormSchema } from '../NavigationItemForm';
@@ -49,6 +54,8 @@ export type OnItemRestoreEffect = Effect<NavigationItemSchema>;
 
 export type OnItemCollapseEffect = Effect<NavigationItemSchema>;
 
+export type OnItemSubmitEffect = Effect<NavigationItemFormSchema>;
+
 interface Props {
   isParentAttachedToMenu?: boolean;
   item: NavigationItemSchema;
@@ -60,6 +67,7 @@ interface Props {
   onItemRestore: OnItemRestoreEffect;
   onItemReOrder: OnItemReorderEffect;
   onItemToggleCollapse: OnItemCollapseEffect;
+  onItemSubmit: OnItemSubmitEffect;
   displayFlat?: boolean;
   permissions: { canUpdate: boolean; canAccess: boolean };
   isLast?: boolean;
@@ -81,6 +89,7 @@ export const Item: React.FC<Props> = ({
   onItemEdit,
   onItemReOrder,
   onItemToggleCollapse,
+  onItemSubmit,
   displayChildren,
   permissions,
   structureId,
@@ -222,7 +231,7 @@ export const Item: React.FC<Props> = ({
       const maxOrder = (mappedItem.items ?? []).reduce((acc, { order }) => {
         return acc < order ? order : acc;
       }, 0);
-
+      console.log(structureId, mappedItem.items?.length ?? 0)
       return onItemLevelAdd(
         event,
         mappedItem.viewId,
@@ -253,6 +262,15 @@ export const Item: React.FC<Props> = ({
       });
     }
   }, [mappedItem.isSearchActive, refs.dropRef.current]);
+
+  const invalidatContentTypeItems = useInvalidateContentTypeItems({
+    uid: mappedItem.type === 'INTERNAL' ? (mappedItem.relatedType ?? '') : '',
+    locale,
+  });
+
+  useEffect(() => {
+    invalidatContentTypeItems();
+  }, []);
 
   const theme = useTheme();
 
@@ -434,11 +452,8 @@ export const Item: React.FC<Props> = ({
       {hasChildren && !mappedItem.removed && !mappedItem.collapsed && (
         <List
           onItemLevelAdd={onItemLevelAdd}
-          onItemRemove={onItemRemove}
           onItemEdit={onItemEdit}
-          onItemRestore={onItemRestore}
-          onItemReOrder={onItemReOrder}
-          onItemToggleCollapse={onItemToggleCollapse}
+          onItemSubmit={onItemSubmit}
           isParentAttachedToMenu={mappedItem.menuAttached}
           items={item.items ?? []}
           level={level + 1}

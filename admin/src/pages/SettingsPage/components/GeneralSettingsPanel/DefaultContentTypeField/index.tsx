@@ -20,7 +20,9 @@ export const DefaultContentTypeField = () => {
     () =>
       values.contentTypes
         ?.map((contentType) => contentTypesQuery.data?.find(({ uid }) => uid === contentType))
-        .filter((contentType): contentType is StrapiContentTypeSchema => contentType !== undefined) || [],
+        .filter(
+          (contentType): contentType is StrapiContentTypeSchema => contentType !== undefined
+        ) || [],
     [values.contentTypes, contentTypesQuery.data]
   );
 

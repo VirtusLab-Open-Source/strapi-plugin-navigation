@@ -11,8 +11,8 @@ import { useEffect, useMemo } from 'react';
 import { useIntl } from 'react-intl';
 
 import { Toggle } from '@strapi/design-system';
-import { NavigationItemCustomField } from '../../../../schemas';
-import { getTrad } from '../../../../translations';
+import { NavigationItemCustomField } from '../../../../../../../schemas';
+import { getTrad } from '../../../../../../../translations';
 
 export type AdditionalFieldInputProps = {
   name?: string;
