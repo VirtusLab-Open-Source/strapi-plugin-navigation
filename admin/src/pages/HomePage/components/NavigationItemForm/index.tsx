@@ -87,7 +87,6 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
 
   const { encodePayload, decodePayload } = usePayload();
 
-  const isExternal = formValue.type === 'EXTERNAL';
   const isInternal = formValue.type === 'INTERNAL';
 
   const submitDisabled = (isInternal && !formValue.related && !isSingleSelected) || isLoading;
@@ -236,7 +235,6 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                   <PathField
                     contentTypeItems={contentTypeItemsQuery.data}
                     current={current}
-                    isExternal={isExternal}
                     isSingleSelected={isSingleSelected}
                   />
                 </Grid.Root>

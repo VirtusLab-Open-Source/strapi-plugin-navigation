@@ -30,7 +30,7 @@ export const useChangeFieldsFromRelated = (
         return acc ? acc : relatedItem?.[field];
       },
       undefined
-    );
+    ) || '';
 
     const nextTitle = (contentTypesNameFields[values.relatedType] ?? [])
       .concat(contentTypesNameFields.default ?? [])

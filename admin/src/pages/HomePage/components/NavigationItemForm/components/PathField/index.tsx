@@ -14,14 +14,12 @@ import { StrapiContentTypeItemSchema } from 'src/api/validators';
 type PathFieldProps = {
   contentTypeItems: StrapiContentTypeItemSchema[] | undefined;
   current: Partial<NavigationItemFormSchema>;
-  isExternal: boolean;
   isSingleSelected: boolean;
 };
 
 export const PathField: React.FC<PathFieldProps> = ({
   contentTypeItems,
   current,
-  isExternal,
   isSingleSelected,
 }) => {
   const { formatMessage } = useIntl();
@@ -30,7 +28,7 @@ export const PathField: React.FC<PathFieldProps> = ({
 
   const { values, onChange, handleChange, renderError, canUpdate } = useNavigationItemFormContext();
 
-  const pathSourceName = isExternal ? 'externalPath' : 'path';
+  const pathSourceName = values.type === 'EXTERNAL' ? 'externalPath' : 'path';
 
   const internalValues =
     values.type === 'INTERNAL'
@@ -73,8 +71,7 @@ export const PathField: React.FC<PathFieldProps> = ({
           onChange={(eventOrPath: FormChangeEvent, value?: any) =>
             handleChange(eventOrPath, value, onChange)
           }
-          // @ts-expect-error
-          value={values[pathSourceName]}
+          value={values.type === 'EXTERNAL' ? values.externalPath : values.path}
           width="100%"
         />
       </Field>

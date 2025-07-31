@@ -118,7 +118,6 @@ export const RelatedTypeField: React.FC<RelatedTypeFieldProps> = ({
               related: undefined,
               relatedType: undefined,
               title: formValues.autoSync ? '' : formValues.title,
-              path: formValues.autoSync ? '' : formValues.path,
             })
           }
           onChange={(eventOrPath: FormChangeEvent) =>
@@ -126,7 +125,6 @@ export const RelatedTypeField: React.FC<RelatedTypeFieldProps> = ({
               related: undefined,
               relatedType: eventOrPath,
               title: formValues.autoSync ? '' : formValues.title,
-              path: formValues.autoSync ? '' : formValues.path,
             })
           }
           value={currentRelatedType}
