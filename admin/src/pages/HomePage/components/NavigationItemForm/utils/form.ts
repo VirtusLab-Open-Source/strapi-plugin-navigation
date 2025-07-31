@@ -91,7 +91,7 @@ const navigationInternalItemFormSchema = ({
     isSingleSelected,
   }).extend({
     type: z.literal('INTERNAL'),
-    path: z.string(),
+    path: z.string().or(z.null()).optional(),
     externalPath: z.string().nullish(),
     relatedType: z.string(),
     related: isSingleSelected ? z.string().optional() : z.string(),

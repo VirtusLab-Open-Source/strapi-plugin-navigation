@@ -42,10 +42,6 @@ module.exports = {
       })
     );
 
-    // Drop the old tables
-    await knex.schema.dropTable(SOURCE_TABLE_NAME);
-    await knex.schema.dropTable(SOURCE_LINK_TABLE_NAME);
-
     console.log('Navigation plugin :: Migrations :: Backup navigation item related table - DONE');
   },
 };
