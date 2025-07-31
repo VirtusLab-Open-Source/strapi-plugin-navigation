@@ -106,7 +106,7 @@ export const NavigationEmptyState: React.FC<NavigationEmptyStateProps> = ({
           {formatMessage(getTrad('empty.cta'))}
         </Button>
       )}
-      {canUpdate && availableLocale.length && (
+      {canUpdate && !!availableLocale.length && (
         <Flex direction="column" justifyContent="center">
           <Box paddingTop={3} paddingBottom={3}>
             <Typography variant="beta" textColor="neutral600">
