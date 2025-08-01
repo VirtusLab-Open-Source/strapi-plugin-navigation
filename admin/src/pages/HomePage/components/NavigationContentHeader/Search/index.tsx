@@ -3,8 +3,8 @@ import { Search as SearchIcon } from '@strapi/icons';
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { useIntl } from 'react-intl';
 
-import { getTrad } from '../../../../translations';
-import { Effect } from '../../../../types';
+import { getTrad } from '../../../../../translations';
+import { Effect } from '../../../../../types';
 
 interface Props {
   value: string;

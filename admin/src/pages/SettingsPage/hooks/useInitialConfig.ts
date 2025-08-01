@@ -35,7 +35,7 @@ export const useInitialConfig = ({ config, setFormValue }: UseInitialConfigParam
       } = config;
       setFormValue({
         ...config,
-        additionalFields: additionalFields.filter((field: any) => typeof field !== 'string'),
+        additionalFields: additionalFields.filter((field) => typeof field !== 'string'),
         audienceFieldChecked: additionalFields.includes('audience'),
         contentTypesNameFields: mapConfigDataToArray(contentTypesNameFields, contentTypes),
         contentTypesPopulate: mapConfigDataToArray(contentTypesPopulate, contentTypes),

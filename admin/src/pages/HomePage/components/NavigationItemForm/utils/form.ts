@@ -79,6 +79,9 @@ const navigationItemCommon = ({ additionalFields }: FormSchemaBuilderInput) =>
     ),
   });
 
+export type NavigationInternalItemFormSchema = z.infer<
+  ReturnType<typeof navigationInternalItemFormSchema>
+>;
 const navigationInternalItemFormSchema = ({
   additionalFields,
   isSingleSelected,
