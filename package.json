@@ -81,7 +81,7 @@
     "jest-cli": "^29.7.0",
     "jest-junit": "^16.0.0",
     "jest-styled-components": "^7.1.1",
-    "koa": "^2.15.3",
+    "koa": "^3.0.1",
     "lodash": "^4.17.21",
     "nodemon": "^2.0.15",
     "prettier": "^3.3.3",
