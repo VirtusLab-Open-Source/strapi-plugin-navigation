@@ -42,21 +42,10 @@ export const RelatedTypeField: React.FC<RelatedTypeFieldProps> = ({
     values: formValues,
   } = useNavigationItemFormContext();
 
-  const initialRelatedTypeSelected = current.type === 'INTERNAL' ? current.relatedType : undefined;
-
   const relatedTypeSelectOptions = useMemo(
     () =>
       sortBy(
         configQuery.data?.contentTypes
-          ?.filter((contentType) => {
-            if (contentType.isSingle) {
-              return !!(
-                currentRelatedType &&
-                [currentRelatedType, initialRelatedTypeSelected].includes(contentType.uid)
-              );
-            }
-            return true;
-          })
           .map((item) => ({
             key: item.uid,
             value: item.uid,
