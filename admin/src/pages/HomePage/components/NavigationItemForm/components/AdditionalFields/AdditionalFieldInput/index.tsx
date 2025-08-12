@@ -32,9 +32,11 @@ const DEFAULT_STRING_VALUE = '';
 
 const mediaAttribute = {
   type: 'media',
-  multiple: false,
   required: false,
-  allowedTypes: ['images'],
+  attribute: {
+    multiple: false,
+    allowedTypes: ['files', 'images', 'videos', 'audios'],
+  },
   pluginOptions: {
     i18n: {
       localized: false,
