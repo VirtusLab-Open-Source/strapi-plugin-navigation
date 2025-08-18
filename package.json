@@ -1,6 +1,6 @@
 {
   "name": "strapi-plugin-navigation",
-  "version": "3.2.2",
+  "version": "3.2.3",
   "description": "Strapi - Navigation plugin",
   "strapi": {
     "name": "navigation",
@@ -53,7 +53,7 @@
     "react-dnd-html5-backend": "^16.0.1",
     "react-intl": "6.6.2",
     "uuid": "^10.0.0",
-    "zod": "^3.22.5"
+    "zod": "3.25.67"
   },
   "devDependencies": {
     "@faker-js/faker": "^9.0.3",
@@ -102,7 +102,8 @@
     "react": "^17.0.0 || ^18.0.0",
     "react-dom": "^17.0.0 || ^18.0.0",
     "react-router-dom": "^6.0.0",
-    "styled-components": "^6.0.0"
+    "styled-components": "^6.0.0",
+    "zod": "3.25.x"
   },
   "husky": {
     "hooks": {
