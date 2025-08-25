@@ -30,6 +30,8 @@ import { AdditionalFields } from './components/AdditionalFields';
 import { CopyFromLocales } from './components/CopyFromLocales';
 import { RelatedTypeField } from './components/RelatedTypeField';
 import { RelatedEntityField } from './components/RelatedEntityField';
+import { Combobox } from '@strapi/design-system';
+import { Box } from '@strapi/design-system';
 
 export { ContentTypeEntity, GetContentTypeEntitiesPayload } from './types';
 export { NavigationItemFormSchema } from './utils/form';
@@ -258,7 +260,15 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                     />
                   </Grid.Root>
                 )}
-
+                {/* Strapi Design System inside modals can cause unstable focus (esp. in MediaLibrary) due to Radix-UI focus handling. 
+                Wrapping with Combobox (which uses FocusScope) prevents infinite focus bouncing. */}
+                {values.type !== 'INTERNAL' && (
+                  <Grid.Root display="none">
+                    <Box display="none">
+                      <Combobox />
+                    </Box>
+                  </Grid.Root>
+                )}
                 <AdditionalFields />
 
                 <CopyFromLocales
