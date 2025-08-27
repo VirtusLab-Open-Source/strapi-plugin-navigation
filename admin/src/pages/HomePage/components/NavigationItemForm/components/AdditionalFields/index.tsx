@@ -23,7 +23,7 @@ export const AdditionalFields = () => {
   return (
     <>
       <Grid.Root gap={5} paddingTop={1} paddingBottom={1}>
-        <Grid.Item col={12} lg={12}>
+        <Grid.Item col={12}>
           <Divider width="100%" />
         </Grid.Item>
       </Grid.Root>
@@ -36,7 +36,7 @@ export const AdditionalFields = () => {
       </Grid.Root>
 
       <Grid.Root gap={5} paddingTop={1} paddingBottom={1}>
-        <Grid.Item col={12} lg={12}>
+        <Grid.Item col={12}>
           <Divider width="100%" />
         </Grid.Item>
       </Grid.Root>
