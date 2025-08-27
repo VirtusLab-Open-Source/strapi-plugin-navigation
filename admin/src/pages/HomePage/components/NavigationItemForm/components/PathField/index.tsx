@@ -71,7 +71,7 @@ export const PathField: React.FC<PathFieldProps> = ({
           onChange={(eventOrPath: FormChangeEvent, value?: any) =>
             handleChange(eventOrPath, value, onChange)
           }
-          value={values.type === 'EXTERNAL' ? values.externalPath : values.path}
+          value={(values.type === 'EXTERNAL' ? values.externalPath : values.path) || ''}
           width="100%"
         />
       </Field>

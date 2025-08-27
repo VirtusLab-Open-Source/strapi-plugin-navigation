@@ -1,7 +1,9 @@
 import { Badge } from '@strapi/design-system';
 import styled from 'styled-components';
 
-export const ItemCardBadge = styled(Badge)`
+export const ItemCardBadge = styled(Badge).withConfig({
+  shouldForwardProp: (prop) => !['small'].includes(prop),
+})`
   border: 1px solid ${({ theme, borderColor }) => theme.colors[borderColor]};
 
   ${({ small, theme }) =>

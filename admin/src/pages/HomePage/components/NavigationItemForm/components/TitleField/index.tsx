@@ -27,7 +27,7 @@ export const TitleField = () => {
           onChange={(eventOrPath: FormChangeEvent, value?: any) =>
             handleChange(eventOrPath, value, onChange)
           }
-          value={values.title}
+          value={values.title || ''}
         />
       </Field>
     </Grid.Item>
