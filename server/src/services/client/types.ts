@@ -58,6 +58,7 @@ export interface RenderTypeInput {
   wrapRelated?: boolean;
   populate?: PopulateQueryParam;
   locale?: string;
+  status?: 'draft' | 'published';
 }
 
 export interface RenderChildrenInput {
@@ -67,6 +68,7 @@ export interface RenderChildrenInput {
   menuOnly?: boolean;
   wrapRelated?: boolean;
   locale?: string;
+  status?: 'draft' | 'published';
 }
 
 export interface RenderInput {
@@ -77,4 +79,5 @@ export interface RenderInput {
   wrapRelated?: boolean;
   populate?: PopulateQueryParam;
   locale?: string;
+  status?: 'draft' | 'published';
 }

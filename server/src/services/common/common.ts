@@ -61,6 +61,7 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
     navigationItems,
     parent,
     populate,
+    status = 'published',
   }: MapToNavigationItemDTOInput): Promise<NavigationItemDTO[]> {
     const result: NavigationItemDTO[] = [];
 
@@ -79,15 +80,12 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
 
         const fieldsToPopulate = config.contentTypesPopulate[item.related.__type];
 
-        if (!fieldsToPopulate?.length) {
-          return item;
-        }
-
         const repository = getGenericRepository({ strapi }, item.related.__type as UID.ContentType);
+
         const related = await repository.findById(
           item.related.documentId,
           fieldsToPopulate,
-          'published',
+          status,
           {
             locale,
           }
@@ -116,6 +114,7 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
           master,
           parent: base as NavigationItemDTO,
           locale,
+          status,
         }),
       } as NavigationItemDTO);
     }
