@@ -203,7 +203,7 @@ describe('Navigation', () => {
           const navigationItem = getMockNavigationItem();
           const renderChildren = jest.fn();
           const mockClientService = asProxy<ClientService>({ renderChildren });
-          const documentId = faker.string.uuid();
+          const idOrSlug = faker.string.uuid();
           const childUIKey = faker.string.sample(10);
           const type = faker.helpers.arrayElement(['FLAT', 'TREE', 'RFR']);
           const menu = faker.datatype.boolean().toString();
@@ -217,7 +217,7 @@ describe('Navigation', () => {
           // When
           const result = await clientController.renderChild(
             asProxy<KoaContext>({
-              params: { documentId, childUIKey },
+              params: { idOrSlug, childUIKey },
               query: {
                 type,
                 menu,
