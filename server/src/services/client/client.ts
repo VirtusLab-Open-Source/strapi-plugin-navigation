@@ -239,6 +239,7 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
     rootPath,
     type = 'FLAT',
     wrapRelated,
+    status = 'published',
   }: RenderTypeInput) {
     const adminService = getPluginService(context, 'admin');
     const commonService = getPluginService(context, 'common');
@@ -288,6 +289,7 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
         master: navigation,
         navigationItems,
         populate,
+        status,
       });
 
       const { contentTypes, contentTypesNameFields, additionalFields } = await adminService.config({
@@ -471,6 +473,7 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
     menuOnly,
     type = 'FLAT',
     wrapRelated,
+    status,
   }: RenderChildrenInput) {
     const criteria = { $or: [{ documentId: idOrSlug }, { slug: idOrSlug }] };
     const filter = type === 'FLAT' ? undefined : childUIKey;
@@ -486,6 +489,7 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
       filter,
       wrapRelated,
       locale,
+      status,
     });
   },
 
@@ -497,6 +501,7 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
     rootPath,
     type = 'FLAT',
     wrapRelated,
+    status,
   }: RenderInput) {
     const criteria = { $or: [{ documentId: idOrSlug }, { slug: idOrSlug }] };
     const itemCriteria = menuOnly ? { menuAttached: true } : {};
@@ -509,6 +514,7 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
       wrapRelated,
       locale,
       populate,
+      status,
     });
   },
 });

@@ -12,6 +12,8 @@ export const readAllQuerySchema = z.object({
 
 export const renderTypeSchema = z.enum(['FLAT', 'TREE', 'RFR']);
 
+export const statusSchema = z.enum(['draft', 'published']);
+
 export const populateSchema = z.union([z.boolean(), z.string(), z.string().array(), z.undefined()]);
 
 export const renderQuerySchema = z.object({
@@ -20,12 +22,14 @@ export const renderQuerySchema = z.object({
   path: z.string().optional(),
   locale: z.string().optional(),
   populate: populateSchema.optional(),
+  status: statusSchema.optional(),
 });
 
 export const renderChildQueryParams = z.object({
   type: renderTypeSchema.optional(),
   menu: booleanStringSchema.optional(),
   locale: z.string().optional(),
+  status: statusSchema.optional(),
 });
 
 export const fillFromOtherLocaleParams = z.object({

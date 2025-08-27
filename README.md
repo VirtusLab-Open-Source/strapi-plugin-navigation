@@ -363,7 +363,12 @@ Plugin supports both **REST API** and **GraphQL API** exposed by Strapi.
   > `https://localhost:1337/api/navigation/render/njx99iv4p4txuqp307ye8625?menu=true`
 
 - `path` - String value for querying navigation items by its path:
+
   > `https://localhost:1337/api/navigation/render/njx99iv4p4txuqp307ye8625?path=/home/about-us`
+
+- `status` - Enum value representing the status of the related entity that should be returned. Can be set to `draft` or `published`. The default value is `published`:
+
+  > `https://localhost:1337/api/navigation/render/njx99iv4p4txuqp307ye8625?status=draft`
 
 ### REST API
 
