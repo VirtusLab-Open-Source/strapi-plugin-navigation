@@ -11,7 +11,7 @@ export const useChangeFieldsFromRelated = (
   const configQuery = useConfig();
 
   useEffect(() => {
-    if (!values.autoSync || !values.related || !configQuery.data) {
+    if (!values.autoSync || !values.related || !values.relatedType || !configQuery.data) {
       return;
     }
 
@@ -21,16 +21,16 @@ export const useChangeFieldsFromRelated = (
 
     if (!relatedItem) {
       return;
-    }
-
+    } 
+    
     const { contentTypesNameFields, pathDefaultFields } = configQuery.data;
 
-    const nextPath = pathDefaultFields[values.relatedType]?.reduce<string | undefined>(
+    const nextPath = (pathDefaultFields[values.relatedType]?.reduce<string | undefined>(
       (acc, field) => {
         return acc ? acc : relatedItem?.[field];
       },
-      undefined
-    ) || '';
+      undefined 
+   ) || relatedItem.id).toString();
 
     const nextTitle = (contentTypesNameFields[values.relatedType] ?? [])
       .concat(contentTypesNameFields.default ?? [])

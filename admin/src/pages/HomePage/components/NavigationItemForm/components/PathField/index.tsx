@@ -10,6 +10,7 @@ import { generatePreviewPath } from '../../utils/properties';
 import { useConfig } from '../../../../hooks';
 import { NavigationItemFormSchema } from '../../utils/form';
 import { StrapiContentTypeItemSchema } from 'src/api/validators';
+import { isEmpty } from 'lodash';
 
 type PathFieldProps = {
   contentTypeItems: StrapiContentTypeItemSchema[] | undefined;
@@ -38,7 +39,7 @@ export const PathField: React.FC<PathFieldProps> = ({
           relatedType: undefined,
         };
 
-  const pathDefault = generatePreviewPath({
+    const pathDefault = generatePreviewPath({
     currentPath: values.path,
     isExternal: values.type === 'EXTERNAL',
     current,
@@ -49,6 +50,12 @@ export const PathField: React.FC<PathFieldProps> = ({
     currentRelatedType: internalValues.relatedType,
     isSingleSelected,
   });
+
+    const disabled = 
+      !canUpdate || (values.autoSync && values.type === 'INTERNAL')
+
+    const [pathDefaultFieldsValue] = 
+      Object.values(configQuery.data?.pathDefaultFields ?? {})
 
   return (
     <Grid.Item alignItems="flex-start" key="title" col={12}>
@@ -63,10 +70,16 @@ export const PathField: React.FC<PathFieldProps> = ({
                 value: pathDefault,
               })
             : '',
+          disabled 
+            ? formatMessage(getTrad('popup.item.form.type.internal.source'), {
+                value: !isEmpty(pathDefaultFieldsValue) 
+                  ? pathDefaultFieldsValue 
+                  : "id"})
+            : '',
         ].join(' ')}
       >
         <TextInput
-          disabled={!canUpdate}
+          disabled={disabled}
           name={pathSourceName}
           onChange={(eventOrPath: FormChangeEvent, value?: any) =>
             handleChange(eventOrPath, value, onChange)
