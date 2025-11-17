@@ -10,6 +10,7 @@ import { generatePreviewPath } from '../../utils/properties';
 import { useConfig } from '../../../../hooks';
 import { NavigationItemFormSchema } from '../../utils/form';
 import { StrapiContentTypeItemSchema } from 'src/api/validators';
+import { isEmpty } from 'lodash';
 
 type PathFieldProps = {
   contentTypeItems: StrapiContentTypeItemSchema[] | undefined;
@@ -34,9 +35,9 @@ export const PathField: React.FC<PathFieldProps> = ({
     values.type === 'INTERNAL'
       ? values
       : {
-          related: undefined,
-          relatedType: undefined,
-        };
+        related: undefined,
+        relatedType: undefined,
+      };
 
   const pathDefault = generatePreviewPath({
     currentPath: values.path,
@@ -50,6 +51,12 @@ export const PathField: React.FC<PathFieldProps> = ({
     isSingleSelected,
   });
 
+  const disabled =
+    !canUpdate || (values.autoSync && values.type === 'INTERNAL')
+
+  const [pathDefaultFieldsValue] =
+    Object.values(configQuery.data?.pathDefaultFields ?? {}).flat()
+
   return (
     <Grid.Item alignItems="flex-start" key="title" col={12}>
       <Field
@@ -60,13 +67,20 @@ export const PathField: React.FC<PathFieldProps> = ({
           formatMessage(getTrad(`popup.item.form.${pathSourceName}.placeholder`, 'e.g. Blog')),
           pathDefault
             ? formatMessage(getTrad('popup.item.form.type.external.description'), {
-                value: pathDefault,
-              })
+              value: pathDefault,
+            })
+            : '',
+          disabled
+            ? formatMessage(getTrad('popup.item.form.type.internal.source'), {
+              value: !isEmpty(pathDefaultFieldsValue)
+                ? pathDefaultFieldsValue
+                : "id"
+            })
             : '',
         ].join(' ')}
       >
         <TextInput
-          disabled={!canUpdate}
+          disabled={disabled}
           name={pathSourceName}
           onChange={(eventOrPath: FormChangeEvent, value?: any) =>
             handleChange(eventOrPath, value, onChange)

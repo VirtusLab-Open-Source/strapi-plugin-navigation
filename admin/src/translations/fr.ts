@@ -143,6 +143,7 @@ const fr = {
           label: "Type d'élément de navigation",
           internal: {
             label: 'Source interne',
+            source: 'URL basé sur: {value}',
           },
           external: {
             label: 'Source externe',

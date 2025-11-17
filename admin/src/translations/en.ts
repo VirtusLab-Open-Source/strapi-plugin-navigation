@@ -143,6 +143,7 @@ const en = {
           label: 'Navigation item type',
           internal: {
             label: 'Internal source',
+            source: 'URL based on: {value}',
           },
           external: {
             label: 'External source',

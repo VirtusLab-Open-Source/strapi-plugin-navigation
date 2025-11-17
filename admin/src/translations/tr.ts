@@ -143,6 +143,7 @@ const tr = {
           label: 'Navigasyon öğesi türü',
           internal: {
             label: 'Dahili kaynak',
+            source: 'URL dayalı: {value}',
           },
           external: {
             label: 'Harici kaynak',
