@@ -51,8 +51,7 @@ export const PathField: React.FC<PathFieldProps> = ({
     isSingleSelected,
   });
 
-  const disabled =
-    !canUpdate || (values.autoSync && values.type === 'INTERNAL')
+  const disabled = !canUpdate || (values.autoSync && values.type === 'INTERNAL')
 
   const [pathDefaultFieldsValue] =
     Object.values(configQuery.data?.pathDefaultFields ?? {})
