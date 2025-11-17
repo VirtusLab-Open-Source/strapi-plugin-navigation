@@ -144,6 +144,7 @@ const en = {
           label: 'Tipo de ítem de navegación',
           internal: {
             label: 'Fuente interna',
+            source: 'URL basado en: {value}',
           },
           external: {
             label: 'Fuente externa',

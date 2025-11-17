@@ -51,10 +51,11 @@ export const PathField: React.FC<PathFieldProps> = ({
     isSingleSelected,
   });
 
-  const disabled = !canUpdate || (values.autoSync && values.type === 'INTERNAL')
+  const disabled =
+    !canUpdate || (values.autoSync && values.type === 'INTERNAL')
 
   const [pathDefaultFieldsValue] =
-    Object.values(configQuery.data?.pathDefaultFields ?? {})
+    Object.values(configQuery.data?.pathDefaultFields ?? {}).flat()
 
   return (
     <Grid.Item alignItems="flex-start" key="title" col={12}>

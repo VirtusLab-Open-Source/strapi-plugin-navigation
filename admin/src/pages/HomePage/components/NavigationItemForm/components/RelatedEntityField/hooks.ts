@@ -35,7 +35,7 @@ export const useChangeFieldsFromRelated = (
     const nextTitle = (contentTypesNameFields[values.relatedType] ?? [])
       .concat(contentTypesNameFields.default ?? [])
       .reduce<undefined | string>((acc, field) => {
-        return acc ? acc : relatedItem?.[field];
+        return acc ? acc.toString() : relatedItem?.[field];
       }, undefined);
 
     const batch: Array<{ name: keyof NavigationItemFormSchema; value: string }> = [];
