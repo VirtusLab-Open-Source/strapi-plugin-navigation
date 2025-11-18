@@ -139,6 +139,7 @@ const ca = {
           label: "Type d'élément de navigation",
           internal: {
             label: 'Source interne',
+            source: 'URL basat en: {value}',
           },
           external: {
             label: 'Source externe',
