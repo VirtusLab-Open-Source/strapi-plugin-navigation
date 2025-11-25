@@ -4,7 +4,7 @@ import styled from 'styled-components';
 export const ItemCardBadge = styled(Badge).withConfig({
   shouldForwardProp: (prop) => !['small'].includes(prop),
 })`
-  border: 1px solid ${({ theme, borderColor }) => theme.colors[borderColor]};
+  border: 1px solid ${({ theme, borderColor }) => theme.colors[borderColor as keyof typeof theme.colors]};
 
   ${({ small, theme }) =>
     small &&
