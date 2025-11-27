@@ -101,13 +101,13 @@ export const getNavigationRepository = once((context: { strapi: Core.Strapi }) =
     }
   },
 
-  remove(navigation: Partial<Pick<NavigationDBSchema, 'documentId'>>) {
+  remove(navigation: Partial<Pick<NavigationDBSchema, 'documentId' | 'locale'>>) {
     const { masterModel } = getPluginModels(context);
 
     if (!navigation.documentId) {
       throw new NavigationError('Document id is required.');
     }
 
-    return context.strapi.documents(masterModel.uid).delete({ documentId: navigation.documentId });
+    return context.strapi.documents(masterModel.uid).delete({ documentId: navigation.documentId, locale: '*' });
   },
 }));
