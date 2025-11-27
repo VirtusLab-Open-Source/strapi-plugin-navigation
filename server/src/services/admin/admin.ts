@@ -423,8 +423,8 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
     if (detailsHaveChanged) {
       const newSlug = name
         ? await commonService.getSlug({
-            query: name,
-          })
+          query: name,
+        })
         : currentNavigation.slug;
 
       const allNavigations = await Promise.all(
@@ -519,7 +519,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
     });
 
     await cleanNavigationItems(allNavigations.map(({ id }: NavigationDBSchema) => id));
-    await navigationRepository.remove({ documentId: navigation.documentId });
+    await navigationRepository.remove({ documentId: navigation.documentId, locale: '*' });
 
     sendAuditLog(auditLog, 'onNavigationDeletion', {
       entity: navigationAsDTO,
