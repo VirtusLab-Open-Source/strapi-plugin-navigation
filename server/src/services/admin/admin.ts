@@ -515,6 +515,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
     });
     const allNavigations = await navigationRepository.find({
       filters: { documentId: navigation.documentId },
+      locale: '*',
       populate: '*',
     });
 

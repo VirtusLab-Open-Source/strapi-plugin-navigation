@@ -108,6 +108,6 @@ export const getNavigationRepository = once((context: { strapi: Core.Strapi }) =
       throw new NavigationError('Document id is required.');
     }
 
-    return context.strapi.documents(masterModel.uid).delete({ documentId: navigation.documentId, locale: '*' });
+    return context.strapi.documents(masterModel.uid).delete({ documentId: navigation.documentId, locale: navigation.locale });
   },
 }));
