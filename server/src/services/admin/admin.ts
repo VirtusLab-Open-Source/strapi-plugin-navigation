@@ -423,8 +423,8 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
     if (detailsHaveChanged) {
       const newSlug = name
         ? await commonService.getSlug({
-          query: name,
-        })
+            query: name,
+          })
         : currentNavigation.slug;
 
       const allNavigations = await Promise.all(
@@ -515,6 +515,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
     });
     const allNavigations = await navigationRepository.find({
       filters: { documentId: navigation.documentId },
+      locale: '*',
       populate: '*',
     });
 

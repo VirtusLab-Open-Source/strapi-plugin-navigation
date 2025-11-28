@@ -64,13 +64,18 @@ export default function clientController(context: { strapi: Core.Strapi }) {
                   : populate
           )
         ),
-        status
+        status,
       });
     },
 
     async renderChild(ctx: KoaContext) {
       const { params, query = {} } = ctx;
-      const { type, menu: menuOnly, locale, status = 'published' } = renderChildQueryParams.parse(query);
+      const {
+        type,
+        menu: menuOnly,
+        locale,
+        status = 'published',
+      } = renderChildQueryParams.parse(query);
 
       const idOrSlug = z.string().parse(params.idOrSlug);
       const childUIKey = z.string().parse(params.childUIKey);
@@ -81,7 +86,7 @@ export default function clientController(context: { strapi: Core.Strapi }) {
         type,
         menuOnly: menuOnly === 'true',
         locale,
-        status
+        status,
       });
     },
   };
