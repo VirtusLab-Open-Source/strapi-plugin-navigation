@@ -423,8 +423,8 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
     if (detailsHaveChanged) {
       const newSlug = name
         ? await commonService.getSlug({
-          query: name,
-        })
+            query: name,
+          })
         : currentNavigation.slug;
 
       const allNavigations = await Promise.all(

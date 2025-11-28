@@ -45,12 +45,11 @@ export const RelatedTypeField: React.FC<RelatedTypeFieldProps> = ({
   const relatedTypeSelectOptions = useMemo(
     () =>
       sortBy(
-        configQuery.data?.contentTypes
-          .map((item) => ({
-            key: item.uid,
-            value: item.uid,
-            label: item.contentTypeName,
-          })),
+        configQuery.data?.contentTypes.map((item) => ({
+          key: item.uid,
+          value: item.uid,
+          label: item.contentTypeName,
+        })),
         (item) => item.label
       ),
     [configQuery.data, currentRelatedType]
