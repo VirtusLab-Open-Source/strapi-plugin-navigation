@@ -35,9 +35,9 @@ export const PathField: React.FC<PathFieldProps> = ({
     values.type === 'INTERNAL'
       ? values
       : {
-        related: undefined,
-        relatedType: undefined,
-      };
+          related: undefined,
+          relatedType: undefined,
+        };
 
   const pathDefault = generatePreviewPath({
     currentPath: values.path,
@@ -51,11 +51,9 @@ export const PathField: React.FC<PathFieldProps> = ({
     isSingleSelected,
   });
 
-  const disabled =
-    !canUpdate || (values.autoSync && values.type === 'INTERNAL')
+  const disabled = !canUpdate || (values.autoSync && values.type === 'INTERNAL');
 
-  const [pathDefaultFieldsValue] =
-    Object.values(configQuery.data?.pathDefaultFields ?? {}).flat()
+  const [pathDefaultFieldsValue] = Object.values(configQuery.data?.pathDefaultFields ?? {}).flat();
 
   return (
     <Grid.Item alignItems="flex-start" key="title" col={12}>
@@ -67,15 +65,13 @@ export const PathField: React.FC<PathFieldProps> = ({
           formatMessage(getTrad(`popup.item.form.${pathSourceName}.placeholder`, 'e.g. Blog')),
           pathDefault
             ? formatMessage(getTrad('popup.item.form.type.external.description'), {
-              value: pathDefault,
-            })
+                value: pathDefault,
+              })
             : '',
           disabled
             ? formatMessage(getTrad('popup.item.form.type.internal.source'), {
-              value: !isEmpty(pathDefaultFieldsValue)
-                ? pathDefaultFieldsValue
-                : "id"
-            })
+                value: !isEmpty(pathDefaultFieldsValue) ? pathDefaultFieldsValue : 'id',
+              })
             : '',
         ].join(' ')}
       >

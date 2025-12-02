@@ -41,7 +41,8 @@ import {
   RunLifeCycleHookInput,
   UpdateBranchInput,
 } from './types';
-import { checkDuplicatePath, DuplicateCheckItem } from './utils';
+import { checkDuplicatePath, DuplicateCheckItem, generateFieldsFromRelated } from './utils';
+import { getPluginService } from '../../utils';
 
 export type CommonService = ReturnType<typeof commonService>;
 
@@ -235,10 +236,23 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
   }: CreateBranchInput): Promise<NavigationAction[]> {
     let navigationActions: NavigationAction[] = [];
 
+    const adminService = getPluginService(context, 'admin');
+    const { contentTypesNameFields, pathDefaultFields } = await adminService.config({
+      viaSettingsPage: false,
+    });
+
     for (const navigationItem of navigationItems) {
       action.create = true;
 
-      const { parent, master, items, documentId, id, ...params } = navigationItem;
+      const { parent, master, items, documentId, id, related, autoSync, ...params } = navigationItem;
+
+      const { title = params.title, path = params.path } = autoSync ? await generateFieldsFromRelated(
+        context,
+        related,
+        masterEntity?.locale || 'en',
+        contentTypesNameFields,
+        pathDefaultFields,
+      ) : {};
 
       const insertDetails =
         documentId && id
@@ -248,6 +262,10 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
               id,
               master: masterEntity ? masterEntity.id : undefined,
               parent: parentItem ? parentItem.id : undefined,
+              autoSync,
+              title,
+              path,
+              related,
             }
           : {
               ...params,
@@ -255,6 +273,10 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
               id: undefined,
               master: masterEntity ? masterEntity.id : undefined,
               parent: parentItem ? parentItem.id : undefined,
+              autoSync,
+              title,
+              path,
+              related,
             };
 
       const nextParentItem = await getNavigationItemRepository(context).save({

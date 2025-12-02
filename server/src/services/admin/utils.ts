@@ -58,6 +58,7 @@ export const processItems =
       order: item.order,
       collapsed: item.collapsed,
       menuAttached: item.menuAttached,
+      autoSync: item.autoSync,
       removed: false,
       updated: true,
       externalPath: item.externalPath,
