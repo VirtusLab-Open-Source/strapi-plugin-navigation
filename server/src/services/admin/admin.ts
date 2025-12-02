@@ -727,11 +727,6 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
     };
     const contentType = get(context.strapi.contentTypes, uid);
     const { draftAndPublish } = contentType.options;
-    const { localized = false } = contentType?.pluginOptions?.i18n || {};
-
-    if (localized && query.locale) {
-      where.locale = query.locale;
-    }
 
     const repository = getGenericRepository(context, uid as UID.ContentType);
 
@@ -739,7 +734,8 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       const contentTypeItems = await repository.findMany(
         where,
         config.contentTypesPopulate[uid] || [],
-        draftAndPublish ? 'published' : undefined
+        draftAndPublish ? 'published' : undefined,
+        query.locale as string | undefined
       );
 
       return contentTypeItems;
