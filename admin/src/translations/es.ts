@@ -319,7 +319,7 @@ const en = {
         pathDefaultFields: {
           label: 'Campos predeterminados de ruta',
           placeholder:
-            'Selecciona al menos uno o déjalo vacío para deshabilitar la población de la ruta con valores de atributos',
+            'Selecciona al menos uno o déjalo vacío para que Id se use como valor predeterminado.',
           hint: 'El valor del atributo seleccionado será el valor predeterminado para la ruta interna',
           empty: 'Este tipo de contenido no tiene atributos adecuados',
         },

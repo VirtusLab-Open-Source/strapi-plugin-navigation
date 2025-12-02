@@ -315,7 +315,7 @@ const ca = {
         pathDefaultFields: {
           label: 'Champs par défaut du chemin',
           placeholder:
-            'Sélectionner au moins un ou laisser vide pour désactiver le remplissage du champ de chemin avec la valeur des attributs',
+            'Selecciona almenys un o deixa-ho buit perquè s’utilitzi Id com a valor per defecte.',
           hint: "La valeur de l'attribut sélectionné sera la valeur par défaut pour le chemin interne",
           empty: "Ce type de contenu n'a pas d'attributs appropriés",
         },
