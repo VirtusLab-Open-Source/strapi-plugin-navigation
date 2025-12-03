@@ -2,6 +2,7 @@ import { getGenericRepository } from '../../repositories';
 import { NavigationError } from '../../app-errors';
 import { NavigationItemType } from '../../schemas';
 import { Core, UID } from '@strapi/types';
+import { isEmpty } from 'lodash';
 
 export interface DuplicateCheckItem {
   items?: DuplicateCheckItem[];
@@ -65,12 +66,14 @@ export const generateFieldsFromRelated = async (
     { locale } 
   );
 
-  const defaultTitleFields = contentTypesNameFields[related.__type || 'default'];
+  const defaultTitleFields = isEmpty(contentTypesNameFields[related.__type]) 
+    ? contentTypesNameFields['default'] : contentTypesNameFields[related.__type];
+
   const title = defaultTitleFields.reduce((acc, field) => {
     return acc ? acc : relatedEntity?.[field]?.toString();
   }, '');
 
-  const defaultPathFields = related ? pathDefaultFields[related.__type] : [];
+  const defaultPathFields = pathDefaultFields[related.__type] || [];
   const path = defaultPathFields.reduce((acc, field) => {
     return acc ? acc : relatedEntity?.[field]?.toString();
   }, undefined) || relatedEntity?.id.toString();
