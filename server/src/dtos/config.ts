@@ -13,10 +13,10 @@ export type ConfigContentTypeDTO = {
   relatedField: string | undefined;
   templateName: string | undefined;
   available: boolean | undefined;
-  labelSingular: string;
   endpoint: string;
   plugin: string | undefined;
   visible: boolean;
+  gqlTypeName: string;
 };
 
 export type NavigationPluginConfigDTO = Pick<

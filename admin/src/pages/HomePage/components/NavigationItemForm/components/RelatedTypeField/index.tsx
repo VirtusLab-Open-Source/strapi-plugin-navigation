@@ -48,7 +48,7 @@ export const RelatedTypeField: React.FC<RelatedTypeFieldProps> = ({
         configQuery.data?.contentTypes.map((item) => ({
           key: item.uid,
           value: item.uid,
-          label: item.contentTypeName,
+          label: item.label,
         })),
         (item) => item.label
       ),

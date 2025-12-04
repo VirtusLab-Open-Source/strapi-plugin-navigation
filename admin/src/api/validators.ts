@@ -115,7 +115,6 @@ export const configContentTypeSchema = z.object({
   collectionName: z.string(),
   contentTypeName: z.string(),
   label: z.string(),
-  labelSingular: z.string(),
   endpoint: z.string(),
   available: z.boolean(),
   visible: z.boolean(),

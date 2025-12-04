@@ -80,7 +80,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       preferCustomContentTypes,
     } = config;
 
-    const isGQLPluginEnabled = !!strapi.plugin('graphql');
+    const isGQLPluginEnabled = !!context.strapi.plugin('graphql');
 
     let extendedResult: Record<string, unknown> = {
       allowedContentTypes: ALLOWED_CONTENT_TYPES,
@@ -103,9 +103,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
         ? additionalFields
         : additionalFields.filter((field) => typeof field === 'string' || !!field.enabled),
       gql: {
-        navigationItemRelated: configContentTypes.map(({ labelSingular }) =>
-          labelSingular.replace(/\s+/g, '')
-        ),
+        navigationItemRelated: configContentTypes.map(({ gqlTypeName }) => gqlTypeName),
       },
       isGQLPluginEnabled: viaSettingsPage ? isGQLPluginEnabled : undefined,
       cascadeMenuAttached,
@@ -213,7 +211,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       }
 
       const { visible = true } = pluginOptions['content-manager'] || {};
-      const { name = '', description = '' } = info;
+      const { description = '', displayName = '' } = info;
 
       const findRouteConfig = find(
         get(context.strapi.api, `[${modelName}].config.routes`, []),
@@ -232,9 +230,10 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
         relationNameParts.length > 1
           ? relationNameParts.reduce((prev, curr) => `${prev}${upperFirst(curr)}`, '')
           : upperFirst(modelName);
-      const labelSingular =
-        name ||
-        upperFirst(relationNameParts.length > 1 ? relationNameParts.join(' ') : relationName);
+
+      const gqlPlugin = context.strapi.plugin('graphql');
+      const graphQlNamingPlugin = gqlPlugin?.service('utils');
+      const gqlTypeName: string = graphQlNamingPlugin?.naming?.getTypeName(item) || '';
 
       acc.push({
         uid,
@@ -244,14 +243,14 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
         description,
         collectionName,
         contentTypeName,
-        label: isSingle ? labelSingular : pluralize(name || labelSingular),
+        label: displayName,
         relatedField: relatedField ? relatedField.alias : undefined,
-        labelSingular: singularize(labelSingular),
         endpoint: endpoint!,
         plugin,
         available: isAvailable,
         visible,
         templateName: options?.templateName,
+        gqlTypeName,
       });
 
       return acc;
