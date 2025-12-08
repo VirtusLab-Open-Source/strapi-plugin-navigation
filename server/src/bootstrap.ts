@@ -15,12 +15,6 @@ const bootstrap = async (context: { strapi: Core.Strapi }) => {
 
   await strapi.service('plugin::navigation.migrate').migrateRelatedIdToDocumentId();
 
-  strapi.db.lifecycles.subscribe({
-    models: ['plugin::i18n.locale'],
-    async afterCreate(event) {
-      const adminService = getPluginService(context, 'admin');
-      await adminService.refreshNavigationLocale(event.result?.code);
-    },
-  });
+
 };
 export default bootstrap;
