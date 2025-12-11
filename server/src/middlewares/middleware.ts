@@ -1,25 +1,23 @@
-import type { Core, Modules } from '@strapi/types';
+import type { Core } from '@strapi/types';
+import type { Context, Next } from 'koa';
 
 export const localeMiddleware = ({ strapi }: { strapi: Core.Strapi }) => {
   const adminService = strapi.plugin('navigation').service('admin');
 
-  return async (context: Modules.Documents.Middleware.Context, next: () => Promise<any>) => {
-    if (!context.uid.startsWith('api::') || context.action !== 'findOne' || 'update') {
-      return next();
-    }
-    const result = await next();
-    if (!result || typeof result.locale !== 'string') {
-      return result;
-    }
+  return async (ctx: Context, next: Next) => {
+    await next();
+
+    const isCreateLocaleRoute = ctx.method === 'POST' && ctx.path === '/i18n/locales';
+    if (!isCreateLocaleRoute) return;
+
+    const locale = (ctx.body as { code?: string })?.code;
+    if (!locale || typeof locale !== 'string') return;
+
     try {
-      await adminService.refreshNavigationLocale(result.locale);
+      await adminService.refreshNavigationLocale(locale);
     } catch (error) {
-      strapi.log.error(
-        `Failed to refresh navigation locale for ${context.uid} with locale ${result.locale}`,
-        error
-      );
+      strapi.log.error(`Failed to refresh navigation for new locale ${locale}`, error);
     }
-    return result;
   };
 };
 
