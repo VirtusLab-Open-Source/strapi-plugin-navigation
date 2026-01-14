@@ -13,6 +13,7 @@ import { useIntl } from 'react-intl';
 import { Toggle } from '@strapi/design-system';
 import { NavigationItemCustomField } from '../../../../../../../schemas';
 import { getTrad } from '../../../../../../../translations';
+import { Textarea } from '@strapi/design-system';
 
 export type AdditionalFieldInputProps = {
   name?: string;
@@ -93,7 +94,7 @@ export const AdditionalFieldInput: React.FC<AdditionalFieldInputProps> = ({
       );
     case 'string':
       return (
-        <TextInput
+        <Textarea
           {...defaultInputProps}
           onChange={(eventOrPath: React.ChangeEvent<any> | string, value?: any) =>
             onChangeEnhancer(eventOrPath, value, onChange)

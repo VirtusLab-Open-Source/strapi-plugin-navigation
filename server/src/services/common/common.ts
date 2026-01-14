@@ -79,9 +79,23 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
           return item;
         }
 
-        const fieldsToPopulate = config.contentTypesPopulate[item.related.__type];
+        const fieldsToPopulate = populate ?? config.contentTypesPopulate[item.related.__type];
 
         const repository = getGenericRepository({ strapi }, item.related.__type as UID.ContentType);
+
+        const test = await repository.findById(
+          item.related.documentId,
+          { populate: {
+            auth: {
+              populate: 'access_levels'
+            }
+          }},
+          status,
+          {
+            locale,
+          }
+        );
+        console.log("TEST", test)
 
         const related = await repository.findById(
           item.related.documentId,

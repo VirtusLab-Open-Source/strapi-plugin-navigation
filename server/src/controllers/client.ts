@@ -2,9 +2,7 @@ import { Core } from '@strapi/strapi';
 import { Context as KoaContext } from 'koa';
 import * as z from 'zod';
 import { getPluginService } from '../utils';
-import { sanitizePopulateField } from './utils';
 import {
-  populateSchema,
   readAllQuerySchema,
   renderChildQueryParams,
   renderQuerySchema,
@@ -53,17 +51,7 @@ export default function clientController(context: { strapi: Core.Strapi }) {
         menuOnly: menuOnly === 'true',
         rootPath,
         locale,
-        populate: sanitizePopulateField(
-          populateSchema.parse(
-            populate === 'true'
-              ? true
-              : populate === 'false'
-                ? false
-                : Array.isArray(populate)
-                  ? populate.map((x) => (x === 'true' ? true : x === 'false' ? false : populate))
-                  : populate
-          )
-        ),
+        populate,
         status,
       });
     },

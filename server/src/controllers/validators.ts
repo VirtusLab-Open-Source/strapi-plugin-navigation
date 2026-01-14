@@ -14,7 +14,42 @@ export const renderTypeSchema = z.enum(['FLAT', 'TREE', 'RFR']);
 
 export const statusSchema = z.enum(['draft', 'published']);
 
-export const populateSchema = z.union([z.boolean(), z.string(), z.string().array(), z.undefined()]);
+// TODO in the zod v3 we can't use z.lazy and recursive types without creating a custom type. Let's align on this when Strapi will use zod v4
+// in the zod v4 there's also z.stringbool that should simplify this logic
+type PopulatePrimitive = boolean | string | string[] | undefined;
+
+export interface PopulateObject {
+  [key: string]: Populate;
+}
+
+type Populate = PopulatePrimitive | PopulateObject;
+
+const sanitizePopulateField = (populate: unknown) => {
+  if (typeof populate === 'string') {
+    if (populate === 'true') {
+      return true;
+    }
+    if (populate === 'false') {
+      return false;
+    }
+  }
+  return populate;
+};
+
+export const populateSchema: z.ZodType<Populate, z.ZodTypeDef, unknown> = z.lazy(() =>
+  z.preprocess(
+    sanitizePopulateField,
+    z.union([
+      z.boolean(),
+      z.string(),
+      z.string().array(),
+      z.undefined(),
+      z.record(populateSchema)
+    ]),
+  ),
+);
+
+export type PopulateQueryParam = z.infer<typeof populateSchema>;
 
 export const renderQuerySchema = z.object({
   type: renderTypeSchema.optional(),

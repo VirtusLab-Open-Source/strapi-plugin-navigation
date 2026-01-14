@@ -1,8 +1,7 @@
 import { NavigationItemDTO, RFRNavigationItemDTO } from '../../dtos';
+import { PopulateQueryParam } from '../../controllers/validators';
 
 export type RenderType = 'FLAT' | 'TREE' | 'RFR';
-
-export type PopulateQueryParam = string | boolean | string[];
 
 export type NestedPath = {
   id?: number;
