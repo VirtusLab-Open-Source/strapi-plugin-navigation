@@ -12,7 +12,10 @@ export const readAllQuerySchema = z.object({
 
 export const renderTypeSchema = z.enum(['FLAT', 'TREE', 'RFR']);
 
-export const statusSchema = z.enum(['draft', 'published']);
+export const statusSchema = z
+  .string()
+  .transform((v) => v === 'published' ? 'published' : 'draft')
+  .pipe(z.enum(['draft', 'published']));
 
 // TODO in the zod v3 we can't use z.lazy and recursive types without creating a custom type. Let's align on this when Strapi will use zod v4
 // in the zod v4 there's also z.stringbool that should simplify this logic
