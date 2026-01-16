@@ -195,6 +195,95 @@ describe('Navigation', () => {
             );
           }).rejects.toThrow();
         });
+
+        it('should fallback to status=draft if status differs from draft or published', async () => {
+          // Given
+          const navigation = getMockNavigation();
+          const render = jest.fn();
+          const mockClientService = asProxy<ClientService>({ render });
+          const idOrSlug = faker.string.uuid();
+          const type = faker.helpers.arrayElement(['FLAT', 'TREE', 'RFR']);
+          const menuOnly = faker.datatype.boolean();
+
+          render.mockResolvedValue(navigation);
+
+          (getPluginService as jest.Mock).mockReturnValue(mockClientService);
+
+          const clientController = buildClientController({ strapi });
+          // When
+          const resultDraft = await clientController.render(
+            asProxy<KoaContext>({
+              params: { idOrSlug },
+              query: {
+                type,
+                menuOnly,
+                status: faker.string.sample(),
+              },
+            })
+          );
+
+          // Then
+          expect(resultDraft).toEqual(navigation);
+          // When
+          const resultPublished = await clientController.render(
+            asProxy<KoaContext>({
+              params: { idOrSlug },
+              query: {
+                type,
+                menuOnly,
+                status: 'published',
+              },
+            })
+          );
+
+          // Then
+          expect(resultPublished).toEqual(navigation);
+        });
+
+        it('should sanitize populate query param', async () => {
+          // Given
+          const navigation = getMockNavigation();
+          const render = jest.fn();
+          const mockClientService = asProxy<ClientService>({ render });
+          const idOrSlug = faker.string.uuid();
+          const type = faker.helpers.arrayElement(['FLAT', 'TREE', 'RFR']);
+          const menuOnly = faker.datatype.boolean();
+
+          render.mockResolvedValue(navigation);
+
+          (getPluginService as jest.Mock).mockReturnValue(mockClientService);
+
+          const clientController = buildClientController({ strapi });
+          // When
+          const resultTrue = await clientController.render(
+            asProxy<KoaContext>({
+              params: { idOrSlug },
+              query: {
+                type,
+                menuOnly,
+                populate: { foo: { populate: 'true' }}
+              },
+            })
+          );
+
+          // Then
+          expect(resultTrue).toEqual(navigation);
+
+          // When
+          const resultFalse = await clientController.render(
+            asProxy<KoaContext>({
+              params: { idOrSlug },
+              query: {
+                type,
+                menuOnly,
+                populate: { foo: { populate: 'false' }}
+              },
+            })
+          );
+
+          // Then
+          expect(resultFalse).toEqual(navigation);
+        });
       });
 
       describe('renderChild()', () => {
