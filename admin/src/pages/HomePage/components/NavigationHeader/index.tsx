@@ -17,6 +17,8 @@ import { getTrad } from '../../../../translations';
 import { Effect } from '../../../../types';
 import { useConfig } from '../../hooks';
 import { useNavigationManager } from './hooks';
+import { usePluginTheme } from '@sensinum/strapi-utils';
+import { useTheme } from 'styled-components';
 
 const submitIcon = <Check />;
 

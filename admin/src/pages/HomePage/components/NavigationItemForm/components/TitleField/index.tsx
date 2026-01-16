@@ -13,7 +13,13 @@ export const TitleField = () => {
   const { values, onChange, handleChange, renderError, canUpdate } = useNavigationItemFormContext();
 
   return (
-    <Grid.Item alignItems="flex-start" key="title" col={values.type === 'INTERNAL' ? 8 : 12}>
+    <Grid.Item
+      alignItems="flex-start"
+      key="title"
+      m={values.type === 'INTERNAL' ? 8 : 12}
+      xs={12}
+      order={{ initial: 1, medium: 2 }}
+    >
       <Field
         name="title"
         label={formatMessage(getTrad('popup.item.form.title.label', 'Title'))}

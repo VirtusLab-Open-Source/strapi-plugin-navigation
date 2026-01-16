@@ -27,7 +27,7 @@ export const NavigationItemTypeField = () => {
   });
 
   return (
-    <Grid.Item alignItems="flex-start" key="title" col={8}>
+    <Grid.Item alignItems="flex-start" key="title" m={8} xs={12}>
       <Field
         name="type"
         label={formatMessage(getTrad('popup.item.form.type.label', 'Internal link'))}

@@ -22,7 +22,7 @@ export const AttachToMenuField: React.FC<AttachToMenuFieldProps> = ({ current })
   const { values, onChange, handleChange, renderError, canUpdate } = useNavigationItemFormContext();
 
   return (
-    <Grid.Item alignItems="flex-start" key="menuAttached" col={4}>
+    <Grid.Item alignItems="flex-start" key="menuAttached" m={4} xs={12}>
       <Field
         name="menuAttached"
         label={formatMessage(getTrad('popup.item.form.menuAttached.label', 'MenuAttached'))}

@@ -5,3 +5,4 @@ export * from './useLocales';
 export * from './useNavigationItemPopup';
 export * from './useSearch';
 export * from './useSettingsPermissions';
+export * from './usePluginMediaQuery';

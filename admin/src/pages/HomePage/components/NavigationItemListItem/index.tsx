@@ -23,6 +23,7 @@ import { ItemCardBadge } from './ItemCardBadge';
 import { ItemCardHeader } from './ItemCardHeader';
 import { ItemCardRemovedOverlay } from './ItemCardRemovedOverlay';
 import Wrapper from './Wrapper';
+import { useIsDesktop, useIsMobile, useIsTablet, useMediaQuery } from '@strapi/strapi/admin';
 
 export type OnItemReorderEffect = Effect<{
   item: NavigationItemFormSchema;
@@ -101,6 +102,10 @@ export const Item: React.FC<Props> = ({
   const { formatMessage } = useIntl();
 
   const configQuery = useConfig();
+  const isMobile = useIsMobile()
+  const isTablet = useIsTablet()
+  const isDesktop = useIsDesktop()
+  console.log("mobile", isMobile, "tablet", isTablet, "desktop", isDesktop)
 
   const isExternal = mappedItem.type === 'EXTERNAL';
   const isWrapper = mappedItem.type === 'WRAPPER';
@@ -283,7 +288,7 @@ export const Item: React.FC<Props> = ({
     >
       <Card
         style={{
-          width: '728px',
+          width: isMobile ? '100%' : '728px',
           zIndex: 1,
           position: 'relative',
           overflow: 'hidden',

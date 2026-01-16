@@ -13,7 +13,13 @@ export const ReadFieldsFromRelatedField = () => {
   const { values, onChange, handleChange, renderError, canUpdate } = useNavigationItemFormContext();
 
   return (
-    <Grid.Item alignItems="flex-start" key="autoSync" col={4}>
+    <Grid.Item
+      alignItems="flex-start"
+      key="autoSync"
+      m={4}
+      xs={12}
+      order={{ initial: 2, medium: 1 }}
+    >
       <Field
         name="autoSync"
         label={formatMessage(getTrad('popup.item.form.autoSync.label', 'Read fields from related'))}
