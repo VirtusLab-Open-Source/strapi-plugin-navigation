@@ -5,6 +5,7 @@ import { useIntl } from 'react-intl';
 
 import { getTrad } from '../../../../../translations';
 import { Effect } from '../../../../../types';
+import { usePluginMediaQuery } from '../../../hooks';
 
 interface Props {
   value: string;
@@ -18,7 +19,9 @@ export const Search = ({ value, setValue, initialIndex = DEFAULT_INDEX }: Props)
   const [currentValue, setCurrentValue] = useState(value);
   const [previousValue, setPreviousValue] = useState(value);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
-  const [isOpen, setIsOpen] = useState(!!value);
+  const { isSmallMobile, isMobile } = usePluginMediaQuery();
+
+  const [isOpen, setIsOpen] = useState(!!value || isSmallMobile);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const { formatMessage } = useIntl();
 
@@ -68,7 +71,7 @@ export const Search = ({ value, setValue, initialIndex = DEFAULT_INDEX }: Props)
 
   if (isOpen) {
     return (
-      <div ref={wrapperRef}>
+      <div ref={wrapperRef} style={{ width: '100%' }}>
         <Searchbar
           name="searchbar"
           onClear={onClear}
@@ -86,7 +89,8 @@ export const Search = ({ value, setValue, initialIndex = DEFAULT_INDEX }: Props)
         <Typography
           variant="pi"
           fontColor="neutral150"
-          style={{ margin: '3px 0 0', display: 'inline-block' }}
+          style={{ margin: '3px 0 0' }}
+          display={{ initial: 'none', medium: 'inline-block' }}
         >
           {formatMessage(
             getTrad('pages.main.search.subLabel', 'press ENTER to highlight next item')

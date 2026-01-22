@@ -1,4 +1,5 @@
 import { useIntl } from 'react-intl';
+import styled from 'styled-components';
 
 import { Grid, TextInput } from '@strapi/design-system';
 import { Field } from '@sensinum/strapi-utils';
@@ -7,18 +8,32 @@ import { getTrad } from '../../../../../../translations';
 import { FormChangeEvent } from '../../../../../../types';
 import { useNavigationItemFormContext } from '../../context/NavigationItemFormContext';
 
+const StyledGridItem = styled(Grid.Item)<{ 
+  orderInitial?: number; 
+  orderSmall?: number; 
+  orderMedium?: number;
+}>`
+  order: ${({ orderInitial }) => orderInitial ?? 'unset'};
+
+  @media (min-width: 768px) {
+    order: ${({ orderMedium }) => orderMedium ?? 'unset'};
+  }
+`;
+
 export const TitleField = () => {
   const { formatMessage } = useIntl();
 
   const { values, onChange, handleChange, renderError, canUpdate } = useNavigationItemFormContext();
 
   return (
-    <Grid.Item
+    <StyledGridItem
       alignItems="flex-start"
       key="title"
+      col={values.type === 'INTERNAL' ? 8 : 12}
       m={values.type === 'INTERNAL' ? 8 : 12}
       xs={12}
-      order={{ initial: 1, medium: 2 }}
+      orderInitial={2}
+      orderMedium={1}
     >
       <Field
         name="title"
@@ -36,6 +51,6 @@ export const TitleField = () => {
           value={values.title || ''}
         />
       </Field>
-    </Grid.Item>
+    </StyledGridItem>
   );
 };
