@@ -33,7 +33,6 @@ import { RelatedEntityField } from './components/RelatedEntityField';
 import { Combobox } from '@strapi/design-system';
 import { Box } from '@strapi/design-system';
 
-export { ContentTypeEntity, GetContentTypeEntitiesPayload } from './types';
 export { NavigationItemFormSchema } from './utils/form';
 
 export type SubmitEffect = Effect<NavigationItemFormSchema>;
