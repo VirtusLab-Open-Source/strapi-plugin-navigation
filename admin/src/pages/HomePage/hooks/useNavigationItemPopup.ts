@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { NavigationItemFormSchema } from '../components/NavigationItemForm';
+import { type NavigationItemFormSchema } from '../components/NavigationItemForm';
 
 export const useNavigationItemPopup = (canUpdate: boolean) => {
   const [activeNavigationItem, setActiveNavigationItemState] = useState<

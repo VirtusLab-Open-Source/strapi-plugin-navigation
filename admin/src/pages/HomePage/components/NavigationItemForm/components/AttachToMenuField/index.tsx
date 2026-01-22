@@ -8,7 +8,7 @@ import { getTrad } from '../../../../../../translations';
 import { FormChangeEvent } from '../../../../../../types';
 import { useNavigationItemFormContext } from '../../context/NavigationItemFormContext';
 import { Toggle } from '@strapi/design-system';
-import { NavigationItemFormSchema } from '../../utils/form';
+import { type NavigationItemFormSchema } from '../../utils/form';
 
 type AttachToMenuFieldProps = {
   current: Partial<NavigationItemFormSchema>;

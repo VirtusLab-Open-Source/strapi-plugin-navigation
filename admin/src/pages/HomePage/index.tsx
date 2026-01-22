@@ -12,7 +12,6 @@ import { getTrad } from '../../translations';
 import { NavigationHeader } from './components';
 import { ChangeLanguageDialog } from './components/ChangeLanguageDialog';
 import { NavigationContentHeader } from './components/NavigationContentHeader';
-import { NavigationItemFormSchema } from './components/NavigationItemForm';
 import { List } from './components/NavigationItemList';
 import NavigationItemPopUp from './components/NavigationItemPopup';
 import { Search } from './components/NavigationContentHeader/Search';
@@ -31,6 +30,7 @@ import { getPendingAction, transformItemToViewPayload } from './utils';
 import { ManageNavigationItems } from './components/NavigationContentHeader/ManageNavigationItems';
 import { NavigationEmptyState } from './components/NavigationEmptyState';
 import { appendViewId } from './utils/appendViewId';
+import { type NavigationItemFormSchema } from './components/NavigationItemForm';
 
 const queryClient = new QueryClient();
 

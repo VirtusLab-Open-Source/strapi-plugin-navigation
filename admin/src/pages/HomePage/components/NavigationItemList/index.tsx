@@ -8,7 +8,7 @@ import {
   OnItemSubmitEffect,
 } from '../NavigationItemListItem';
 import Wrapper from './Wrapper';
-import { NavigationItemFormSchema } from '../NavigationItemForm';
+import { type NavigationItemFormSchema } from '../NavigationItemForm';
 import { mapServerNavigationItem } from '../../utils';
 
 interface Props {

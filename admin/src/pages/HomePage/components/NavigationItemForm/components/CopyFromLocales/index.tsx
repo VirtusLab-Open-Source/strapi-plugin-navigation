@@ -15,7 +15,7 @@ import { getTrad } from '../../../../../../translations';
 import { useNavigationItemFormContext } from '../../context/NavigationItemFormContext';
 import { useCopyNavigationItemI18n, useNavigations } from '../../../../hooks';
 import { NavigationSchema } from '../../../../../../api/validators';
-import { NavigationItemFormSchema } from '../../utils/form';
+import { type NavigationItemFormSchema } from '../../utils/form';
 
 type CopyFromLocalesProps = {
   availableLocale: string[];

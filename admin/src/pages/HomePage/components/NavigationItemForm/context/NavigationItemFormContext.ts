@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react';
 import { FormChangeEvent } from '../../../../../types';
-import { NavigationItemFormSchema } from '../utils/form';
+import { type NavigationItemFormSchema } from '../utils/form';
 
 export type NavigationItemFormContextType = {
   values: NavigationItemFormSchema;

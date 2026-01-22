@@ -8,7 +8,7 @@ import { FormChangeEvent } from '../../../../../../types';
 import { useNavigationItemFormContext } from '../../context/NavigationItemFormContext';
 import { generatePreviewPath } from '../../utils/properties';
 import { useConfig } from '../../../../hooks';
-import { NavigationItemFormSchema } from '../../utils/form';
+import { type NavigationItemFormSchema } from '../../utils/form';
 import { StrapiContentTypeItemSchema } from 'src/api/validators';
 
 type PathFieldProps = {

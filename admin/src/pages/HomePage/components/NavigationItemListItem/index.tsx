@@ -17,7 +17,7 @@ import {
 } from '../../hooks';
 import { extractRelatedItemLabel, mapServerNavigationItem } from '../../utils';
 import { CollapseButton } from '../CollapseButton';
-import { NavigationItemFormSchema } from '../NavigationItemForm';
+import { type NavigationItemFormSchema } from '../NavigationItemForm';
 import { List } from '../NavigationItemList';
 import { ItemCardBadge } from './ItemCardBadge';
 import { ItemCardHeader } from './ItemCardHeader';

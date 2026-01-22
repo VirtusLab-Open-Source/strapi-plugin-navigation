@@ -10,7 +10,7 @@ import { getTrad } from '../../../../../../translations';
 import { FormChangeEvent } from '../../../../../../types';
 import { useNavigationItemFormContext } from '../../context/NavigationItemFormContext';
 import { ControllableCombobox } from '../../../ControllableCombobox';
-import { NavigationItemFormSchema } from '../../utils/form';
+import { type NavigationItemFormSchema } from '../../utils/form';
 import { StrapiContentTypeItemSchema } from '../../../../../../api/validators';
 
 type RelatedTypeFieldProps = {

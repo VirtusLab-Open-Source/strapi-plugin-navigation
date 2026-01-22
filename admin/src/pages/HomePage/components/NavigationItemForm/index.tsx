@@ -16,7 +16,7 @@ import { ContentTypeEntity } from './types';
 import {
   fallbackDefaultValues,
   navigationItemFormSchema,
-  NavigationItemFormSchema,
+  type NavigationItemFormSchema,
 } from './utils/form';
 import { useFormValues, usePayload, useSlug } from './utils/hooks';
 import { generateUiRouterKey } from './utils/properties';
@@ -33,7 +33,7 @@ import { RelatedEntityField } from './components/RelatedEntityField';
 import { Combobox } from '@strapi/design-system';
 import { Box } from '@strapi/design-system';
 
-export { NavigationItemFormSchema } from './utils/form';
+export { type NavigationItemFormSchema } from './utils/form';
 
 export type SubmitEffect = Effect<NavigationItemFormSchema>;
 

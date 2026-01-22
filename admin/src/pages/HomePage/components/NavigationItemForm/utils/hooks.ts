@@ -6,7 +6,7 @@ import { getFetchClient } from '@strapi/strapi/admin';
 import { useMutation } from '@tanstack/react-query';
 
 import { getApiClient } from '../../../../../api';
-import { NavigationItemFormSchema } from './form';
+import { type NavigationItemFormSchema } from './form';
 import { NavigationItemAdditionalField } from '../../../../../schemas';
 import { FormChangeEvent, FormItemErrorSchema, ToBeFixed } from '../../../../../types';
 import { useConfig } from '../../../hooks';
