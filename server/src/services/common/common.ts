@@ -79,7 +79,7 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
           return item;
         }
 
-        const fieldsToPopulate = config.contentTypesPopulate[item.related.__type];
+        const fieldsToPopulate = populate ?? config.contentTypesPopulate[item.related.__type];
 
         const repository = getGenericRepository({ strapi }, item.related.__type as UID.ContentType);
 
