@@ -2,11 +2,7 @@ import { Core } from '@strapi/strapi';
 import { Context as KoaContext } from 'koa';
 import * as z from 'zod';
 import { getPluginService } from '../utils';
-import {
-  readAllQuerySchema,
-  renderChildQueryParams,
-  renderQuerySchema,
-} from './validators';
+import { readAllQuerySchema, renderChildQueryParams, renderQuerySchema } from './validators';
 
 export default function clientController(context: { strapi: Core.Strapi }) {
   return {

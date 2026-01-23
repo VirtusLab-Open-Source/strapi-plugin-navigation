@@ -10,6 +10,7 @@ import styled from 'styled-components';
 
 import { getTrad } from '../../../../../translations';
 import { VoidEffect } from '../../../../../types';
+import { usePluginMediaQuery } from '../../../hooks';
 import DragButton from '../../DragButton';
 import { ItemCardBadge } from '../ItemCardBadge';
 import { CardItemTitle } from './Wrapper';
@@ -45,17 +46,20 @@ export const ItemCardHeader: FC<IProps> = ({
 }) => {
   const { formatMessage } = useIntl();
 
+  const { isSmallMobile } = usePluginMediaQuery();
+
   return (
     <CardItemTitle>
       <Flex alignItems="center">
         {canUpdate && <DragButton ref={dragRef} isActive={isSearchActive} />}
-        <Typography variant="omega" fontWeight="bold">
+        <Typography variant="omega" fontWeight="bold" fontSize={isSmallMobile ? '12px' : '14px'}>
           {title}
         </Typography>
         <Typography
           variant="omega"
           fontWeight="bold"
           textColor="neutral500"
+          fontSize={isSmallMobile ? '12px' : '14px'}
           ellipsis
           style={pathWrapperStyle}
         >
@@ -81,6 +85,7 @@ export const ItemCardHeader: FC<IProps> = ({
               )
             )}
             children={canUpdate ? pencilIcon : eyeIcon}
+            isMobile={isSmallMobile}
           />
           {canUpdate && (
             <>
@@ -93,6 +98,7 @@ export const ItemCardHeader: FC<IProps> = ({
                   )}
                   variant="success-light"
                   children={arrowClockwise}
+                  isMobile={isSmallMobile}
                 />
               ) : (
                 <IconButton
@@ -103,6 +109,7 @@ export const ItemCardHeader: FC<IProps> = ({
                     getTrad('components.navigationItem.action.remove', 'Remove')
                   )}
                   children={trashIcon}
+                  isMobile={isSmallMobile}
                 />
               )}
             </>
@@ -113,7 +120,10 @@ export const ItemCardHeader: FC<IProps> = ({
   );
 };
 
-const IconButton = styled(BaseIconButton)<{ isActive?: boolean }>`
+const IconButton = styled(BaseIconButton)<{ isActive?: boolean; isMobile?: boolean }>`
   transition: background-color 0.3s ease-in;
   ${({ isActive, theme }) => (isActive ? `background-color: ${theme.colors.neutral150} ;` : '')}
+  height: ${({ isMobile }) => (isMobile ? '24px' : '32px')};
+  width: ${({ isMobile }) => (isMobile ? '24px' : '32px')};
+  padding: ${({ isMobile, theme }) => (isMobile ? theme.spaces[1] : theme.spaces[2])};
 `;

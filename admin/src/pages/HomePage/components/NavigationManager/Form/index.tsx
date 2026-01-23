@@ -124,7 +124,7 @@ export const Form = <T extends Partial<Navigation>>({
       {({ values, onChange }) => {
         return (
           <Grid.Root gap={5}>
-            <Grid.Item col={6}>
+            <Grid.Item m={6} xs={12}>
               <Field
                 name="name"
                 label={formatMessage(getTrad('popup.navigation.form.name.label', 'Name'))}
@@ -144,7 +144,7 @@ export const Form = <T extends Partial<Navigation>>({
                 />
               </Field>
             </Grid.Item>
-            <Grid.Item col={6}>
+            <Grid.Item m={6} xs={12}>
               <Field
                 name="visible"
                 label={formatMessage(getTrad('popup.navigation.form.visible.label', 'Visibility'))}

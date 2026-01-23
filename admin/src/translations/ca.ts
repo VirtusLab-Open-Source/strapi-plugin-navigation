@@ -21,6 +21,9 @@ const ca = {
     cta: {
       cancel: 'Annuler',
       save: 'Enregistrer',
+      cache: {
+        purge: 'Esborrar memòria cau',
+      },
     },
   },
   empty: {

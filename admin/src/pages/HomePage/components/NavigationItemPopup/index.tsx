@@ -6,7 +6,11 @@ import { NavigationSchema, StrapiContentTypeItemSchema } from '../../../../api/v
 import { getTrad } from '../../../../translations';
 import { Effect } from '../../../../types';
 import { isRelationPublished } from '../../utils';
-import { NavigationItemForm, type NavigationItemFormSchema, type SubmitEffect } from '../NavigationItemForm';
+import {
+  NavigationItemForm,
+  type NavigationItemFormSchema,
+  type SubmitEffect,
+} from '../NavigationItemForm';
 import { NavigationItemPopupHeader } from './NavigationItemPopupHeader';
 
 interface Props {

@@ -69,7 +69,7 @@ export const RelatedEntityField: React.FC<RelatedEntityFieldProps> = ({
   }
 
   return (
-    <Grid.Item alignItems="flex-start" col={6}>
+    <Grid.Item alignItems="flex-start" m={6} xs={12}>
       <Field
         name="related"
         label={formatMessage(getTrad('popup.item.form.related.label', 'Related'))}

@@ -12,11 +12,28 @@ import { Check, Information } from '@strapi/icons';
 import { Layouts } from '@strapi/strapi/admin';
 import React from 'react';
 import { useIntl } from 'react-intl';
+import styled from 'styled-components';
 import { NavigationSchema } from '../../../../api/validators';
 import { getTrad } from '../../../../translations';
 import { Effect } from '../../../../types';
-import { useConfig } from '../../hooks';
+import { useConfig, usePluginMediaQuery } from '../../hooks';
 import { useNavigationManager } from './hooks';
+
+const StyledGridItem = styled(Grid.Item)<{
+  orderInitial?: number;
+  orderSmall?: number;
+  orderMedium?: number;
+}>`
+  order: ${({ orderInitial }) => orderInitial ?? 'unset'};
+
+  @media (min-width: 520px) {
+    order: ${({ orderSmall }) => orderSmall ?? 'unset'};
+  }
+
+  @media (min-width: 768px) {
+    order: ${({ orderMedium }) => orderMedium ?? 'unset'};
+  }
+`;
 
 const submitIcon = <Check />;
 
@@ -55,27 +72,41 @@ export const NavigationHeader: React.FC<Props> = ({
   const { formatMessage } = useIntl();
   const { openNavigationManagerModal, navigationManagerModal } = useNavigationManager();
 
-  const hasLocalizations = !!locale.restLocale;
+  const configQuery = useConfig();
+
+  const hasLocalizations = !!locale.restLocale?.length;
+  const hasCache = configQuery.data?.isCacheEnabled;
 
   const { canUpdate } = permissions;
 
-  const configQuery = useConfig();
+  const { isDesktop, isMobile, isLargeDesktop } = usePluginMediaQuery();
 
   return (
     <>
       <Layouts.Header
         title={formatMessage(getTrad('header.title', 'UI Navigation'))}
-        subtitle={formatMessage(getTrad('header.description'))}
+        subtitle={isLargeDesktop && formatMessage(getTrad('header.description'))}
         primaryAction={
-          <Flex direction="row" size={2}>
-            <Box>
+          <Flex
+            direction="row"
+            size={2}
+            width={isLargeDesktop ? 'auto' : !isMobile ? '728px' : '100%'}
+          >
+            <Box width="100%">
               <Grid.Root
-                gap={4}
+                gap={{ initial: 2, medium: 4 }}
+                width="100%"
                 style={configQuery.data?.isCacheEnabled ? { display: 'flex' } : undefined}
               >
-                {!hasLocalizations ? <Grid.Item col={2} /> : null}
+                {!hasLocalizations && isLargeDesktop ? <Grid.Item m={2} xs={0} /> : null}
                 {canUpdate && (
-                  <Grid.Item col={3}>
+                  <StyledGridItem
+                    m={3}
+                    xs={hasCache ? 4 : 6}
+                    orderInitial={3}
+                    orderSmall={3}
+                    orderMedium={1}
+                  >
                     <Button
                       onClick={openNavigationManagerModal}
                       startIcon={null}
@@ -86,9 +117,15 @@ export const NavigationHeader: React.FC<Props> = ({
                     >
                       {formatMessage(getTrad('header.action.manage'))}
                     </Button>
-                  </Grid.Item>
+                  </StyledGridItem>
                 )}
-                <Grid.Item col={canUpdate ? 4 : 10}>
+                <StyledGridItem
+                  m={canUpdate ? 4 : 10}
+                  xs={hasLocalizations ? 9 : 12}
+                  orderInitial={1}
+                  orderSmall={1}
+                  orderMedium={2}
+                >
                   <Field.Root width="100%">
                     <SingleSelect
                       type="select"
@@ -116,29 +153,37 @@ export const NavigationHeader: React.FC<Props> = ({
                         ))}
                     </SingleSelect>
                   </Field.Root>
-                </Grid.Item>
+                </StyledGridItem>
                 {hasLocalizations ? (
-                  <Grid.Item col={2}>
-                    <SingleSelect
-                      type="select"
-                      placeholder={formatMessage(
-                        getTrad('pages.main.header.localization.select.placeholder')
-                      )}
-                      name="navigationLocalizationSelect"
-                      onChange={handleLocalizationSelection}
-                      value={currentLocale}
-                      size="S"
-                    >
-                      {[locale.defaultLocale, ...locale.restLocale].map((code) => (
-                        <SingleSelectOption key={code} value={code}>
-                          {code}
-                        </SingleSelectOption>
-                      ))}
-                    </SingleSelect>
-                  </Grid.Item>
+                  <StyledGridItem m={2} xs={3} orderInitial={2} orderSmall={2} orderMedium={3}>
+                    <Field.Root width="100%">
+                      <SingleSelect
+                        type="select"
+                        placeholder={formatMessage(
+                          getTrad('pages.main.header.localization.select.placeholder')
+                        )}
+                        name="navigationLocalizationSelect"
+                        onChange={handleLocalizationSelection}
+                        value={currentLocale}
+                        size="S"
+                      >
+                        {[locale.defaultLocale, ...locale.restLocale].map((code) => (
+                          <SingleSelectOption key={code} value={code}>
+                            {code}
+                          </SingleSelectOption>
+                        ))}
+                      </SingleSelect>
+                    </Field.Root>
+                  </StyledGridItem>
                 ) : null}
                 {canUpdate && (
-                  <Grid.Item col={3}>
+                  <StyledGridItem
+                    m={3}
+                    xs={hasCache ? 4 : 6}
+                    orderInitial={4}
+                    orderSmall={4}
+                    orderMedium={4}
+                  >
                     <Button
                       onClick={handleSave}
                       startIcon={submitIcon}
@@ -149,21 +194,26 @@ export const NavigationHeader: React.FC<Props> = ({
                     >
                       {formatMessage(getTrad('submit.cta.save'))}
                     </Button>
-                  </Grid.Item>
+                  </StyledGridItem>
                 )}
-                {configQuery.data?.isCacheEnabled && (
-                  <Grid.Item col={3}>
-                    <Button
-                      onClick={handleCachePurge}
-                      startIcon={submitIcon}
-                      variant="danger"
-                      type="submit"
-                      fullWidth
-                      size="S"
-                    >
-                      {formatMessage(getTrad('submit.cta.cache.purge'))}
-                    </Button>
-                  </Grid.Item>
+                {hasCache && (
+                  <>
+                    {isDesktop && (
+                      <StyledGridItem m={9} orderInitial={5} orderSmall={5} orderMedium={5} />
+                    )}
+                    <StyledGridItem m={3} xs={4} orderInitial={6} orderSmall={6} orderMedium={6}>
+                      <Button
+                        onClick={handleCachePurge}
+                        startIcon={submitIcon}
+                        variant="danger"
+                        type="submit"
+                        fullWidth
+                        size="S"
+                      >
+                        {formatMessage(getTrad('submit.cta.cache.purge'))}
+                      </Button>
+                    </StyledGridItem>
+                  </>
                 )}
               </Grid.Root>
             </Box>
@@ -171,14 +221,16 @@ export const NavigationHeader: React.FC<Props> = ({
           </Flex>
         }
         secondaryAction={
-          <Tag icon={<Information aria-hidden={true} />}>
-            {activeNavigation
-              ? formatMessage(getTrad('header.meta'), {
-                  id: activeNavigation?.documentId,
-                  key: activeNavigation?.slug,
-                })
-              : null}
-          </Tag>
+          !isMobile && (
+            <Tag icon={<Information aria-hidden={true} />}>
+              {activeNavigation
+                ? formatMessage(getTrad('header.meta'), {
+                    id: activeNavigation?.documentId,
+                    key: activeNavigation?.slug,
+                  })
+                : null}
+            </Tag>
+          )
         }
       />
     </>

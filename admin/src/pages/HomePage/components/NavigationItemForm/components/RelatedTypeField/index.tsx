@@ -86,7 +86,7 @@ export const RelatedTypeField: React.FC<RelatedTypeFieldProps> = ({
   }, [configQuery.data?.defaultContentType, formValues.type, currentRelatedType]);
 
   return (
-    <Grid.Item alignItems="flex-start" col={currentRelatedType && !isSingleSelected ? 6 : 12}>
+    <Grid.Item alignItems="flex-start" m={currentRelatedType && !isSingleSelected ? 6 : 12} xs={12}>
       <Field
         name="relatedType"
         label={formatMessage(getTrad('popup.item.form.relatedType.label', 'Related Type'))}
