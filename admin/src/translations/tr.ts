@@ -21,6 +21,9 @@ const tr = {
     cta: {
       cancel: 'İptal',
       save: 'Kaydet',
+      cache: {
+        purge: 'Önbelleği temizle',
+      }
     },
   },
   empty: {

@@ -3,6 +3,7 @@ import { CaretDown, CaretUp } from '@strapi/icons';
 import styled from 'styled-components';
 
 import { Effect } from '../../../../types';
+import { usePluginMediaQuery } from '../../hooks/usePluginMediaQuery';
 
 const Wrapper = styled.div`
   border-radius: 50%;
@@ -21,7 +22,9 @@ interface Props {
   itemsCount?: number;
 }
 
-export const CollapseButton = ({ toggle, collapsed, itemsCount }: Props) => (
+export const CollapseButton = ({ toggle, collapsed, itemsCount }: Props) => {
+  const { isSmallMobile } = usePluginMediaQuery();
+  return (
   <Flex
     justifyContent="space-between"
     alignItems="center"
@@ -32,6 +35,7 @@ export const CollapseButton = ({ toggle, collapsed, itemsCount }: Props) => (
     <Wrapper>
       {collapsed ? <CaretDown width="16px" height="9px" /> : <CaretUp width="16px" height="9px" />}
     </Wrapper>
-    <Typography variant="pi">{itemsCount} nested items</Typography>
+    {!isSmallMobile && <Typography variant="pi">{itemsCount} nested {itemsCount === 1 ? 'item' : 'items'}</Typography>}
   </Flex>
-);
+  );
+};

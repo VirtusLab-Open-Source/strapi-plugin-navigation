@@ -21,6 +21,9 @@ const en = {
     cta: {
       cancel: 'Cancel',
       save: 'Save',
+      cache: {
+        purge: 'Purge cache',
+      }
     },
   },
   empty: {

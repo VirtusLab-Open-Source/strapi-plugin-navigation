@@ -26,11 +26,11 @@ const StyledGridItem = styled(Grid.Item)<{
 }>`
   order: ${({ orderInitial }) => orderInitial ?? 'unset'};
 
-  @media (min-width: 768px) {
+  @media (min-width: 520px) {
     order: ${({ orderSmall }) => orderSmall ?? 'unset'};
   }
 
-  @media (min-width: 1024px) {
+  @media (min-width: 768px) {
     order: ${({ orderMedium }) => orderMedium ?? 'unset'};
   }
 `;
@@ -72,33 +72,33 @@ export const NavigationHeader: React.FC<Props> = ({
   const { formatMessage } = useIntl();
   const { openNavigationManagerModal, navigationManagerModal } = useNavigationManager();
 
-  const hasLocalizations = !!locale.restLocale;
+  const configQuery = useConfig();
+
+  const hasLocalizations = !!locale.restLocale?.length;
+  const hasCache = configQuery.data?.isCacheEnabled;
 
   const { canUpdate } = permissions;
 
-  const configQuery = useConfig();
-
-  const { isDesktop } = usePluginMediaQuery();
+  const { isDesktop, isMobile, isLargeDesktop } = usePluginMediaQuery();
 
   return (
     <>
       <Layouts.Header
         title={formatMessage(getTrad('header.title', 'UI Navigation'))}
-        subtitle={isDesktop && formatMessage(getTrad('header.description'))}
+        subtitle={isLargeDesktop && formatMessage(getTrad('header.description'))}
         primaryAction={
-          <Flex direction="row" size={2} width={{ initial: '100%', medium: 'auto' }}>
+          <Flex direction="row" size={2} width={isLargeDesktop ? 'auto' : !isMobile ? '728px' : '100%'}>
             <Box width="100%">
               <Grid.Root
-                gap={4}
+                gap={{ initial: 2, medium: 4 }}
                 width="100%"
                 style={configQuery.data?.isCacheEnabled ? { display: 'flex' } : undefined}
               >
-                {!hasLocalizations ? <Grid.Item col={2} /> : null}
+                {!hasLocalizations && isLargeDesktop ? <Grid.Item m={2} xs={0}/> : null}
                 {canUpdate && (
                   <StyledGridItem 
                     m={3} 
-                    s={6} 
-                    xs={6}
+                    xs={hasCache ? 4 : 6}
                     orderInitial={3}
                     orderSmall={3}
                     orderMedium={1}
@@ -117,7 +117,7 @@ export const NavigationHeader: React.FC<Props> = ({
                 )}
                 <StyledGridItem 
                   m={canUpdate ? 4 : 10} 
-                  s={10}
+                  xs={hasLocalizations ? 9 : 12}
                   orderInitial={1}
                   orderSmall={1}
                   orderMedium={2}
@@ -151,37 +151,37 @@ export const NavigationHeader: React.FC<Props> = ({
                   </Field.Root>
                 </StyledGridItem>
                 {hasLocalizations ? (
-                  <StyledGridItem 
-                    m={2} 
-                    s={6} 
-                    xs={6}
+                  <StyledGridItem  
+                    m={2}
+                    xs={3}
                     orderInitial={2}
                     orderSmall={2}
                     orderMedium={3}
                   >
-                    <SingleSelect
-                      type="select"
-                      placeholder={formatMessage(
-                        getTrad('pages.main.header.localization.select.placeholder')
-                      )}
-                      name="navigationLocalizationSelect"
-                      onChange={handleLocalizationSelection}
-                      value={currentLocale}
-                      size="S"
-                    >
-                      {[locale.defaultLocale, ...locale.restLocale].map((code) => (
-                        <SingleSelectOption key={code} value={code}>
-                          {code}
-                        </SingleSelectOption>
-                      ))}
-                    </SingleSelect>
+                    <Field.Root width="100%">
+                      <SingleSelect
+                        type="select"
+                        placeholder={formatMessage(
+                          getTrad('pages.main.header.localization.select.placeholder')
+                        )}
+                        name="navigationLocalizationSelect"
+                        onChange={handleLocalizationSelection}
+                        value={currentLocale}
+                        size="S"
+                      >
+                        {[locale.defaultLocale, ...locale.restLocale].map((code) => (
+                          <SingleSelectOption key={code} value={code}>
+                            {code}
+                          </SingleSelectOption>
+                        ))}
+                      </SingleSelect>
+                    </Field.Root>
                   </StyledGridItem>
                 ) : null}
                 {canUpdate && (
                   <StyledGridItem 
                     m={3} 
-                    s={6} 
-                    xs={6}
+                    xs={hasCache ? 4 : 6}
                     orderInitial={4}
                     orderSmall={4}
                     orderMedium={4}
@@ -198,26 +198,33 @@ export const NavigationHeader: React.FC<Props> = ({
                     </Button>
                   </StyledGridItem>
                 )}
-                {configQuery.data?.isCacheEnabled && (
-                  <StyledGridItem 
-                    m={3} 
-                    s={12} 
-                    xs={12}
-                    orderInitial={5}
-                    orderSmall={5}
-                    orderMedium={5}
-                  >
-                    <Button
-                      onClick={handleCachePurge}
-                      startIcon={submitIcon}
-                      variant="danger"
-                      type="submit"
-                      fullWidth
-                      size="S"
+                {hasCache && (
+                  <>
+                    {isDesktop && <StyledGridItem 
+                      m={9} 
+                      orderInitial={5}
+                      orderSmall={5}
+                      orderMedium={5}
+                    />}
+                    <StyledGridItem 
+                      m={3} 
+                      xs={4}
+                      orderInitial={6}
+                      orderSmall={6}
+                      orderMedium={6}
                     >
-                      {formatMessage(getTrad('submit.cta.cache.purge'))}
-                    </Button>
-                  </StyledGridItem>
+                      <Button
+                        onClick={handleCachePurge}
+                        startIcon={submitIcon}
+                        variant="danger"
+                        type="submit"
+                        fullWidth
+                        size="S"
+                      >
+                        {formatMessage(getTrad('submit.cta.cache.purge'))}
+                      </Button>
+                    </StyledGridItem>
+                  </>
                 )}
               </Grid.Root>
             </Box>
@@ -225,7 +232,7 @@ export const NavigationHeader: React.FC<Props> = ({
           </Flex>
         }
         secondaryAction={
-          <Tag icon={<Information aria-hidden={true} />} fontSize="10px">
+          !isMobile && <Tag icon={<Information aria-hidden={true} />} >
             {activeNavigation
               ? formatMessage(getTrad('header.meta'), {
                   id: activeNavigation?.documentId,

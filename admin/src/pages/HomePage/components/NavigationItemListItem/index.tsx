@@ -103,9 +103,6 @@ export const Item: React.FC<Props> = ({
 
   const configQuery = useConfig();
   const isMobile = useIsMobile()
-  const isTablet = useIsTablet()
-  const isDesktop = useIsDesktop()
-  console.log("mobile", isMobile, "tablet", isTablet, "desktop", isDesktop)
 
   const isExternal = mappedItem.type === 'EXTERNAL';
   const isWrapper = mappedItem.type === 'WRAPPER';
@@ -396,11 +393,13 @@ export const Item: React.FC<Props> = ({
                     disabled={mappedItem.removed}
                     startIcon={<Plus />}
                     onClick={onNewItemClick}
+                    size="S"
                   >
                     <Typography
                       variant="pi"
                       fontWeight="bold"
                       textColor={mappedItem.removed ? 'neutral600' : 'primary600'}
+                      fontSize={{ initial: '1.1rem', small: '1.2rem'}}
                     >
                       {formatMessage(getTrad('components.navigationItem.action.newItem'))}
                     </Typography>
@@ -409,17 +408,17 @@ export const Item: React.FC<Props> = ({
               </Flex>
               {mappedItem.type === 'INTERNAL' && mappedItem.related && !relatedItem.id ? (
                 <Flex justifyContent="center" alignItems="center">
-                  <Typography variant="omega" textColor="neutral600">
+                  <Typography variant="omega" textColor="neutral600" fontSize={{ initial: '1.2rem', small: '1.4rem'}}>
                     {relatedTypeLabel}&nbsp;/&nbsp;
                   </Typography>
-                  <Typography variant="omega" textColor="neutral800">
+                  <Typography variant="omega" textColor="neutral800" fontSize={{ initial: '1.2rem', small: '1.4rem'}}>
                     {formatMessage(getTrad('components.navigationItem.related.localeMissing'))}
                   </Typography>
                 </Flex>
               ) : null}
               {relatedItemLabel && (
                 <Flex justifyContent="center" alignItems="center">
-                  {isHandledByPublishFlow && (
+                  {isHandledByPublishFlow && !isMobile && (
                     <ItemCardBadge
                       borderColor={`${relatedBadgeColor}200`}
                       backgroundColor={`${relatedBadgeColor}100`}
@@ -434,10 +433,10 @@ export const Item: React.FC<Props> = ({
                       )}
                     </ItemCardBadge>
                   )}
-                  <Typography variant="omega" textColor="neutral600">
+                  <Typography variant="omega" textColor="neutral600" fontSize={{ initial: '1.2rem', small: '1.4rem'}}>
                     {relatedTypeLabel}&nbsp;/&nbsp;
                   </Typography>
-                  <Typography variant="omega" textColor="neutral800">
+                  <Typography variant="omega" textColor="neutral800" fontSize={{ initial: '1.2rem', small: '1.4rem'}}>
                     {relatedItemLabel}
                   </Typography>
                   {isContentManagerType && (
