@@ -23,7 +23,7 @@ const en = {
       save: 'Guardar',
       cache: {
         purge: 'Purgar caché',
-      }
+      },
     },
   },
   empty: {

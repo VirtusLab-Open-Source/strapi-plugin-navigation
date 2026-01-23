@@ -23,7 +23,7 @@ const tr = {
       save: 'Kaydet',
       cache: {
         purge: 'Önbelleği temizle',
-      }
+      },
     },
   },
   empty: {
@@ -319,8 +319,7 @@ const tr = {
         },
         pathDefaultFields: {
           label: 'Varsayılan yol alanları',
-          placeholder:
-            'En az birini seçin veya boş bırakın; varsayılan değer olarak Id kullanılır',
+          placeholder: 'En az birini seçin veya boş bırakın; varsayılan değer olarak Id kullanılır',
           hint: 'Seçilen nitelik değeri, dahili yol için varsayılan değer olacaktır',
           empty: 'Bu içerik türünde uygun nitelikler bulunmuyor',
         },

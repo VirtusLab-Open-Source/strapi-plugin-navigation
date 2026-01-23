@@ -8,9 +8,9 @@ import { getTrad } from '../../../../../../translations';
 import { FormChangeEvent } from '../../../../../../types';
 import { useNavigationItemFormContext } from '../../context/NavigationItemFormContext';
 
-const StyledGridItem = styled(Grid.Item)<{ 
-  orderInitial?: number; 
-  orderSmall?: number; 
+const StyledGridItem = styled(Grid.Item)<{
+  orderInitial?: number;
+  orderSmall?: number;
   orderMedium?: number;
 }>`
   order: ${({ orderInitial }) => orderInitial ?? 'unset'};

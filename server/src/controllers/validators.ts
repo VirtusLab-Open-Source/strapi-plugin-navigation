@@ -14,7 +14,7 @@ export const renderTypeSchema = z.enum(['FLAT', 'TREE', 'RFR']);
 
 export const statusSchema = z
   .string()
-  .transform((v) => v === 'published' ? 'published' : 'draft')
+  .transform((v) => (v === 'published' ? 'published' : 'draft'))
   .pipe(z.enum(['draft', 'published']));
 
 // TODO in the zod v3 we can't use z.lazy and recursive types without creating a custom type. Let's align on this when Strapi will use zod v4
@@ -42,14 +42,8 @@ const sanitizePopulateField = (populate: unknown) => {
 export const populateSchema: z.ZodType<Populate, z.ZodTypeDef, unknown> = z.lazy(() =>
   z.preprocess(
     sanitizePopulateField,
-    z.union([
-      z.boolean(),
-      z.string(),
-      z.string().array(),
-      z.undefined(),
-      z.record(populateSchema)
-    ]),
-  ),
+    z.union([z.boolean(), z.string(), z.string().array(), z.undefined(), z.record(populateSchema)])
+  )
 );
 
 export type PopulateQueryParam = z.infer<typeof populateSchema>;

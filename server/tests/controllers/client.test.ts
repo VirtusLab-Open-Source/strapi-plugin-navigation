@@ -261,7 +261,7 @@ describe('Navigation', () => {
               query: {
                 type,
                 menuOnly,
-                populate: { foo: { populate: 'true' }}
+                populate: { foo: { populate: 'true' } },
               },
             })
           );
@@ -276,7 +276,7 @@ describe('Navigation', () => {
               query: {
                 type,
                 menuOnly,
-                populate: { foo: { populate: 'false' }}
+                populate: { foo: { populate: 'false' } },
               },
             })
           );

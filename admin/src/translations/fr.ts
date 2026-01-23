@@ -23,7 +23,7 @@ const fr = {
       save: 'Enregistrer',
       cache: {
         purge: 'Vider le cache',
-      }
+      },
     },
   },
   empty: {

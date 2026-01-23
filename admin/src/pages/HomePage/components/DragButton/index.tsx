@@ -3,14 +3,14 @@ import React from 'react';
 import styled, { DefaultTheme } from 'styled-components';
 import { usePluginMediaQuery } from '../../hooks';
 
-const DragButtonWrapper = styled.span<{ ref: unknown; isActive?: boolean, isMobile?: boolean }>`
+const DragButtonWrapper = styled.span<{ ref: unknown; isActive?: boolean; isMobile?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
 
-  height: ${({ isMobile }) => isMobile ? '24px' : '32px'};
-  width: ${({ isMobile }) => isMobile ? '24px' : '32px'};
-  padding: ${({ theme, isMobile }) => isMobile ? theme.spaces[1] : theme.spaces[2]};
+  height: ${({ isMobile }) => (isMobile ? '24px' : '32px')};
+  width: ${({ isMobile }) => (isMobile ? '24px' : '32px')};
+  padding: ${({ theme, isMobile }) => (isMobile ? theme.spaces[1] : theme.spaces[2])};
 
   background: ${({ theme, isActive }) =>
     isActive ? theme.colors.neutral150 : theme.colors.neutral0};
@@ -55,12 +55,12 @@ const DragButtonWrapper = styled.span<{ ref: unknown; isActive?: boolean, isMobi
 `;
 
 const DragButton = React.forwardRef<unknown, { isActive?: boolean }>((props, ref) => {
-  const { isSmallMobile } = usePluginMediaQuery()
+  const { isSmallMobile } = usePluginMediaQuery();
   return (
-  <DragButtonWrapper {...props} ref={ref} isMobile={isSmallMobile}>
-    <Drag />
-  </DragButtonWrapper>
-  )
+    <DragButtonWrapper {...props} ref={ref} isMobile={isSmallMobile}>
+      <Drag />
+    </DragButtonWrapper>
+  );
 });
 
 export default DragButton;

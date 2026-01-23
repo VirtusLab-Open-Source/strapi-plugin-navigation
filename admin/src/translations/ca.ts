@@ -23,7 +23,7 @@ const ca = {
       save: 'Enregistrer',
       cache: {
         purge: 'Esborrar memòria cau',
-      }
+      },
     },
   },
   empty: {

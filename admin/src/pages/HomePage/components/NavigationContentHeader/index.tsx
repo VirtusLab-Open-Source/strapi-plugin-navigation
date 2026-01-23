@@ -8,18 +8,20 @@ interface Props {
 
 export const NavigationContentHeader = ({ startActions, endActions }: Props) => {
   return (
-    <Flex 
+    <Flex
       direction={{ initial: 'column-reverse', small: 'row' }}
-      justifyContent={{ initial: "flex-start", small: "space-between" }}
+      justifyContent={{ initial: 'flex-start', small: 'space-between' }}
       width="100%"
       gap={{ initial: 2, small: 0 }}
     >
-      <Flex alignItems="space-between" width="100%">{startActions}</Flex>
+      <Flex alignItems="space-between" width="100%">
+        {startActions}
+      </Flex>
       <Flex
         gap={{ initial: 2, small: 0 }}
         alignItems="space-between"
         width="100%"
-        justifyContent={{ initial: "flex-start", small: "flex-end" }}
+        justifyContent={{ initial: 'flex-start', small: 'flex-end' }}
       >
         {endActions}
       </Flex>

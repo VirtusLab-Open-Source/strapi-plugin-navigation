@@ -14,7 +14,7 @@ export const CustomFieldsField: React.FC<CustomFieldsFieldProps> = ({ additional
     useNavigationItemFormContext();
 
   return (
-    <Grid.Item alignItems="flex-start" key={additionalField.name} s={6} xs={12} >
+    <Grid.Item alignItems="flex-start" key={additionalField.name} s={6} xs={12}>
       <Field
         name={`additionalFields.${additionalField.name}`}
         label={additionalField.label}

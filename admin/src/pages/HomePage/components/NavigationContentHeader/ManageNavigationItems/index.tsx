@@ -98,7 +98,7 @@ export const ManageNavigationItems: React.FC<ManageNavigationItemsProps> = ({
   }
 
   return actions.map(({ tradId, margin, ...item }, i) => (
-    <Box marginLeft={{ initial: 0, small: margin}} key={i}>
+    <Box marginLeft={{ initial: 0, small: margin }} key={i}>
       <Button {...item}> {formatMessage(getTrad(tradId))} </Button>
     </Box>
   ));

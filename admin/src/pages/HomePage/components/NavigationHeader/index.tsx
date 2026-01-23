@@ -19,9 +19,9 @@ import { Effect } from '../../../../types';
 import { useConfig, usePluginMediaQuery } from '../../hooks';
 import { useNavigationManager } from './hooks';
 
-const StyledGridItem = styled(Grid.Item)<{ 
-  orderInitial?: number; 
-  orderSmall?: number; 
+const StyledGridItem = styled(Grid.Item)<{
+  orderInitial?: number;
+  orderSmall?: number;
   orderMedium?: number;
 }>`
   order: ${({ orderInitial }) => orderInitial ?? 'unset'};
@@ -87,17 +87,21 @@ export const NavigationHeader: React.FC<Props> = ({
         title={formatMessage(getTrad('header.title', 'UI Navigation'))}
         subtitle={isLargeDesktop && formatMessage(getTrad('header.description'))}
         primaryAction={
-          <Flex direction="row" size={2} width={isLargeDesktop ? 'auto' : !isMobile ? '728px' : '100%'}>
+          <Flex
+            direction="row"
+            size={2}
+            width={isLargeDesktop ? 'auto' : !isMobile ? '728px' : '100%'}
+          >
             <Box width="100%">
               <Grid.Root
                 gap={{ initial: 2, medium: 4 }}
                 width="100%"
                 style={configQuery.data?.isCacheEnabled ? { display: 'flex' } : undefined}
               >
-                {!hasLocalizations && isLargeDesktop ? <Grid.Item m={2} xs={0}/> : null}
+                {!hasLocalizations && isLargeDesktop ? <Grid.Item m={2} xs={0} /> : null}
                 {canUpdate && (
-                  <StyledGridItem 
-                    m={3} 
+                  <StyledGridItem
+                    m={3}
                     xs={hasCache ? 4 : 6}
                     orderInitial={3}
                     orderSmall={3}
@@ -115,8 +119,8 @@ export const NavigationHeader: React.FC<Props> = ({
                     </Button>
                   </StyledGridItem>
                 )}
-                <StyledGridItem 
-                  m={canUpdate ? 4 : 10} 
+                <StyledGridItem
+                  m={canUpdate ? 4 : 10}
                   xs={hasLocalizations ? 9 : 12}
                   orderInitial={1}
                   orderSmall={1}
@@ -151,13 +155,7 @@ export const NavigationHeader: React.FC<Props> = ({
                   </Field.Root>
                 </StyledGridItem>
                 {hasLocalizations ? (
-                  <StyledGridItem  
-                    m={2}
-                    xs={3}
-                    orderInitial={2}
-                    orderSmall={2}
-                    orderMedium={3}
-                  >
+                  <StyledGridItem m={2} xs={3} orderInitial={2} orderSmall={2} orderMedium={3}>
                     <Field.Root width="100%">
                       <SingleSelect
                         type="select"
@@ -179,8 +177,8 @@ export const NavigationHeader: React.FC<Props> = ({
                   </StyledGridItem>
                 ) : null}
                 {canUpdate && (
-                  <StyledGridItem 
-                    m={3} 
+                  <StyledGridItem
+                    m={3}
                     xs={hasCache ? 4 : 6}
                     orderInitial={4}
                     orderSmall={4}
@@ -200,19 +198,10 @@ export const NavigationHeader: React.FC<Props> = ({
                 )}
                 {hasCache && (
                   <>
-                    {isDesktop && <StyledGridItem 
-                      m={9} 
-                      orderInitial={5}
-                      orderSmall={5}
-                      orderMedium={5}
-                    />}
-                    <StyledGridItem 
-                      m={3} 
-                      xs={4}
-                      orderInitial={6}
-                      orderSmall={6}
-                      orderMedium={6}
-                    >
+                    {isDesktop && (
+                      <StyledGridItem m={9} orderInitial={5} orderSmall={5} orderMedium={5} />
+                    )}
+                    <StyledGridItem m={3} xs={4} orderInitial={6} orderSmall={6} orderMedium={6}>
                       <Button
                         onClick={handleCachePurge}
                         startIcon={submitIcon}
@@ -232,14 +221,16 @@ export const NavigationHeader: React.FC<Props> = ({
           </Flex>
         }
         secondaryAction={
-          !isMobile && <Tag icon={<Information aria-hidden={true} />} >
-            {activeNavigation
-              ? formatMessage(getTrad('header.meta'), {
-                  id: activeNavigation?.documentId,
-                  key: activeNavigation?.slug,
-                })
-              : null}
-          </Tag>
+          !isMobile && (
+            <Tag icon={<Information aria-hidden={true} />}>
+              {activeNavigation
+                ? formatMessage(getTrad('header.meta'), {
+                    id: activeNavigation?.documentId,
+                    key: activeNavigation?.slug,
+                  })
+                : null}
+            </Tag>
+          )
         }
       />
     </>

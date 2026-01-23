@@ -244,15 +244,18 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
     for (const navigationItem of navigationItems) {
       action.create = true;
 
-      const { parent, master, items, documentId, id, related, autoSync, ...params } = navigationItem;
+      const { parent, master, items, documentId, id, related, autoSync, ...params } =
+        navigationItem;
 
-      const { title = params.title, path = params.path } = autoSync ? await generateFieldsFromRelated(
-        context,
-        related,
-        masterEntity?.locale || 'en',
-        contentTypesNameFields,
-        pathDefaultFields,
-      ) : {};
+      const { title = params.title, path = params.path } = autoSync
+        ? await generateFieldsFromRelated(
+            context,
+            related,
+            masterEntity?.locale || 'en',
+            contentTypesNameFields,
+            pathDefaultFields
+          )
+        : {};
 
       const insertDetails =
         documentId && id

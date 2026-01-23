@@ -23,7 +23,7 @@ const en = {
       save: 'Save',
       cache: {
         purge: 'Purge cache',
-      }
+      },
     },
   },
   empty: {
@@ -318,8 +318,7 @@ const en = {
         },
         pathDefaultFields: {
           label: 'Path default fields',
-          placeholder:
-            'Select at least one or leave it empty to populate Id as default value',
+          placeholder: 'Select at least one or leave it empty to populate Id as default value',
           hint: 'Value of selected attribute will be a default value for internal path',
           empty: "This content type doesn't have any suitable attributes",
         },

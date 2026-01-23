@@ -56,27 +56,27 @@ export const generateFieldsFromRelated = async (
     return {
       title: undefined,
       path: undefined,
-    }
+    };
   }
 
-  const relatedEntity = await getGenericRepository(context, related.__type as UID.ContentType).findById(
-    related.documentId,
-    undefined,
-    'published',
-    { locale } 
-  );
+  const relatedEntity = await getGenericRepository(
+    context,
+    related.__type as UID.ContentType
+  ).findById(related.documentId, undefined, 'published', { locale });
 
-  const defaultTitleFields = isEmpty(contentTypesNameFields[related.__type]) 
-    ? contentTypesNameFields['default'] : contentTypesNameFields[related.__type];
+  const defaultTitleFields = isEmpty(contentTypesNameFields[related.__type])
+    ? contentTypesNameFields['default']
+    : contentTypesNameFields[related.__type];
 
   const title = defaultTitleFields.reduce((acc, field) => {
     return acc ? acc : relatedEntity?.[field]?.toString();
   }, '');
 
   const defaultPathFields = pathDefaultFields[related.__type] || [];
-  const path = defaultPathFields.reduce((acc, field) => {
-    return acc ? acc : relatedEntity?.[field]?.toString();
-  }, undefined) || relatedEntity?.id.toString();
+  const path =
+    defaultPathFields.reduce((acc, field) => {
+      return acc ? acc : relatedEntity?.[field]?.toString();
+    }, undefined) || relatedEntity?.id.toString();
 
-  return { title, path }
-}
+  return { title, path };
+};

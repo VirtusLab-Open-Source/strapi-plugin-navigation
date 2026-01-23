@@ -46,7 +46,7 @@ export const ItemCardHeader: FC<IProps> = ({
 }) => {
   const { formatMessage } = useIntl();
 
-  const { isSmallMobile } = usePluginMediaQuery()
+  const { isSmallMobile } = usePluginMediaQuery();
 
   return (
     <CardItemTitle>
@@ -120,10 +120,10 @@ export const ItemCardHeader: FC<IProps> = ({
   );
 };
 
-const IconButton = styled(BaseIconButton)<{ isActive?: boolean, isMobile?: boolean }>`
+const IconButton = styled(BaseIconButton)<{ isActive?: boolean; isMobile?: boolean }>`
   transition: background-color 0.3s ease-in;
   ${({ isActive, theme }) => (isActive ? `background-color: ${theme.colors.neutral150} ;` : '')}
-  height: ${({ isMobile }) => isMobile ? '24px' : '32px'};
-  width: ${({ isMobile }) => isMobile ? '24px' : '32px'};
-  padding: ${({ isMobile, theme }) => isMobile ? theme.spaces[1] : theme.spaces[2]};
+  height: ${({ isMobile }) => (isMobile ? '24px' : '32px')};
+  width: ${({ isMobile }) => (isMobile ? '24px' : '32px')};
+  padding: ${({ isMobile, theme }) => (isMobile ? theme.spaces[1] : theme.spaces[2])};
 `;
