@@ -1,4 +1,3 @@
-import { DesignSystemProvider } from '@strapi/design-system';
 import { Data } from '@strapi/strapi';
 import { Layouts, Page, useNotification } from '@strapi/strapi/admin';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -6,7 +5,6 @@ import { first } from 'lodash';
 import { SyntheticEvent, useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 
-import { usePluginTheme } from '@sensinum/strapi-utils';
 import { NavigationSchema } from '../../api/validators';
 import { getTrad } from '../../translations';
 import { NavigationHeader } from './components';
@@ -31,6 +29,8 @@ import { ManageNavigationItems } from './components/NavigationContentHeader/Mana
 import { NavigationEmptyState } from './components/NavigationEmptyState';
 import { appendViewId } from './utils/appendViewId';
 import { type NavigationItemFormSchema } from './components/NavigationItemForm';
+import { usePluginTheme } from '@sensinum/strapi-utils';
+import { DesignSystemProvider } from '@strapi/design-system';
 
 const queryClient = new QueryClient();
 
