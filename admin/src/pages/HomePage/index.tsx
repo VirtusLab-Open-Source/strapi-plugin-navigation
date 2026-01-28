@@ -259,7 +259,7 @@ const Inner = () => {
 };
 
 export default function HomePage() {
-  const { theme } = usePluginTheme();
+  const theme = usePluginTheme();
 
   return (
     <QueryClientProvider client={queryClient}>
