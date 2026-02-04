@@ -59,14 +59,18 @@ const CustomFieldForm: React.FC<ICustomFieldFormProps> = ({
 
   const { formatMessage } = useIntl();
 
-  const [formValue, setFormValue] = useState<NavigationItemCustomField>({
-    name: '',
-    label: '',
-    type: 'string',
-    required: false,
-    multi: false,
-    enabled: true,
-  });
+  const [formValue, setFormValue] = useState<NavigationItemCustomField>(
+    customField ? {
+      ...customField,
+    } : {
+      name: '',
+      label: '',
+      type: 'string',
+      required: false,
+      multi: false,
+      enabled: true,
+    },
+  );
   const [formError, setFormError] = useState<FormItemErrorSchema<NavigationItemCustomField>>();
 
   const { type } = formValue;
