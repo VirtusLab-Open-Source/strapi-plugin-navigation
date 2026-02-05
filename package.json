@@ -1,6 +1,6 @@
 {
   "name": "strapi-plugin-navigation",
-  "version": "3.3.2",
+  "version": "3.3.3-beta.1",
   "description": "Strapi - Navigation plugin",
   "strapi": {
     "name": "navigation",
@@ -45,7 +45,7 @@
     }
   ],
   "dependencies": {
-    "@sensinum/strapi-utils": "^1.0.10",
+    "@sensinum/strapi-utils": "^1.0.11",
     "@sindresorhus/slugify": "1.1.0",
     "@tanstack/react-query": "^5.40.0",
     "pluralize": "8.0.0",

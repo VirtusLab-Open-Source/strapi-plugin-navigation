@@ -2680,10 +2680,10 @@
   resolved "https://registry.yarnpkg.com/@sec-ant/readable-stream/-/readable-stream-0.4.1.tgz#60de891bb126abfdc5410fdc6166aca065f10a0c"
   integrity sha512-831qok9r2t8AlxLko40y2ebgSDhenenCatLVeW/uBtnHPyhHOvG0C7TvfgecV+wHzIm5KUICgzmVpWS+IMEAeg==
 
-"@sensinum/strapi-utils@^1.0.10":
-  version "1.0.10"
-  resolved "https://registry.yarnpkg.com/@sensinum/strapi-utils/-/strapi-utils-1.0.10.tgz#77e2adafbe929421d765292f9209142052a0cbe7"
-  integrity sha512-/3B4yhfMik4rcVm7XswVLEHamRZOV899N3I380eI3bD1MxI500P11/Wra6Wrhi6L/JLCzn8LuOHLm2fAOx5zZw==
+"@sensinum/strapi-utils@^1.0.11":
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/@sensinum/strapi-utils/-/strapi-utils-1.0.11.tgz#47726dcb5066924a8319f6c5dc910540f353e181"
+  integrity sha512-0AY1qD9xOXK9UtoWk1ooIX+25nye5pIabxf4NQRQ5Xd7p/45droKR+yz7SYoDDhLTaZs2rrGPyZii9EFd7D59g==
 
 "@sinclair/typebox@^0.27.8":
   version "0.27.8"
