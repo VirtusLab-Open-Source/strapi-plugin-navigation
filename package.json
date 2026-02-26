@@ -1,6 +1,6 @@
 {
   "name": "strapi-plugin-navigation",
-  "version": "3.3.2",
+  "version": "3.3.3-beta.2",
   "description": "Strapi - Navigation plugin",
   "strapi": {
     "name": "navigation",
@@ -60,11 +60,11 @@
     "@jest/types": "29.5.x",
     "@koa/router": "^12.0.1",
     "@strapi-community/plugin-rest-cache": "^5.0.1",
-    "@strapi/plugin-graphql": "^5.33.4",
+    "@strapi/plugin-graphql": "^5.37.0",
     "@strapi/sdk-plugin": "^5.3.2",
-    "@strapi/strapi": "^5.33.4",
-    "@strapi/types": "^5.33.4",
-    "@strapi/typescript-utils": "^5.33.4",
+    "@strapi/strapi": "^5.37.0",
+    "@strapi/types": "^5.37.0",
+    "@strapi/typescript-utils": "^5.37.0",
     "@types/jest": "^29.5.12",
     "@types/koa": "^2.15.0",
     "@types/koa-bodyparser": "^4.3.12",

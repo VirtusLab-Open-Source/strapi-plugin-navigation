@@ -1,10 +1,9 @@
-import { usePluginTheme } from '@sensinum/strapi-utils';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { get, isNil, isObject, isString, set } from 'lodash';
 import { useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 
-import { Button, DesignSystemProvider, Flex } from '@strapi/design-system';
+import { Button, Flex } from '@strapi/design-system';
 
 import { Check } from '@strapi/icons';
 import { Form, Layouts, Page, useAuth } from '@strapi/strapi/admin';
@@ -192,13 +191,10 @@ const Inner = () => {
 
 export default function SettingsPage() {
   queryClient.invalidateQueries();
-  const theme = usePluginTheme();
 
   return (
     <QueryClientProvider client={queryClient}>
-      <DesignSystemProvider theme={theme}>
-        <Inner />
-      </DesignSystemProvider>
+      <Inner />
     </QueryClientProvider>
   );
 }

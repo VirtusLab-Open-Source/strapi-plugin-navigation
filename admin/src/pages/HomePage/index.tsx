@@ -29,8 +29,6 @@ import { ManageNavigationItems } from './components/NavigationContentHeader/Mana
 import { NavigationEmptyState } from './components/NavigationEmptyState';
 import { appendViewId } from './utils/appendViewId';
 import { type NavigationItemFormSchema } from './components/NavigationItemForm';
-import { usePluginTheme } from '@sensinum/strapi-utils';
-import { DesignSystemProvider } from '@strapi/design-system';
 
 const queryClient = new QueryClient();
 
@@ -259,13 +257,9 @@ const Inner = () => {
 };
 
 export default function HomePage() {
-  const theme = usePluginTheme();
-
   return (
     <QueryClientProvider client={queryClient}>
-      <DesignSystemProvider theme={theme}>
-        <Inner />
-      </DesignSystemProvider>
+      <Inner />
     </QueryClientProvider>
   );
 }
