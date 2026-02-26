@@ -23,7 +23,7 @@ import { ItemCardBadge } from './ItemCardBadge';
 import { ItemCardHeader } from './ItemCardHeader';
 import { ItemCardRemovedOverlay } from './ItemCardRemovedOverlay';
 import Wrapper from './Wrapper';
-import { useIsDesktop, useIsMobile, useIsTablet, useMediaQuery } from '@strapi/strapi/admin';
+import { useIsMobile } from '@strapi/strapi/admin';
 
 export type OnItemReorderEffect = Effect<{
   item: NavigationItemFormSchema;
