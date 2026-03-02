@@ -7,6 +7,9 @@ export const removeNavigationsWithoutDefaultLocale = async (context: { strapi: C
     limit: Number.MAX_SAFE_INTEGER,
   });
   const defaultLocale = await context.strapi.plugin('i18n').service('locales').getDefaultLocale();
+  if (!defaultLocale) {
+    return;
+  }
   await Promise.all(
     allNavigations.map(async (navigation) => {
       const root = allNavigations.find(

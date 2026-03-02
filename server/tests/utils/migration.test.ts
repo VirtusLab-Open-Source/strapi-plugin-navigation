@@ -272,6 +272,24 @@ describe('Navigation', () => {
         );
         expect(mockRepository.remove).not.toHaveBeenCalled();
       });
+
+      it('should return early without removing when defaultLocale is not defined', async () => {
+        // Given
+        const otherLocale = 'fr';
+        const documentId = faker.string.uuid();
+        const navigations = [getMockNavigation({ documentId, locale: otherLocale })];
+
+        mockI18nService.getDefaultLocale.mockResolvedValue(null);
+        mockRepository.find.mockResolvedValue(navigations);
+
+        // When
+        await removeNavigationsWithoutDefaultLocale({ strapi: mockStrapi });
+
+        // Then
+        expect(mockRepository.find).toHaveBeenCalled();
+        expect(mockI18nService.getDefaultLocale).toHaveBeenCalled();
+        expect(mockRepository.remove).not.toHaveBeenCalled();
+      });
     });
   });
 });

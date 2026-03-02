@@ -66,7 +66,7 @@ describe('Navigation', () => {
     "related": {
       "configurable": false,
       "relation": "morphToMany",
-      "required": true,
+      "required": false,
       "type": "relation",
     },
     "title": {

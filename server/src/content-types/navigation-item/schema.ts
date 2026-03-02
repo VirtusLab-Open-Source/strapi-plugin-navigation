@@ -75,7 +75,7 @@ export default {
     related: {
       type: 'relation',
       relation: 'morphToMany',
-      required: true,
+      required: false,
       configurable: false,
     },
     parent: {
