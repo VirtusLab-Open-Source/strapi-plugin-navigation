@@ -50,18 +50,6 @@ export const PathField: React.FC<PathFieldProps> = ({
     isSingleSelected,
   });
 
-  const disabled = !canUpdate || (values.autoSync && values.type === 'INTERNAL');
-
-  const pathDefaultFieldsValue = internalValues.relatedType
-    ? (configQuery.data?.pathDefaultFields?.[internalValues.relatedType] ?? [])
-    : [];
-
-  const selectedEntity = contentTypeItems?.find(
-    ({ documentId }) => documentId === internalValues.related
-  );
-
-  const validPathFieldName = pathDefaultFieldsValue.find((field) => selectedEntity?.[field]);
-
   return (
     <Grid.Item alignItems="flex-start" key="title" col={12}>
       <Field
@@ -75,15 +63,10 @@ export const PathField: React.FC<PathFieldProps> = ({
                 value: pathDefault,
               })
             : '',
-          disabled
-            ? formatMessage(getTrad('popup.item.form.type.internal.source'), {
-                value: validPathFieldName || 'id',
-              })
-            : '',
         ].join(' ')}
       >
         <TextInput
-          disabled={disabled}
+          disabled={!canUpdate}
           name={pathSourceName}
           onChange={(eventOrPath: FormChangeEvent, value?: any) =>
             handleChange(eventOrPath, value, onChange)
