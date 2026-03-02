@@ -25,7 +25,7 @@ export const useChangeFieldsFromRelated = (
 
     const { contentTypesNameFields, pathDefaultFields } = configQuery.data;
 
-    const nextPath = (
+    const nextPath = values.path ? values.path : (
       pathDefaultFields[values.relatedType]?.reduce<string | undefined>((acc, field) => {
         return acc ? acc : relatedItem?.[field];
       }, undefined) || relatedItem.id
