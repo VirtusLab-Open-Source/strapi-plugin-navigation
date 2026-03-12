@@ -135,7 +135,8 @@ export const removeSensitiveFields = ({
     : undefined,
 });
 
-export const flattenRelated = ({ related, ...item }: any) => ({
+export const flattenRelated = ({ related, parent, ...item }: any): NavigationItemDBSchema => ({
   ...item,
+  parent: parent ? flattenRelated(parent) : parent,
   related: related?.[0],
 });

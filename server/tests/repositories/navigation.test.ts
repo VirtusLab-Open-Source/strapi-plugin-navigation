@@ -1,8 +1,8 @@
 import { faker } from '@faker-js/faker';
 import { Core } from '@strapi/strapi';
-import { asProxy } from '../utils';
 import { getNavigationRepository } from '../../src/repositories';
 import { getPluginModels } from '../../src/utils';
+import { asProxy } from '../utils';
 
 jest.mock('../../src/utils', () => ({
   ...jest.requireActual('../../src/utils'),
@@ -158,6 +158,60 @@ describe('Navigation', () => {
           });
           expect(mockCreate).not.toHaveBeenCalled();
           expect(result).toBeDefined();
+        });
+        it('should handle parent.related as array (bug reproduction)', async () => {
+          // Given - Strapi returns parent.related as an array (morphToMany behavior)
+          const mockData = [
+            getMockNavigationData({
+              items: [
+                {
+                  id: 1,
+                  documentId: 'item-1',
+                  title: 'Parent Item',
+                  type: 'INTERNAL',
+                  path: '/parent',
+                  uiRouterKey: 'parent',
+                  menuAttached: false,
+                  order: 0,
+                  collapsed: false,
+                  related: [{ documentId: 'rel-1', __type: 'api::author.author' }],
+                  parent: null,
+                },
+                {
+                  id: 2,
+                  documentId: 'item-2',
+                  title: 'Child Item',
+                  type: 'INTERNAL',
+                  path: '/child',
+                  uiRouterKey: 'child',
+                  menuAttached: false,
+                  order: 0,
+                  collapsed: false,
+                  related: [{ documentId: 'rel-2', __type: 'api::author.author' }],
+                  parent: {
+                    id: 1,
+                    documentId: 'item-1',
+                    title: 'Parent Item',
+                    type: 'INTERNAL',
+                    path: '/parent',
+                    uiRouterKey: 'parent',
+                    menuAttached: false,
+                    order: 0,
+                    collapsed: false,
+                    // related as an array
+                    related: [{ documentId: 'rel-1', __type: 'api::author.author' }],
+                  },
+                },
+              ],
+            }),
+          ];
+          mockFindMany.mockResolvedValue(mockData);
+
+          const repository = getNavigationRepository({ strapi: mockStrapi });
+
+          // When & Then - This should NOT throw, but currently does with:
+          // "Expected object, received array" at items[1].parent.related
+          await expect(repository.find({ filters: {}, locale: 'en' })).resolves.toBeDefined();
         });
       });
       describe('remove()', () => {
