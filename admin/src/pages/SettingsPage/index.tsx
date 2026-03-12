@@ -148,7 +148,7 @@ const Inner = () => {
         <Layouts.Header
           title={formatMessage(getTrad('pages.settings.header.title'))}
           subtitle={
-            <Flex direction="row" gap={3} alignItems="center">
+            <Flex direction="row" gap={3} alignItems="center" justifyContent="space-between">
               <Typography variant="epsilon" textColor="neutral600" tag="p">
                 {formatMessage(getTrad('pages.settings.header.description'))}
               </Typography>
