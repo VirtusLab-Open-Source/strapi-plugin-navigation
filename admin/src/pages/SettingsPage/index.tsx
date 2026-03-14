@@ -7,26 +7,30 @@ import { Button, Flex } from '@strapi/design-system';
 
 import { Check } from '@strapi/icons';
 import { Form, Layouts, Page, useAuth } from '@strapi/strapi/admin';
+import * as pluginPkg from '../../../../package.json';
 
+import { Badge, Typography } from '@strapi/design-system';
 import { FormChangeEvent, FormItemErrorSchema } from '../../types';
 import { getTrad } from '../../utils/getTranslation';
 import pluginPermissions from '../../utils/permissions';
+import { AdditionalSettingsPanel } from './components/AdditionalSettingsPanel';
+import { CustomFieldsPanel } from './components/CustomFieldsPanel';
+import { GeneralSettingsPanel } from './components/GeneralSettingsPanel';
+import { RestartPanel } from './components/RestartPanel';
+import { RestorePanel } from './components/RestorePanel';
+import { SettingsContext } from './context';
 import {
   useConfig,
   useContentTypes,
+  useInitialConfig,
   useRestart,
   useRestoreConfig,
   useSaveConfig,
-  useInitialConfig,
 } from './hooks';
-import { RestartStatus } from './types';
-import { RestorePanel } from './components/RestorePanel';
-import { RestartPanel } from './components/RestartPanel';
-import { AdditionalSettingsPanel } from './components/AdditionalSettingsPanel';
-import { GeneralSettingsPanel } from './components/GeneralSettingsPanel';
-import { CustomFieldsPanel } from './components/CustomFieldsPanel';
-import { SettingsContext } from './context';
 import { uiFormSchema, UiFormSchema } from './schemas';
+import { RestartStatus } from './types';
+
+const pluginVersion = pluginPkg.version;
 
 const queryClient = new QueryClient();
 
@@ -143,7 +147,16 @@ const Inner = () => {
         <Page.Title children={formatMessage(getTrad('pages.settings.header.title'))} />
         <Layouts.Header
           title={formatMessage(getTrad('pages.settings.header.title'))}
-          subtitle={formatMessage(getTrad('pages.settings.header.description'))}
+          subtitle={
+            <Flex direction="row" gap={3} alignItems="center" justifyContent="space-between">
+              <Typography variant="epsilon" textColor="neutral600" tag="p">
+                {formatMessage(getTrad('pages.settings.header.description'))}
+              </Typography>
+              <Badge color="neutral" minWidth="fit-content">
+                <span style={{ textTransform: 'none' }}>v{pluginVersion}</span>
+              </Badge>
+            </Flex>
+          }
           primaryAction={
             hasSettingsReadPermissions ? (
               <Button
