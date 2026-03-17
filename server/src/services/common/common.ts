@@ -257,8 +257,8 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
           )
         : {};
 
-      const title = params.title || generatedFields?.title || params.title;
-      const path = params.path || generatedFields?.path || params.path;
+      const title = params.title || generatedFields?.title;
+      const path = params.path || generatedFields?.path;
 
       const insertDetails =
         documentId && id
