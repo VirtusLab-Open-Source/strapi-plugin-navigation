@@ -27,6 +27,7 @@ import {
   NavigationActionsCategories,
   NavigationActionsPerItem,
 } from '../../types';
+import { getPluginService } from '../../utils';
 import {
   AnalyzeBranchInput,
   BuildNestedStructureInput,
@@ -42,7 +43,6 @@ import {
   UpdateBranchInput,
 } from './types';
 import { checkDuplicatePath, DuplicateCheckItem, generateFieldsFromRelated } from './utils';
-import { getPluginService } from '../../utils';
 
 export type CommonService = ReturnType<typeof commonService>;
 
@@ -247,7 +247,7 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
       const { parent, master, items, documentId, id, related, autoSync, ...params } =
         navigationItem;
 
-      const { title = params.title, path = params.path } = autoSync
+      const generatedFields: { title?: string; path?: string } = autoSync
         ? await generateFieldsFromRelated(
             context,
             related,
@@ -256,6 +256,9 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
             pathDefaultFields
           )
         : {};
+
+      const title = params.title || generatedFields?.title;
+      const path = params.path || generatedFields?.path;
 
       const insertDetails =
         documentId && id
