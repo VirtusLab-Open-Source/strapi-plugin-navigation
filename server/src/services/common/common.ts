@@ -448,22 +448,24 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
     id,
   }: BuildNestedStructureInput): NavigationItemDBSchema[] {
     return (
-      navigationItems?.reduce((acc, navigationItem) => {
-        if (id && navigationItem.parent?.id !== id) {
+      (
+        navigationItems?.reduce((acc, navigationItem) => {
+          if (id && navigationItem.parent?.id !== id) {
+            return acc;
+          }
+
+          acc.push({
+            ...omit(navigationItem, ['related', 'items']),
+            related: navigationItem.related,
+            items: this.buildNestedStructure({
+              navigationItems,
+              id: navigationItem.id,
+            }),
+          });
+
           return acc;
-        }
-
-        acc.push({
-          ...omit(navigationItem, ['related', 'items']),
-          related: navigationItem.related,
-          items: this.buildNestedStructure({
-            navigationItems,
-            id: navigationItem.id,
-          }),
-        });
-
-        return acc;
-      }, [] as NavigationItemDBSchema[]) ?? []
+        }, [] as NavigationItemDBSchema[]) ?? []
+      )?.sort((a, b) => a.order - b.order) ?? []
     );
   },
 
