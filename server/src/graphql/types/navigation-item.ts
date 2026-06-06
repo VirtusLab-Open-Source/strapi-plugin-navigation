@@ -9,6 +9,7 @@ export default ({ nexus, config }: any) =>
       t.nonNull.string('title');
       t.nonNull.field('type', { type: 'NavigationItemType' });
       t.string('path');
+      t.boolean('isManualPath');
       t.string('externalPath');
       t.nonNull.string('uiRouterKey');
       t.nonNull.boolean('menuAttached');

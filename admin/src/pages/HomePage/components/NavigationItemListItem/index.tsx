@@ -117,12 +117,15 @@ export const Item: React.FC<Props> = ({
     : true;
 
   const hasChildren = !isEmpty(item.items) && !displayChildren;
+  const isManualPath = item.isManualPath;
   const absolutePath = isExternal
     ? undefined
-    : `${levelPath === '/' ? '' : levelPath}/${mappedItem.path === '/' ? '' : mappedItem.path}`.replace(
-        '//',
-        '/'
-      );
+    : isManualPath
+      ? mappedItem.path ?? ""
+      : `${levelPath === '/' ? '' : levelPath}/${mappedItem.path === '/' ? '' : mappedItem.path}`.replace(
+          '//',
+          '/'
+        );
 
   const contentTypeItemsQuery = useContentTypeItems({
     uid: mappedItem.type === 'INTERNAL' ? (mappedItem.relatedType ?? '') : '',

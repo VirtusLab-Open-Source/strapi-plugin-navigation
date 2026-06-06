@@ -341,11 +341,14 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
             path = ''
           ): Promise<NavigationItemDTO> => {
             const isExternal = item.type === 'EXTERNAL';
+            const isManualPath = item.isManualPath;
             const parentPath = isExternal
               ? undefined
-              : `${path === '/' ? '' : path}/${
-                  first(item.path) === '/' ? item.path!.substring(1) : item.path
-                }`;
+              : isManualPath
+                ? item.path ?? ''
+                : `${path === '/' ? '' : path}/${
+                    first(item.path) === '/' ? item.path!.substring(1) : item.path
+                  }`;
             const slug =
               typeof parentPath === 'string'
                 ? await commonService.getSlug({
