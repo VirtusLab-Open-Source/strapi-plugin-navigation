@@ -13,6 +13,7 @@ const config: JestConfigWithTsJest = {
   reporters: ['default', 'jest-junit'],
   globals: {
     'ts-jest': {
+      tsconfig: './server/tsconfig.json',
       diagnostics: {
         warnOnly: true,
       },

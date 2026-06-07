@@ -33,22 +33,21 @@ export const configSetup = async ({
     name: 'navigation',
   });
   const getFromPluginDefaults: PluginDefaultConfigGetter = await strapi.plugin('navigation').config;
+  const dbConfig = forceDefault
+    ? ({} as Partial<NavigationPluginConfigDBSchema>)
+    : (((await pluginStore.get({ key: 'config' })) ?? {}) as Partial<NavigationPluginConfigDBSchema>);
+
   const configRaw = forceDefault
     ? ({} as NavigationPluginConfigDBSchema)
-    : {
-        ...configBase.default,
-        ...((await pluginStore.get({
-          key: 'config',
-        })) ?? configBase.default),
-      };
+    : ({ ...configBase.default, ...dbConfig } as NavigationPluginConfigDBSchema);
 
-  let config = isEmpty(configRaw)
-    ? configRaw
-    : (DynamicSchemas.configSchema.parse(configRaw) as unknown as ConfigSchema);
+  if (!isEmpty(configRaw)) {
+    DynamicSchemas.configSchema.parse(configRaw);
+  }
 
-  const getWithFallback = getWithFallbackFactory(config, getFromPluginDefaults);
+  const getWithFallback = getWithFallbackFactory(dbConfig, getFromPluginDefaults);
 
-  config = {
+  const config: ConfigSchema = {
     additionalFields: getWithFallback<NavigationItemAdditionalField[]>('additionalFields'),
     contentTypes: getWithFallback<string[]>('contentTypes'),
     contentTypesNameFields: getWithFallback<PluginConfigNameFields>('contentTypesNameFields'),
@@ -75,9 +74,12 @@ export const configSetup = async ({
 };
 
 const getWithFallbackFactory =
-  (config: NavigationPluginConfigDBSchema, fallback: PluginDefaultConfigGetter) =>
+  (dbConfig: Partial<NavigationPluginConfigDBSchema>, fallback: PluginDefaultConfigGetter) =>
   <T extends ReturnType<PluginDefaultConfigGetter>>(key: PluginConfigKeys) => {
-    const value = config?.[key] ?? fallback(key);
+    const value =
+      dbConfig?.[key] ??
+      fallback(key) ??
+      (configBase.default as Record<string, unknown>)[key];
 
     assertNotEmpty(value, new Error(`[Navigation] Config "${key}" is undefined`));
 
