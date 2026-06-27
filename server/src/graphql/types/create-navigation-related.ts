@@ -1,3 +1,4 @@
+// TODO?: is it to remove
 export default ({ nexus }: any) =>
   nexus.inputObjectType({
     name: 'CreateNavigationRelated',

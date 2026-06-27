@@ -32,6 +32,7 @@ import { RelatedTypeField } from './components/RelatedTypeField';
 import { RelatedEntityField } from './components/RelatedEntityField';
 import { Combobox } from '@strapi/design-system';
 import { Box } from '@strapi/design-system';
+import { ManualPathField } from './components/ManualPathField';
 
 export { type NavigationItemFormSchema } from './utils/form';
 
@@ -239,6 +240,12 @@ export const NavigationItemForm: React.FC<NavigationItemFormProps> = ({
                     isSingleSelected={isSingleSelected}
                   />
                 </Grid.Root>
+
+                {values.type === 'INTERNAL' ? (
+                  <Grid.Root gap={5} paddingTop={1} paddingBottom={1}>
+                    <ManualPathField />
+                  </Grid.Root>
+                ) : null}
 
                 {values.type === 'INTERNAL' && (
                   <Grid.Root gap={5} paddingTop={1} paddingBottom={1}>
