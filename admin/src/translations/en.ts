@@ -232,6 +232,18 @@ const en = {
         allowed: 'Oops! It seems like You do not have access to this page...',
       },
     },
+    overview: {
+      header: {
+        subtitle: '{count, plural, one {# navigation} other {# navigations}} found',
+      },
+      table: {
+        items: 'Items',
+        actions: 'Actions',
+      },
+      empty: {
+        description: 'You don’t have any navigations yet',
+      },
+    },
     main: {
       search: {
         placeholder: 'Type to start searching...',
@@ -274,6 +286,10 @@ const en = {
         cascadeMenuAttached: {
           label: 'Cascade menu attached',
           hint: 'Disable if you don\'t want "Menu attached" to cascade on child items',
+        },
+        overviewUi: {
+          label: 'New navigation interface',
+          hint: 'Enable the new interface with a navigation overview and detail pages',
         },
         preferCustomContentTypes: {
           label: 'Prefer API Content Types',

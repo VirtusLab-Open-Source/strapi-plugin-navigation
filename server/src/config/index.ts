@@ -16,5 +16,6 @@ export default {
     cascadeMenuAttached: true,
     preferCustomContentTypes: false,
     isCacheEnabled: false,
+    isOverviewUiEnabled: false,
   },
 };

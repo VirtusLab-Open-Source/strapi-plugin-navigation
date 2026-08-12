@@ -2,9 +2,9 @@ import { getFetchClient } from '@strapi/strapi/admin';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
-import { getApiClient } from '../../../api';
-import { NavigationSchema } from '../../../api/validators';
-import { Effect } from '../../../types';
+import { getApiClient } from '../api';
+import { NavigationSchema } from '../api/validators';
+import { Effect } from '../types';
 import { appendViewId } from '../utils/appendViewId';
 
 export const useLocale = () => {

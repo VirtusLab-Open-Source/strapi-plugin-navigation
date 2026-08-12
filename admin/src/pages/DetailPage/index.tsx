@@ -1,18 +1,18 @@
-import { Data } from '@strapi/strapi';
 import { Layouts, Page, useNotification } from '@strapi/strapi/admin';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { first } from 'lodash';
 import { SyntheticEvent, useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { NavigationSchema } from '../../api/validators';
+import { PLUGIN_ID } from '../../pluginId';
 import { getTrad } from '../../translations';
+import { appendViewId } from '../../utils/appendViewId';
 import { NavigationHeader } from './components';
-import { ChangeLanguageDialog } from '../DetailPage/components/ChangeLanguageDialog';
-import { NavigationContentHeader } from '../DetailPage/components/NavigationContentHeader';
-import { List } from '../DetailPage/components/NavigationItemList';
-import NavigationItemPopUp from '../DetailPage/components/NavigationItemPopup';
-import { Search } from '../DetailPage/components/NavigationContentHeader/Search';
+import { ChangeLanguageDialog } from './components/ChangeLanguageDialog';
+import { NavigationContentHeader } from './components/NavigationContentHeader';
+import { List } from './components/NavigationItemList';
+import NavigationItemPopUp from './components/NavigationItemPopup';
+import { Search } from './components/NavigationContentHeader/Search';
 import {
   useConfig,
   useInvalidateQueries,
@@ -23,17 +23,16 @@ import {
   useSearch,
   useSettingsPermissions,
   useUpdateNavigation,
-} from '../DetailPage/hooks';
-import { getPendingAction, transformItemToViewPayload } from '../DetailPage/utils';
-import { ManageNavigationItems } from '../DetailPage/components/NavigationContentHeader/ManageNavigationItems';
-import { NavigationEmptyState } from '../DetailPage/components/NavigationEmptyState';
-import { appendViewId } from '../../utils/appendViewId';
-import { type NavigationItemFormSchema } from '../DetailPage/components/NavigationItemForm';
+} from './hooks';
+import { getPendingAction, transformItemToViewPayload } from './utils';
+import { ManageNavigationItems } from './components/NavigationContentHeader/ManageNavigationItems';
+import { NavigationEmptyState } from './components/NavigationEmptyState';
+import { type NavigationItemFormSchema } from './components/NavigationItemForm';
 
-const queryClient = new QueryClient();
-
-const Inner = () => {
+const DetailPage = () => {
   const { formatMessage } = useIntl();
+  const { documentId } = useParams<{ documentId: string }>();
+  const navigate = useNavigate();
 
   const navigationsQuery = useNavigations();
   const configQuery = useConfig();
@@ -41,7 +40,6 @@ const Inner = () => {
 
   const { toggleNotification } = useNotification();
 
-  const [recentNavigation, setRecentNavigation] = useState<{ documentId?: string; id?: Data.ID }>();
   const [currentNavigation, setCurrentNavigation] = useState<NavigationSchema>();
   const [structureChanged, setStructureChanged] = useState(false);
 
@@ -83,11 +81,6 @@ const Inner = () => {
       setCurrentNavigation({
         ...next,
         items: next.items.map(appendViewId),
-      });
-
-      setRecentNavigation({
-        documentId: next.documentId,
-        id: next.id,
       });
 
       setStructureChanged(false);
@@ -136,23 +129,29 @@ const Inner = () => {
   const listItems = isSearchEmpty ? (currentNavigation?.items ?? []) : filteredList;
 
   useEffect(() => {
-    if (!currentNavigation && navigationsQuery.data?.[0]) {
-      let navigation;
-      if (recentNavigation?.documentId) {
-        navigation = navigationsQuery.data.find(
-          (nav) => nav.documentId === recentNavigation.documentId && nav.id === recentNavigation.id
-        );
-      }
-
-      setRecentNavigation(undefined);
-      setCurrentNavigation(navigation ? navigation : first(navigationsQuery.data));
+    if (!navigationsQuery.data) {
+      return;
     }
-  }, [navigationsQuery.data, currentNavigation]);
+
+    const localeVersions = navigationsQuery.data.filter(
+      (navigation) => navigation.documentId === documentId
+    );
+
+    if (!localeVersions.length) {
+      navigate(`/plugins/${PLUGIN_ID}`);
+      return;
+    }
+
+    if (!currentNavigation || currentNavigation.documentId !== documentId) {
+      setCurrentNavigation(
+        localeVersions.find((navigation) => navigation.locale === currentLocale) ??
+          localeVersions[0]
+      );
+    }
+  }, [navigationsQuery.data, currentNavigation, documentId, currentLocale, navigate]);
 
   useEffect(() => {
     if (currentNavigation && currentLocale !== currentNavigation.locale) {
-      setRecentNavigation(undefined);
-
       const nextNavigation = navigationsQuery.data?.find(
         (navigation) =>
           navigation.documentId === currentNavigation.documentId &&
@@ -180,10 +179,8 @@ const Inner = () => {
       <Page.Title children={formatMessage(getTrad('header.title', 'UI Navigation'))} />
       <Page.Main>
         <NavigationHeader
-          availableNavigations={navigationsQuery.data}
           activeNavigation={currentNavigation}
-          handleCachePurge={() => purgeMutation.mutate(undefined)}
-          handleChangeSelection={setCurrentNavigation}
+          handleCachePurge={() => purgeMutation.mutate(documentId ? [documentId] : undefined)}
           handleLocalizationSelection={
             structureChanged ? changeCurrentLocaleAction.trigger : changeCurrentLocaleAction.perform
           }
@@ -256,12 +253,4 @@ const Inner = () => {
   );
 };
 
-export default function HomePage() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <Inner />
-    </QueryClientProvider>
-  );
-}
-
-export { HomePage };
+export { DetailPage };

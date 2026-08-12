@@ -50,6 +50,7 @@ export const configSetup = async ({
     cascadeMenuAttached: getWithFallback('cascadeMenuAttached'),
     preferCustomContentTypes: getWithFallback('preferCustomContentTypes'),
     isCacheEnabled: getWithFallback('isCacheEnabled'),
+    isOverviewUiEnabled: getWithFallback('isOverviewUiEnabled'),
   });
 
   handleDeletedContentTypes(config, { strapi });

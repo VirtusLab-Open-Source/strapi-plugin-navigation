@@ -232,6 +232,18 @@ const tr = {
         allowed: 'Üzgünüz! Bu sayfaya erişim yetkiniz yok gibi görünüyor...',
       },
     },
+    overview: {
+      header: {
+        subtitle: '{count, plural, one {# navigasyon bulundu} other {# navigasyon bulundu}}',
+      },
+      table: {
+        items: 'Öğeler',
+        actions: 'İşlemler',
+      },
+      empty: {
+        description: 'Henüz bir navigasyonunuz yok',
+      },
+    },
     main: {
       search: {
         placeholder: 'Arama yapmak için yazmaya başlayın...',
@@ -274,6 +286,10 @@ const tr = {
         cascadeMenuAttached: {
           label: 'Kademeli menü eklendi',
           hint: '"Menü eklendi" seçeneğinin alt öğelere yayılmasını istemiyorsanız devre dışı bırakın',
+        },
+        overviewUi: {
+          label: 'Yeni navigasyon arayüzü',
+          hint: 'Navigasyon genel görünümü ve detay sayfaları içeren yeni arayüzü etkinleştirir',
         },
         preferCustomContentTypes: {
           label: 'Özel API İçerik Türlerini Tercih Et',

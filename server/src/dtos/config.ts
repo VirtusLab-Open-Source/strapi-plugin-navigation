@@ -37,4 +37,5 @@ export type NavigationPluginConfigDTO = Pick<
   isGQLPluginEnabled: boolean | undefined;
   isCachePluginEnabled: boolean | undefined;
   isCacheEnabled: boolean | undefined;
+  isOverviewUiEnabled: boolean | undefined;
 };

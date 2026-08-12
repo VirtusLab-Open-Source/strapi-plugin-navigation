@@ -233,6 +233,19 @@ const en = {
         allowed: '¡Ups! Parece que no tienes acceso a esta página...',
       },
     },
+    overview: {
+      header: {
+        subtitle:
+          '{count, plural, one {# navegación encontrada} other {# navegaciones encontradas}}',
+      },
+      table: {
+        items: 'Ítems',
+        actions: 'Acciones',
+      },
+      empty: {
+        description: 'Todavía no tienes ninguna navegación',
+      },
+    },
     main: {
       search: {
         placeholder: 'Escribe para comenzar la búsqueda...',
@@ -275,6 +288,10 @@ const en = {
         cascadeMenuAttached: {
           label: 'Menú en cascada adjunto',
           hint: 'Deshabilitar si no deseas que "Menú adjunto" se propague a los elementos secundarios',
+        },
+        overviewUi: {
+          label: 'Nueva interfaz de navegación',
+          hint: 'Activa la nueva interfaz con una vista general y páginas de detalle',
         },
         preferCustomContentTypes: {
           label: 'Preferir tipos de contenido de API',

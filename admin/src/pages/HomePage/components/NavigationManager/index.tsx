@@ -13,8 +13,8 @@ import {
   useNavigations,
   usePurgeNavigation,
   useUpdateNavigation,
-} from '../../hooks';
-import { getPendingAction } from '../../utils';
+} from '../../../DetailPage/hooks';
+import { getPendingAction } from '../../../DetailPage/utils';
 import { AllNavigations, AllNavigationsFooter } from './AllNavigations';
 import { DeleteConfirmFooter, DeletionConfirm } from './DeletionConfirm';
 import { ErrorDetails, ErrorDetailsFooter } from './ErrorDetails';

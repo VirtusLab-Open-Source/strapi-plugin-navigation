@@ -1,4 +1,4 @@
-import { NavigationItemSchema } from '../../../api/validators';
+import { NavigationItemSchema } from '../api/validators';
 
 export const appendViewId = (item: NavigationItemSchema): NavigationItemSchema => {
   return {

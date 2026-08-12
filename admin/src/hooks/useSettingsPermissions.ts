@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import { useRBAC } from '@strapi/strapi/admin';
 
-import pluginPermissions from '../../../utils/permissions';
+import pluginPermissions from '../utils/permissions';
 
 export const useSettingsPermissions = () => {
   const viewPermissions = useMemo(

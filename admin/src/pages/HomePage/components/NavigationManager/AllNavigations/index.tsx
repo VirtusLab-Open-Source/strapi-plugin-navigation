@@ -18,7 +18,7 @@ import { useCallback, useMemo } from 'react';
 import { useIntl } from 'react-intl';
 
 import { getTrad } from '../../../../../translations';
-import { useConfig, useLocale } from '../../../hooks';
+import { useConfig, useLocale } from '../../../../DetailPage/hooks';
 import { Footer, FooterBase } from '../Footer';
 import { INITIAL_NAVIGATION } from '../NewNavigation';
 import { CommonProps, ListState, Navigation } from '../types';

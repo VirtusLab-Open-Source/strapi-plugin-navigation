@@ -72,5 +72,6 @@ export const configSchema = z.object({
   cascadeMenuAttached: z.boolean(),
   preferCustomContentTypes: z.boolean(),
   isCacheEnabled: z.boolean().optional(),
+  isOverviewUiEnabled: z.boolean().optional(),
   isCachePluginEnabled: z.boolean().optional(),
 });

@@ -19,7 +19,7 @@ import {
   useResetNavigations,
 } from '../../hooks';
 import { NavigationSchema } from '../../../../api/validators';
-import { appendViewId } from '../../utils/appendViewId';
+import { appendViewId } from '../../../../utils/appendViewId';
 
 type NavigationEmptyStateProps = {
   canUpdate: boolean;

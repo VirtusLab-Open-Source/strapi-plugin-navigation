@@ -5,7 +5,7 @@ import {
   NavigationItemTypeSchema,
   StrapiContentTypeItemSchema,
 } from '../../../../../api/validators';
-import { extractRelatedItemLabel } from '../../../../HomePage/utils';
+import { extractRelatedItemLabel } from '../../../utils';
 import { type NavigationItemFormSchema } from './form';
 
 interface GenerateUiRouterKeyInput {
