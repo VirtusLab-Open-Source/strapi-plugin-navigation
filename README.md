@@ -774,9 +774,7 @@ navigationCommonService.registerLifecycleHook({
 
 ## 🧹 REST Cache
 
-> Note: Yet using the `4.x` compatible version of the plugin. Integration migration expected once the maintenance team release their `5.x` compatible version.
-
-If your strapi server uses [REST Cache plugin](https://strapi-community.github.io/strapi-plugin-rest-cache/) this plugin can take integrate with it. All you need to do is to enable it in configuration of Navigation plugin. After integration is enabled all client calls will be wrapped with caching middleware.
+If your strapi server uses the [REST Cache plugin](https://strapi-community.github.io/plugin-rest-cache/) (`@strapi-community/plugin-rest-cache`, the Strapi v5 compatible package) this plugin can integrate with it. All you need to do is to enable it in configuration of Navigation plugin. After integration is enabled all client calls will be wrapped with caching middleware.
 
 In admin panel new controls will be available. Cache clearing is done manually or after cache will timeout(`rest-cache` plugin's settings are used).
 
