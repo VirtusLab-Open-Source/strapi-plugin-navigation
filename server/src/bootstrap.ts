@@ -1,5 +1,6 @@
 import type { Core } from '@strapi/strapi';
 
+import { setupCacheStrategy } from './cache';
 import { configSetup } from './config';
 import { navigationSetup } from './i18n';
 import { setupPermissions } from './permissions';
@@ -12,6 +13,7 @@ const bootstrap = async (context: { strapi: Core.Strapi }) => {
   await navigationSetup(context);
   await setupPermissions(context);
   await graphQLSetup(context);
+  await setupCacheStrategy(context);
 
   await strapi.service('plugin::navigation.migrate').migrateRelatedIdToDocumentId();
 };
