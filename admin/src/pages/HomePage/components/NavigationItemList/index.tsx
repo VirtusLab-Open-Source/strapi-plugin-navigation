@@ -1,4 +1,5 @@
-import { FC } from 'react';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { FC, useMemo } from 'react';
 
 import { NavigationItemSchema } from '../../../../api/validators';
 import {
@@ -6,6 +7,7 @@ import {
   OnItemEditEffect,
   OnItemLevelAddEffect,
   OnItemSubmitEffect,
+  getNavigationItemSortableId,
 } from '../NavigationItemListItem';
 import Wrapper from './Wrapper';
 import { type NavigationItemFormSchema } from '../NavigationItemForm';
@@ -91,32 +93,45 @@ export const List: FC<Props> = ({
     );
   };
 
+  const sortableIds = useMemo(
+    () =>
+      (items ?? []).map((item, index) => {
+        const structureId = structurePrefix ? `${structurePrefix}.${index}` : index.toString();
+        return getNavigationItemSortableId(item, structureId);
+      }),
+    [items, structurePrefix]
+  );
+
   return (
     <Wrapper data-level={level}>
-      {items?.map((item, index) => {
-        return (
-          <Item
-            key={`list-item-${item.viewId || index}`}
-            item={item}
-            isLast={index === items.length - 1}
-            level={level}
-            levelPath={levelPath}
-            isParentAttachedToMenu={isParentAttachedToMenu}
-            onItemLevelAdd={onItemLevelAdd}
-            onItemEdit={onItemEdit}
-            onItemSubmit={onItemSubmit}
-            onItemRestore={handleItemRestore}
-            onItemRemove={handleItemRemove}
-            onItemReOrder={handleItemReOrder}
-            onItemToggleCollapse={handleItemToggleCollapse}
-            displayChildren={displayFlat}
-            permissions={permissions}
-            structureId={structurePrefix ? `${structurePrefix}.${index}` : index.toString()}
-            viewParentId={viewParentId}
-            locale={locale}
-          />
-        );
-      })}
+      <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
+        {items?.map((item, index) => {
+          const structureId = structurePrefix ? `${structurePrefix}.${index}` : index.toString();
+
+          return (
+            <Item
+              key={`list-item-${getNavigationItemSortableId(item, structureId)}`}
+              item={item}
+              isLast={index === items.length - 1}
+              level={level}
+              levelPath={levelPath}
+              isParentAttachedToMenu={isParentAttachedToMenu}
+              onItemLevelAdd={onItemLevelAdd}
+              onItemEdit={onItemEdit}
+              onItemSubmit={onItemSubmit}
+              onItemRestore={handleItemRestore}
+              onItemRemove={handleItemRemove}
+              onItemReOrder={handleItemReOrder}
+              onItemToggleCollapse={handleItemToggleCollapse}
+              displayChildren={displayFlat}
+              permissions={permissions}
+              structureId={structureId}
+              viewParentId={viewParentId}
+              locale={locale}
+            />
+          );
+        })}
+      </SortableContext>
     </Wrapper>
   );
 };

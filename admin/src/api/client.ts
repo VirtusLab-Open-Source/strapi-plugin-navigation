@@ -122,9 +122,10 @@ export const getApiClient = once((fetch: ReturnType<typeof getFetchClient>) => (
   },
 
   readContentType() {
-    return fetch
-      .get(`/content-manager/content-types`)
-      .then(({ data }) => strapiContentTypeSchema.array().parse(data.data));
+    return fetch.get(`/content-manager/content-types`).then((response) => {
+      const data = response.data as { data: unknown };
+      return strapiContentTypeSchema.array().parse(data.data);
+    });
   },
   readContentTypeIndex() {
     return [URL_PREFIX, 'content-manager', 'content-types'];

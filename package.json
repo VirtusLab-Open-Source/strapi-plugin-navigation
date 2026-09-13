@@ -45,12 +45,13 @@
     }
   ],
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@sensinum/strapi-utils": "^1.0.10",
     "@sindresorhus/slugify": "1.1.0",
     "@tanstack/react-query": "^5.40.0",
     "pluralize": "8.0.0",
-    "react-dnd": "^16.0.1",
-    "react-dnd-html5-backend": "^16.0.1",
     "react-intl": "6.6.2",
     "uuid": "^14.0.0",
     "zod": "3.25.67"
