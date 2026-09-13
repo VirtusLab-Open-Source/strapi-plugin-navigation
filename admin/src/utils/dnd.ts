@@ -1,13 +1,16 @@
 import {
   KeyboardCode,
   closestCenter,
+  type Active,
   type ClientRect,
   type Collision,
   type CollisionDetection,
   type DroppableContainer,
   type KeyboardCoordinateGetter,
+  type Over,
   type UniqueIdentifier,
 } from '@dnd-kit/core';
+import { hasSortableData } from '@dnd-kit/sortable';
 
 import { type NavigationItemSchema } from '../api/validators';
 import { type NavigationItemFormSchema } from '../pages/HomePage/components/NavigationItemForm';
@@ -28,6 +31,26 @@ export type NavigationSortableData = {
   onItemReOrder: (payload: NavigationItemReorderPayload) => void;
 };
 
+export const isNavigationSortableData = (data: unknown): data is NavigationSortableData => {
+  if (typeof data !== 'object' || data === null) {
+    return false;
+  }
+
+  return (
+    'levelPath' in data &&
+    'item' in data &&
+    'onItemReOrder' in data &&
+    typeof (data as NavigationSortableData).onItemReOrder === 'function'
+  );
+};
+
+export const getNavigationSortableData = (
+  entity: { data: { current?: unknown } } | null | undefined
+): NavigationSortableData | undefined => {
+  const current = entity?.data.current;
+  return isNavigationSortableData(current) ? current : undefined;
+};
+
 export const getNavigationItemSortableId = (
   item: NavigationItemSchema,
   structureId: string
@@ -35,34 +58,41 @@ export const getNavigationItemSortableId = (
   return item.viewId != null ? String(item.viewId) : structureId;
 };
 
-const getSortableContainerId = (data: { current?: unknown } | null | undefined) => {
-  const current = data?.current as
-    | { sortable?: { containerId?: UniqueIdentifier }; levelPath?: string }
-    | undefined;
-  return current?.sortable?.containerId;
+const getSortableContainerId = (
+  entity: Active | Over | DroppableContainer | { data: { current?: unknown } } | null | undefined
+) => {
+  if (hasSortableData(entity)) {
+    return entity.data.current.sortable.containerId;
+  }
+
+  return undefined;
 };
 
-const getSortableIndex = (data: { current?: unknown } | null | undefined) => {
-  const current = data?.current as { sortable?: { index?: number } } | undefined;
-  return current?.sortable?.index;
+const getSortableIndex = (
+  entity: Active | Over | DroppableContainer | { data: { current?: unknown } } | null | undefined
+) => {
+  if (hasSortableData(entity)) {
+    return entity.data.current.sortable.index;
+  }
+
+  return undefined;
 };
 
-const getLevelPath = (data: { current?: unknown } | null | undefined) => {
-  const current = data?.current as NavigationSortableData | undefined;
-  return current?.levelPath;
-};
+const getLevelPath = (
+  entity: Active | Over | DroppableContainer | { data: { current?: unknown } } | null | undefined
+) => getNavigationSortableData(entity)?.levelPath;
 
 const isSameLevelAsActive = (
   container: DroppableContainer,
   activeContainerId: UniqueIdentifier | undefined,
   activeLevelPath: string | undefined
 ) => {
-  const containerId = getSortableContainerId(container.data);
+  const containerId = getSortableContainerId(container);
   if (activeContainerId != null && containerId != null) {
     return containerId === activeContainerId;
   }
 
-  return getLevelPath(container.data) === activeLevelPath;
+  return getLevelPath(container) === activeLevelPath;
 };
 
 const centerOfRect = (rect: ClientRect) => ({
@@ -75,6 +105,18 @@ const distanceBetween = (
   b: { x: number; y: number }
 ) => Math.hypot(a.x - b.x, a.y - b.y);
 
+const getSameLevelItems = (
+  droppableContainers: {
+    getEnabled: () => (DroppableContainer | undefined)[];
+  },
+  activeContainerId: UniqueIdentifier | undefined
+) =>
+  droppableContainers
+    .getEnabled()
+    .filter((entry): entry is DroppableContainer => !!entry && !entry.disabled)
+    .filter((entry) => getSortableContainerId(entry) === activeContainerId)
+    .sort((a, b) => (getSortableIndex(a) ?? 0) - (getSortableIndex(b) ?? 0));
+
 const KEYBOARD_DIRECTIONS: string[] = [
   KeyboardCode.Down,
   KeyboardCode.Up,
@@ -82,19 +124,15 @@ const KEYBOARD_DIRECTIONS: string[] = [
   KeyboardCode.Right,
 ];
 
-type KeyboardNavigationState = {
+type KeyboardIndexState = {
   getIndex: () => number | null;
-  setIndex: (index: number) => void;
-  setTargetId: (id: UniqueIdentifier | null) => void;
-  getTargetId: () => UniqueIdentifier | null;
-  getInitialCoordinates: () => { x: number; y: number } | null;
-  setInitialCoordinates: (coords: { x: number; y: number }) => void;
+  setIndex: (index: number | null) => void;
   markMoved: () => void;
 };
 
 export const navigationCollisionDetection: CollisionDetection = (args) => {
-  const activeContainerId = getSortableContainerId(args.active.data);
-  const activeLevelPath = getLevelPath(args.active.data);
+  const activeContainerId = getSortableContainerId(args.active);
+  const activeLevelPath = getLevelPath(args.active);
 
   const sameLevelDroppables = args.droppableContainers.filter((container) => {
     if (container.id === args.active.id) {
@@ -134,7 +172,7 @@ export const navigationCollisionDetection: CollisionDetection = (args) => {
 };
 
 export const createNavigationSortableKeyboardCoordinates = (
-  state: KeyboardNavigationState
+  state: KeyboardIndexState
 ): KeyboardCoordinateGetter => {
   return (event, { context }) => {
     if (!KEYBOARD_DIRECTIONS.includes(event.code)) {
@@ -148,18 +186,9 @@ export const createNavigationSortableKeyboardCoordinates = (
       return;
     }
 
-    if (!state.getInitialCoordinates()) {
-      state.setInitialCoordinates({ x: collisionRect.left, y: collisionRect.top });
-    }
-
-    const activeContainerId = getSortableContainerId(active.data);
-    const activeIndex = getSortableIndex(active.data) ?? 0;
-
-    const items = droppableContainers
-      .getEnabled()
-      .filter((entry): entry is DroppableContainer => !!entry && !entry.disabled)
-      .filter((entry) => getSortableContainerId(entry.data) === activeContainerId)
-      .sort((a, b) => (getSortableIndex(a.data) ?? 0) - (getSortableIndex(b.data) ?? 0));
+    const activeContainerId = getSortableContainerId(active);
+    const activeIndex = getSortableIndex(active) ?? 0;
+    const items = getSameLevelItems(droppableContainers, activeContainerId);
 
     if (items.length === 0) {
       return;
@@ -180,52 +209,50 @@ export const createNavigationSortableKeyboardCoordinates = (
     state.markMoved();
 
     if (nextIndex === activeIndex) {
-      state.setTargetId(null);
-      return state.getInitialCoordinates() ?? undefined;
+      const initial = active.rect.current.initial;
+      if (!initial) {
+        return;
+      }
+      return { x: initial.left, y: initial.top };
     }
 
-    const target = items.find((entry) => (getSortableIndex(entry.data) ?? -1) === nextIndex);
-    if (!target) {
+    const target = items.find((entry) => (getSortableIndex(entry) ?? -1) === nextIndex);
+    const rect = target ? droppableRects.get(target.id) : undefined;
+    if (!target || !rect) {
       return;
     }
-
-    const rect = droppableRects.get(target.id);
-    if (!rect) {
-      return;
-    }
-
-    state.setTargetId(target.id);
-
-    const isAfterActive = nextIndex > activeIndex;
 
     return {
       x: rect.left,
-      y: isAfterActive ? rect.bottom - collisionRect.height : rect.top,
+      y: nextIndex > activeIndex ? rect.bottom - collisionRect.height : rect.top,
     };
   };
 };
 
 export const createNavigationCollisionDetection = (
-  getKeyboardTargetId: () => UniqueIdentifier | null,
-  hasDragMoved: () => boolean,
-  isKeyboardHome: () => boolean
+  getKeyboardIndex: () => number | null,
+  hasDragMoved: () => boolean
 ): CollisionDetection => {
   return (args) => {
     if (!hasDragMoved()) {
       return [];
     }
 
-    if (isKeyboardHome()) {
-      return [{ id: args.active.id }];
-    }
+    const keyboardIndex = getKeyboardIndex();
+    const activeIndex = getSortableIndex(args.active);
 
-    const keyboardTargetId = getKeyboardTargetId();
-    if (keyboardTargetId != null) {
-      const exists = args.droppableContainers.some(
-        (container) => container.id === keyboardTargetId
+    if (keyboardIndex != null && activeIndex != null) {
+      if (keyboardIndex === activeIndex) {
+        return [{ id: args.active.id }];
+      }
+
+      const activeContainerId = getSortableContainerId(args.active);
+      const target = getSameLevelItems(args.droppableContainers, activeContainerId).find(
+        (entry) => entry.id !== args.active.id && (getSortableIndex(entry) ?? -1) === keyboardIndex
       );
-      if (exists) {
-        return [{ id: keyboardTargetId }];
+
+      if (target) {
+        return [{ id: target.id }];
       }
     }
 
