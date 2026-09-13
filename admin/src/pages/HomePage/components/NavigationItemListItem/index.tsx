@@ -253,12 +253,12 @@ export const Item: React.FC<Props> = ({
     <Wrapper
       level={level}
       isLast={isLast}
+      ref={setDroppableRef}
       style={{
-        opacity: isDragging ? 0.2 : 1,
+        opacity: isDragging ? 0.5 : 1,
         transform: CSS.Translate.toString(transform),
         transition,
       }}
-      ref={setDroppableRef}
     >
       <Card
         style={{
