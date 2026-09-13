@@ -4,12 +4,12 @@ import {
   type DragMoveEvent,
   type DragOverEvent,
   type DragStartEvent,
-  type UniqueIdentifier,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
+import { hasSortableData } from '@dnd-kit/sortable';
 import { type ReactNode, useRef } from 'react';
 
 import { mapServerNavigationItem } from '../../pages/HomePage/utils';
@@ -18,7 +18,7 @@ import {
   createNavigationCollisionDetection,
   createNavigationSortableKeyboardCoordinates,
   getNavigationReorderOrder,
-  type NavigationSortableData,
+  getNavigationSortableData,
 } from '../../utils/dnd';
 
 type Props = {
@@ -28,23 +28,12 @@ type Props = {
 export const NavigationDndProvider = ({ children }: Props) => {
   const lastOverRef = useRef<DragOverEvent['over']>(null);
   const hasDragMovedRef = useRef(false);
-  const keyboardTargetIdRef = useRef<UniqueIdentifier | null>(null);
   const keyboardIndexRef = useRef<number | null>(null);
-  const keyboardHomeIndexRef = useRef<number | null>(null);
-  const initialCoordinatesRef = useRef<{ x: number; y: number } | null>(null);
 
   const keyboardCoordinateGetter = createNavigationSortableKeyboardCoordinates({
     getIndex: () => keyboardIndexRef.current,
     setIndex: (index) => {
       keyboardIndexRef.current = index;
-    },
-    setTargetId: (id) => {
-      keyboardTargetIdRef.current = id;
-    },
-    getTargetId: () => keyboardTargetIdRef.current,
-    getInitialCoordinates: () => initialCoordinatesRef.current,
-    setInitialCoordinates: (coords) => {
-      initialCoordinatesRef.current = coords;
     },
     markMoved: () => {
       hasDragMovedRef.current = true;
@@ -64,35 +53,25 @@ export const NavigationDndProvider = ({ children }: Props) => {
   );
 
   const collisionDetection = createNavigationCollisionDetection(
-    () => keyboardTargetIdRef.current,
-    () => hasDragMovedRef.current,
-    () =>
-      keyboardIndexRef.current != null &&
-      keyboardHomeIndexRef.current != null &&
-      keyboardIndexRef.current === keyboardHomeIndexRef.current
+    () => keyboardIndexRef.current,
+    () => hasDragMovedRef.current
   );
 
   const clearDragState = () => {
     lastOverRef.current = null;
     hasDragMovedRef.current = false;
-    keyboardTargetIdRef.current = null;
     keyboardIndexRef.current = null;
-    keyboardHomeIndexRef.current = null;
-    initialCoordinatesRef.current = null;
   };
 
   const handleDragStart = ({ active }: DragStartEvent) => {
     clearDragState();
-    const homeIndex = (
-      active.data.current as { sortable?: { index?: number } } | undefined
-    )?.sortable?.index;
-    keyboardHomeIndexRef.current = homeIndex ?? null;
-    keyboardIndexRef.current = homeIndex ?? null;
+    keyboardIndexRef.current = hasSortableData(active)
+      ? active.data.current.sortable.index
+      : null;
   };
 
   const handleDragMove = ({ delta, activatorEvent }: DragMoveEvent) => {
     if (activatorEvent && !('code' in activatorEvent)) {
-      keyboardTargetIdRef.current = null;
       keyboardIndexRef.current = null;
     }
 
@@ -111,8 +90,8 @@ export const NavigationDndProvider = ({ children }: Props) => {
       return;
     }
 
-    const activeData = active.data.current as NavigationSortableData | undefined;
-    const overData = over.data.current as NavigationSortableData | undefined;
+    const activeData = getNavigationSortableData(active);
+    const overData = getNavigationSortableData(over);
 
     if (activeData && overData && activeData.levelPath === overData.levelPath) {
       lastOverRef.current = over;
@@ -127,8 +106,8 @@ export const NavigationDndProvider = ({ children }: Props) => {
       return;
     }
 
-    const activeData = active.data.current as NavigationSortableData | undefined;
-    const overData = dropTarget.data.current as NavigationSortableData | undefined;
+    const activeData = getNavigationSortableData(active);
+    const overData = getNavigationSortableData(dropTarget);
 
     if (!activeData || !overData) {
       return;

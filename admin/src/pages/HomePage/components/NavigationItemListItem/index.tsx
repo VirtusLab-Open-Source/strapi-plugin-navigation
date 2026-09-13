@@ -11,7 +11,7 @@ import { useIsMobile } from '@strapi/strapi/admin';
 import { NavigationItemSchema, StrapiContentTypeItemSchema } from '../../../../api/validators';
 import { getTrad } from '../../../../translations';
 import { Effect } from '../../../../types';
-import { getNavigationItemSortableId } from '../../../../utils/dnd';
+import { getNavigationItemSortableId, type NavigationSortableData } from '../../../../utils/dnd';
 import {
   useConfig,
   useContentTypeItems,
@@ -178,7 +178,7 @@ export const Item: React.FC<Props> = ({
       item,
       viewParentId,
       onItemReOrder,
-    },
+    } satisfies NavigationSortableData,
   });
 
   const setDroppableRef = useCallback(
