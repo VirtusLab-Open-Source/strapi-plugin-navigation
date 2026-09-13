@@ -81,39 +81,26 @@ export const NavigationDndProvider = ({ children }: Props) => {
   };
 
   const handleDragOver = ({ active, over }: DragOverEvent) => {
-    if (!over || !hasDragMovedRef.current) {
+    if (!hasDragMovedRef.current) {
       return;
     }
 
-    if (over.id === active.id) {
-      lastOverRef.current = null;
-      return;
-    }
-
-    const activeData = getNavigationSortableData(active);
-    const overData = getNavigationSortableData(over);
-
-    if (activeData && overData && activeData.levelPath === overData.levelPath) {
-      lastOverRef.current = over;
-    }
+    lastOverRef.current = over && over.id !== active.id ? over : null;
   };
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
-    const dropTarget = over?.id === active.id ? null : (over ?? lastOverRef.current);
+    const dropTarget =
+      over && over.id !== active.id ? over : lastOverRef.current;
     clearDragState();
 
-    if (!dropTarget || active.id === dropTarget.id) {
+    if (!dropTarget) {
       return;
     }
 
     const activeData = getNavigationSortableData(active);
     const overData = getNavigationSortableData(dropTarget);
 
-    if (!activeData || !overData) {
-      return;
-    }
-
-    if (activeData.levelPath !== overData.levelPath) {
+    if (!activeData || !overData || activeData.levelPath !== overData.levelPath) {
       return;
     }
 
