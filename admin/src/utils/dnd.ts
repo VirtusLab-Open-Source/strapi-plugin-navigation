@@ -58,9 +58,9 @@ export const getNavigationItemSortableId = (
   return item.viewId != null ? String(item.viewId) : structureId;
 };
 
-const getSortableContainerId = (
-  entity: Active | Over | DroppableContainer | { data: { current?: unknown } } | null | undefined
-) => {
+type SortableEntity = Active | Over | DroppableContainer;
+
+const getSortableContainerId = (entity: SortableEntity | null | undefined) => {
   if (hasSortableData(entity)) {
     return entity.data.current.sortable.containerId;
   }
@@ -68,9 +68,7 @@ const getSortableContainerId = (
   return undefined;
 };
 
-const getSortableIndex = (
-  entity: Active | Over | DroppableContainer | { data: { current?: unknown } } | null | undefined
-) => {
+const getSortableIndex = (entity: SortableEntity | null | undefined) => {
   if (hasSortableData(entity)) {
     return entity.data.current.sortable.index;
   }
@@ -78,9 +76,8 @@ const getSortableIndex = (
   return undefined;
 };
 
-const getLevelPath = (
-  entity: Active | Over | DroppableContainer | { data: { current?: unknown } } | null | undefined
-) => getNavigationSortableData(entity)?.levelPath;
+const getLevelPath = (entity: SortableEntity | null | undefined) =>
+  getNavigationSortableData(entity)?.levelPath;
 
 const isSameLevelAsActive = (
   container: DroppableContainer,
@@ -106,16 +103,20 @@ const distanceBetween = (
 ) => Math.hypot(a.x - b.x, a.y - b.y);
 
 const getSameLevelItems = (
-  droppableContainers: {
-    getEnabled: () => (DroppableContainer | undefined)[];
-  },
+  droppableContainers:
+    | DroppableContainer[]
+    | { getEnabled: () => (DroppableContainer | undefined)[] },
   activeContainerId: UniqueIdentifier | undefined
-) =>
-  droppableContainers
-    .getEnabled()
+) => {
+  const entries = Array.isArray(droppableContainers)
+    ? droppableContainers
+    : droppableContainers.getEnabled();
+
+  return entries
     .filter((entry): entry is DroppableContainer => !!entry && !entry.disabled)
     .filter((entry) => getSortableContainerId(entry) === activeContainerId)
     .sort((a, b) => (getSortableIndex(a) ?? 0) - (getSortableIndex(b) ?? 0));
+};
 
 const KEYBOARD_DIRECTIONS: string[] = [
   KeyboardCode.Down,
