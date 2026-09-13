@@ -17,8 +17,6 @@ import { type NavigationItemFormSchema } from '../pages/HomePage/components/Navi
 
 export const NAVIGATION_DND_ACTIVATION_DISTANCE_PX = 5;
 
-export const NAVIGATION_DND_ORDER_OFFSET = 0.5;
-
 export type NavigationItemReorderPayload = {
   item: NavigationItemFormSchema;
   newOrder: number;
@@ -31,7 +29,7 @@ export type NavigationSortableData = {
   onItemReOrder: (payload: NavigationItemReorderPayload) => void;
 };
 
-export const isNavigationSortableData = (data: unknown): data is NavigationSortableData => {
+const isNavigationSortableData = (data: unknown): data is NavigationSortableData => {
   if (typeof data !== 'object' || data === null) {
     return false;
   }
@@ -131,7 +129,7 @@ type KeyboardIndexState = {
   markMoved: () => void;
 };
 
-export const navigationCollisionDetection: CollisionDetection = (args) => {
+const navigationCollisionDetection: CollisionDetection = (args) => {
   const activeContainerId = getSortableContainerId(args.active);
   const activeLevelPath = getLevelPath(args.active);
 
@@ -259,14 +257,4 @@ export const createNavigationCollisionDetection = (
 
     return navigationCollisionDetection(args);
   };
-};
-
-export const getNavigationReorderOrder = (activeOrder: number, overOrder: number): number => {
-  if (activeOrder === overOrder) {
-    return activeOrder;
-  }
-
-  return activeOrder < overOrder
-    ? overOrder + NAVIGATION_DND_ORDER_OFFSET
-    : overOrder - NAVIGATION_DND_ORDER_OFFSET;
 };

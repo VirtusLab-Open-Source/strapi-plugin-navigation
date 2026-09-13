@@ -17,7 +17,6 @@ import {
   NAVIGATION_DND_ACTIVATION_DISTANCE_PX,
   createNavigationCollisionDetection,
   createNavigationSortableKeyboardCoordinates,
-  getNavigationReorderOrder,
   getNavigationSortableData,
 } from '../../utils/dnd';
 
@@ -106,11 +105,13 @@ export const NavigationDndProvider = ({ children }: Props) => {
 
     const activeOrder = activeData.item.order ?? 0;
     const overOrder = overData.item.order ?? 0;
-    const newOrder = getNavigationReorderOrder(activeOrder, overOrder);
 
-    if (newOrder === activeOrder) {
+    if (activeOrder === overOrder) {
       return;
     }
+
+    const newOrder =
+      activeOrder < overOrder ? overOrder + 0.5 : overOrder - 0.5;
 
     activeData.onItemReOrder({
       item: {
