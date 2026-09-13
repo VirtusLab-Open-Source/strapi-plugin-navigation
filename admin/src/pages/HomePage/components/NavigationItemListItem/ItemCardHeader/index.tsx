@@ -4,7 +4,7 @@ import {
   Flex,
   Typography,
 } from '@strapi/design-system';
-import { FC, MutableRefObject, ReactNode } from 'react';
+import { FC, HTMLAttributes, ReactNode, Ref } from 'react';
 import { useIntl } from 'react-intl';
 import styled from 'styled-components';
 
@@ -16,6 +16,10 @@ import { ItemCardBadge } from '../ItemCardBadge';
 import { CardItemTitle } from './Wrapper';
 import { eyeIcon, pencilIcon, arrowClockwise, trashIcon } from './icons';
 
+type DragHandleProps = HTMLAttributes<HTMLElement> & {
+  ref?: Ref<HTMLElement>;
+};
+
 interface IProps {
   title: string;
   path?: string;
@@ -25,7 +29,7 @@ interface IProps {
   onItemRemove: VoidEffect;
   onItemEdit: VoidEffect;
   onItemRestore: VoidEffect;
-  dragRef: MutableRefObject<HTMLHeadingElement>;
+  dragHandleProps?: DragHandleProps;
   isSearchActive?: boolean;
 }
 
@@ -41,17 +45,20 @@ export const ItemCardHeader: FC<IProps> = ({
   onItemRemove,
   onItemEdit,
   onItemRestore,
-  dragRef,
+  dragHandleProps,
   isSearchActive,
 }) => {
   const { formatMessage } = useIntl();
 
   const { isSmallMobile } = usePluginMediaQuery();
+  const { ref: dragHandleRef, ...dragHandleRest } = dragHandleProps ?? {};
 
   return (
     <CardItemTitle>
       <Flex alignItems="center">
-        {canUpdate && <DragButton ref={dragRef} isActive={isSearchActive} />}
+        {canUpdate && (
+          <DragButton ref={dragHandleRef} {...dragHandleRest} isActive={isSearchActive} />
+        )}
         <Typography variant="omega" fontWeight="bold" fontSize={isSmallMobile ? '12px' : '14px'}>
           {title}
         </Typography>
