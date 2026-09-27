@@ -1,7 +1,5 @@
 import * as z from 'zod';
 
-const booleanStringSchema = z.enum(['true', 'false']);
-
 export const idSchema = z.string();
 
 export const readAllQuerySchema = z.object({
@@ -17,8 +15,6 @@ export const statusSchema = z
   .transform((v) => (v === 'published' ? 'published' : 'draft'))
   .pipe(z.enum(['draft', 'published']));
 
-// TODO in the zod v3 we can't use z.lazy and recursive types without creating a custom type. Let's align on this when Strapi will use zod v4
-// in the zod v4 there's also z.stringbool that should simplify this logic
 type PopulatePrimitive = boolean | string | string[] | undefined;
 
 export interface PopulateObject {
@@ -27,30 +23,22 @@ export interface PopulateObject {
 
 type Populate = PopulatePrimitive | PopulateObject;
 
-const sanitizePopulateField = (populate: unknown) => {
-  if (typeof populate === 'string') {
-    if (populate === 'true') {
-      return true;
-    }
-    if (populate === 'false') {
-      return false;
-    }
-  }
-  return populate;
-};
-
-export const populateSchema: z.ZodType<Populate, z.ZodTypeDef, unknown> = z.lazy(() =>
-  z.preprocess(
-    sanitizePopulateField,
-    z.union([z.boolean(), z.string(), z.string().array(), z.undefined(), z.record(populateSchema)])
-  )
+export const populateSchema: z.ZodType<Populate, unknown> = z.lazy(() =>
+  z.union([
+    z.boolean(),
+    z.stringbool(),
+    z.string(),
+    z.string().array(),
+    z.undefined(),
+    z.record(z.string(), populateSchema),
+  ])
 );
 
 export type PopulateQueryParam = z.infer<typeof populateSchema>;
 
 export const renderQuerySchema = z.object({
   type: renderTypeSchema.optional(),
-  menu: booleanStringSchema.optional(),
+  menu: z.enum(['true', 'false']).optional(),
   path: z.string().optional(),
   locale: z.string().optional(),
   populate: populateSchema.optional(),
@@ -59,7 +47,7 @@ export const renderQuerySchema = z.object({
 
 export const renderChildQueryParams = z.object({
   type: renderTypeSchema.optional(),
-  menu: booleanStringSchema.optional(),
+  menu: z.enum(['true', 'false']).optional(),
   locale: z.string().optional(),
   status: statusSchema.optional(),
 });

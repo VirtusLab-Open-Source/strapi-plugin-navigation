@@ -3,10 +3,10 @@ import { z } from 'zod';
 export type NavigationItemCustomFieldBase = z.infer<typeof navigationCustomFieldBase>;
 const navigationCustomFieldBase = z.object({
   name: z
-    .string({ required_error: 'requiredError' })
-    .nonempty('requiredError')
-    .refine((current) => !current.includes(' '), { message: 'noSpaceError' }),
-  label: z.string({ required_error: 'requiredError' }).nonempty('requiredError'),
+    .string({ error: 'requiredError' })
+    .min(1, { error: 'requiredError' })
+    .refine((current) => !current.includes(' '), { error: 'noSpaceError' }),
+  label: z.string({ error: 'requiredError' }).min(1, { error: 'requiredError' }),
   description: z.string().optional(),
   placeholder: z.string().optional(),
   required: z.boolean().optional(),
@@ -18,8 +18,8 @@ const navigationItemCustomFieldSelect = navigationCustomFieldBase.extend({
   type: z.literal('select'),
   multi: z.boolean(),
   options: z
-    .array(z.string(), { required_error: 'requiredError' })
-    .min(1, { message: 'requiredError' }),
+    .array(z.string(), { error: 'requiredError' })
+    .min(1, { error: 'requiredError' }),
 });
 
 export type NavigationItemCustomFieldPrimitive = z.infer<typeof navigationItemCustomFieldPrimitive>;
