@@ -10,7 +10,7 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import { hasSortableData } from '@dnd-kit/sortable';
-import { type ReactNode, useRef } from 'react';
+import { type PropsWithChildren, useRef } from 'react';
 
 import { mapServerNavigationItem } from '../../pages/HomePage/utils';
 import {
@@ -20,11 +20,7 @@ import {
   getNavigationSortableData,
 } from '../../utils/dnd';
 
-type Props = {
-  children: ReactNode;
-};
-
-export const NavigationDndProvider = ({ children }: Props) => {
+export const NavigationDndProvider = ({ children }: PropsWithChildren) => {
   const lastOverRef = useRef<DragOverEvent['over']>(null);
   const hasDragMovedRef = useRef(false);
   const keyboardIndexRef = useRef<number | null>(null);

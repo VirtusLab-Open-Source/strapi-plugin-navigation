@@ -67,9 +67,8 @@ export const NavigationEmptyState: React.FC<NavigationEmptyStateProps> = ({
                 documentId: source.documentId,
               },
               {
-                onSuccess(res) {
+                onSuccess(navigation) {
                   copyNavigationI18nMutation.reset();
-                  const navigation = res.data as NavigationSchema;
                   setCurrentNavigation({
                     ...navigation,
                     items: navigation.items.map(appendViewId),

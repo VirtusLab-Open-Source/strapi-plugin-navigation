@@ -49,6 +49,11 @@ export const getNavigationSortableData = (
   return isNavigationSortableData(current) ? current : undefined;
 };
 
+export const getNavigationItemStructureId = (
+  structurePrefix: string,
+  index: number
+): string => (structurePrefix ? `${structurePrefix}.${index}` : index.toString());
+
 export const getNavigationItemSortableId = (
   item: NavigationItemSchema,
   structureId: string
@@ -111,7 +116,7 @@ const getSameLevelItems = (
     : droppableContainers.getEnabled();
 
   return entries
-    .filter((entry): entry is DroppableContainer => !!entry && !entry.disabled)
+    .filter((entry): entry is DroppableContainer => !entry?.disabled)
     .filter((entry) => getSortableContainerId(entry) === activeContainerId)
     .sort((a, b) => (getSortableIndex(a) ?? 0) - (getSortableIndex(b) ?? 0));
 };
