@@ -7,11 +7,14 @@ import {
   OnItemEditEffect,
   OnItemLevelAddEffect,
   OnItemSubmitEffect,
-  getNavigationItemSortableId,
 } from '../NavigationItemListItem';
 import Wrapper from './Wrapper';
 import { type NavigationItemFormSchema } from '../NavigationItemForm';
 import { mapServerNavigationItem } from '../../utils';
+import {
+  getNavigationItemSortableId,
+  getNavigationItemStructureId,
+} from '../../../../utils/dnd';
 
 interface Props {
   isParentAttachedToMenu?: boolean;
@@ -95,10 +98,9 @@ export const List: FC<Props> = ({
 
   const sortableIds = useMemo(
     () =>
-      (items ?? []).map((item, index) => {
-        const structureId = structurePrefix ? `${structurePrefix}.${index}` : index.toString();
-        return getNavigationItemSortableId(item, structureId);
-      }),
+      items?.map((item, index) =>
+        getNavigationItemSortableId(item, getNavigationItemStructureId(structurePrefix, index))
+      ) ?? [],
     [items, structurePrefix]
   );
 
@@ -106,7 +108,7 @@ export const List: FC<Props> = ({
     <Wrapper data-level={level}>
       <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
         {items?.map((item, index) => {
-          const structureId = structurePrefix ? `${structurePrefix}.${index}` : index.toString();
+          const structureId = getNavigationItemStructureId(structurePrefix, index);
 
           return (
             <Item
