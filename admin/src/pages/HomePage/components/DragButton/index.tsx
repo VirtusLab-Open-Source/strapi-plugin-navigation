@@ -1,9 +1,9 @@
 import { Drag } from '@strapi/icons';
 import React from 'react';
-import styled, { DefaultTheme } from 'styled-components';
+import styled from 'styled-components';
 import { usePluginMediaQuery } from '../../hooks';
 
-const DragButtonWrapper = styled.span<{ ref: unknown; isActive?: boolean; isMobile?: boolean }>`
+const DragButtonWrapper = styled.button<{ isActive?: boolean; isMobile?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -54,10 +54,10 @@ const DragButtonWrapper = styled.span<{ ref: unknown; isActive?: boolean; isMobi
   }
 `;
 
-const DragButton = React.forwardRef<unknown, { isActive?: boolean }>((props, ref) => {
+const DragButton = React.forwardRef<HTMLButtonElement, { isActive?: boolean }>((props, ref) => {
   const { isSmallMobile } = usePluginMediaQuery();
   return (
-    <DragButtonWrapper {...props} ref={ref} isMobile={isSmallMobile}>
+    <DragButtonWrapper type="button" {...props} ref={ref} isMobile={isSmallMobile}>
       <Drag />
     </DragButtonWrapper>
   );
