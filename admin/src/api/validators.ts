@@ -19,6 +19,7 @@ const navigationItemBaseSchema = z.object({
   title: z.string(),
   type: navigationItemTypeSchema,
   path: z.string().or(z.null()).optional(),
+  isManualPath: z.boolean().nullish(),
   externalPath: z.string().or(z.null()).optional(),
   uiRouterKey: z.string(),
   menuAttached: z.boolean(),

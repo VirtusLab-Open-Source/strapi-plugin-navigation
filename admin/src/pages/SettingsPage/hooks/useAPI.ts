@@ -1,5 +1,5 @@
 import { getFetchClient } from '@strapi/strapi/admin';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { getApiClient } from '../../../api';
 import { resolveGlobalLikeId } from '../utils';
@@ -61,6 +61,7 @@ export const useContentTypes = () => {
 export const useSaveConfig = () => {
   const fetch = getFetchClient();
   const apiClient = getApiClient(fetch);
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn(data: UiFormSchema) {
@@ -84,6 +85,9 @@ export const useSaveConfig = () => {
           }),
         },
       });
+    },
+    onSuccess() {
+      queryClient.invalidateQueries({ queryKey: apiClient.readSettingsConfigIndex() });
     },
   });
 };

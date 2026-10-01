@@ -1,3 +1,4 @@
+// TODO?: is it to remove
 export default ({ nexus }: any) =>
   nexus.inputObjectType({
     name: 'CreateNavigationItem',
@@ -6,6 +7,7 @@ export default ({ nexus }: any) =>
       t.nonNull.field('type', { type: 'NavigationItemType' });
       t.string('path');
       t.string('externalPath');
+      t.boolean('isManualPath');
       t.nonNull.string('uiRouterKey');
       t.nonNull.boolean('menuAttached');
       t.nonNull.int('order');

@@ -31,6 +31,7 @@ const toNavigationItem = (
         menuAttached: !!payload.menuAttached,
         order: payload.order ?? 0,
         path: payload.path,
+        isManualPath: payload.isManualPath,
         title: payload.title,
         uiRouterKey: payload.uiRouterKey,
         additionalFields: payload.additionalFields,
@@ -69,6 +70,7 @@ const toNavigationItem = (
             ? transformItemToViewPayload(payload, payload.items, config)
             : payload.items,
           path: '',
+          isManualPath: false,
           viewId: payload.viewId,
           structureId: payload.structureId,
           viewParentId: payload.viewParentId,

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { UiFormSchema } from '../schemas';
 import { ConfigSchema } from '../../../schemas';
 
@@ -24,8 +24,11 @@ type UseInitialConfigParams = {
 };
 
 export const useInitialConfig = ({ config, setFormValue }: UseInitialConfigParams) => {
+  const isInitializedRef = useRef(false);
+
   useEffect(() => {
-    if (config) {
+    if (config && !isInitializedRef.current) {
+      isInitializedRef.current = true;
       const {
         additionalFields,
         contentTypes,

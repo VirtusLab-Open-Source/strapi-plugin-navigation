@@ -44,6 +44,11 @@ export default {
       targetField: 'title',
       configurable: false,
     },
+    isManualPath: {
+      type: 'boolean',
+      default: false,
+      configurable: false,
+    },
     externalPath: {
       type: 'text',
       configurable: false,

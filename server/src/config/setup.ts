@@ -1,20 +1,12 @@
 import { Core } from '@strapi/strapi';
 
-import { isEmpty } from 'lodash';
 import configBase from '.';
 import {
   ConfigSchema,
-  NavigationItemAdditionalField,
   NavigationPluginConfigDBSchema,
   PluginConfigKeys,
   DynamicSchemas,
 } from '../schemas';
-import {
-  PluginConfigGraphQL,
-  PluginConfigNameFields,
-  PluginConfigPathDefaultFields,
-  PluginConfigPopulate,
-} from '../types';
 import { assertNotEmpty, resolveGlobalLikeId, validateAdditionalFields } from '../utils';
 
 type PluginDefaultConfigGetter = (
@@ -33,34 +25,32 @@ export const configSetup = async ({
     name: 'navigation',
   });
   const getFromPluginDefaults: PluginDefaultConfigGetter = await strapi.plugin('navigation').config;
-  const configRaw = forceDefault
-    ? ({} as NavigationPluginConfigDBSchema)
-    : {
-        ...configBase.default,
-        ...((await pluginStore.get({
-          key: 'config',
-        })) ?? configBase.default),
-      };
 
-  let config = isEmpty(configRaw)
-    ? configRaw
-    : (DynamicSchemas.configSchema.parse(configRaw) as unknown as ConfigSchema);
+  const partialConfigSchema = DynamicSchemas.configSchema.partial();
+  const hardcodedDefaults = partialConfigSchema.parse(configBase.default);
+  const dbConfig = partialConfigSchema.parse(
+    forceDefault ? {} : ((await pluginStore.get({ key: 'config' })) ?? {})
+  );
 
-  const getWithFallback = getWithFallbackFactory(config, getFromPluginDefaults);
+  const getWithFallback = getWithFallbackFactory(
+    dbConfig,
+    getFromPluginDefaults,
+    hardcodedDefaults
+  );
 
-  config = {
-    additionalFields: getWithFallback<NavigationItemAdditionalField[]>('additionalFields'),
-    contentTypes: getWithFallback<string[]>('contentTypes'),
-    contentTypesNameFields: getWithFallback<PluginConfigNameFields>('contentTypesNameFields'),
-    contentTypesPopulate: getWithFallback<PluginConfigPopulate>('contentTypesPopulate'),
-    defaultContentType: getWithFallback<string>('defaultContentType'),
-    allowedLevels: getWithFallback<number>('allowedLevels'),
-    gql: getWithFallback<PluginConfigGraphQL>('gql'),
-    pathDefaultFields: getWithFallback<PluginConfigPathDefaultFields>('pathDefaultFields'),
-    cascadeMenuAttached: getWithFallback<boolean>('cascadeMenuAttached'),
-    preferCustomContentTypes: getWithFallback<boolean>('preferCustomContentTypes'),
-    isCacheEnabled: getWithFallback<boolean>('isCacheEnabled'),
-  };
+  const config: ConfigSchema = DynamicSchemas.configSchema.parse({
+    additionalFields: getWithFallback('additionalFields'),
+    contentTypes: getWithFallback('contentTypes'),
+    contentTypesNameFields: getWithFallback('contentTypesNameFields'),
+    contentTypesPopulate: getWithFallback('contentTypesPopulate'),
+    defaultContentType: getWithFallback('defaultContentType'),
+    allowedLevels: getWithFallback('allowedLevels'),
+    gql: getWithFallback('gql'),
+    pathDefaultFields: getWithFallback('pathDefaultFields'),
+    cascadeMenuAttached: getWithFallback('cascadeMenuAttached'),
+    preferCustomContentTypes: getWithFallback('preferCustomContentTypes'),
+    isCacheEnabled: getWithFallback('isCacheEnabled'),
+  });
 
   handleDeletedContentTypes(config, { strapi });
 
@@ -75,13 +65,17 @@ export const configSetup = async ({
 };
 
 const getWithFallbackFactory =
-  (config: NavigationPluginConfigDBSchema, fallback: PluginDefaultConfigGetter) =>
-  <T extends ReturnType<PluginDefaultConfigGetter>>(key: PluginConfigKeys) => {
-    const value = config?.[key] ?? fallback(key);
+  (
+    dbConfig: Partial<NavigationPluginConfigDBSchema>,
+    fallback: PluginDefaultConfigGetter,
+    hardcodedDefaults: Partial<NavigationPluginConfigDBSchema>
+  ) =>
+  (key: PluginConfigKeys) => {
+    const value = dbConfig[key] ?? fallback(key) ?? hardcodedDefaults[key];
 
     assertNotEmpty(value, new Error(`[Navigation] Config "${key}" is undefined`));
 
-    return value as T;
+    return value;
   };
 
 const handleDeletedContentTypes = (

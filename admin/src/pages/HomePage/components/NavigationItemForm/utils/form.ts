@@ -35,6 +35,7 @@ const navigationItemCommon = ({ additionalFields }: FormSchemaBuilderInput) =>
     audience: z.string().array().optional(),
     order: z.number().optional(),
     items: z.any().array().optional(),
+    isManualPath: z.boolean().nullish(),
     additionalFields: z.object(
       additionalFields.reduce<
         Record<

@@ -1,5 +1,4 @@
 import { useIntl } from 'react-intl';
-import { isObject } from 'lodash';
 
 import { Box, Flex, Grid, NumberInput, Toggle, Typography } from '@strapi/design-system';
 import { Field } from '@sensinum/strapi-utils';
@@ -34,20 +33,11 @@ export const AdditionalSettingsPanel = () => {
                 <NumberInput
                   width="100%"
                   name="allowedLevels"
-                  type="number"
                   placeholder={formatMessage(
                     getTrad('pages.settings.form.allowedLevels.placeholder')
                   )}
-                  onChange={(eventOrPath: FormChangeEvent, value?: any) => {
-                    if (isObject(eventOrPath)) {
-                      const parsedVal = parseInt(eventOrPath.target.value);
-                      return handleChange(
-                        eventOrPath.target.name,
-                        isNaN(parsedVal) ? 0 : parsedVal,
-                        onChange
-                      );
-                    }
-                    return handleChange(eventOrPath, value, onChange);
+                  onValueChange={(value: number | undefined) => {
+                    handleChange('allowedLevels', value ?? 0, onChange);
                   }}
                   value={values.allowedLevels}
                   disabled={restartStatus.required}

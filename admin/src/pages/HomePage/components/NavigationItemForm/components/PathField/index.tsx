@@ -1,15 +1,15 @@
 import { useIntl } from 'react-intl';
 
-import { Grid, TextInput } from '@strapi/design-system';
 import { Field } from '@sensinum/strapi-utils';
+import { Grid, TextInput } from '@strapi/design-system';
 
+import { StrapiContentTypeItemSchema } from 'src/api/validators';
 import { getTrad } from '../../../../../../translations';
 import { FormChangeEvent } from '../../../../../../types';
-import { useNavigationItemFormContext } from '../../context/NavigationItemFormContext';
-import { generatePreviewPath } from '../../utils/properties';
 import { useConfig } from '../../../../hooks';
+import { useNavigationItemFormContext } from '../../context/NavigationItemFormContext';
 import { type NavigationItemFormSchema } from '../../utils/form';
-import { StrapiContentTypeItemSchema } from 'src/api/validators';
+import { generatePreviewPath } from '../../utils/properties';
 
 type PathFieldProps = {
   contentTypeItems: StrapiContentTypeItemSchema[] | undefined;
@@ -38,17 +38,19 @@ export const PathField: React.FC<PathFieldProps> = ({
           relatedType: undefined,
         };
 
-  const pathDefault = generatePreviewPath({
-    currentPath: values.path,
-    isExternal: values.type === 'EXTERNAL',
-    current,
-    currentType: values.type,
-    config: configQuery.data,
-    contentTypeItems,
-    currentRelated: internalValues.related,
-    currentRelatedType: internalValues.relatedType,
-    isSingleSelected,
-  });
+  const pathDefault = values.isManualPath
+    ? (values.path ?? '')
+    : generatePreviewPath({
+        currentPath: values.path,
+        isExternal: values.type === 'EXTERNAL',
+        current,
+        currentType: values.type,
+        config: configQuery.data,
+        contentTypeItems,
+        currentRelated: internalValues.related,
+        currentRelatedType: internalValues.relatedType,
+        isSingleSelected,
+      });
 
   return (
     <Grid.Item alignItems="flex-start" key="title" col={12}>

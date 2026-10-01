@@ -14,6 +14,7 @@ import { asProxy } from '../utils';
 jest.mock('../../src/repositories');
 jest.mock('../../src/utils');
 jest.mock('@sindresorhus/slugify', () => ({
+  __esModule: true,
   default: (s: string) => s.toLowerCase().replace(/\s+/g, '-'),
 }));
 jest.mock('@strapi/utils', () => ({

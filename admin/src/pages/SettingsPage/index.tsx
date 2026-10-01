@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { get, isNil, isObject, isString, set } from 'lodash';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 
 import { Button, Flex } from '@strapi/design-system';
@@ -203,7 +203,9 @@ const Inner = () => {
 };
 
 export default function SettingsPage() {
-  queryClient.invalidateQueries();
+  useEffect(() => {
+    queryClient.invalidateQueries();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

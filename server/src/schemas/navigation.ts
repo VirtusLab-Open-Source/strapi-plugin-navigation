@@ -17,6 +17,7 @@ const navigationItemDBBaseSchema = z.object({
   title: z.string(),
   type: navigationItemType,
   path: z.string().or(z.null()).optional(),
+  isManualPath: z.boolean().nullish(),
   slug: z.string().or(z.null()).optional(),
   externalPath: z.string().or(z.null()).optional(),
   uiRouterKey: z.string(),
