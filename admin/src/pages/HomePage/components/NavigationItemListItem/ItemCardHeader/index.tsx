@@ -4,7 +4,7 @@ import {
   Flex,
   Typography,
 } from '@strapi/design-system';
-import { FC, HTMLAttributes, ReactNode, Ref } from 'react';
+import { ButtonHTMLAttributes, FC, ReactNode, Ref } from 'react';
 import { useIntl } from 'react-intl';
 import styled from 'styled-components';
 
@@ -16,8 +16,8 @@ import { ItemCardBadge } from '../ItemCardBadge';
 import { CardItemTitle } from './Wrapper';
 import { eyeIcon, pencilIcon, arrowClockwise, trashIcon } from './icons';
 
-type DragHandleProps = HTMLAttributes<HTMLElement> & {
-  ref?: Ref<HTMLElement>;
+type DragHandleProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+  ref?: Ref<HTMLButtonElement>;
 };
 
 interface IProps {
