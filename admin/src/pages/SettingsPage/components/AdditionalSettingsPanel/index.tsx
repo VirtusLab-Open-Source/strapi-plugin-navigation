@@ -83,6 +83,25 @@ export const AdditionalSettingsPanel = () => {
               />
             </Field>
           </Grid.Item>
+          <Grid.Item col={4} s={12} xs={12}>
+            <Field
+              name="isOverviewUiEnabled"
+              label={formatMessage(getTrad('pages.settings.form.overviewUi.label'))}
+              hint={formatMessage(getTrad('pages.settings.form.overviewUi.hint'))}
+            >
+              <Toggle
+                name="isOverviewUiEnabled"
+                checked={values.isOverviewUiEnabled}
+                onChange={(eventOrPath: FormChangeEvent) =>
+                  handleChange(eventOrPath, !values.isOverviewUiEnabled, onChange)
+                }
+                onLabel={formatMessage(getTrad('components.toggle.enabled'))}
+                offLabel={formatMessage(getTrad('components.toggle.disabled'))}
+                disabled={restartStatus.required}
+                width="100%"
+              />
+            </Field>
+          </Grid.Item>
           {configQuery.data?.isCachePluginEnabled && (
             <Grid.Item col={12} s={12} xs={12}>
               <Field

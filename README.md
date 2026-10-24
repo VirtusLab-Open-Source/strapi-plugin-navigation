@@ -171,6 +171,7 @@ Config for this plugin is stored as a part of the `config/plugins.{js|ts}` or `c
 - `pathDefaultFields` - The attribute to copy the default path from per content type. Syntax: `'api::<collection name>.<content type name>': ['url_slug', 'path']`. If you leave it empty, the default path is generated based on the ID.
 - `gql` - If you're using GraphQL that's the right place to put all necessary settings. More **[ here ](#gql-configuration)**
 - `cascadeMenuAttached` - If you don't want "Menu attached" to cascade on child items set this value `Disabled`.
+- `isOverviewUiEnabled` - Enables the new management interface: an overview page listing all navigations with separate detail pages per navigation.
 
 ### Properties
 

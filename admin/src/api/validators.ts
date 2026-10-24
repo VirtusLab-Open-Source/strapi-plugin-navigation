@@ -146,6 +146,7 @@ export const configSchema = z.object({
   restrictedContentTypes: z.string().array(),
   isCacheEnabled: z.boolean().optional(),
   isCachePluginEnabled: z.boolean().optional(),
+  isOverviewUiEnabled: z.boolean().optional(),
 });
 
 export type ConfigFromServerSchema = z.infer<typeof configFromServerSchema>;

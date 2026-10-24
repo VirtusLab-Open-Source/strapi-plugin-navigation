@@ -94,6 +94,10 @@ const ca = {
         },
         visible: {
           label: 'Visibilité',
+          toggle: {
+            visible: 'Visible',
+            hidden: 'Masqué',
+          },
         },
       },
     },
@@ -229,6 +233,18 @@ const ca = {
         allowed: "Oups ! Il semble que vous n'ayez pas accès à cette page...",
       },
     },
+    overview: {
+      header: {
+        subtitle: '{count, plural, one {# navigation trouvée} other {# navigations trouvées}}',
+      },
+      table: {
+        items: 'Éléments',
+        actions: 'Actions',
+      },
+      empty: {
+        description: "Vous n'avez pas encore de navigation",
+      },
+    },
     main: {
       search: {
         placeholder: 'Tapez pour commencer à rechercher...',
@@ -271,6 +287,10 @@ const ca = {
         cascadeMenuAttached: {
           label: 'Cascade du menu attaché',
           hint: 'Désactiver si vous ne voulez pas que "Menu attaché" se propage aux éléments enfants',
+        },
+        overviewUi: {
+          label: 'Nova interfície de navegació',
+          hint: 'Activa la nova interfície amb una vista general i pàgines de detall',
         },
         preferCustomContentTypes: {
           label: 'Préférer les types de contenu personnalisés',

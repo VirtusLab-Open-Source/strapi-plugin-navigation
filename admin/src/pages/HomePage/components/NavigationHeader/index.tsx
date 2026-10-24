@@ -16,7 +16,7 @@ import styled from 'styled-components';
 import { NavigationSchema } from '../../../../api/validators';
 import { getTrad } from '../../../../translations';
 import { Effect } from '../../../../types';
-import { useConfig, usePluginMediaQuery } from '../../hooks';
+import { useConfig, usePluginMediaQuery } from '../../../DetailPage/hooks';
 import { useNavigationManager } from './hooks';
 
 const StyledGridItem = styled(Grid.Item)<{

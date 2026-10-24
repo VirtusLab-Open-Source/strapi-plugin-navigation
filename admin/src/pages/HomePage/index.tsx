@@ -8,11 +8,11 @@ import { useIntl } from 'react-intl';
 import { NavigationSchema } from '../../api/validators';
 import { getTrad } from '../../translations';
 import { NavigationHeader } from './components';
-import { ChangeLanguageDialog } from './components/ChangeLanguageDialog';
-import { NavigationContentHeader } from './components/NavigationContentHeader';
-import { List } from './components/NavigationItemList';
-import NavigationItemPopUp from './components/NavigationItemPopup';
-import { Search } from './components/NavigationContentHeader/Search';
+import { ChangeLanguageDialog } from '../DetailPage/components/ChangeLanguageDialog';
+import { NavigationContentHeader } from '../DetailPage/components/NavigationContentHeader';
+import { List } from '../DetailPage/components/NavigationItemList';
+import NavigationItemPopUp from '../DetailPage/components/NavigationItemPopup';
+import { Search } from '../DetailPage/components/NavigationContentHeader/Search';
 import {
   useConfig,
   useInvalidateQueries,
@@ -23,12 +23,12 @@ import {
   useSearch,
   useSettingsPermissions,
   useUpdateNavigation,
-} from './hooks';
-import { getPendingAction, transformItemToViewPayload } from './utils';
-import { ManageNavigationItems } from './components/NavigationContentHeader/ManageNavigationItems';
-import { NavigationEmptyState } from './components/NavigationEmptyState';
-import { appendViewId } from './utils/appendViewId';
-import { type NavigationItemFormSchema } from './components/NavigationItemForm';
+} from '../DetailPage/hooks';
+import { getPendingAction, transformItemToViewPayload } from '../DetailPage/utils';
+import { ManageNavigationItems } from '../DetailPage/components/NavigationContentHeader/ManageNavigationItems';
+import { NavigationEmptyState } from '../DetailPage/components/NavigationEmptyState';
+import { appendViewId } from '../../utils/appendViewId';
+import { type NavigationItemFormSchema } from '../DetailPage/components/NavigationItemForm';
 
 const queryClient = new QueryClient();
 

@@ -78,6 +78,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       pathDefaultFields,
       allowedLevels,
       preferCustomContentTypes,
+      isOverviewUiEnabled,
     } = config;
 
     const isGQLPluginEnabled = !!context.strapi.plugin('graphql');
@@ -108,6 +109,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       isGQLPluginEnabled: viaSettingsPage ? isGQLPluginEnabled : undefined,
       cascadeMenuAttached,
       preferCustomContentTypes,
+      isOverviewUiEnabled: !!isOverviewUiEnabled,
     };
 
     if (additionalFields.includes('audience')) {

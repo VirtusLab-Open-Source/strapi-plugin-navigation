@@ -234,6 +234,18 @@ const de = {
         allowed: 'Sie haben offenbar keinen Zugriff auf diese Seite...',
       },
     },
+    overview: {
+      header: {
+        subtitle: '{count, plural, one {# Navigation gefunden} other {# Navigationen gefunden}}',
+      },
+      table: {
+        items: 'Einträge',
+        actions: 'Aktionen',
+      },
+      empty: {
+        description: 'Sie haben noch keine Navigationen',
+      },
+    },
     main: {
       search: {
         placeholder: 'Tippen, um die Suche zu starten...',
@@ -276,6 +288,10 @@ const de = {
         cascadeMenuAttached: {
           label: 'Menüzuordnung vererben',
           hint: 'Deaktivieren, wenn "Im Menü anzeigen" nicht an untergeordnete Einträge vererbt werden soll',
+        },
+        overviewUi: {
+          label: 'Neue Navigationsoberfläche',
+          hint: 'Aktiviert die neue Oberfläche mit Navigationsübersicht und Detailseiten',
         },
         preferCustomContentTypes: {
           label: 'API-Content-Types bevorzugen',

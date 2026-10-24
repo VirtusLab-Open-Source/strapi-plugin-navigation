@@ -56,6 +56,7 @@ describe('Navigation', () => {
               navigationItemRelated: expect.any(Array),
             }),
             isCacheEnabled: expect.any(Boolean),
+            isOverviewUiEnabled: expect.any(Boolean),
             pathDefaultFields: expect.any(Object),
             preferCustomContentTypes: false,
           });
