@@ -9,6 +9,7 @@ const trads = {
   de: () => import('./de'),
   fr: () => import('./fr'),
   ca: () => import('./ca'),
+  ar: () => import('./ar'),
 };
 
 export const getTradId = (msg: string) => `${PLUGIN_ID}.${msg}`;
