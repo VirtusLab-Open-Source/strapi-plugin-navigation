@@ -4,7 +4,11 @@ import { cloneDeep, first, isArray, isEmpty, isNil, last, pick } from 'lodash';
 import { NavigationError } from '../../app-errors';
 import { NavigationItemDTO, RFRNavigationItemDTO, RFRPageDTO } from '../../dtos';
 import { getNavigationItemRepository, getNavigationRepository } from '../../repositories';
-import { NavigationItemAdditionalField, NavigationItemCustomField } from '../../schemas';
+import {
+  DynamicSchemas,
+  NavigationItemAdditionalField,
+  NavigationItemCustomField,
+} from '../../schemas';
 import { assertNotEmpty, getPluginService } from '../../utils';
 import {
   ReadAllInput,
@@ -273,6 +277,14 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
     }
 
     if (navigation && navigation.documentId) {
+      // `related` is a polymorphic (morphTo) relation. Strapi's Document Service only
+      // resolves it via the `{ on: { <uid>: true, ... } }` populate form - passed as a
+      // flat array entry (as below) it silently resolves to `undefined` for every item.
+      const pluginStore = await commonService.getPluginStore();
+      const { contentTypes: relatedContentTypes } = await pluginStore
+        .get({ key: 'config' })
+        .then(DynamicSchemas.configSchema.parse);
+
       const navigationItems = await navigationItemRepository.find({
         filters: {
           master: pick(navigation, ['slug', 'id']),
@@ -281,7 +293,13 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
         locale,
         limit: Number.MAX_SAFE_INTEGER,
         order: [{ order: 'asc' }],
-        populate: ['audience', 'parent', 'related'],
+        populate: {
+          audience: true,
+          parent: true,
+          related: {
+            on: Object.fromEntries(relatedContentTypes.map((uid) => [uid, true])),
+          },
+        },
       });
 
       const mappedItems = await commonService.mapToNavigationItemDTO({
