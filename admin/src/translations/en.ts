@@ -277,7 +277,7 @@ const en = {
         },
         preferCustomContentTypes: {
           label: 'Prefer API Content Types',
-          hint: 'Prefer if to use only api:: prefixed content types',
+          hint: 'Prefer if to use only api:: or plugin:: prefixed content types',
         },
         contentTypes: {
           label: 'Enable navigation for',

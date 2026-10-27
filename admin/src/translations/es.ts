@@ -278,7 +278,7 @@ const en = {
         },
         preferCustomContentTypes: {
           label: 'Preferir tipos de contenido de API',
-          hint: 'Preferir si se desea usar solo tipos de contenido con prefijo api::',
+          hint: 'Preferir si se desea usar solo tipos de contenido con prefijo api:: o plugin::',
         },
         contentTypes: {
           label: 'Habilitar navegación para',

@@ -279,7 +279,7 @@ const de = {
         },
         preferCustomContentTypes: {
           label: 'API-Content-Types bevorzugen',
-          hint: 'Nur Content-Types mit api::-Präfix bevorzugen',
+          hint: 'Nur Content-Types mit api::- oder plugin::-Präfix bevorzugen',
         },
         contentTypes: {
           label: 'Navigation aktivieren für',
