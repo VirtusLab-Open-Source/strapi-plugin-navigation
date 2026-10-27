@@ -1,4 +1,5 @@
-import { FC } from 'react';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { FC, useMemo } from 'react';
 
 import { NavigationItemSchema } from '../../../../api/validators';
 import {
@@ -10,6 +11,10 @@ import {
 import Wrapper from './Wrapper';
 import { type NavigationItemFormSchema } from '../NavigationItemForm';
 import { mapServerNavigationItem } from '../../utils';
+import {
+  getNavigationItemSortableId,
+  getNavigationItemStructureId,
+} from '../../../../utils/dnd';
 
 interface Props {
   isParentAttachedToMenu?: boolean;
@@ -91,32 +96,44 @@ export const List: FC<Props> = ({
     );
   };
 
+  const sortableIds = useMemo(
+    () =>
+      items?.map((item, index) =>
+        getNavigationItemSortableId(item, getNavigationItemStructureId(structurePrefix, index))
+      ) ?? [],
+    [items, structurePrefix]
+  );
+
   return (
     <Wrapper data-level={level}>
-      {items?.map((item, index) => {
-        return (
-          <Item
-            key={`list-item-${item.viewId || index}`}
-            item={item}
-            isLast={index === items.length - 1}
-            level={level}
-            levelPath={levelPath}
-            isParentAttachedToMenu={isParentAttachedToMenu}
-            onItemLevelAdd={onItemLevelAdd}
-            onItemEdit={onItemEdit}
-            onItemSubmit={onItemSubmit}
-            onItemRestore={handleItemRestore}
-            onItemRemove={handleItemRemove}
-            onItemReOrder={handleItemReOrder}
-            onItemToggleCollapse={handleItemToggleCollapse}
-            displayChildren={displayFlat}
-            permissions={permissions}
-            structureId={structurePrefix ? `${structurePrefix}.${index}` : index.toString()}
-            viewParentId={viewParentId}
-            locale={locale}
-          />
-        );
-      })}
+      <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
+        {items?.map((item, index) => {
+          const structureId = getNavigationItemStructureId(structurePrefix, index);
+
+          return (
+            <Item
+              key={`list-item-${getNavigationItemSortableId(item, structureId)}`}
+              item={item}
+              isLast={index === items.length - 1}
+              level={level}
+              levelPath={levelPath}
+              isParentAttachedToMenu={isParentAttachedToMenu}
+              onItemLevelAdd={onItemLevelAdd}
+              onItemEdit={onItemEdit}
+              onItemSubmit={onItemSubmit}
+              onItemRestore={handleItemRestore}
+              onItemRemove={handleItemRemove}
+              onItemReOrder={handleItemReOrder}
+              onItemToggleCollapse={handleItemToggleCollapse}
+              displayChildren={displayFlat}
+              permissions={permissions}
+              structureId={structureId}
+              viewParentId={viewParentId}
+              locale={locale}
+            />
+          );
+        })}
+      </SortableContext>
     </Wrapper>
   );
 };

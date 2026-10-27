@@ -123,7 +123,7 @@ export const getApiClient = once((fetch: ReturnType<typeof getFetchClient>) => (
 
   readContentType() {
     return fetch
-      .get(`/content-manager/content-types`)
+      .get<{ data: unknown }>(`/content-manager/content-types`)
       .then(({ data }) => strapiContentTypeSchema.array().parse(data.data));
   },
   readContentTypeIndex() {
@@ -175,7 +175,9 @@ export const getApiClient = once((fetch: ReturnType<typeof getFetchClient>) => (
     target: string;
     documentId: string;
   }) {
-    return fetch.put(`/${URL_PREFIX}/i18n/copy/${documentId}/${source}/${target}`);
+    return fetch
+      .put(`/${URL_PREFIX}/i18n/copy/${documentId}/${source}/${target}`)
+      .then(({ data }) => navigationSchema.parse(data));
   },
 
   copyNavigationItemLocale({

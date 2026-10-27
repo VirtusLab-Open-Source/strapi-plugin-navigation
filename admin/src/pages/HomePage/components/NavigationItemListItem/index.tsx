@@ -1,14 +1,17 @@
 import { Card, CardBody, Divider, Flex, Link, TextButton, Typography } from '@strapi/design-system';
 import { ArrowRight, Cog, Earth, Link as LinkIcon, Plus } from '@strapi/icons';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { isEmpty, isNumber } from 'lodash';
 import { useCallback, useEffect, useRef } from 'react';
-import { DropTargetMonitor, useDrag, useDrop } from 'react-dnd';
 import { useIntl } from 'react-intl';
 import { useTheme } from 'styled-components';
+import { useIsMobile } from '@strapi/strapi/admin';
 
 import { NavigationItemSchema, StrapiContentTypeItemSchema } from '../../../../api/validators';
 import { getTrad } from '../../../../translations';
 import { Effect } from '../../../../types';
+import { getNavigationItemSortableId, type NavigationSortableData } from '../../../../utils/dnd';
 import {
   useConfig,
   useContentTypeItems,
@@ -23,7 +26,8 @@ import { ItemCardBadge } from './ItemCardBadge';
 import { ItemCardHeader } from './ItemCardHeader';
 import { ItemCardRemovedOverlay } from './ItemCardRemovedOverlay';
 import Wrapper from './Wrapper';
-import { useIsMobile } from '@strapi/strapi/admin';
+
+export { getNavigationItemSortableId } from '../../../../utils/dnd';
 
 export type OnItemReorderEffect = Effect<{
   item: NavigationItemFormSchema;
@@ -121,7 +125,7 @@ export const Item: React.FC<Props> = ({
   const absolutePath = isExternal
     ? undefined
     : isManualPath
-      ? mappedItem.path ?? ""
+      ? (mappedItem.path ?? '')
       : `${levelPath === '/' ? '' : levelPath}/${mappedItem.path === '/' ? '' : mappedItem.path}`.replace(
           '//',
           '/'
@@ -155,70 +159,35 @@ export const Item: React.FC<Props> = ({
   const relatedBadgeColor = isPublished ? 'success' : 'secondary';
 
   const canUpdate = permissions.canUpdate;
-
-  const dragRef = useRef(null);
   const dropRef = useRef<HTMLDivElement | null>(null);
-  const previewRef = useRef(null);
+  const sortableId = getNavigationItemSortableId(item, structureId);
 
-  const [, drop] = useDrop({
-    accept: `navigation-item_${levelPath}`,
-    hover(
-      hoveringItem: NavigationItemSchema,
-      monitor: DropTargetMonitor<NavigationItemSchema, unknown>
-    ) {
-      const dragIndex = hoveringItem.order ?? 0;
-      const dropIndex = item.order ?? 0;
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: sortableId,
+    disabled: !canUpdate,
+    data: {
+      levelPath,
+      item,
+      viewParentId,
+      onItemReOrder,
+    } satisfies NavigationSortableData,
+  });
 
-      // Don't replace items with themselves
-      if (dragIndex === dropIndex) {
-        return;
-      }
-
-      const hoverBoundingRect = dropRef.current!.getBoundingClientRect();
-      const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
-      const clientOffset = monitor.getClientOffset();
-
-      if (!clientOffset) {
-        return;
-      }
-
-      const hoverClientY = clientOffset.y - hoverBoundingRect.top;
-
-      // Place the hovering item before or after the drop target
-      const isAfter = hoverClientY > hoverMiddleY;
-      const newOrder = isAfter ? (item.order ?? 0) + 0.5 : (item.order ?? 0) - 0.5;
-
-      if (dragIndex < dropIndex && hoverClientY < hoverMiddleY) {
-        return;
-      }
-      // Dragging upwards
-      if (dragIndex > dropIndex && hoverClientY > hoverMiddleY) {
-        return;
-      }
-
-      onItemReOrder({
-        item: mapServerNavigationItem(hoveringItem, true),
-        newOrder,
-      });
+  const setDroppableRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      dropRef.current = node;
+      setNodeRef(node);
     },
-    collect: (monitor) => ({
-      isOverCurrent: monitor.isOver({ shallow: true }),
-    }),
-  });
-
-  const [{ isDragging }, drag, dragPreview] = useDrag({
-    type: `navigation-item_${levelPath}`,
-    item: () => item,
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-  });
-
-  const refs = {
-    dragRef: drag(dragRef) as any,
-    dropRef: drop(dropRef) as any,
-    previewRef: dragPreview(previewRef) as any,
-  };
+    [setNodeRef]
+  );
 
   const generatePreviewUrl = (entity?: StrapiContentTypeItemSchema) => {
     const isSingle = contentType?.kind === 'singleType';
@@ -255,18 +224,19 @@ export const Item: React.FC<Props> = ({
       structureId,
       mappedItem.items,
       canUpdate,
+      onItemLevelAdd,
     ]
   );
 
   useEffect(() => {
     if (mappedItem.isSearchActive) {
-      refs.dropRef?.current?.scrollIntoView?.({
+      dropRef.current?.scrollIntoView?.({
         behavior: 'smooth',
         block: 'center',
         inline: 'center',
       });
     }
-  }, [mappedItem.isSearchActive, refs.dropRef.current]);
+  }, [mappedItem.isSearchActive]);
 
   const invalidatContentTypeItems = useInvalidateContentTypeItems({
     uid: mappedItem.type === 'INTERNAL' ? (mappedItem.relatedType ?? '') : '',
@@ -283,8 +253,12 @@ export const Item: React.FC<Props> = ({
     <Wrapper
       level={level}
       isLast={isLast}
-      style={{ opacity: isDragging ? 0.2 : 1 }}
-      ref={refs ? refs.dropRef : undefined}
+      ref={setDroppableRef}
+      style={{
+        opacity: isDragging ? 0.5 : 1,
+        transform: CSS.Translate.toString(transform),
+        transition,
+      }}
     >
       <Card
         style={{
@@ -298,7 +272,7 @@ export const Item: React.FC<Props> = ({
         }}
       >
         {mappedItem.removed && <ItemCardRemovedOverlay />}
-        <div ref={refs.previewRef}>
+        <div>
           <CardBody>
             <ItemCardHeader
               title={item.title ?? ''}
@@ -367,7 +341,11 @@ export const Item: React.FC<Props> = ({
                 });
               }}
               onItemRestore={() => onItemRestore({ ...item, viewParentId })}
-              dragRef={refs.dragRef}
+              dragHandleProps={{
+                ref: setActivatorNodeRef,
+                ...attributes,
+                ...listeners,
+              }}
               removed={mappedItem.removed}
               canUpdate={canUpdate}
               isSearchActive={mappedItem.isSearchActive}

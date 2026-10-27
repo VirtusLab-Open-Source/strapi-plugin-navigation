@@ -67,11 +67,11 @@ export const NavigationEmptyState: React.FC<NavigationEmptyStateProps> = ({
                 documentId: source.documentId,
               },
               {
-                onSuccess(res) {
+                onSuccess(navigation) {
                   copyNavigationI18nMutation.reset();
                   setCurrentNavigation({
-                    ...res.data,
-                    items: res.data.items.map(appendViewId),
+                    ...navigation,
+                    items: navigation.items.map(appendViewId),
                   });
                   resetContentTypes();
                   resetNavigations();
