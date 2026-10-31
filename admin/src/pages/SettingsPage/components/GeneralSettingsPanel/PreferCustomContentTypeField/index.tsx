@@ -1,4 +1,4 @@
-import { Grid, Toggle } from '@strapi/design-system';
+import { Box, Toggle } from '@strapi/design-system';
 import { Field } from '@sensinum/strapi-utils';
 
 import { useIntl } from 'react-intl';
@@ -12,7 +12,7 @@ export const PreferCustomContentTypesField = () => {
   const { values, onChange, handleChange, restartStatus } = useSettingsContext();
 
   return (
-    <Grid.Item col={4} s={12} xs={12}>
+    <Box width="100%">
       <Field
         name="preferCustomContentTypes"
         label={formatMessage(getTrad('pages.settings.form.preferCustomContentTypes.label'))}
@@ -30,6 +30,6 @@ export const PreferCustomContentTypesField = () => {
           width="100%"
         />
       </Field>
-    </Grid.Item>
+    </Box>
   );
 };

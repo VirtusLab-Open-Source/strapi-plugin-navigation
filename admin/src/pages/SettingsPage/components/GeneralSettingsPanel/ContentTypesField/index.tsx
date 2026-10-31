@@ -1,4 +1,4 @@
-import { Grid, MultiSelect, MultiSelectOption } from '@strapi/design-system';
+import { Box, MultiSelect, MultiSelectOption } from '@strapi/design-system';
 import { Field } from '@sensinum/strapi-utils';
 
 import { useIntl } from 'react-intl';
@@ -49,7 +49,7 @@ export const ContentTypesField = () => {
   );
 
   return (
-    <Grid.Item col={4} s={12} xs={12}>
+    <Box width="100%">
       <Field
         name="contentTypes"
         label={formatMessage(getTrad('pages.settings.form.contentTypes.label'))}
@@ -114,6 +114,6 @@ export const ContentTypesField = () => {
           ))}
         </MultiSelect>
       </Field>
-    </Grid.Item>
+    </Box>
   );
 };

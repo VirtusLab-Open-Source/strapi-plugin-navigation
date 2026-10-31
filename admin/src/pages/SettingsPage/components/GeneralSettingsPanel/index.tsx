@@ -22,9 +22,15 @@ export const GeneralSettingsPanel = () => {
         <Grid.Root gap={4} width="100%">
           <Grid.Item col={12} s={12} xs={12}>
             <Grid.Root gap={4} width="100%">
-              <PreferCustomContentTypesField />
-              <ContentTypesField />
-              <DefaultContentTypeField />
+              <Grid.Item col={4} s={12} xs={12} direction="column" alignItems="stretch">
+                <Flex direction="column" alignItems="stretch" gap={4} width="100%">
+                  <PreferCustomContentTypesField />
+                  <DefaultContentTypeField />
+                </Flex>
+              </Grid.Item>
+              <Grid.Item col={8} s={12} xs={12} direction="column" alignItems="stretch">
+                <ContentTypesField />
+              </Grid.Item>
               <ContentTypesSettings />
             </Grid.Root>
           </Grid.Item>
