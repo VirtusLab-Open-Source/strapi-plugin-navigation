@@ -140,6 +140,7 @@ export const fallbackDefaultValues: NavigationItemFormSchema = {
   autoSync: true,
   type: 'INTERNAL',
   relatedType: '',
+  related: '',
   menuAttached: false,
   title: '',
   externalPath: '',
