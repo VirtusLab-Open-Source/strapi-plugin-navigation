@@ -1,4 +1,4 @@
-import { Grid, SingleSelect, SingleSelectOption } from '@strapi/design-system';
+import { Box, SingleSelect, SingleSelectOption } from '@strapi/design-system';
 import { Field } from '@sensinum/strapi-utils';
 
 import { useIntl } from 'react-intl';
@@ -36,7 +36,7 @@ export const DefaultContentTypeField = () => {
   }, [values.contentTypes]);
 
   return (
-    <Grid.Item col={4} s={12} xs={12}>
+    <Box width="100%">
       <Field
         name="defaultContentType"
         label={formatMessage(getTrad('pages.settings.form.defaultContentType.label'))}
@@ -62,6 +62,6 @@ export const DefaultContentTypeField = () => {
           ))}
         </SingleSelect>
       </Field>
-    </Grid.Item>
+    </Box>
   );
 };

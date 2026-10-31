@@ -23,7 +23,7 @@ export const AdditionalSettingsPanel = () => {
         </Typography>
 
         <Grid.Root gap={4} width="100%">
-          <Grid.Item col={4} s={12} xs={12}>
+          <Grid.Item col={4} s={12} xs={12} direction="column" alignItems="stretch">
             <Box width="100%">
               <Field
                 name="allowedLevels"
@@ -45,7 +45,7 @@ export const AdditionalSettingsPanel = () => {
               </Field>
             </Box>
           </Grid.Item>
-          <Grid.Item col={4} s={12} xs={12}>
+          <Grid.Item col={4} s={12} xs={12} direction="column" alignItems="stretch">
             <Field
               name="cascadeMenuAttached"
               label={formatMessage(getTrad('pages.settings.form.cascadeMenuAttached.label'))}
@@ -64,7 +64,7 @@ export const AdditionalSettingsPanel = () => {
               />
             </Field>
           </Grid.Item>
-          <Grid.Item col={4} s={12} xs={12}>
+          <Grid.Item col={4} s={12} xs={12} direction="column" alignItems="stretch">
             <Field
               name="audienceFieldChecked"
               label={formatMessage(getTrad('pages.settings.form.audience.label'))}
@@ -84,7 +84,7 @@ export const AdditionalSettingsPanel = () => {
             </Field>
           </Grid.Item>
           {configQuery.data?.isCachePluginEnabled && (
-            <Grid.Item col={12} s={12} xs={12}>
+            <Grid.Item col={12} s={12} xs={12} direction="column" alignItems="stretch">
               <Field
                 name="isCacheEnabled"
                 label={formatMessage(getTrad('pages.settings.form.cache.label'))}
