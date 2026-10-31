@@ -25,3 +25,6 @@ export const changeCollapseItemDeep = (
     items: item.items?.map((el) => changeCollapseItemDeep(el, isCollapsed)),
   };
 };
+
+export const isContentManagerType = (uid?: string) =>
+  Boolean(uid?.includes('api::') || uid?.includes('plugin::'));

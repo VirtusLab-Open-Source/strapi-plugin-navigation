@@ -277,7 +277,7 @@ const tr = {
         },
         preferCustomContentTypes: {
           label: 'Özel API İçerik Türlerini Tercih Et',
-          hint: 'Yalnızca api:: önekli içerik türlerini kullanmayı tercih edin',
+          hint: 'Yalnızca api:: veya plugin:: önekli içerik türlerini kullanmayı tercih edin',
         },
         contentTypes: {
           label: 'Navigasyonu etkinleştir',

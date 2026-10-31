@@ -18,7 +18,11 @@ import {
   useContentTypes,
   useInvalidateContentTypeItems,
 } from '../../hooks';
-import { extractRelatedItemLabel, mapServerNavigationItem } from '../../utils';
+import {
+  extractRelatedItemLabel,
+  isContentManagerType,
+  mapServerNavigationItem,
+} from '../../utils';
 import { CollapseButton } from '../CollapseButton';
 import { type NavigationItemFormSchema } from '../NavigationItemForm';
 import { List } from '../NavigationItemList';
@@ -142,7 +146,7 @@ export const Item: React.FC<Props> = ({
     mappedItem.type === 'INTERNAL' ? _.uid === mappedItem.relatedType : false
   );
 
-  const isContentManagerType = contentType?.uid.includes('api::');
+  const hasContentManagerLink = isContentManagerType(contentType?.uid);
 
   const relatedItem = contentTypeItemsQuery.data?.find((contentTypeItem) =>
     mappedItem.type === 'INTERNAL' ? contentTypeItem.documentId === mappedItem.related : false
@@ -436,7 +440,7 @@ export const Item: React.FC<Props> = ({
                   >
                     {relatedItemLabel}
                   </Typography>
-                  {isContentManagerType && (
+                  {hasContentManagerLink && (
                     <Link
                       href={generatePreviewUrl(relatedItem ?? undefined)}
                       endIcon={<ArrowRight />}

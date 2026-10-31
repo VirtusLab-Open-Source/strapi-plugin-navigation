@@ -18,7 +18,7 @@ export const isContentTypeEligible = (uid = '', config: Config = {}) => {
   } = config;
 
   const allowedContentTypes = preferCustomContentTypes
-    ? ['api::', ...contentTypes]
+    ? ['api::', 'plugin::', ...contentTypes]
     : baseAllowedContentTypes;
 
   const isOneOfAllowedType =
