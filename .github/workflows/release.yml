@@ -2,6 +2,7 @@ name: Release
 
 # 1) GitHub Release published → open version bump PR (no npm publish).
 # 2) That PR merged into master/main → retag + test/build/npm publish.
+# 3) workflow_dispatch → manual publish (e.g. recover a failed merge publish).
 # Kept in one workflow file so npm Trusted Publisher (OIDC) can stay on release.yml.
 
 on:
@@ -12,6 +13,17 @@ on:
     branches:
       - master
       - main
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g. 3.4.1 or 3.4.1-beta.1)'
+        required: true
+        type: string
+      prerelease:
+        description: 'Publish to npm with --tag beta'
+        required: false
+        type: boolean
+        default: false
 
 env:
   NODE_VERSION: '22'
@@ -118,41 +130,56 @@ jobs:
   publish:
     name: Test, build and publish
     if: >
-      github.event_name == 'pull_request' &&
-      github.event.pull_request.merged == true &&
-      startsWith(github.event.pull_request.head.ref, 'chore/version-')
+      (github.event_name == 'pull_request' &&
+       github.event.pull_request.merged == true &&
+       startsWith(github.event.pull_request.head.ref, 'chore/version-')) ||
+      github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     env:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
-      - name: Resolve release from bump PR
+      - name: Resolve version and tag
         id: target
         env:
+          EVENT_NAME: ${{ github.event_name }}
           HEAD_REF: ${{ github.event.pull_request.head.ref }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_VERSION: ${{ inputs.version }}
+          INPUT_PRERELEASE: ${{ inputs.prerelease }}
         run: |
-          VERSION="${HEAD_REF#chore/version-}"
-          if ! echo "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-beta\.[0-9]+)?$'; then
-            echo "Invalid version branch: $HEAD_REF"
-            exit 1
-          fi
-          if gh release view "v${VERSION}" >/dev/null 2>&1; then
-            TAG_NAME="v${VERSION}"
-          elif gh release view "${VERSION}" >/dev/null 2>&1; then
-            TAG_NAME="${VERSION}"
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            VERSION="${INPUT_VERSION#v}"
+            if [ "$INPUT_PRERELEASE" = "true" ]; then
+              IS_PRERELEASE=true
+            else
+              IS_PRERELEASE=false
+            fi
           else
-            echo "No GitHub Release found for v${VERSION} or ${VERSION}"
+            VERSION="${HEAD_REF#chore/version-}"
+            if [[ "$VERSION" == *-beta.* ]]; then
+              IS_PRERELEASE=true
+            else
+              IS_PRERELEASE=false
+            fi
+          fi
+
+          if ! echo "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-beta\.[0-9]+)?$'; then
+            echo "Invalid version: $VERSION"
             exit 1
           fi
-          IS_PRERELEASE="$(gh release view "$TAG_NAME" --json isPrerelease --jq '.isPrerelease')"
+
+          # Repo convention: GitHub Release tags use a leading v (no gh release API needed —
+          # GITHUB_TOKEN on pull_request often cannot read releases via `gh release view`).
+          TAG_NAME="v${VERSION}"
+
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=$TAG_NAME" >> "$GITHUB_OUTPUT"
           echo "prerelease=$IS_PRERELEASE" >> "$GITHUB_OUTPUT"
+          echo "Resolved version=$VERSION tag=$TAG_NAME prerelease=$IS_PRERELEASE"
 
       - name: Checkout default branch
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.base.ref }}
+          ref: ${{ github.event.pull_request.base.ref || github.ref_name }}
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -166,7 +193,7 @@ jobs:
             exit 1
           fi
 
-      - name: Move release tag to merge commit
+      - name: Move release tag to HEAD
         env:
           TAG_NAME: ${{ steps.target.outputs.tag }}
         run: |
