@@ -1,8 +1,17 @@
 name: Release
 
+# 1) GitHub Release published → open version bump PR (no npm publish).
+# 2) That PR merged into master/main → retag + test/build/npm publish.
+# Kept in one workflow file so npm Trusted Publisher (OIDC) can stay on release.yml.
+
 on:
   release:
     types: [published]
+  pull_request:
+    types: [closed]
+    branches:
+      - master
+      - main
 
 env:
   NODE_VERSION: '22'
@@ -14,11 +23,10 @@ permissions:
   id-token: write # Required for npm Trusted Publisher (OIDC)
 
 jobs:
-  release:
-    name: Test, build and publish
+  prepare:
+    name: Open version bump PR
+    if: github.event_name == 'release'
     runs-on: ubuntu-latest
-    env:
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
       - name: Resolve target ref
         id: target
@@ -62,21 +70,18 @@ jobs:
             git add yarn.lock
           fi
           if git diff --cached --quiet; then
-            echo "package.json already at version $VERSION"
+            echo "package.json already at version $VERSION — nothing to PR"
             echo "changed=false" >> "$GITHUB_OUTPUT"
-          else
-            git commit -m "chore: version ${VERSION}"
-            echo "changed=true" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
+          git commit -m "chore: version ${VERSION}"
+          echo "changed=true" >> "$GITHUB_OUTPUT"
 
-      - name: Push version branch and retag
+      - name: Push version branch
+        if: steps.bump.outputs.changed == 'true'
         env:
-          TAG_NAME: ${{ steps.target.outputs.tag }}
           BRANCH: ${{ steps.target.outputs.branch }}
-        run: |
-          git push origin "HEAD:${BRANCH}" --force
-          git tag -f "$TAG_NAME"
-          git push origin "refs/tags/${TAG_NAME}" --force
+        run: git push origin "HEAD:${BRANCH}" --force
 
       - name: Open version bump PR
         if: steps.bump.outputs.changed == 'true'
@@ -91,16 +96,17 @@ jobs:
           BODY=$(cat <<EOF
           Automated version bump for release \`${TAG_NAME}\`.
 
-          npm publish runs from this workflow after tests/build.
-          Merge this PR (use bypass if branch protection blocks) so \`${BASE_REF}\` gets \`package.json\` at \`${VERSION}\`.
+          **Merge this PR** (bypass branch protection if needed) to publish.
+          After merge, the Release workflow will retag \`${TAG_NAME}\` onto \`${BASE_REF}\` and run \`npm publish\`.
 
-          Prefer **Create a merge commit** (not squash) so the release tag stays on the bumped commit.
+          Prefer **Create a merge commit** (not squash).
           EOF
           )
           BODY="$(printf '%s\n' "$BODY" | sed -e 's/^[[:space:]]*//')"
           if [ -n "$EXISTING" ]; then
             echo "PR #${EXISTING} already open for ${BRANCH}"
             gh pr edit "$EXISTING" --title "chore: version ${VERSION}" --body "$BODY"
+            echo "https://github.com/${GITHUB_REPOSITORY}/pull/${EXISTING}"
           else
             gh pr create \
               --base "$BASE_REF" \
@@ -108,6 +114,66 @@ jobs:
               --title "chore: version ${VERSION}" \
               --body "$BODY"
           fi
+
+  publish:
+    name: Test, build and publish
+    if: >
+      github.event_name == 'pull_request' &&
+      github.event.pull_request.merged == true &&
+      startsWith(github.event.pull_request.head.ref, 'chore/version-')
+    runs-on: ubuntu-latest
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    steps:
+      - name: Resolve release from bump PR
+        id: target
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${HEAD_REF#chore/version-}"
+          if ! echo "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-beta\.[0-9]+)?$'; then
+            echo "Invalid version branch: $HEAD_REF"
+            exit 1
+          fi
+          if gh release view "v${VERSION}" >/dev/null 2>&1; then
+            TAG_NAME="v${VERSION}"
+          elif gh release view "${VERSION}" >/dev/null 2>&1; then
+            TAG_NAME="${VERSION}"
+          else
+            echo "No GitHub Release found for v${VERSION} or ${VERSION}"
+            exit 1
+          fi
+          IS_PRERELEASE="$(gh release view "$TAG_NAME" --json isPrerelease --jq '.isPrerelease')"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG_NAME" >> "$GITHUB_OUTPUT"
+          echo "prerelease=$IS_PRERELEASE" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout default branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify package.json version
+        env:
+          VERSION: ${{ steps.target.outputs.version }}
+        run: |
+          PKG_VERSION="$(node -p "require('./package.json').version")"
+          if [ "$PKG_VERSION" != "$VERSION" ]; then
+            echo "package.json version ($PKG_VERSION) != expected ($VERSION)"
+            exit 1
+          fi
+
+      - name: Move release tag to merge commit
+        env:
+          TAG_NAME: ${{ steps.target.outputs.tag }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -f "$TAG_NAME"
+          git push origin "refs/tags/${TAG_NAME}" --force
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -140,7 +206,7 @@ jobs:
 
       - name: Publish to npm
         env:
-          IS_PRERELEASE: ${{ github.event.release.prerelease }}
+          IS_PRERELEASE: ${{ steps.target.outputs.prerelease }}
         run: |
           if [ "$IS_PRERELEASE" = "true" ]; then
             npm publish --access public --tag beta
