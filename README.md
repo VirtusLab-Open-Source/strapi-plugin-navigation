@@ -5,16 +5,16 @@
   <h1>Strapi - Navigation plugin</h1>
   <p>Create consumable navigation with a simple and straightforward visual builder</p>
   <a href="https://www.npmjs.org/package/strapi-plugin-navigation">
-    <img alt="GitHub package.json version" src="https://img.shields.io/github/package-json/v/VirtusLab-Open-Source/strapi-plugin-navigation?label=npm&logo=npm">
+    <img alt="GitHub package.json version" src="https://img.shields.io/github/package-json/v/Sensinum/strapi-plugin-navigation?label=npm&logo=npm">
   </a>
   <a href="https://www.npmjs.org/package/strapi-plugin-navigation">
     <img src="https://img.shields.io/npm/dm/strapi-plugin-navigation.svg" alt="Monthly download on NPM" />
   </a>
-  <a href="https://circleci.com/gh/VirtusLab/strapi-plugin-navigation">
-    <img src="https://circleci.com/gh/VirtusLab-Open-Source/strapi-plugin-navigation.svg?style=shield" alt="CircleCI" />
+  <a href="https://github.com/Sensinum/strapi-plugin-navigation/actions/workflows/ci.yml">
+    <img src="https://github.com/Sensinum/strapi-plugin-navigation/actions/workflows/ci.yml/badge.svg" alt="CI" />
   </a>
-  <a href="https://codecov.io/gh/VirtusLab/strapi-plugin-navigation">
-    <img src="https://codecov.io/gh/VirtusLab/strapi-plugin-navigation/coverage.svg?branch=master" alt="codecov.io" />
+  <a href="https://codecov.io/gh/Sensinum/strapi-plugin-navigation">
+    <img src="https://codecov.io/gh/Sensinum/strapi-plugin-navigation/coverage.svg?branch=master" alt="codecov.io" />
   </a>
 </div>
 
@@ -55,9 +55,9 @@ Strapi Navigation Plugin provides a website navigation / menu builder feature fo
 
 ## 💎 Versions
 
-- **Strapi v5** - (current) [v3.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation)
-- **Strapi v4** - [v2.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/strapi-v4)
-- **Strapi v3** - [v1.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/strapi-v3)
+- **Strapi v5** - (current) [v3.x](https://github.com/Sensinum/strapi-plugin-navigation)
+- **Strapi v4** - [v2.x](https://github.com/Sensinum/strapi-plugin-navigation/tree/strapi-v4)
+- **Strapi v3** - [v1.x](https://github.com/Sensinum/strapi-plugin-navigation/tree/strapi-v3)
 
 ## ✨ Features
 
@@ -116,7 +116,7 @@ Complete installation requirements are exact same as for Strapi itself and can b
 - Strapi v5.10.3 (recently tested)
 - Strapi v5.x
 
-> This plugin is designed for **Strapi v5** and is not working with v4.x. To get version for **Strapi v4** install version [v4.x](https://github.com/VirtusLab-Open-Source/strapi-plugin-navigation/tree/strapi-v4).
+> This plugin is designed for **Strapi v5** and is not working with v4.x. To get version for **Strapi v4** install version [v4.x](https://github.com/Sensinum/strapi-plugin-navigation/tree/strapi-v4).
 
 **We recommend always using the latest version of Strapi to start your new projects**.
 
@@ -784,7 +784,7 @@ Navigation management modal items will also have icon button for clearing the ca
 
 ## 🧩 Examples
 
-Live example of plugin usage can be found in the [VirtusLab Strapi Examples](https://github.com/VirtusLab/strapi-examples/tree/master/strapi-plugin-navigation) repository.
+Live example of plugin usage can be found in the [Sensinum Strapi Examples](https://github.com/Sensinum/strapi-examples/tree/master/strapi-plugin-navigation) repository.
 
 ## 💬 FAQ
 
@@ -812,7 +812,7 @@ Feel free to fork and make a Pull Request to this plugin project. All the input 
 1. Clone repository
 
    ```
-   git clone git@github.com:VirtusLab-Open-Source/strapi-plugin-navigation.git
+   git clone git@github.com:Sensinum/strapi-plugin-navigation.git
    ```
 
 2. Run `install` & `watch:link` command
@@ -850,11 +850,10 @@ Feel free to fork and make a Pull Request to this plugin project. All the input 
 
 For general help using Strapi, please refer to [the official Strapi documentation](https://strapi.io/documentation/). For additional help, you can use one of these channels to ask a question:
 
-- [Discord](https://discord.strapi.io/) We're present on official Strapi Discord workspace. Find us by `[VirtusLab]` prefix and DM.
-- [Slack - VirtusLab Open Source](https://virtuslab-oss.slack.com) We're present on a public channel #strapi-molecules
-- [GitHub](https://github.com/VirtusLab/strapi-plugin-navigation/issues) (Bug reports, Contributions, Questions and Discussions)
-- [E-mail](mailto:strapi@virtuslab.com) - we will respond back as soon as possible
+- [Discord](https://discord.strapi.io/) We're present on official Strapi Discord workspace. Find us by `[Sensinum]` prefix and DM.
+- [GitHub](https://github.com/Sensinum/strapi-plugin-navigation/issues) (Bug reports, Contributions, Questions and Discussions)
+- [E-mail](mailto:hello@sensinum.com) - we will respond back as soon as possible
 
 ## 📝 License
 
-[MIT License](LICENSE.md) Copyright (c) [VirtusLab Sp. z o.o.](https://virtuslab.com/) &amp; [Strapi Solutions](https://strapi.io/).
+[MIT License](LICENSE) Copyright (c) [Sensinum Sp. z o.o.](https://www.sensinum.com/).

@@ -26,7 +26,7 @@ function main() {
 
   // Copy additional files from source to destination
   const filesToOverwrite = ['strapi-admin.js', 'strapi-server.js'];
-  const filesToCopy = ['README.md', 'LICENSE.md', '.npmignore', ...filesToOverwrite];
+  const filesToCopy = ['README.md', 'LICENSE', '.npmignore', ...filesToOverwrite];
   filesToCopy.forEach((file) =>
     fs.copyFileSync(`${sourceDirectory}/${file}`, `${destinationDirectory}/${file}`)
   );
