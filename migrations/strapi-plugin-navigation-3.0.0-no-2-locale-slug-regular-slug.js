@@ -1,6 +1,5 @@
 const SOURCE_TABLE_NAME = 'navigations';
 
-
 module.exports = {
   async up(knex) {
     // Get all entries and rewrite directly to the navigation_items table

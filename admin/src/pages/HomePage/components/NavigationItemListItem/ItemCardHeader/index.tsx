@@ -1,14 +1,24 @@
-import { IconButton as BaseIconButton, IconButtonGroup, Flex, Typography } from '@strapi/design-system';
-import { FC, MutableRefObject, ReactNode } from 'react';
+import {
+  IconButton as BaseIconButton,
+  IconButtonGroup,
+  Flex,
+  Typography,
+} from '@strapi/design-system';
+import { ButtonHTMLAttributes, FC, ReactNode, Ref } from 'react';
 import { useIntl } from 'react-intl';
 import styled from 'styled-components';
 
 import { getTrad } from '../../../../../translations';
 import { VoidEffect } from '../../../../../types';
+import { usePluginMediaQuery } from '../../../hooks';
 import DragButton from '../../DragButton';
 import { ItemCardBadge } from '../ItemCardBadge';
 import { CardItemTitle } from './Wrapper';
 import { eyeIcon, pencilIcon, arrowClockwise, trashIcon } from './icons';
+
+type DragHandleProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+  ref?: Ref<HTMLButtonElement>;
+};
 
 interface IProps {
   title: string;
@@ -19,7 +29,7 @@ interface IProps {
   onItemRemove: VoidEffect;
   onItemEdit: VoidEffect;
   onItemRestore: VoidEffect;
-  dragRef: MutableRefObject<HTMLHeadingElement>;
+  dragHandleProps?: DragHandleProps;
   isSearchActive?: boolean;
 }
 
@@ -35,22 +45,28 @@ export const ItemCardHeader: FC<IProps> = ({
   onItemRemove,
   onItemEdit,
   onItemRestore,
-  dragRef,
+  dragHandleProps,
   isSearchActive,
 }) => {
   const { formatMessage } = useIntl();
 
+  const { isSmallMobile } = usePluginMediaQuery();
+  const { ref: dragHandleRef, ...dragHandleRest } = dragHandleProps ?? {};
+
   return (
     <CardItemTitle>
       <Flex alignItems="center">
-        {canUpdate && <DragButton ref={dragRef} isActive={isSearchActive} />}
-        <Typography variant="omega" fontWeight="bold">
+        {canUpdate && (
+          <DragButton ref={dragHandleRef} {...dragHandleRest} isActive={isSearchActive} />
+        )}
+        <Typography variant="omega" fontWeight="bold" fontSize={isSmallMobile ? '12px' : '14px'}>
           {title}
         </Typography>
         <Typography
           variant="omega"
           fontWeight="bold"
           textColor="neutral500"
+          fontSize={isSmallMobile ? '12px' : '14px'}
           ellipsis
           style={pathWrapperStyle}
         >
@@ -76,6 +92,7 @@ export const ItemCardHeader: FC<IProps> = ({
               )
             )}
             children={canUpdate ? pencilIcon : eyeIcon}
+            isMobile={isSmallMobile}
           />
           {canUpdate && (
             <>
@@ -88,14 +105,18 @@ export const ItemCardHeader: FC<IProps> = ({
                   )}
                   variant="success-light"
                   children={arrowClockwise}
+                  isMobile={isSmallMobile}
                 />
               ) : (
                 <IconButton
                   isActive={isSearchActive}
                   onClick={onItemRemove}
                   variant="danger-light"
-                  label={formatMessage(getTrad('components.navigationItem.action.remove', 'Remove'))}
+                  label={formatMessage(
+                    getTrad('components.navigationItem.action.remove', 'Remove')
+                  )}
                   children={trashIcon}
+                  isMobile={isSmallMobile}
                 />
               )}
             </>
@@ -106,7 +127,10 @@ export const ItemCardHeader: FC<IProps> = ({
   );
 };
 
-const IconButton = styled(BaseIconButton) <{ isActive?: boolean }>`
+const IconButton = styled(BaseIconButton)<{ isActive?: boolean; isMobile?: boolean }>`
   transition: background-color 0.3s ease-in;
   ${({ isActive, theme }) => (isActive ? `background-color: ${theme.colors.neutral150} ;` : '')}
+  height: ${({ isMobile }) => (isMobile ? '24px' : '32px')};
+  width: ${({ isMobile }) => (isMobile ? '24px' : '32px')};
+  padding: ${({ isMobile, theme }) => (isMobile ? theme.spaces[1] : theme.spaces[2])};
 `;

@@ -4,6 +4,8 @@
   "compilerOptions": {
     "rootDir": "../",
     "baseUrl": ".",
-    "strict": true
+    "outDir": "./dist",
+    "strict": true,
+    "types": ["jest"]
   }
 }

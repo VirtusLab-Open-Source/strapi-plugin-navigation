@@ -5,12 +5,12 @@ export default {
     additionalFields: [],
     allowedLevels: 2,
     contentTypes: [],
+    defaultContentType: '',
     contentTypesNameFields: {},
     contentTypesPopulate: {},
     gql: {
       navigationItemRelated: [],
     },
-    i18nEnabled: false,
     pathDefaultFields: {},
     pruneObsoleteI18nNavigations: false,
     cascadeMenuAttached: true,

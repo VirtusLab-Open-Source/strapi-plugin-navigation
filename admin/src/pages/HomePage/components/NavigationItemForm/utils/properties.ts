@@ -6,7 +6,7 @@ import {
   StrapiContentTypeItemSchema,
 } from '../../../../../api/validators';
 import { extractRelatedItemLabel } from '../../../../HomePage/utils';
-import { NavigationItemFormSchema } from './form';
+import { type NavigationItemFormSchema } from './form';
 
 interface GenerateUiRouterKeyInput {
   slugify: (s: string) => Promise<string>;

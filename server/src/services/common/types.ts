@@ -29,6 +29,7 @@ export interface MapToNavigationItemDTOInput {
   master?: Omit<NavigationDTO, 'items'>;
   parent?: NavigationItemDTO;
   locale?: string;
+  status?: 'draft' | 'published';
 }
 
 export interface CreateBranchInput {

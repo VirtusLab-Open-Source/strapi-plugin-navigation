@@ -1,6 +1,6 @@
 import { Core } from '@strapi/strapi';
 import { CreateBranchNavigationItemDTO, NavigationItemDTO } from '../../dtos';
-import { NavigationDBSchema, configSchema } from '../../schemas';
+import { DynamicSchemas, NavigationDBSchema } from '../../schemas';
 import { NavigationAction } from '../../types';
 
 export type AuditLogContext = { emit: (e: string, d: AuditLogParams) => void };
@@ -58,6 +58,7 @@ export const processItems =
       order: item.order,
       collapsed: item.collapsed,
       menuAttached: item.menuAttached,
+      autoSync: item.autoSync,
       removed: false,
       updated: true,
       externalPath: item.externalPath,
@@ -86,7 +87,7 @@ export const getCacheStatus = async ({
     name: 'navigation',
   });
 
-  const config = configSchema.parse(
+  const config = DynamicSchemas.configSchema.parse(
     await pluginStore.get({
       key: 'config',
     })

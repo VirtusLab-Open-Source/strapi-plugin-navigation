@@ -18,7 +18,8 @@ const navigationItemBaseSchema = z.object({
   documentId: z.string(),
   title: z.string(),
   type: navigationItemTypeSchema,
-  path: z.string(),
+  path: z.string().or(z.null()).optional(),
+  isManualPath: z.boolean().nullish(),
   externalPath: z.string().or(z.null()).optional(),
   uiRouterKey: z.string(),
   menuAttached: z.boolean(),
@@ -59,9 +60,13 @@ export const navigationSchema = z.object({
 });
 
 const navigationCustomFieldBase = z.object({
-  // TODO: Proper message translation
-  name: z.string().refine((current) => !current.includes(' '), { message: 'No space allowed' }),
-  label: z.string(),
+  name: z
+    .string({ error: 'requiredError' })
+    .min(1, { error: 'requiredError' })
+    .refine((current) => !current.includes(' '), { error: 'noSpaceError' }),
+  label: z.string({ error: 'requiredError' }).min(1, { error: 'requiredError' }),
+  description: z.string().optional(),
+  placeholder: z.string().optional(),
   required: z.boolean().optional(),
   enabled: z.boolean().optional(),
 });
@@ -70,7 +75,9 @@ export type NavigationItemCustomFieldSelect = z.infer<typeof navigationItemCusto
 const navigationItemCustomFieldSelect = navigationCustomFieldBase.extend({
   type: z.literal('select'),
   multi: z.boolean(),
-  options: z.array(z.string()),
+  options: z
+    .array(z.string(), { error: 'requiredError' })
+    .min(1, { error: 'requiredError' }),
 });
 
 export type NavigationItemCustomFieldPrimitive = z.infer<typeof navigationItemCustomFieldPrimitive>;
@@ -88,9 +95,11 @@ const navigationItemCustomFieldMedia = navigationCustomFieldBase.extend({
 });
 
 export type NavigationItemCustomField = z.infer<typeof navigationItemCustomField>;
-export const navigationItemCustomField = navigationItemCustomFieldPrimitive
-  .or(navigationItemCustomFieldMedia)
-  .or(navigationItemCustomFieldSelect);
+export const navigationItemCustomField = z.discriminatedUnion('type', [
+  navigationItemCustomFieldPrimitive,
+  navigationItemCustomFieldMedia,
+  navigationItemCustomFieldSelect,
+]);
 
 export type NavigationItemAdditionalField = z.infer<typeof navigationItemAdditionalField>;
 export const navigationItemAdditionalField = z.union([
@@ -107,7 +116,6 @@ export const configContentTypeSchema = z.object({
   collectionName: z.string(),
   contentTypeName: z.string(),
   label: z.string(),
-  labelSingular: z.string(),
   endpoint: z.string(),
   available: z.boolean(),
   visible: z.boolean(),
@@ -125,6 +133,7 @@ export const configSchema = z.object({
     })
     .array(),
   contentTypes: z.array(z.string()),
+  defaultContentType: z.string().optional(),
   contentTypesNameFields: z.record(z.string(), z.array(z.string())),
   contentTypesPopulate: z.record(z.string(), z.array(z.string())),
   gql: z.object({

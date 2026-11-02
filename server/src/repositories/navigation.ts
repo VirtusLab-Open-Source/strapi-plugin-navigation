@@ -4,9 +4,9 @@ import { omit, once } from 'lodash';
 import { NavigationError } from '../app-errors';
 import {
   CreateNavigationSchema,
+  navigationDBSchema,
   NavigationDBSchema,
   UpdateNavigationSchema,
-  navigationDBSchema,
 } from '../schemas';
 import { getPluginModels } from '../utils';
 import { flattenRelated, removeSensitiveFields } from './navigation-item';
@@ -71,7 +71,7 @@ export const getNavigationRepository = once((context: { strapi: Core.Strapi }) =
 
   async save(
     navigation:
-      | (CreateNavigationSchema & { locale?: string, items?: unknown })
+      | (CreateNavigationSchema & { locale?: string; items?: unknown })
       | (Omit<UpdateNavigationSchema, 'items'> & { items?: never })
   ) {
     const { masterModel } = getPluginModels(context);
@@ -101,13 +101,15 @@ export const getNavigationRepository = once((context: { strapi: Core.Strapi }) =
     }
   },
 
-  remove(navigation: Partial<Pick<NavigationDBSchema, 'id' | 'documentId'>>) {
+  remove(navigation: Partial<Pick<NavigationDBSchema, 'documentId' | 'locale'>>) {
     const { masterModel } = getPluginModels(context);
 
-    if (!navigation.documentId && !navigation.id) {
-      throw new NavigationError('Some kind of id required. None given.');
+    if (!navigation.documentId) {
+      throw new NavigationError('Document id is required.');
     }
 
-    return context.strapi.query(masterModel.uid).deleteMany({ where: navigation });
+    return context.strapi
+      .documents(masterModel.uid)
+      .delete({ documentId: navigation.documentId, locale: navigation.locale });
   },
 }));

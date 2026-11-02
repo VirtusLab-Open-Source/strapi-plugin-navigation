@@ -44,6 +44,11 @@ export default {
       targetField: 'title',
       configurable: false,
     },
+    isManualPath: {
+      type: 'boolean',
+      default: false,
+      configurable: false,
+    },
     externalPath: {
       type: 'text',
       configurable: false,
@@ -75,7 +80,7 @@ export default {
     related: {
       type: 'relation',
       relation: 'morphToMany',
-      required: true,
+      required: false,
       configurable: false,
     },
     parent: {

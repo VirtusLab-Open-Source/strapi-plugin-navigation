@@ -10,11 +10,16 @@ import { configSetup } from '../../config';
 import { CreateBranchNavigationItemDTO, NavigationItemDTO } from '../../dtos';
 import { getGenericRepository, getNavigationItemRepository } from '../../repositories';
 import {
-  configSchema,
+  DynamicSchemas,
   NavigationItemCustomField,
   NavigationItemDBSchema,
   NavigationItemsDBSchema,
   NavigationPluginConfigDBSchema,
+  updateConfigSchema,
+  updateCreateNavigationSchema,
+  updateNavigationItemAdditionalField,
+  updateNavigationItemCustomField,
+  updateUpdateNavigationSchema,
 } from '../../schemas';
 import {
   ContentType,
@@ -22,6 +27,7 @@ import {
   NavigationActionsCategories,
   NavigationActionsPerItem,
 } from '../../types';
+import { getPluginService } from '../../utils';
 import {
   AnalyzeBranchInput,
   BuildNestedStructureInput,
@@ -36,7 +42,7 @@ import {
   RunLifeCycleHookInput,
   UpdateBranchInput,
 } from './types';
-import { checkDuplicatePath, DuplicateCheckItem } from './utils';
+import { checkDuplicatePath, DuplicateCheckItem, generateFieldsFromRelated } from './utils';
 
 export type CommonService = ReturnType<typeof commonService>;
 
@@ -56,6 +62,7 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
     navigationItems,
     parent,
     populate,
+    status = 'published',
   }: MapToNavigationItemDTOInput): Promise<NavigationItemDTO[]> {
     const result: NavigationItemDTO[] = [];
 
@@ -64,7 +71,7 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
       .get({
         key: 'config',
       })
-      .then(configSchema.parse);
+      .then(DynamicSchemas.configSchema.parse);
 
     const extendedNavigationItems = await Promise.all(
       navigationItems.map(async (item) => {
@@ -72,17 +79,14 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
           return item;
         }
 
-        const fieldsToPopulate = config.contentTypesPopulate[item.related.__type];
-
-        if (!fieldsToPopulate?.length) {
-          return item;
-        }
+        const fieldsToPopulate = populate ?? config.contentTypesPopulate[item.related.__type];
 
         const repository = getGenericRepository({ strapi }, item.related.__type as UID.ContentType);
+
         const related = await repository.findById(
           item.related.documentId,
           fieldsToPopulate,
-          'published',
+          status,
           {
             locale,
           }
@@ -111,6 +115,7 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
           master,
           parent: base as NavigationItemDTO,
           locale,
+          status,
         }),
       } as NavigationItemDTO);
     }
@@ -119,7 +124,7 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
   },
 
   setDefaultConfig(): Promise<NavigationPluginConfigDBSchema> {
-    return configSetup({ strapi });
+    return configSetup({ strapi, forceDefault: true });
   },
 
   getBranchName({ item }: GetBranchNameInput): NavigationActionsCategories | void {
@@ -231,10 +236,29 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
   }: CreateBranchInput): Promise<NavigationAction[]> {
     let navigationActions: NavigationAction[] = [];
 
+    const adminService = getPluginService(context, 'admin');
+    const { contentTypesNameFields, pathDefaultFields } = await adminService.config({
+      viaSettingsPage: false,
+    });
+
     for (const navigationItem of navigationItems) {
       action.create = true;
 
-      const { parent, master, items, documentId, id, ...params } = navigationItem;
+      const { parent, master, items, documentId, id, related, autoSync, ...params } =
+        navigationItem;
+
+      const generatedFields: { title?: string; path?: string } = autoSync
+        ? await generateFieldsFromRelated(
+            context,
+            related,
+            masterEntity?.locale || 'en',
+            contentTypesNameFields,
+            pathDefaultFields
+          )
+        : {};
+
+      const title = params.title || generatedFields?.title;
+      const path = params.path || generatedFields?.path;
 
       const insertDetails =
         documentId && id
@@ -244,6 +268,10 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
               id,
               master: masterEntity ? masterEntity.id : undefined,
               parent: parentItem ? parentItem.id : undefined,
+              autoSync,
+              title,
+              path,
+              related,
             }
           : {
               ...params,
@@ -251,6 +279,10 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
               id: undefined,
               master: masterEntity ? masterEntity.id : undefined,
               parent: parentItem ? parentItem.id : undefined,
+              autoSync,
+              title,
+              path,
+              related,
             };
 
       const nextParentItem = await getNavigationItemRepository(context).save({
@@ -416,22 +448,24 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
     id,
   }: BuildNestedStructureInput): NavigationItemDBSchema[] {
     return (
-      navigationItems?.reduce((acc, navigationItem) => {
-        if (id && navigationItem.parent?.id !== id) {
+      (
+        navigationItems?.reduce((acc, navigationItem) => {
+          if (id && navigationItem.parent?.id !== id) {
+            return acc;
+          }
+
+          acc.push({
+            ...omit(navigationItem, ['related', 'items']),
+            related: navigationItem.related,
+            items: this.buildNestedStructure({
+              navigationItems,
+              id: navigationItem.id,
+            }),
+          });
+
           return acc;
-        }
-
-        acc.push({
-          ...omit(navigationItem, ['related', 'items']),
-          related: navigationItem.related,
-          items: this.buildNestedStructure({
-            navigationItems,
-            id: navigationItem.id,
-          }),
-        });
-
-        return acc;
-      }, [] as NavigationItemDBSchema[]) ?? []
+        }, [] as NavigationItemDBSchema[]) ?? []
+      )?.sort((a, b) => a.order - b.order) ?? []
     );
   },
 
@@ -453,6 +487,12 @@ const commonService = (context: { strapi: Core.Strapi }) => ({
       restLocale,
     };
   },
+
+  updateConfigSchema,
+  updateCreateNavigationSchema,
+  updateNavigationItemAdditionalField,
+  updateNavigationItemCustomField,
+  updateUpdateNavigationSchema,
 });
 
 export default commonService;

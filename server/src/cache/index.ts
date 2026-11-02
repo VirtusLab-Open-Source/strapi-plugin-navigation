@@ -16,13 +16,14 @@ export const setupCacheStrategy = async ({ strapi }: { strapi: Core.Strapi }) =>
       return;
     }
 
-    const pluginOption: any = strapi.config.get('plugin::rest-cache');
+    const pluginOption: { strategy?: { maxAge?: number } } | undefined =
+      strapi.config.get('plugin::rest-cache');
     const router = new Router();
 
     const buildPathFrom = (route: NavigationServerRoute) =>
       `/api/${route.info?.pluginName ?? 'navigation'}${route.path}`;
     const buildFrom = (route: NavigationServerRoute) => ({
-      maxAge: pluginOption.strategy?.maxAge ?? 6 * 60 * 1000,
+      maxAge: pluginOption?.strategy?.maxAge ?? 6 * 60 * 1000,
       path: buildPathFrom(route),
       method: 'GET',
       paramNames: ['idOrSlug', 'childUIKey'],

@@ -6,7 +6,7 @@ import {
   NavigationItemTypeSchema,
   StrapiContentTypeItemSchema,
 } from '../../../api/validators';
-import { NavigationItemFormSchema } from '../components/NavigationItemForm';
+import { type NavigationItemFormSchema } from '../components/NavigationItemForm';
 
 const reOrderItems = (items: NavigationItemSchema[] = []) =>
   orderBy(items, ['order'], ['asc']).map((item, n) => {
@@ -31,6 +31,7 @@ const toNavigationItem = (
         menuAttached: !!payload.menuAttached,
         order: payload.order ?? 0,
         path: payload.path,
+        isManualPath: payload.isManualPath,
         title: payload.title,
         uiRouterKey: payload.uiRouterKey,
         additionalFields: payload.additionalFields,
@@ -69,6 +70,7 @@ const toNavigationItem = (
             ? transformItemToViewPayload(payload, payload.items, config)
             : payload.items,
           path: '',
+          isManualPath: false,
           viewId: payload.viewId,
           structureId: payload.structureId,
           viewParentId: payload.viewParentId,
@@ -191,7 +193,7 @@ export const extractRelatedItemLabel = (
   const contentType = contentTypes.find(({ uid }) => uid === __collectionUid);
 
   if (contentType?.isSingle) {
-    return contentType.labelSingular;
+    return contentType.label;
   }
 
   const defaultFieldsWithCapitalizedOptions = [
@@ -252,8 +254,8 @@ export const mapServerNavigationItem = (
     item.type === 'INTERNAL' && item.related
       ? item.related
       : {
-          __type: "",
-          documentId: "",
+          __type: '',
+          documentId: '',
         };
 
   return item.type === 'INTERNAL'

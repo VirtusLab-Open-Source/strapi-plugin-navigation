@@ -1,7 +1,7 @@
 import { Core } from '@strapi/strapi';
 import { Context as KoaContext } from 'koa';
 import * as z from 'zod';
-import { configSchema, createNavigationSchema, updateNavigationSchema } from '../schemas';
+import { DynamicSchemas } from '../schemas';
 import { getPluginService } from '../utils';
 import { fillFromOtherLocaleParams, idSchema } from './validators';
 
@@ -25,29 +25,53 @@ export default function adminController(context: { strapi: Core.Strapi }) {
       return await this.getAdminService().get({});
     },
 
-    post(ctx: KoaContext & KoaContextExtension) {
+    async post(ctx: KoaContext & KoaContextExtension) {
       const { auditLog } = ctx;
 
-      return this.getAdminService().post({
-        payload: createNavigationSchema.parse(ctx.request.body),
-        auditLog,
-      });
+      try {
+        return await this.getAdminService().post({
+          payload: DynamicSchemas.createNavigationSchema.parse(ctx.request.body),
+          auditLog,
+        });
+      } catch (error) {
+        const originalError =
+          error instanceof Error
+            ? {
+                name: error.name,
+                message: error.message,
+              }
+            : {};
+
+        return ctx.internalServerError('Unable to create', { originalError });
+      }
     },
 
-    put(ctx: KoaContext & KoaContextExtension) {
+    async put(ctx: KoaContext & KoaContextExtension) {
       const {
         params: { documentId },
         auditLog,
       } = ctx;
       const body = z.record(z.string(), z.unknown()).parse(ctx.request.body);
 
-      return this.getAdminService().put({
-        auditLog,
-        payload: updateNavigationSchema.parse({
-          ...body,
-          documentId,
-        }),
-      });
+      try {
+        return await this.getAdminService().put({
+          auditLog,
+          payload: DynamicSchemas.updateNavigationSchema.parse({
+            ...body,
+            documentId,
+          }),
+        });
+      } catch (error) {
+        const originalError =
+          error instanceof Error
+            ? {
+                name: error.name,
+                message: error.message,
+              }
+            : {};
+
+        return ctx.internalServerError('Unable to update', { originalError });
+      }
     },
 
     async delete(ctx: KoaContext) {
@@ -70,7 +94,7 @@ export default function adminController(context: { strapi: Core.Strapi }) {
 
     async updateConfig(ctx: KoaContext & KoaContextExtension) {
       await this.getAdminService().updateConfig({
-        config: configSchema.parse(ctx.request.body),
+        config: DynamicSchemas.configSchema.parse(ctx.request.body),
       });
 
       return {};

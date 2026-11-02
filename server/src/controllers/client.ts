@@ -2,13 +2,7 @@ import { Core } from '@strapi/strapi';
 import { Context as KoaContext } from 'koa';
 import * as z from 'zod';
 import { getPluginService } from '../utils';
-import { sanitizePopulateField } from './utils';
-import {
-  populateSchema,
-  readAllQuerySchema,
-  renderChildQueryParams,
-  renderQuerySchema,
-} from './validators';
+import { readAllQuerySchema, renderChildQueryParams, renderQuerySchema } from './validators';
 
 export default function clientController(context: { strapi: Core.Strapi }) {
   return {
@@ -43,6 +37,7 @@ export default function clientController(context: { strapi: Core.Strapi }) {
         path: rootPath,
         locale,
         populate,
+        status = 'published',
       } = renderQuerySchema.parse(query);
       const idOrSlug = z.string().parse(params.idOrSlug);
 
@@ -52,25 +47,21 @@ export default function clientController(context: { strapi: Core.Strapi }) {
         menuOnly: menuOnly === 'true',
         rootPath,
         locale,
-        populate: sanitizePopulateField(
-          populateSchema.parse(
-            populate === 'true'
-              ? true
-              : populate === 'false'
-                ? false
-                : Array.isArray(populate)
-                  ? populate.map((x) => (x === 'true' ? true : x === 'false' ? false : populate))
-                  : populate
-          )
-        ),
+        populate,
+        status,
       });
     },
 
     async renderChild(ctx: KoaContext) {
       const { params, query = {} } = ctx;
-      const { type, menu: menuOnly, locale } = renderChildQueryParams.parse(query);
+      const {
+        type,
+        menu: menuOnly,
+        locale,
+        status = 'published',
+      } = renderChildQueryParams.parse(query);
 
-      const idOrSlug = z.string().parse(params.documentId);
+      const idOrSlug = z.string().parse(params.idOrSlug);
       const childUIKey = z.string().parse(params.childUIKey);
 
       return await this.getService().renderChildren({
@@ -79,6 +70,7 @@ export default function clientController(context: { strapi: Core.Strapi }) {
         type,
         menuOnly: menuOnly === 'true',
         locale,
+        status,
       });
     },
   };

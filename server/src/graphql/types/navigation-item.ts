@@ -9,6 +9,7 @@ export default ({ nexus, config }: any) =>
       t.nonNull.string('title');
       t.nonNull.field('type', { type: 'NavigationItemType' });
       t.string('path');
+      t.boolean('isManualPath');
       t.string('externalPath');
       t.nonNull.string('uiRouterKey');
       t.nonNull.boolean('menuAttached');
@@ -18,7 +19,9 @@ export default ({ nexus, config }: any) =>
       t.list.field('items', { type: 'NavigationItem' });
       t.field('related', { type: 'NavigationItemRelated' });
 
-      if (config.additionalFields.find((field: NavigationItemAdditionalField) => field === 'audience')) {
+      if (
+        config.additionalFields.find((field: NavigationItemAdditionalField) => field === 'audience')
+      ) {
         t.list.string('audience');
       }
 

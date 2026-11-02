@@ -1,9 +1,9 @@
 import { Core } from '@strapi/strapi';
 import { capitalize, find, includes, isNil, last, uniqBy } from 'lodash';
 import {
+  DynamicSchemas,
   NavigationItemAdditionalField,
   NavigationPluginConfigDBSchema,
-  configSchema,
 } from '../schemas';
 import { AdminService, ClientService, CommonService } from '../services';
 import {
@@ -84,7 +84,7 @@ const splitTypeUid = (uid = '') => {
 };
 
 export function assertConfig(config: unknown): asserts config is NavigationPluginConfigDBSchema {
-  if (configSchema.safeParse(config).success) {
+  if (DynamicSchemas.configSchema.safeParse(config).success) {
     return;
   }
 

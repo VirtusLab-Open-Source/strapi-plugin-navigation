@@ -1,113 +1,38 @@
 {
   "name": "strapi-plugin-navigation",
-  "version": "3.0.7",
+  "version": "3.4.1",
   "description": "Strapi - Navigation plugin",
+  "keywords": [
+    "strapi",
+    "plugin",
+    "navigation"
+  ],
+  "license": "MIT",
+  "author": "Sensinum <hello@sensinum.com>",
+  "contributors": [
+    "Mateusz Ziarko <mziarko@virtuslab.com>",
+    "Maksymilian Pamuła <mpamula@virtuslab.com>",
+    "Maciej Witkowski <mwitkowski@virtuslab.com>",
+    "Tomasz Puch <tpuch@virtuslab.com>",
+    "Mateusz Kleszcz <mkleszcz@virtuslab.com>"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Sensinum/strapi-plugin-navigation.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Sensinum/strapi-plugin-navigation/issues"
+  },
+  "homepage": "https://github.com/Sensinum/strapi-plugin-navigation#readme",
+  "engines": {
+    "node": ">=22.0.0 <=26.x.x",
+    "npm": ">=6.0.0"
+  },
   "strapi": {
     "name": "navigation",
     "displayName": "Navigation",
     "description": "Create consumable navigation with a simple and straightforward visual builder",
     "kind": "plugin"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/VirtusLab/strapi-plugin-navigation"
-  },
-  "author": {
-    "name": "VirtusLab",
-    "email": "strapi@virtuslab.com",
-    "url": "https://virtuslab.com"
-  },
-  "maintainers": [
-    {
-      "name": "VirtusLab // Mateusz Ziarko",
-      "email": "mziarko@virtuslab.com",
-      "url": "https://virtuslab.com"
-    },
-    {
-      "name": "VirtusLab // Maksymilian Pamuła",
-      "email": "mpamula@virtuslab.com",
-      "url": "https://virtuslab.com"
-    },
-    {
-      "name": "VirtusLab // Maciej Witkowski",
-      "email": "mwitkowski@virtuslab.com",
-      "url": "https://virtuslab.com"
-    },
-    {
-      "name": "VirtusLab // Tomasz Puch",
-      "email": "tpuch@virtuslab.com",
-      "url": "https://virtuslab.com"
-    }
-  ],
-  "dependencies": {
-    "@sensinum/strapi-utils": "^1.0.6",
-    "@sindresorhus/slugify": "1.1.0",
-    "@tanstack/react-query": "^5.40.0",
-    "pluralize": "8.0.0",
-    "react-dnd": "^16.0.1",
-    "react-dnd-html5-backend": "^16.0.1",
-    "react-intl": "6.6.2",
-    "uuid": "^10.0.0",
-    "zod": "^3.22.5"
-  },
-  "devDependencies": {
-    "@faker-js/faker": "^9.0.3",
-    "@jest/types": "29.5.x",
-    "@koa/router": "^12.0.1",
-    "@strapi/design-system": "2.0.0-rc.14",
-    "@strapi/icons": "2.0.0-rc.14",
-    "@strapi/plugin-graphql": "^5.9.0",
-    "@strapi/sdk-plugin": "^5.3.0",
-    "@strapi/strapi": "^5.9.0",
-    "@strapi/types": "^5.9.0",
-    "@strapi/typescript-utils": "^5.9.0",
-    "@types/jest": "^29.5.12",
-    "@types/koa": "^2.15.0",
-    "@types/koa-bodyparser": "^4.3.12",
-    "@types/koa__router": "^12.0.4",
-    "@types/lodash": "^4.17.4",
-    "@types/node": "^20.12.0",
-    "@types/pluralize": "0.0.33",
-    "@types/react": "^18.3.8",
-    "@types/react-dom": "^18.3.0",
-    "@types/react-router-dom": "5.3.3",
-    "@types/styled-components": "5.1.34",
-    "@types/uuid": "^10.0.0",
-    "codecov": "^3.7.2",
-    "husky": "7.0.4",
-    "jest": "^29.7.0",
-    "jest-cli": "^29.7.0",
-    "jest-junit": "^16.0.0",
-    "jest-styled-components": "^7.1.1",
-    "koa": "^2.15.3",
-    "lodash": "^4.17.21",
-    "nodemon": "^2.0.15",
-    "prettier": "^3.3.3",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-query": "3.39.3",
-    "react-router-dom": "^6.22.3",
-    "strapi-plugin-rest-cache": "^4.2.9",
-    "styled-components": "^6.1.13",
-    "ts-jest": "^29.1.4",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.6.2"
-  },
-  "peerDependencies": {
-    "@strapi/design-system": "^2.0.0-rc.14",
-    "@strapi/icons": "^2.0.0-rc.14",
-    "@strapi/sdk-plugin": "^5.3.0",
-    "@strapi/strapi": "^5.9.0",
-    "lodash": "^4.17.21",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.22.3",
-    "styled-components": "^6.1.13"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "yarn format && yarn test:unit"
-    }
   },
   "exports": {
     "./package.json": "./package.json",
@@ -134,27 +59,95 @@
     "publish:latest": "npm publish --tag latest",
     "publish:beta": "npm publish --tag beta",
     "build": "yarn clean && strapi-plugin build --minify",
+    "build:admin:watch": "tsc -p ./admin/tsconfig.json --watch",
+    "build:server:watch": "tsc -p ./server/tsconfig.json --watch",
     "clean": "rm -rf dist",
     "lint": "prettier --check .",
     "format": "prettier --write .",
-    "test:ts:back": "run -T tsc -p server/tsconfig.json",
-    "test:ts:front": "run -T tsc -p admin/tsconfig.json",
+    "test:ts:back": "tsc -p server/tsconfig.json --noEmit",
+    "test:ts:front": "tsc -p admin/tsconfig.json --noEmit",
     "test:unit": "jest --coverage",
     "test:unit:watch": "jest --watch",
     "test:unit:ci": "CI=true jest --ci --runInBand --verbose --coverage",
+    "coverage": "CI=true jest --ci --runInBand --verbose --coverage",
     "verify": "strapi-plugin verify",
     "watch": "strapi-plugin watch",
     "watch:link": "strapi-plugin watch:link"
   },
-  "keywords": [
-    "strapi",
-    "plugin",
-    "navigation"
-  ],
-  "engines": {
-    "node": ">=18.0.0 <=22.x.x",
-    "npm": ">=6.0.0"
+  "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "@sensinum/strapi-utils": "^1.0.10",
+    "@sindresorhus/slugify": "1.1.0",
+    "@tanstack/react-query": "^5.40.0",
+    "pluralize": "8.0.0",
+    "react-intl": "6.6.2",
+    "uuid": "^14.0.0",
+    "zod": "4.4.3"
   },
-  "license": "MIT",
-  "packageManager": "yarn@4.6.0"
+  "devDependencies": {
+    "@faker-js/faker": "^10.5.0",
+    "@jest/types": "29.5.x",
+    "@koa/router": "^12.0.1",
+    "@strapi-community/plugin-rest-cache": "^5.0.1",
+    "@strapi/plugin-graphql": "^5.59.0",
+    "@strapi/sdk-plugin": "^5.3.2",
+    "@strapi/strapi": "^5.59.0",
+    "@strapi/types": "^5.59.0",
+    "@strapi/typescript-utils": "^5.59.0",
+    "@types/jest": "^29.5.12",
+    "@types/koa": "^2.15.0",
+    "@types/koa-bodyparser": "^4.3.12",
+    "@types/koa__router": "^12.0.4",
+    "@types/lodash": "^4.17.4",
+    "@types/node": "^20.12.0",
+    "@types/pluralize": "0.0.33",
+    "@types/react": "^18.3.8",
+    "@types/react-dom": "^18.3.0",
+    "@types/react-router-dom": "5.3.3",
+    "@types/uuid": "^10.0.0",
+    "husky": "9.1.7",
+    "jest": "^29.7.0",
+    "jest-cli": "^29.7.0",
+    "jest-junit": "^16.0.0",
+    "jest-styled-components": "^7.1.1",
+    "koa": "^3.0.1",
+    "lodash": "^4.17.21",
+    "nodemon": "^2.0.15",
+    "prettier": "^3.3.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-query": "3.39.3",
+    "react-router-dom": "^6.22.3",
+    "styled-components": "6.1.8",
+    "ts-jest": "^29.1.4",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.6.2"
+  },
+  "peerDependencies": {
+    "@strapi/design-system": "^2.0.0",
+    "@strapi/icons": "^2.0.0",
+    "@strapi/sdk-plugin": "^5.0.0",
+    "@strapi/strapi": "^5.0.0",
+    "lodash": "^4.17.21",
+    "react": "^17.0.0 || ^18.0.0",
+    "react-dom": "^17.0.0 || ^18.0.0",
+    "react-router-dom": "^6.0.0",
+    "styled-components": "^6.0.0",
+    "zod": "4.4.3"
+  },
+  "peerDependenciesMeta": {
+    "zod": {
+      "optional": true
+    }
+  },
+  "resolutions": {
+    "esbuild": "^0.25.11"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn format && yarn test:unit"
+    }
+  }
 }

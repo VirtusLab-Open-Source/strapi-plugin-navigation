@@ -4,4 +4,4 @@ export const pencilIcon = <Pencil />;
 export const refreshIcon = <Typhoon />;
 export const trashIcon = <Trash />;
 export const eyeIcon = <Eye />;
-export const arrowClockwise = <ArrowClockwise />
+export const arrowClockwise = <ArrowClockwise />;

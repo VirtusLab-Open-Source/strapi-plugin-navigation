@@ -6,6 +6,7 @@ export type TranslationPath = Path<EN>;
 
 const trads = {
   en: () => import('./en'),
+  de: () => import('./de'),
   fr: () => import('./fr'),
   ca: () => import('./ca'),
 };

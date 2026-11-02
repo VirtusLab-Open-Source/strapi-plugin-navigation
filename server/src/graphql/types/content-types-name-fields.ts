@@ -1,4 +1,4 @@
-import { configSchema } from '../../schemas';
+import { DynamicSchemas } from '../../schemas';
 import { getPluginService } from '../../utils';
 
 export default ({ nexus, strapi }: any) =>
@@ -9,7 +9,7 @@ export default ({ nexus, strapi }: any) =>
 
       const commonService = getPluginService({ strapi }, 'common');
       const pluginStore = await commonService.getPluginStore();
-      const config = configSchema.parse(await pluginStore.get({ key: 'config' }));
+      const config = DynamicSchemas.configSchema.parse(await pluginStore.get({ key: 'config' }));
       const contentTypesNameFields = config.contentTypesNameFields;
 
       Object.keys(contentTypesNameFields || {}).forEach((key) => t.nonNull.list.string(key));

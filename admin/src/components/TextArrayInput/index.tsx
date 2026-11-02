@@ -1,6 +1,6 @@
 import { TextInput } from '@strapi/design-system';
 import { isArray } from 'lodash';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Effect } from '../../types';
 
@@ -15,8 +15,9 @@ interface IProps {
 
 const TextArrayInput: React.FC<IProps> = ({ onChange, initialValue, ...props }) => {
   const [value, setValue] = useState(
-    isArray(initialValue) ? initialValue.reduce((acc, cur) => `${acc}${cur}; `, '') : ''
+    isArray(initialValue) ? initialValue.join(';') : ''
   );
+
   const handleOnChange = (event: { target: { value?: string } }) => {
     const newValue: string = event?.target.value ?? '';
     const valuesArray = newValue

@@ -239,6 +239,7 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
     rootPath,
     type = 'FLAT',
     wrapRelated,
+    status = 'published',
   }: RenderTypeInput) {
     const adminService = getPluginService(context, 'admin');
     const commonService = getPluginService(context, 'common');
@@ -288,6 +289,7 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
         master: navigation,
         navigationItems,
         populate,
+        status,
       });
 
       const { contentTypes, contentTypesNameFields, additionalFields } = await adminService.config({
@@ -307,7 +309,6 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
             }
           : itemContentType;
 
-      const mediaFields = ['name', 'url', 'mime', 'width', 'height', 'previewUrl'] as const;
       const customFieldsDefinitions = additionalFields.filter(
         (_) => typeof _ !== 'string'
       ) as NavigationItemCustomField[];
@@ -319,7 +320,7 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
         if (content) {
           switch (fieldDefinition?.type) {
             case 'media':
-              content = pick(JSON.parse(content as string), mediaFields);
+              content = JSON.parse(content as string);
               break;
             case 'boolean':
               content = content === 'true';
@@ -340,11 +341,14 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
             path = ''
           ): Promise<NavigationItemDTO> => {
             const isExternal = item.type === 'EXTERNAL';
+            const isManualPath = item.isManualPath;
             const parentPath = isExternal
               ? undefined
-              : `${path === '/' ? '' : path}/${
-                  first(item.path) === '/' ? item.path!.substring(1) : item.path
-                }`;
+              : isManualPath
+                ? item.path ?? ''
+                : `${path === '/' ? '' : path}/${
+                    first(item.path) === '/' ? item.path!.substring(1) : item.path
+                  }`;
             const slug =
               typeof parentPath === 'string'
                 ? await commonService.getSlug({
@@ -472,6 +476,7 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
     menuOnly,
     type = 'FLAT',
     wrapRelated,
+    status,
   }: RenderChildrenInput) {
     const criteria = { $or: [{ documentId: idOrSlug }, { slug: idOrSlug }] };
     const filter = type === 'FLAT' ? undefined : childUIKey;
@@ -487,6 +492,7 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
       filter,
       wrapRelated,
       locale,
+      status,
     });
   },
 
@@ -498,6 +504,7 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
     rootPath,
     type = 'FLAT',
     wrapRelated,
+    status,
   }: RenderInput) {
     const criteria = { $or: [{ documentId: idOrSlug }, { slug: idOrSlug }] };
     const itemCriteria = menuOnly ? { menuAttached: true } : {};
@@ -510,6 +517,7 @@ const clientService = (context: { strapi: Core.Strapi }) => ({
       wrapRelated,
       locale,
       populate,
+      status,
     });
   },
 });

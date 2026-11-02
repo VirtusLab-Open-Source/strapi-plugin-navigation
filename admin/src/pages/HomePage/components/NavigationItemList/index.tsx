@@ -1,16 +1,20 @@
-import { FC } from 'react';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { FC, useMemo } from 'react';
 
 import { NavigationItemSchema } from '../../../../api/validators';
 import {
   Item,
-  OnItemCollapseEffect,
   OnItemEditEffect,
   OnItemLevelAddEffect,
-  OnItemRemoveEffect,
-  OnItemReorderEffect,
-  OnItemRestoreEffect,
+  OnItemSubmitEffect,
 } from '../NavigationItemListItem';
 import Wrapper from './Wrapper';
+import { type NavigationItemFormSchema } from '../NavigationItemForm';
+import { mapServerNavigationItem } from '../../utils';
+import {
+  getNavigationItemSortableId,
+  getNavigationItemStructureId,
+} from '../../../../utils/dnd';
 
 interface Props {
   isParentAttachedToMenu?: boolean;
@@ -19,10 +23,7 @@ interface Props {
   levelPath?: string;
   onItemEdit: OnItemEditEffect;
   onItemLevelAdd: OnItemLevelAddEffect;
-  onItemRemove: OnItemRemoveEffect;
-  onItemRestore: OnItemRestoreEffect;
-  onItemReOrder: OnItemReorderEffect;
-  onItemToggleCollapse: OnItemCollapseEffect;
+  onItemSubmit: OnItemSubmitEffect;
   displayFlat?: boolean;
   permissions: { canUpdate: boolean; canAccess: boolean };
   structurePrefix: string;
@@ -37,39 +38,102 @@ export const List: FC<Props> = ({
   levelPath = '',
   onItemEdit,
   onItemLevelAdd,
-  onItemRemove,
-  onItemRestore,
-  onItemReOrder,
-  onItemToggleCollapse,
+  onItemSubmit,
   displayFlat,
   permissions,
   structurePrefix,
   viewParentId,
   locale,
-}) => (
-  <Wrapper data-level={level}>
-    {items?.map((item, index) => {
-      return (
-        <Item
-          key={`list-item-${item.viewId || index}`}
-          item={item}
-          isLast={index === items.length - 1}
-          level={level}
-          levelPath={levelPath}
-          isParentAttachedToMenu={isParentAttachedToMenu}
-          onItemRestore={onItemRestore}
-          onItemLevelAdd={onItemLevelAdd}
-          onItemRemove={onItemRemove}
-          onItemEdit={onItemEdit}
-          onItemReOrder={onItemReOrder}
-          onItemToggleCollapse={onItemToggleCollapse}
-          displayChildren={displayFlat}
-          permissions={permissions}
-          structureId={structurePrefix ? `${structurePrefix}.${index}` : index.toString()}
-          viewParentId={viewParentId}
-          locale={locale}
-        />
-      );
-    })}
-  </Wrapper>
-);
+}) => {
+  const handleItemReOrder = ({
+    item,
+    newOrder,
+  }: {
+    item: NavigationItemFormSchema;
+    newOrder: number;
+  }) => {
+    onItemSubmit({
+      ...item,
+      order: newOrder,
+    });
+  };
+
+  const handleItemRemove = (item: NavigationItemSchema) => {
+    onItemSubmit(
+      mapServerNavigationItem(
+        {
+          ...item,
+          removed: true,
+        },
+        true
+      )
+    );
+  };
+
+  const handleItemRestore = (item: NavigationItemSchema) => {
+    onItemSubmit(
+      mapServerNavigationItem(
+        {
+          ...item,
+          removed: false,
+        },
+        true
+      )
+    );
+  };
+
+  const handleItemToggleCollapse = (item: NavigationItemSchema) => {
+    onItemSubmit(
+      mapServerNavigationItem(
+        {
+          ...item,
+          collapsed: !item.collapsed,
+          updated: true,
+          isSearchActive: false,
+        },
+        true
+      )
+    );
+  };
+
+  const sortableIds = useMemo(
+    () =>
+      items?.map((item, index) =>
+        getNavigationItemSortableId(item, getNavigationItemStructureId(structurePrefix, index))
+      ) ?? [],
+    [items, structurePrefix]
+  );
+
+  return (
+    <Wrapper data-level={level}>
+      <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
+        {items?.map((item, index) => {
+          const structureId = getNavigationItemStructureId(structurePrefix, index);
+
+          return (
+            <Item
+              key={`list-item-${getNavigationItemSortableId(item, structureId)}`}
+              item={item}
+              isLast={index === items.length - 1}
+              level={level}
+              levelPath={levelPath}
+              isParentAttachedToMenu={isParentAttachedToMenu}
+              onItemLevelAdd={onItemLevelAdd}
+              onItemEdit={onItemEdit}
+              onItemSubmit={onItemSubmit}
+              onItemRestore={handleItemRestore}
+              onItemRemove={handleItemRemove}
+              onItemReOrder={handleItemReOrder}
+              onItemToggleCollapse={handleItemToggleCollapse}
+              displayChildren={displayFlat}
+              permissions={permissions}
+              structureId={structureId}
+              viewParentId={viewParentId}
+              locale={locale}
+            />
+          );
+        })}
+      </SortableContext>
+    </Wrapper>
+  );
+};

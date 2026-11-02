@@ -2,52 +2,55 @@ import { Core } from '@strapi/strapi';
 
 import configBase from '.';
 import {
-  NavigationItemAdditionalField,
+  ConfigSchema,
   NavigationPluginConfigDBSchema,
   PluginConfigKeys,
-  configSchema,
+  DynamicSchemas,
 } from '../schemas';
-import {
-  PluginConfigGraphQL,
-  PluginConfigNameFields,
-  PluginConfigPathDefaultFields,
-  PluginConfigPopulate,
-} from '../types';
 import { assertNotEmpty, resolveGlobalLikeId, validateAdditionalFields } from '../utils';
 
 type PluginDefaultConfigGetter = (
   key: PluginConfigKeys
 ) => NavigationPluginConfigDBSchema[PluginConfigKeys];
 
-export const configSetup = async ({ strapi }: { strapi: Core.Strapi }) => {
+export const configSetup = async ({
+  strapi,
+  forceDefault = false,
+}: {
+  strapi: Core.Strapi;
+  forceDefault?: boolean;
+}) => {
   const pluginStore = strapi.store({
     type: 'plugin',
     name: 'navigation',
   });
   const getFromPluginDefaults: PluginDefaultConfigGetter = await strapi.plugin('navigation').config;
-  const configRaw = {
-    ...configBase.default,
-    ...((await pluginStore.get({
-      key: 'config',
-    })) ?? configBase.default),
-  };
 
-  let config = configSchema.parse(configRaw);
+  const partialConfigSchema = DynamicSchemas.configSchema.partial();
+  const hardcodedDefaults = partialConfigSchema.parse(configBase.default);
+  const dbConfig = partialConfigSchema.parse(
+    forceDefault ? {} : ((await pluginStore.get({ key: 'config' })) ?? {})
+  );
 
-  const getWithFallback = getWithFallbackFactory(config, getFromPluginDefaults);
+  const getWithFallback = getWithFallbackFactory(
+    dbConfig,
+    getFromPluginDefaults,
+    hardcodedDefaults
+  );
 
-  config = {
-    additionalFields: getWithFallback<NavigationItemAdditionalField[]>('additionalFields'),
-    contentTypes: getWithFallback<string[]>('contentTypes'),
-    contentTypesNameFields: getWithFallback<PluginConfigNameFields>('contentTypesNameFields'),
-    contentTypesPopulate: getWithFallback<PluginConfigPopulate>('contentTypesPopulate'),
-    allowedLevels: getWithFallback<number>('allowedLevels'),
-    gql: getWithFallback<PluginConfigGraphQL>('gql'),
-    pathDefaultFields: getWithFallback<PluginConfigPathDefaultFields>('pathDefaultFields'),
-    cascadeMenuAttached: getWithFallback<boolean>('cascadeMenuAttached'),
-    preferCustomContentTypes: getWithFallback<boolean>('preferCustomContentTypes'),
-    isCacheEnabled: getWithFallback<boolean>('isCacheEnabled'),
-  };
+  const config: ConfigSchema = DynamicSchemas.configSchema.parse({
+    additionalFields: getWithFallback('additionalFields'),
+    contentTypes: getWithFallback('contentTypes'),
+    contentTypesNameFields: getWithFallback('contentTypesNameFields'),
+    contentTypesPopulate: getWithFallback('contentTypesPopulate'),
+    defaultContentType: getWithFallback('defaultContentType'),
+    allowedLevels: getWithFallback('allowedLevels'),
+    gql: getWithFallback('gql'),
+    pathDefaultFields: getWithFallback('pathDefaultFields'),
+    cascadeMenuAttached: getWithFallback('cascadeMenuAttached'),
+    preferCustomContentTypes: getWithFallback('preferCustomContentTypes'),
+    isCacheEnabled: getWithFallback('isCacheEnabled'),
+  });
 
   handleDeletedContentTypes(config, { strapi });
 
@@ -62,13 +65,17 @@ export const configSetup = async ({ strapi }: { strapi: Core.Strapi }) => {
 };
 
 const getWithFallbackFactory =
-  (config: NavigationPluginConfigDBSchema, fallback: PluginDefaultConfigGetter) =>
-  <T extends ReturnType<PluginDefaultConfigGetter>>(key: PluginConfigKeys) => {
-    const value = config?.[key] ?? fallback(key);
+  (
+    dbConfig: Partial<NavigationPluginConfigDBSchema>,
+    fallback: PluginDefaultConfigGetter,
+    hardcodedDefaults: Partial<NavigationPluginConfigDBSchema>
+  ) =>
+  (key: PluginConfigKeys) => {
+    const value = dbConfig[key] ?? fallback(key) ?? hardcodedDefaults[key];
 
     assertNotEmpty(value, new Error(`[Navigation] Config "${key}" is undefined`));
 
-    return value as T;
+    return value;
   };
 
 const handleDeletedContentTypes = (

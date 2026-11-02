@@ -10,7 +10,7 @@ export default ({ nexus, config }: any) =>
           if (field.enabled) {
             switch (field.type) {
               case 'media':
-                t.field(field.name, { type: 'NavigationItemAdditionalFieldMedia' });
+                t.field(field.name, { type: 'UploadFile' });
                 break;
               case 'string':
                 t.string(field.name);

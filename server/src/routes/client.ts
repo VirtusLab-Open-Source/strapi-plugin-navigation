@@ -1,37 +1,37 @@
 export type NavigationServerRoute = (typeof routes.routes)[number] & {
   info?: {
-    pluginName: string
-  }
-}
+    pluginName: string;
+  };
+};
 
 const routes = {
   type: 'content-api',
   routes: [
     {
-      method: "GET",
-      path: "/render/:idOrSlug",
-      handler: "client.render",
+      method: 'GET',
+      path: '/render/:idOrSlug',
+      handler: 'client.render',
       config: {
-        policies: []
-      }
+        policies: [],
+      },
     },
     {
-      method: "GET",
-      path: "/render/:idOrSlug/:childUIKey",
-      handler: "client.renderChild",
+      method: 'GET',
+      path: '/render/:idOrSlug/:childUIKey',
+      handler: 'client.renderChild',
       config: {
-        policies: []
-      }
+        policies: [],
+      },
     },
     {
-      method: "GET",
-      path: "/",
-      handler: "client.readAll",
+      method: 'GET',
+      path: '/',
+      handler: 'client.readAll',
       config: {
-        policies: []
-      }
-    }
-  ]
-}
+        policies: [],
+      },
+    },
+  ],
+};
 
 export default routes;

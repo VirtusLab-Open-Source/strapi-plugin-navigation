@@ -34,6 +34,11 @@ describe('Navigation', () => {
       "configurable": false,
       "type": "text",
     },
+    "isManualPath": {
+      "configurable": false,
+      "default": false,
+      "type": "boolean",
+    },
     "master": {
       "configurable": false,
       "inversedBy": "items",
@@ -66,7 +71,7 @@ describe('Navigation', () => {
     "related": {
       "configurable": false,
       "relation": "morphToMany",
-      "required": true,
+      "required": false,
       "type": "relation",
     },
     "title": {

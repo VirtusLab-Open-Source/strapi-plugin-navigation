@@ -35,6 +35,7 @@ const navigationItemCommon = ({ additionalFields }: FormSchemaBuilderInput) =>
     audience: z.string().array().optional(),
     order: z.number().optional(),
     items: z.any().array().optional(),
+    isManualPath: z.boolean().nullish(),
     additionalFields: z.object(
       additionalFields.reduce<
         Record<
@@ -79,6 +80,9 @@ const navigationItemCommon = ({ additionalFields }: FormSchemaBuilderInput) =>
     ),
   });
 
+export type NavigationInternalItemFormSchema = z.infer<
+  ReturnType<typeof navigationInternalItemFormSchema>
+>;
 const navigationInternalItemFormSchema = ({
   additionalFields,
   isSingleSelected,
@@ -88,8 +92,8 @@ const navigationInternalItemFormSchema = ({
     isSingleSelected,
   }).extend({
     type: z.literal('INTERNAL'),
-    path: z.string(),
-    externalPath: z.string().optional(),
+    path: z.string().or(z.null()).optional(),
+    externalPath: z.string().nullish(),
     relatedType: z.string(),
     related: isSingleSelected ? z.string().optional() : z.string(),
   });
@@ -136,6 +140,7 @@ export const fallbackDefaultValues: NavigationItemFormSchema = {
   autoSync: true,
   type: 'INTERNAL',
   relatedType: '',
+  related: '',
   menuAttached: false,
   title: '',
   externalPath: '',

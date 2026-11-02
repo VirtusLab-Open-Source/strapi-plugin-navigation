@@ -1,0 +1,245 @@
+import { getFetchClient } from '@strapi/strapi/admin';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCallback } from 'react';
+
+import { getApiClient } from '../../../api';
+import { NavigationSchema } from '../../../api/validators';
+import { Effect } from '../../../types';
+import { appendViewId } from '../utils/appendViewId';
+
+export const useLocale = () => {
+  const fetch = getFetchClient();
+  const apiClient = getApiClient(fetch);
+
+  return useQuery({
+    queryKey: apiClient.readLocaleIndex(),
+    queryFn: apiClient.readLocale,
+    staleTime: Infinity,
+  });
+};
+
+export interface UseContentTypeItemsInput {
+  uid: string;
+  locale?: string;
+  query?: string;
+}
+
+export const useContentTypeItems = (input: UseContentTypeItemsInput) => {
+  const fetch = getFetchClient();
+  const apiClient = getApiClient(fetch);
+
+  return useQuery({
+    queryKey: apiClient.readContentTypeItemsIndex(input),
+    queryFn: () => apiClient.readContentTypeItems(input),
+    staleTime: 1000 * 60 * 3,
+    enabled: !!input.uid,
+  });
+};
+
+export const useContentTypes = () => {
+  const fetch = getFetchClient();
+  const apiClient = getApiClient(fetch);
+
+  return useQuery({
+    queryKey: apiClient.readContentTypeIndex(),
+    queryFn: () => apiClient.readContentType(),
+    staleTime: 1000 * 60 * 3,
+  });
+};
+
+export const useResetNavigations = () => {
+  const fetch = getFetchClient();
+  const apiClient = getApiClient(fetch);
+
+  const queryClient = useQueryClient();
+
+  return () => {
+    queryClient.resetQueries({
+      queryKey: apiClient.readAllIndex(),
+    });
+  };
+};
+
+export const useResetContentTypes = () => {
+  const fetch = getFetchClient();
+  const apiClient = getApiClient(fetch);
+
+  const queryClient = useQueryClient();
+
+  return () => {
+    queryClient.resetQueries({
+      queryKey: apiClient.readContentTypeIndex(),
+    });
+  };
+};
+
+export const useInvalidateContentTypeItems = (input: UseContentTypeItemsInput) => {
+  const fetch = getFetchClient();
+  const apiClient = getApiClient(fetch);
+
+  const queryClient = useQueryClient();
+
+  return () => {
+    queryClient.invalidateQueries({
+      queryKey: apiClient.readContentTypeItemsIndex(input),
+    });
+  };
+};
+
+export const useInvalidateNavigations = () => {
+  const fetch = getFetchClient();
+  const apiClient = getApiClient(fetch);
+
+  const queryClient = useQueryClient();
+
+  return () => {
+    queryClient.invalidateQueries({
+      queryKey: apiClient.readAllIndex(),
+    });
+  };
+};
+
+export const useInvalidateLocale = () => {
+  const fetch = getFetchClient();
+  const apiClient = getApiClient(fetch);
+
+  const queryClient = useQueryClient();
+
+  return () => queryClient.invalidateQueries({ queryKey: apiClient.readLocaleIndex() });
+};
+
+export const useNavigations = () => {
+  const fetch = getFetchClient();
+  const apiClient = getApiClient(fetch);
+
+  return useQuery({
+    queryKey: apiClient.readAllIndex(),
+    queryFn() {
+      return apiClient.readAll().then((navigations) =>
+        navigations.map(
+          (navigation): NavigationSchema => ({
+            ...navigation,
+            items: navigation.items.map(appendViewId),
+          })
+        )
+      );
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+};
+
+export const useHardReset = () => {
+  const client = useQueryClient();
+  const fetch = getFetchClient();
+  const apiClient = getApiClient(fetch);
+
+  return useCallback(() => {
+    client.invalidateQueries({
+      queryKey: apiClient.getIndexPrefix(),
+    });
+  }, [client, fetch, apiClient]);
+};
+
+export const useDeleteNavigations = () => {
+  const fetch = getFetchClient();
+  const apiClient = getApiClient(fetch);
+
+  return useMutation({
+    mutationFn(documentIds: Array<string>) {
+      return Promise.all(documentIds.map(apiClient.delete));
+    },
+  });
+};
+
+export const useCopyNavigationItemI18n = () => {
+  const fetch = getFetchClient();
+  const apiClient = getApiClient(fetch);
+
+  return useMutation({
+    mutationFn: apiClient.copyNavigationItemLocale,
+  });
+};
+
+export const useCopyNavigationI18n = () => {
+  const fetch = getFetchClient();
+  const apiClient = getApiClient(fetch);
+  // TODO: nicer cache update
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: apiClient.copyNavigationLocale,
+    onSuccess() {
+      queryClient.invalidateQueries({
+        queryKey: apiClient.readAllIndex(),
+      });
+    },
+  });
+};
+
+export const useCreateNavigation = () => {
+  const fetch = getFetchClient();
+  const apiClient = getApiClient(fetch);
+  // TODO: nicer cache update
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: apiClient.create,
+    onSuccess() {
+      queryClient.invalidateQueries({
+        queryKey: apiClient.readAllIndex(),
+      });
+    },
+  });
+};
+
+export const useUpdateNavigation = ({
+  onError,
+  onSuccess,
+}: {
+  onSuccess?: Effect<NavigationSchema>;
+  onError?: Effect<unknown>;
+}) => {
+  const fetch = getFetchClient();
+  const apiClient = getApiClient(fetch);
+  // TODO: nicer cache update
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: apiClient.update,
+    onSuccess(next) {
+      queryClient.invalidateQueries({
+        queryKey: apiClient.readAllIndex(),
+      });
+
+      onSuccess?.(next);
+    },
+    onError,
+  });
+};
+
+export const usePurgeNavigation = () => {
+  const fetch = getFetchClient();
+  const apiClient = getApiClient(fetch);
+
+  return useMutation({
+    mutationFn(documentIds?: Array<string>): Promise<unknown> {
+      if (!documentIds?.length) {
+        return apiClient.purge({});
+      }
+
+      return Promise.all(
+        documentIds.map((documentId) => apiClient.purge({ documentId, withLangVersions: true }))
+      );
+    },
+  });
+};
+
+export const useConfig = () => {
+  const fetch = getFetchClient();
+  const apiClient = getApiClient(fetch);
+
+  return useQuery({
+    queryKey: apiClient.readConfigIndex(),
+    queryFn: apiClient.readConfig,
+  });
+};

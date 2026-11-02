@@ -37,7 +37,10 @@ export const getApiClient = once((fetch: ReturnType<typeof getFetchClient>) => (
   },
 
   update(body: NavigationSchema) {
-    return fetch.put(`/${URL_PREFIX}/${body.documentId}`, body);
+    return fetch
+      .put(`/${URL_PREFIX}/${body.documentId}`, body)
+      .then(({ data }) => data)
+      .then(navigationSchema.parse);
   },
 
   purge({ documentId, withLangVersions }: { documentId?: string; withLangVersions?: boolean }) {
@@ -67,8 +70,7 @@ export const getApiClient = once((fetch: ReturnType<typeof getFetchClient>) => (
   },
 
   healthCheck() {
-    return fetch
-      .get(`/_health`);
+    return fetch.get(`/_health`);
   },
 
   healthCheckIndex() {
@@ -121,7 +123,7 @@ export const getApiClient = once((fetch: ReturnType<typeof getFetchClient>) => (
 
   readContentType() {
     return fetch
-      .get(`/content-manager/content-types`)
+      .get<{ data: unknown }>(`/content-manager/content-types`)
       .then(({ data }) => strapiContentTypeSchema.array().parse(data.data));
   },
   readContentTypeIndex() {
@@ -173,7 +175,9 @@ export const getApiClient = once((fetch: ReturnType<typeof getFetchClient>) => (
     target: string;
     documentId: string;
   }) {
-    return fetch.put(`/${URL_PREFIX}/i18n/copy/${documentId}/${source}/${target}`);
+    return fetch
+      .put(`/${URL_PREFIX}/i18n/copy/${documentId}/${source}/${target}`)
+      .then(({ data }) => navigationSchema.parse(data));
   },
 
   copyNavigationItemLocale({

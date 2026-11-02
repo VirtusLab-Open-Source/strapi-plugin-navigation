@@ -21,11 +21,11 @@ import {
   getNavigationRepository,
 } from '../../repositories';
 import {
+  DynamicSchemas,
   NavigationDBSchema,
   NavigationItemCustomField,
   NavigationItemDBSchema,
   ReadNavigationItemFromLocaleSchema,
-  configSchema,
   contentTypeFullSchema,
   readNavigationItemFromLocaleSchema,
 } from '../../schemas';
@@ -67,19 +67,20 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       .get({
         key: 'config',
       })
-      .then(configSchema.parse);
+      .then(DynamicSchemas.configSchema.parse);
 
     const {
       additionalFields,
       cascadeMenuAttached,
       contentTypesPopulate,
       contentTypesNameFields,
+      defaultContentType,
       pathDefaultFields,
       allowedLevels,
       preferCustomContentTypes,
     } = config;
 
-    const isGQLPluginEnabled = !!strapi.plugin('graphql');
+    const isGQLPluginEnabled = !!context.strapi.plugin('graphql');
 
     let extendedResult: Record<string, unknown> = {
       allowedContentTypes: ALLOWED_CONTENT_TYPES,
@@ -95,15 +96,14 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
         ...(isObject(contentTypesNameFields) ? contentTypesNameFields : {}),
       },
       contentTypesPopulate: isObject(contentTypesPopulate) ? contentTypesPopulate : {},
+      defaultContentType,
       pathDefaultFields: isObject(pathDefaultFields) ? pathDefaultFields : {},
       allowedLevels,
       additionalFields: viaSettingsPage
         ? additionalFields
         : additionalFields.filter((field) => typeof field === 'string' || !!field.enabled),
       gql: {
-        navigationItemRelated: configContentTypes.map(({ labelSingular }) =>
-          labelSingular.replace(/\s+/g, '')
-        ),
+        navigationItemRelated: configContentTypes.map(({ gqlTypeName }) => gqlTypeName),
       },
       isGQLPluginEnabled: viaSettingsPage ? isGQLPluginEnabled : undefined,
       cascadeMenuAttached,
@@ -134,7 +134,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
 
     const pluginStore = await commonService.getPluginStore();
 
-    const config = await pluginStore.get({ key: 'config' }).then(configSchema.parse);
+    const config = await pluginStore.get({ key: 'config' }).then(DynamicSchemas.configSchema.parse);
 
     const eligibleContentTypes = await Promise.all(
       config.contentTypes
@@ -211,7 +211,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       }
 
       const { visible = true } = pluginOptions['content-manager'] || {};
-      const { name = '', description = '' } = info;
+      const { description = '', displayName = '' } = info;
 
       const findRouteConfig = find(
         get(context.strapi.api, `[${modelName}].config.routes`, []),
@@ -230,9 +230,10 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
         relationNameParts.length > 1
           ? relationNameParts.reduce((prev, curr) => `${prev}${upperFirst(curr)}`, '')
           : upperFirst(modelName);
-      const labelSingular =
-        name ||
-        upperFirst(relationNameParts.length > 1 ? relationNameParts.join(' ') : relationName);
+
+      const gqlPlugin = context.strapi.plugin('graphql');
+      const graphQlNamingPlugin = gqlPlugin?.service('utils');
+      const gqlTypeName: string = graphQlNamingPlugin?.naming?.getTypeName(item) || '';
 
       acc.push({
         uid,
@@ -242,14 +243,14 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
         description,
         collectionName,
         contentTypeName,
-        label: isSingle ? labelSingular : pluralize(name || labelSingular),
+        label: displayName,
         relatedField: relatedField ? relatedField.alias : undefined,
-        labelSingular: singularize(labelSingular),
         endpoint: endpoint!,
         plugin,
         available: isAvailable,
         visible,
         templateName: options?.templateName,
+        gqlTypeName,
       });
 
       return acc;
@@ -446,7 +447,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       }
     }
 
-    const updatedNavigationAsDTO = await commonService
+    await commonService
       .analyzeBranch({
         navigationItems: items ?? [],
         masterEntity: currentNavigation,
@@ -461,8 +462,6 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
           oldEntity: currentNavigationAsDTO,
           newEntity,
         });
-
-        return newEntity;
       });
 
     await commonService.emitEvent({
@@ -474,7 +473,11 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       uid: masterModel.uid,
     });
 
-    return updatedNavigationAsDTO;
+    return await this.getById({
+      documentId: payload.documentId,
+      locale: payload.locale,
+      populate: ['related'],
+    });
   },
 
   async delete({ auditLog, documentId }: DeleteInput): Promise<void> {
@@ -511,11 +514,12 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
     });
     const allNavigations = await navigationRepository.find({
       filters: { documentId: navigation.documentId },
+      locale: '*',
       populate: '*',
     });
 
     await cleanNavigationItems(allNavigations.map(({ id }: NavigationDBSchema) => id));
-    await navigationRepository.remove({ documentId: navigation.documentId });
+    await navigationRepository.remove({ documentId: navigation.documentId, locale: '*' });
 
     sendAuditLog(auditLog, 'onNavigationDeletion', {
       entity: navigationAsDTO,
@@ -530,11 +534,41 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
   },
 
   async restoreConfig(): Promise<void> {
+    console.log('restore');
     const commonService = getPluginService(context, 'common');
 
     const pluginStore = await commonService.getPluginStore();
     await pluginStore.delete({ key: 'config' });
     await commonService.setDefaultConfig();
+  },
+
+  async refreshNavigationLocale(newLocale?: string): Promise<void> {
+    if (!newLocale) {
+      return;
+    }
+
+    const commonService = getPluginService(context, 'common');
+
+    const { defaultLocale } = await commonService.readLocale();
+
+    const repository = getNavigationRepository(context);
+
+    const navigations = await repository.find({
+      limit: Number.MAX_SAFE_INTEGER,
+      locale: defaultLocale,
+    });
+
+    await Promise.all(
+      navigations.map(({ name, visible, slug, documentId }) =>
+        repository.save({
+          name,
+          visible,
+          locale: newLocale,
+          slug,
+          documentId,
+        })
+      )
+    );
   },
 
   async updateConfig({ config: newConfig }: UpdateConfigInput): Promise<void> {
@@ -546,7 +580,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       .get({
         key: 'config',
       })
-      .then(configSchema.parse);
+      .then(DynamicSchemas.configSchema.parse);
 
     validateAdditionalFields(newConfig.additionalFields);
 
@@ -684,7 +718,7 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
   }: GetContentTypeItemsInput): Promise<{ documentId: string }[]> {
     const commonService = getPluginService(context, 'common');
     const pluginStore = await commonService.getPluginStore();
-    const config = await pluginStore.get({ key: 'config' }).then(configSchema.parse);
+    const config = await pluginStore.get({ key: 'config' }).then(DynamicSchemas.configSchema.parse);
     const where: Record<string, any> = {
       publishedAt: {
         $notNull: true,
@@ -692,11 +726,6 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
     };
     const contentType = get(context.strapi.contentTypes, uid);
     const { draftAndPublish } = contentType.options;
-    const { localized = false } = contentType?.pluginOptions?.i18n || {};
-
-    if (localized && query.locale) {
-      where.locale = query.locale;
-    }
 
     const repository = getGenericRepository(context, uid as UID.ContentType);
 
@@ -704,7 +733,8 @@ const adminService = (context: { strapi: Core.Strapi }) => ({
       const contentTypeItems = await repository.findMany(
         where,
         config.contentTypesPopulate[uid] || [],
-        draftAndPublish ? 'published' : undefined
+        draftAndPublish ? 'published' : undefined,
+        query.locale as string | undefined
       );
 
       return contentTypeItems;
