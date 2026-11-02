@@ -10,6 +10,7 @@ env:
 
 permissions:
   contents: write
+  pull-requests: write
   id-token: write # Required for npm Trusted Publisher (OIDC)
 
 jobs:
@@ -30,9 +31,11 @@ jobs:
             echo "Invalid release tag: $TAG_NAME (expected X.Y.Z or X.Y.Z-beta.N, optional leading v)"
             exit 1
           fi
+          BRANCH="chore/version-${VERSION}"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tag=$TAG_NAME" >> "$GITHUB_OUTPUT"
           echo "ref=$TARGET_COMMITISH" >> "$GITHUB_OUTPUT"
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
 
       - name: Checkout target branch
         uses: actions/checkout@v4
@@ -47,9 +50,12 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Bump package version
+        id: bump
         env:
           VERSION: ${{ steps.target.outputs.version }}
+          BRANCH: ${{ steps.target.outputs.branch }}
         run: |
+          git checkout -B "$BRANCH"
           npm version "$VERSION" --no-git-tag-version
           git add package.json
           if [ -f yarn.lock ]; then
@@ -57,18 +63,51 @@ jobs:
           fi
           if git diff --cached --quiet; then
             echo "package.json already at version $VERSION"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             git commit -m "chore: version ${VERSION}"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Move release tag to version commit
+      - name: Push version branch and retag
         env:
           TAG_NAME: ${{ steps.target.outputs.tag }}
-          TARGET_REF: ${{ steps.target.outputs.ref }}
+          BRANCH: ${{ steps.target.outputs.branch }}
         run: |
+          git push origin "HEAD:${BRANCH}" --force
           git tag -f "$TAG_NAME"
-          git push origin "HEAD:${TARGET_REF}"
           git push origin "refs/tags/${TAG_NAME}" --force
+
+      - name: Open version bump PR
+        if: steps.bump.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.target.outputs.version }}
+          BRANCH: ${{ steps.target.outputs.branch }}
+          BASE_REF: ${{ steps.target.outputs.ref }}
+          TAG_NAME: ${{ steps.target.outputs.tag }}
+        run: |
+          EXISTING="$(gh pr list --head "$BRANCH" --base "$BASE_REF" --state open --json number --jq '.[0].number // empty')"
+          BODY=$(cat <<EOF
+          Automated version bump for release \`${TAG_NAME}\`.
+
+          npm publish runs from this workflow after tests/build.
+          Merge this PR (use bypass if branch protection blocks) so \`${BASE_REF}\` gets \`package.json\` at \`${VERSION}\`.
+
+          Prefer **Create a merge commit** (not squash) so the release tag stays on the bumped commit.
+          EOF
+          )
+          BODY="$(printf '%s\n' "$BODY" | sed -e 's/^[[:space:]]*//')"
+          if [ -n "$EXISTING" ]; then
+            echo "PR #${EXISTING} already open for ${BRANCH}"
+            gh pr edit "$EXISTING" --title "chore: version ${VERSION}" --body "$BODY"
+          else
+            gh pr create \
+              --base "$BASE_REF" \
+              --head "$BRANCH" \
+              --title "chore: version ${VERSION}" \
+              --body "$BODY"
+          fi
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
