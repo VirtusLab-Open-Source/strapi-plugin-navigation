@@ -149,6 +149,5 @@
     "hooks": {
       "pre-commit": "yarn format && yarn test:unit"
     }
-  },
-  "packageManager": "yarn@1.22.22"
+  }
 }
