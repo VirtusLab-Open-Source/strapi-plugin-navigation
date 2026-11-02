@@ -1,0 +1,110 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+env:
+  NODE_VERSION: '22'
+  HUSKY: '0'
+
+permissions:
+  contents: write
+  id-token: write # Required for npm Trusted Publisher (OIDC)
+
+jobs:
+  release:
+    name: Test, build and publish
+    runs-on: ubuntu-latest
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    steps:
+      - name: Resolve target ref
+        id: target
+        env:
+          TARGET_COMMITISH: ${{ github.event.release.target_commitish }}
+          TAG_NAME: ${{ github.event.release.tag_name }}
+        run: |
+          VERSION="${TAG_NAME#v}"
+          if ! echo "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-beta\.[0-9]+)?$'; then
+            echo "Invalid release tag: $TAG_NAME (expected X.Y.Z or X.Y.Z-beta.N, optional leading v)"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG_NAME" >> "$GITHUB_OUTPUT"
+          echo "ref=$TARGET_COMMITISH" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout target branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.target.outputs.ref }}
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump package version
+        env:
+          VERSION: ${{ steps.target.outputs.version }}
+        run: |
+          npm version "$VERSION" --no-git-tag-version
+          git add package.json
+          if [ -f yarn.lock ]; then
+            git add yarn.lock
+          fi
+          if git diff --cached --quiet; then
+            echo "package.json already at version $VERSION"
+          else
+            git commit -m "chore: version ${VERSION}"
+          fi
+
+      - name: Move release tag to version commit
+        env:
+          TAG_NAME: ${{ steps.target.outputs.tag }}
+          TARGET_REF: ${{ steps.target.outputs.ref }}
+        run: |
+          git tag -f "$TAG_NAME"
+          git push origin "HEAD:${TARGET_REF}"
+          git push origin "refs/tags/${TAG_NAME}" --force
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: yarn
+          registry-url: https://registry.npmjs.org
+
+      # Trusted publishing needs npm >= 11.5.1 (Node 22 image may ship an older CLI)
+      - name: Ensure npm supports OIDC trusted publishing
+        run: npm install -g npm@^11.5.1
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Run tests with coverage
+        run: yarn coverage
+
+      - name: Upload coverage to Codecov
+        if: ${{ env.CODECOV_TOKEN != '' }}
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage/lcov.info
+          flags: unittest
+          fail_ci_if_error: true
+
+      - name: Build
+        run: yarn build
+
+      - name: Publish to npm
+        env:
+          IS_PRERELEASE: ${{ github.event.release.prerelease }}
+        run: |
+          if [ "$IS_PRERELEASE" = "true" ]; then
+            npm publish --access public --tag beta
+          else
+            npm publish --access public --tag latest
+          fi
