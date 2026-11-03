@@ -1,6 +1,6 @@
 {
   "name": "strapi-plugin-navigation",
-  "version": "3.4.1",
+  "version": "3.4.2",
   "description": "Strapi - Navigation plugin",
   "keywords": [
     "strapi",
@@ -11,7 +11,7 @@
   "author": "Sensinum <hello@sensinum.com>",
   "contributors": [
     "Mateusz Ziarko <mziarko@virtuslab.com>",
-    "Maksymilian Pamu\u0142a <mpamula@virtuslab.com>",
+    "Maksymilian Pamuła <mpamula@virtuslab.com>",
     "Maciej Witkowski <mwitkowski@virtuslab.com>",
     "Tomasz Puch <tpuch@virtuslab.com>",
     "Mateusz Kleszcz <mkleszcz@virtuslab.com>"
