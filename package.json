@@ -55,7 +55,7 @@
     "dist"
   ],
   "scripts": {
-    "prepare": "husky install",
+    "prepare": "husky",
     "publish:latest": "npm publish --tag latest",
     "publish:beta": "npm publish --tag beta",
     "build": "yarn clean && strapi-plugin build --minify",
@@ -174,10 +174,5 @@
     "vite": "6.4.5",
     "webpack-dev-middleware": "7.4.6",
     "zod": "4.6.7"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "yarn format && yarn test:unit"
-    }
   }
 }
