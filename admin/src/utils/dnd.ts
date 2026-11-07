@@ -13,7 +13,7 @@ import {
 import { hasSortableData } from '@dnd-kit/sortable';
 
 import { type NavigationItemSchema } from '../api/validators';
-import { type NavigationItemFormSchema } from '../pages/HomePage/components/NavigationItemForm';
+import { type NavigationItemFormSchema } from '../pages/HomePage/components/NavigationItemForm/utils/form';
 
 export const NAVIGATION_DND_ACTIVATION_DISTANCE_PX = 5;
 

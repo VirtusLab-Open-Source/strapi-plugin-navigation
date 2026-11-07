@@ -6,7 +6,7 @@ import {
   NavigationItemTypeSchema,
   StrapiContentTypeItemSchema,
 } from '../../../api/validators';
-import { type NavigationItemFormSchema } from '../components/NavigationItemForm';
+import { type NavigationItemFormSchema } from '../components/NavigationItemForm/utils/form';
 
 const reOrderItems = (items: NavigationItemSchema[] = []) =>
   orderBy(items, ['order'], ['asc']).map((item, n) => {
