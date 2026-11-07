@@ -274,7 +274,7 @@ const ca = {
         },
         preferCustomContentTypes: {
           label: 'Préférer les types de contenu personnalisés',
-          hint: 'Préférer utiliser uniquement les types de contenu préfixés par api::',
+          hint: 'Préférer utiliser uniquement les types de contenu préfixés par api:: ou plugin::',
         },
         contentTypes: {
           label: 'Activer la navigation pour',
